@@ -1,0 +1,28 @@
+% -*-latex-*-
+\begin{nusmvCommand}{compute\_reachable} {Computes the set of reachable states}
+
+\cmdLine{compute\_reachable [-h] [-k number] [-t seconds]}
+
+Computes the set of reachable states. The result is then used to
+simplify image and preimage computations. This can result in improved
+performances for models with sparse state spaces. Sometimes the
+execution of this command can take much time because the computation
+of reachable states may be very expensive. Use the \commandopt{k} option
+to limit the number of forward step to perform.  If the reachable
+states has been already computed the command returns immediately since
+there is nothing more to compute.
+
+\begin{cmdOpt}
+\opt{-k \parameter{number}}{ If specified, limits the computation of
+  reachable states to perform number steps forward starting from the
+  last computed frontier. This means that you can expand the computed
+  reachable states incrementally using this option.}
+  
+\opt{-t \parameter{seconds}}{ If specified, forces the computation
+  of reachable states to end after ``seconds'' seconds. This limit
+  could not be precise since the if the computation of a step is
+  running when the limit occurs, the computation is not interrupted
+  until the end of the step}
+\end{cmdOpt}
+
+\end{nusmvCommand}

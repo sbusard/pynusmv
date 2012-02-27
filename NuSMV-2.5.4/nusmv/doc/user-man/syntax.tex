@@ -1,0 +1,3849 @@
+% -*-latex-*-
+
+In this chapter we present the syntax and semantics of the input
+language of \nusmv.
+
+Before going into the details of the language, let us give a few general
+notes about the syntax.
+%
+In the syntax notations used below, syntactic categories
+(non-terminals) are indicated by \grammar{monospace font}, and tokens
+and character set members (terminals) by \textbf{bold font}.
+%
+Grammar productions enclosed in square brackets (`\grammar{[]}') are
+optional while a vertical bar (`\grammar{|}') is used to separate
+alternatives in the syntax rules. Sometimes \grammar{one of} is used
+at the beginning of a rule as a shorthand for choosing among several
+alternatives.
+%
+If the characters \grammar{\textbf{|}}, \grammar{\textbf{[}} and
+\grammar{\textbf{]}} are in bold font, they lose their special
+meaning and become regular tokens.
+
+In the following, an \grammar{identifier} may be any sequence of
+characters starting with a character in the set
+\{{\grammar{\textbf{A-Za-z\_}}}\}
+%
+and followed by a possibly empty sequence of characters belonging to
+the set
+%
+\{{\grammar{\textbf{A-Za-z0-9\_\$\#-}}}\}.
+%
+All characters and case in an identifier are significant. Whitespace
+characters are space (\spc), tab (\tab) and newline (\ret).
+%
+Any string \index{comments in \nusmv language} starting with two
+dashes (`\code{--}') and ending with a newline is a comment and
+ignored by the parser.
+
+\index{syntax rules!identifiers}
+The syntax rule for an \grammar{identifier} is:
+
+\begin{Grammar}
+identifier :: 
+        identifier_first_character
+      | identifier identifier_consecutive_character
+
+identifier_first_character :: \emph{one of}
+        \textbf{A B C D E F G H I J K L M N O P Q R S T U V W X Y Z}
+        \textbf{a b c d e f g h i j k l m n o p q r s t u v w x y z _}
+
+identifier_consecutive_character :: 
+        identifier_first_character
+      | digit
+      | \emph{one of} \textbf{\$ \# -}
+
+digit :: \emph{one of} \textbf{0 1 2 3 4 5 6 7 8 9}
+\end{Grammar}
+
+\index{keywords}%
+An \grammar{identifier} is always distinct from the \nusmv language
+reserved keywords which are: \label{list of reserved keywords}\\
+\begin{quote}
+%
+\reserved{MODULE}, \reserved{DEFINE}, \reserved{MDEFINE},
+\reserved{CONSTANTS}, 
+\reserved{VAR}, \reserved{IVAR}, \reserved{FROZENVAR}, \reserved{INIT},
+\reserved{TRANS}, \reserved{INVAR},
+\reserved{SPEC}, \reserved{CTLSPEC}, \reserved{LTLSPEC}, \reserved{PSLSPEC},
+\reserved{COMPUTE}, \reserved{NAME},
+\reserved{INVARSPEC}, \reserved{FAIRNESS}, \reserved{JUSTICE},
+\reserved{COMPASSION},
+\reserved{ISA}, \reserved{ASSIGN}, \reserved{CONSTRAINT},
+\reserved{SIMPWFF}, \reserved{CTLWFF}, \reserved{LTLWFF}, \reserved{PSLWFF},
+\reserved{COMPWFF}, \reserved{IN}, \reserved{MIN}, \reserved{MAX},
+\reserved{MIRROR}, \reserved{PRED}, \reserved{PREDICATES},
+\reserved{process}, \reserved{array}, \reserved{of}, \reserved{boolean},
+\reserved{integer}, \reserved{real}, 
+\reserved{word},
+\operator{word1}, \operator{bool}, \operator{signed}, \operator{unsigned},
+\operator{extend}, \operator{resize}, \operator{sizeof}, \operator{uwconst}, \operator{swconst},
+\reserved{EX}, \reserved{AX},
+\reserved{EF},
+\reserved{AF}, \reserved{EG}, \reserved{AG}, \reserved{E},
+\reserved{F}, \reserved{O}, \reserved{G}, \reserved{H}, \reserved{X},
+\reserved{Y}, \reserved{Z}, \reserved{A}, \reserved{U}, \reserved{S},
+\reserved{V}, \reserved{T}, \reserved{BU}, \reserved{EBF},
+\reserved{ABF}, \reserved{EBG}, \reserved{ABG}, \reserved{case},
+\reserved{esac}, \operator{mod}, \operator{next}, \reserved{init},
+\operator{union}, \operator{in}, \operator{xor}, \operator{xnor},
+\reserved{self}, \reserved{TRUE}, \reserved{FALSE}, \reserved{count}
+\end{quote}
+
+To represent various values we will use \grammar{integer numbers}
+which are any non-empty sequence of decimal digits preceded by an
+optional unary minus
+
+\begin{Grammar}
+integer_number ::
+        \textbf{-} digit
+      | digit
+      | integer_number digit                        
+\end{Grammar}
+
+\noindent and \grammar{symbolic constants} which are \grammar{identifiers}
+
+\index{syntax rules!symbolic constants}
+\begin{Grammar}
+  symbolic_constant :: identifier
+\end{Grammar}
+
+Examples of \grammar{integer numbers} and \grammar{symbolic constants}
+are \code{3, -14, 007, OK, FAIL, waiting, stop}. 
+%
+The values of \grammar{symbolic constants} and \grammar{integer
+numbers} do not intersect.
+
+
+%-------------------- TYPES -----------------------------------
+
+\section{Types Overview}
+\label{Types}
+\index{types}
+
+This section provides an overview of the types that are recognised by
+\nusmv.
+
+%-----  BOOLEAN ------
+\subsection{Boolean}
+\label{Boolean Type}
+\index{types!boolean}
+\index{boolean type}
+
+The \Boolean type comprises symbolic values \reserved{FALSE} and
+\reserved{TRUE}.
+
+%------ INTEGER -----
+\subsection{Integer}
+\label{Integer Type}
+\index{integer type}
+\index{types!integer}
+
+% ONCE ACTUAL INTEGER TYPE IS IMPLEMENTED:
+%The integer type is simply any whole number, positive or negative and
+%is declared as follows:\\
+%
+%\indent\code{VAR a :~Integer;}\\
+
+The domain of the \Integer type is simply any whole number, positive
+or negative.
+%
+At the moment, there are implementation-dependent constraints on the
+this type and \grammar{integer numbers} can only be in the range
+$-2^{31}+1$ to $2^{31}-1$ (more accurately, these values are
+equivalent to the C/C++ macros \code{INT\_MIN}+1 and \code{INT\_MAX}).
+
+%------ ENUMERATIONS -----
+\subsection{Enumeration Types}
+\label{Enumeration Types}
+\index{enumeration types}
+\index{types!enumerations}
+
+An \Enum type is a type specified by full enumerations of all the values
+that the type comprises.  For example, the enumeration of values may be
+\code{\{stopped, running, waiting, finished\}}, \code{\{2, 4, -2,
+0\}}, \code{\{FAIL, 1, 3, 7, OK\}}, etc.  All elements of an enumeration have
+to be unique although the order of elements is not important.
+
+However, in the \nusmv type system, expressions cannot be of actual
+\Enum types, but of their simplified and generalised versions
+only. Such generalised \Enum types do not contain information about
+the exact values constituting the types, but only the flag whether all
+values are  \grammar{integer numbers},
+\grammar{symbolic constants} or both. Below only generalised versions
+of \Enum types are explained.
+
+The \SymbEnum type covers enumerations containing only \grammar{symbolic
+constants}. For example, the enumerations \code{\{stopped, running, waiting\}}
+and \code{\{FAIL, OK\}} belong to the \SymbEnum type.
+
+There is also a \IntSymbEnum type. 
+This type comprises enumerations which contain \emph{both}
+\grammar{integer numbers} \emph{and} \grammar{symbolic constants}, for
+example, \code{\{-1, 1, waiting\}}, \code{\{0, 1, OK\}},
+\code{\{running, stopped, waiting, 0\}}.
+
+Another \Enum type is \IntEnum.
+Example of enumerations of integers are \code{\{2, 4, -2, 0\}} and \code{\{-1, 1\}}. 
+In the \nusmv type system an expression of the type \IntEnum
+is always converted to the type \Integer. Explaining
+the type of expression we will always use the type \Integer
+instead of \IntEnum.
+
+Enumerations cannot contain any boolean value (i.e.\code{\{FALSE, TRUE\}}).
+\Boolean type must be declared as boolean.
+
+To summarise, we actually deal only with two \Enum types: \SymbEnum and
+\IntSymbEnum. These types are distinguishable and have different operations
+allowed on them.
+
+
+%------ WORD  -----
+\subsection{Word}
+\label{Word Type}
+\index{word type}
+\index{types!word}
+
+The \UWord and \SWord types are used to model vector of bits (booleans) which
+allow bitwise logical and arithmetic operations (unsigned and signed, respectively).
+%
+These types are distinguishable by their width. For example, type
+\UWord[3] represents vector of three bits, which allows unsigned operations, and type
+\SWord[7] represents vector of seven bits, which allows signed operations.
+
+When values of \UWord[N] are interpreted as integer numbers the bit
+representation used is the most popular one, i.e.\@ each bit represents
+a successive power of 2 between $0$ (bit number 0) and $2^{N-1}$ (bit
+number $N-1$). Thus \UWord[N] is able to represent values from 0 to
+$2^{N}-1$. 
+
+The bit representation of \SWord[N] type is ``two's complement'',
+i.e.\@ it is the same as for \UWord[N] except that the highest bit
+(number $N-1$) has value $-2^{N-1}$. Thus the possible value for
+\SWord[N] are from $-2^{N-1}$ to $2^{N-1}-1$.
+
+
+%------ ARRAY -----
+\subsection{Array}
+\label{Array Type}
+\index{array type}
+\index{types!array}
+
+Arrays are declared with a lower and upper bound for the index, and
+the type of the elements in the array. For example,\\
+
+\indent\code{\Array 0..3 of \Boolean}\\
+\indent\code{\Array 10..20 of \{OK, y, z\}}\\
+\indent\code{\Array 1..8 of \Array~-1..2 of \UWord[5]}\\
+
+The type \code{\Array 1..8 of \Array~-1..2 of \UWord[5]} means an
+array of 8 elements (from 1 to 8), each of which is an array of 4
+elements (from -1 to 2) that are 5-bit-long unsigned words.
+
+Array subtype is the immediate subtype of an array type. For example,
+subtype of \code{\Array 1..8 of \Array~-1..2 of \UWord[5]}
+is \code{\Array~-1..2 of \UWord[5]} which has its own subtype 
+\UWord[5].
+
+\Array types are incompatible with \Set type, i.e.\@ array elements cannot 
+be of \Set type.
+
+Expression of array type can be constructed with array
+\reserved{DEFINE} (see \ref{Array Define Declarations}) or variables of
+array type (see \ref{Type Specifiers}).
+
+% For information about arrays of modules, see \sref{???}.
+
+% %------ WORD ARRAY -----
+% \subsection{WordArray}
+% \label{WordArray Type}
+% \index{word array type}
+% \index{types!word array}
+% 
+% The \WordArray types are used to model arrays whose size and
+% elements are specified with \Word types.
+% For example, \\
+% \indent\code{array word[5] of unsigned word[3];}\\
+% \indent\code{array word[4] of unsigned word[9];}
+% 
+% The type \code{array word[4] of word[9]}, i.e. \WordArray[{[4][9]}],
+% means an array of 16 elements (from 0d4\_0 to 0b4\_15), each of which
+% is \UWord[9].
+% \WordArray types are distinguishable on their size and width of elements.
+% Note also that both the size and width of elements have to be greater
+% than zero. 
+% 
+% \WordArray are very specific typse and very few operators can 
+% be applied to expressions of these types. See ...  only WAREAD, WAWRITE,
+% := , = operators.
+ 
+%------ SET-TYPES -----
+\subsection{Set Types}
+\label{Set Types}
+\index{set types}
+\index{types!set}
+
+\Set types are used to identify expressions representing a set of values.
+There are four \Set types: \BoolSet, \IntSet, \SymbSet, \IntSymbSet.
+The \Set types can be used in a very limited number of ways. In
+particular, a variable cannot be of a \Set type. Only \grammar{range
+constant} and \operator{union} operator can be used to create an
+expression of a \Set type, and only
+\operator{in}, \operator{case}, \itebullet and assignment\footnote{For more information
+on these operators see pages \pageref{Range Constant},
+\pageref{Set Expressions},
+\pageref{Inclusion Operator}, \pageref{Case Expressions} and 
+\pageref{ASSIGN Constraint}, respectively.} expressions can have imediate operands of a \Set
+type.
+
+Every \Set type has a counterpart among other types. In particular,
+\begin{itemize}
+\item[] the counterpart of a \BoolSet type is \Boolean, 
+\item[] the counterpart of a \IntSet type is \Integer, 
+\item[] the counterpart of a \SymbSet type is \SymbEnum, 
+\item[] the counterpart of a \IntSymbSet type is \IntSymbEnum. 
+\end{itemize}
+Some types such as \UWord and \SWord %and \WordArray 
+do not have a \Set type counterpart.
+
+
+%------ TYPE ORDER  -----
+\subsection{Type Order}
+\label{Type Order}
+\index{type order}
+\index{types!ordering}
+%
+Figure~\ref{fig:typehierarchy} depicts the order existing between
+types in \nusmv.
+
+\begin{figure}[h]
+\begin{center}
+\begin{tabular}{ccl} %@{\qquad}
+% boolean type
+      \begin{tabular}{cc}
+        \Boolean\\
+      \end{tabular}
+% scalar types
+      \begin{tabular}{cc}
+        \Integer & \SymbEnum\\
+        $\downarrow$ & $\downarrow$\\
+        \multicolumn{2}{c}{\IntSymbEnum}\\
+      \end{tabular} & &
+% set types
+      \begin{tabular}{c}
+        \UWord[1]\\
+        \\
+        \raisebox{1.3ex}[0pt]{~\UWord[2]}\\
+        \UWord[3]\\
+        \ldots \\
+      \end{tabular} \\\\\\
+% unsigned words
+      \begin{tabular}{cc}
+        \BoolSet\\
+      \end{tabular}
+      \begin{tabular}{cc}
+        \IntSet & \SymbSet\\
+        $\downarrow$ & $\downarrow$\\
+        \multicolumn{2}{c}{\IntSymbSet}\\
+      \end{tabular} & &
+% signed words
+      \begin{tabular}{c}
+        \SWord[1]\\
+        \\
+        \raisebox{1.3ex}[0pt]{~\SWord[2]}\\
+        \SWord[3]\\
+        \ldots \\
+      \end{tabular} \\\\\\
+% array types 
+      \begin{tabular}{c}
+        \Array N1..M1 of subtype1\\
+        $\downarrow$\\
+        \Array N2..M2 of subtype2\\
+      \end{tabular} & 
+      \begin{tabular}{c}
+       \\if and only if\\
+      \end{tabular} & 
+      \begin{tabular}{cc}
+        N1=N2      & subtype1\\
+        M1=M2, and & $\downarrow$\\
+                   & subtype2\\
+      \end{tabular} 
+%
+%      \begin{tabular}{c}
+%        \WordArray[{[1][1]}]\\
+%        \\
+%        \raisebox{1.3ex}[0pt]{~\WordArray[{[1][2]}]}\\
+%        \WordArray[{[1][3]}]\\
+%        \ldots \\
+%      \end{tabular}
+\end{tabular}
+\end{center}
+\caption{The ordering on the types in \nusmv\label{fig:typehierarchy}}
+\end{figure}
+
+\noindent It means, for example, that \Integer is less 
+than \IntSymbEnum, \SymbEnum is less than \IntSymbEnum, etc. 
+%
+The \UWord and \SWord %and \WordArray types are not comparable with
+any other type or between each other. Any type is equal to itself.
+
+Note that enumerations containing only \grammar{integer numbers} have
+the type \Integer.
+
+
+For 2 arrays types \code{array N1..M1 of subtype1} and \code{array
+N2..M2 of subtype2} the first type is less then the second one if and
+only if \code{N1=N2}, \code{M1=M2} and type \code{subtype1} is less
+than \code{subtype2}.
+
+%-------------------- EXPRESSIONS -----------------------------------
+
+\section{Expressions}
+\label{Expressions}
+\index{expressions}
+%
+
+The previous versions of NuSMV (prior to 2.4.0) did not have the type
+system and as such expressions were untyped. 
+%
+In the current version all expressions are typed and there are
+constraints on the type of operands. 
+%
+Therefore, an expression may now potentially violate the type system,
+i.e. be erroneous.
+
+To maintain backward compatibility, there is a new system variable
+called \code{backward\_compatibility} (and a correponding \code{-old}
+command line option) that disables a few new features of version 2.4
+to keep backward compatibility with old version of
+\nusmv. In particular, if this system variable is set then type violations 
+caused by expressions of old types (i.e. \Enum type, \Boolean and
+\Integer) will be ignored by the type checker, instead, warnings will
+be printed out. See description at page
+\pageref{ref::backwardcompatibility} for further information.
+
+If additionally, the system variable
+\code{type\_checking\_warning\_on} is
+\emph{un}set, then even these warnings will not be printed out.
+
+%-----  IMPLICIT TYPE CONVERSION  ------
+\subsection{Implicit Type Conversion}
+\label{Implicit Type Conversion}
+\index{implicit type conversion}
+\index{types!implicit conversion}
+
+In some expressions operands may be converted from one type to
+its \Set type counterpart (see \ref{Set Types}). For example, \Integer
+can be converted to \IntSet type.
+
+\textbf{\textit{Note:}} Prior to version 2.5.1, implicit type 
+conversion from \Integer to \Boolean (and viceversa) was
+performed. Since version 2.5.1, implicit \Integer <-> \Boolean type
+conversion is no longer supported, and explicit cast operators have
+to be used.
+
+%-----  CONSTANT EXPRESSION  ------
+\subsection{Constant Expressions}
+\label{Constant Expressions}
+\index{constant expressions}
+\index{expressions!constants}%
+%
+A \grammar{constant} can be a boolean,
+integer, symbolic, word or range constant.
+
+\begin{Grammar}
+constant ::
+        boolean_constant
+      | integer_constant
+      | symbolic_constant
+      | word_constant
+      | range_constant
+\end{Grammar}
+
+%----- BOOLEAN CONSTANT   ------
+\subsubsection{Boolean Constant}
+\label{Boolean Constant}
+
+A \grammar{boolean constant} is one of the symbolic
+values \reserved{FALSE} and \reserved{TRUE}.
+%
+The type of a \grammar{boolean constant} is \Boolean.
+
+\begin{Grammar}
+boolean_constant :: \emph{one of}
+        \reserved{FALSE} \reserved{TRUE}
+\end{Grammar}
+
+%----- INTEGER CONSTANT   ------
+\subsubsection{Integer Constant}
+\label{Integer Constant}
+
+An \grammar{integer constant} is an \grammar{integer number}. The type
+of an \grammar{integer constant} is \Integer.
+
+\begin{Grammar}
+integer_constant :: integer_number
+\end{Grammar}
+
+%----- SYMBOLIC CONSTANT   ------
+\subsubsection{Symbolic Constant}
+\label{Symbolic Constant}
+
+A \grammar{symbolic constant} is syntactically an \grammar{identifier}
+and indicates a unique value.
+
+\begin{Grammar}
+symbolic_constant :: identifier
+\end{Grammar}
+
+\noindent The type of a \grammar{symbolic constant} is \SymbEnum. 
+%
+See \sref{Namespaces} for more information about how
+\grammar{symbolic constants} are distinguished from other
+\grammar{identifiers}, i.e. variables, defines, etc.
+
+%----- WORD CONSTANT  ------
+\subsubsection{Word Constant}
+\label{Word Constant}
+
+\grammar{Word constant} begins with digit \code{0}, 
+followed by optional character \code{u} (unsigned) or \code{s}
+(signed) and one of the characters \code{b}/\code{B} (binary),
+\code{o}/\code{O} (octal), \code{d}/\code{D} (decimal) or 
+\code{h}/\code{H} (hexadecimal) which 
+gives the base that the actual constant is in. 
+%
+Next comes an optional decimal integer giving the number of bits, 
+then the character \code{\_}, and lastly the constant value itself.
+%
+Assuming \code{N} is the width of the constant the type of a
+\grammar{word constant} is \SWord[N] if character \code{s} is
+provided, and \UWord[N] otherwise.  For example:
+
+\begin{center}
+\begin{tabular}{l@{\  has type\  }l}
+\code{0sb5\_10111} & \SWord[5]\\
+\code{0uo6\_37} & \UWord[6]\\
+\code{0d11\_9} & \UWord[11]\\
+\code{0sh12\_a9} & \SWord[12]\\
+\end{tabular}
+\end{center}
+
+\noindent The number of bits can be skipped, in which case the
+width is automatically calculated from the number of digits in the
+constant and its base. 
+%
+It may be necessary to explicitly give leading zeroes to make the type
+correct --- the following are all equivalent declarations of the
+integer constant \code{11} as a word of type \UWord[8]:
+
+\begin{center}
+\begin{tabular}{l}
+    \code{0ud8\_11}\\
+    \code{0ub8\_1011}\\
+    \code{0b\_00001011}\\
+    \code{0h\_0b}\\
+    \code{0h8\_b}\\
+\end{tabular}
+\end{center}
+
+\noindent The syntactic rule of the \grammar{word constant} is the
+following:
+
+\begin{Grammar}
+word_constant :: 
+        \textbf{0} [word_sign_specifier] word_base [word_width] \textbf{_} word_value
+
+word_sign_specifier :: \emph{one of} 
+        \textbf{u s}
+
+word_width :: 
+        integer_number       -- a number greater than zero
+
+word_base :: 
+        \textbf{b} | \textbf{B} | \textbf{o} | \textbf{O} | \textbf{d} | \textbf{D} | \textbf{h} |  \textbf{H}
+
+word_value :: 
+        hex_digit
+      | word_value hex_digit
+      | word_value \textbf{\_}
+
+hex_digit :: \emph{one of}  
+        \textbf{0 1 2 3 4 5 6 7 8 9 a b c d e f A B C D E F}
+\end{Grammar}
+
+\label{the notes on word constants}
+\noindent Note that 
+
+\begin{itemize}
+  \item The width of a word must be a number strictly greater than 0. 
+  \item Decimal \grammar{word constants} \textit{must} be declared
+        with the width specifier, since the number of bits needed for
+        an expression like \code{0d\_019} is unclear.
+  \item Digits are restricted depending on the base the constant is
+        given in.
+  \item Digits can be separated by the underscore character
+        ("{\code{\_}}") to aid clarity, for example
+        \code{0b\_0101\_1111\_1100} which is equivalent to
+        \code{0b\_010111111100}.
+
+ \item For a given width \code{N} the value of a constant has to be in
+       range $0 \ldots 2^{N}-1$. For decimal signed words (both \code{s}
+       and \code{d} are provided) the value of a constant has to be in
+       range $0 \ldots 2^{N-1}$.
+
+ \item The number of bits in \grammar{word constant} has an implementation
+       limit which for most systems is 64 bits.
+\end{itemize}
+
+%-----  RANGE CONSTANT  ------
+\subsubsection{Range Constant}
+\label{Range Constant}
+
+A \grammar{range constant} specifies a set of consecutive integer
+numbers. For example, a constant \code{-1..5} indicates the set of
+numbers \code{ -1, 0, 1, 2, 3, 4} and \code{5}. Other examples of
+\grammar{range constant} can be \code{1..10},\ \ \code{-10..-10},
+\ \ \code{1..300}. 
+The syntactic rule of the \grammar{range constant} is the following:
+\begin{Grammar}
+range_constant :: 
+        integer_number \textbf{..} integer_number
+\end{Grammar}
+with an additional constraint that the first integer number must be
+less than or equal to the second integer number.
+%
+The type of a \grammar{range constant} is \IntSet.
+
+%-----  BASIC EXPRESSION   ------
+\subsection{Basic Expressions}
+\label{Basic Expressions}
+\index{expressions!basic expressions}
+
+
+A basic expression is the most common kind of expression used in
+\nusmv.
+
+\begin{Grammar}
+basic_expr ::
+      constant                      -- a constant
+    | variable_identifier           -- a variable identifier
+    | define_identifier             -- a define identifier
+    | \textbf{(} basic_expr \textbf{)}
+    | \operator{!} basic_expr                  -- logical or bitwise NOT
+    | basic_expr \operator{\&} basic_expr       -- logical or bitwise AND
+    | basic_expr \operator{|} basic_expr       -- logical or bitwise OR
+    | basic_expr \reserved{xor} basic_expr     -- logical or bitwise exclusive OR
+    | basic_expr \reserved{xnor} basic_expr    -- logical or bitwise NOT exclusive OR
+    | basic_expr \operator{->} basic_expr      -- logical or bitwise implication
+    | basic_expr \operator{<->} basic_expr     -- logical or bitwise equivalence
+    | basic_expr \operator{=} basic_expr       -- equality
+    | basic_expr \operator{!=} basic_expr      -- inequality
+    | basic_expr \operator{<} basic_expr       -- less than
+    | basic_expr \operator{>} basic_expr       -- greater than
+    | basic_expr \operator{<=} basic_expr      -- less than or equal
+    | basic_expr \operator{>=} basic_expr      -- greater than or equal
+    | \operator{-} basic_expr                  -- integer unary minus
+    | basic_expr \operator{+} basic_expr       -- integer addition
+    | basic_expr \operator{-} basic_expr       -- integer subtraction
+    | basic_expr \operator{*} basic_expr       -- integer multiplication
+    | basic_expr \operator{/} basic_expr       -- integer division
+    | basic_expr \reserved{mod} basic_expr     -- integer remainder
+    | basic_expr \operator{>>} basic_expr      -- bit shift right
+    | basic_expr \operator{<<} basic_expr      -- bit shift left
+    | basic_expr \textbf{[} index \textbf{]}          -- index subscript
+    | basic_expr \textbf{[} basic_expr \textbf{:} basic_expr \textbf{]}
+                                    -- word bits selection
+    | basic_expr \operator{::} basic_expr      -- word concatenation
+    | \operator{word1} \textbf{(} basic_expr \textbf{)}          -- boolean to unsigned word[1] conversion
+    | \operator{bool} \textbf{(} basic_expr \textbf{)}           -- unsigned word[1] and int to boolean conversion
+    | \operator{toint} \textbf{(} basic_expr \textbf{)}          -- word and boolean to integer constant conversion
+    | \reserved{count} \textbf{(} basic_expr_list \textbf{)}     -- count of true boolean expressions
+    | \operator{swconst} \textbf{(} basic_expr , basic_expr \textbf{)}        
+                                    -- integer to signed word constant conversion
+    | \operator{uwconst} \textbf{(} basic_expr, basic_expr \textbf{)}        
+                                    -- integer to unsigned word constant conversion
+    | \operator{signed} \textbf{(} basic_expr \textbf{)}         -- unsigned word to signed word conversion
+    | \operator{unsigned} \textbf{(} basic_expr \textbf{)}       -- signed word to unsigned word conversion
+    | \operator{sizeof} \textbf{(} basic_expr \textbf{)}         -- word size as an integer
+    | \operator{extend} \textbf{(} basic_expr , basic_expr\textbf{)}  
+                                    -- word width extension
+    | \operator{resize} \textbf{(} basic_expr , basic_expr\textbf{)}  
+                                    -- word width resize
+    | basic_expr \operator{union} basic_expr   -- union of set expressions 
+    | \textbf{\{} set_body_expr \textbf{\}}             -- set expression
+    | basic_expr \operator{in} basic_expr      -- inclusion in a set expression
+    | basic_expr \operator{?} basic_expr \operator{:} basic_expr      
+                                    -- if-then-else expression 
+    | case_expr                     -- case expression
+    | basic_next_expr               -- next expression
+
+basic_expr_list ::
+      basic_expr
+    | basic_expr_list \textbf{,} basic_expr
+\end{Grammar}
+%    | basic_expr \operator{>>>} basic_expr     -- bit rotation right
+%    | basic_expr \operator{<<<} basic_expr     -- bit rotation left
+
+\index{operators!precedence}
+\noindent The order of parsing precedence for operators from high to
+low is:
+%
+\begin{Grammar}
+      \operator{[ ]}, \operator{[ : ]}
+      \operator{!}
+      \operator{::}
+      \operator{-} (unary minus)
+      \operator{*}   \operator{/}   \operator{mod}
+      \operator{+}   \operator{-}
+      \operator{<<}   \operator{>>}
+      \reserved{union}
+      \reserved{in}
+      \operator{=}   \operator{!=}   \operator{<}   \operator{>}   \operator{<=}   \operator{>=}
+      \operator{\&}
+      \operator{|}   \operator{xor}   \operator{xnor}
+      \itebullet
+      \operator{<->}
+      \operator{->}
+\end{Grammar}
+%\operator{<<<}   \operator{>>>}
+%
+Operators of equal precedence associate to the left, except \operator{->}
+that associates to the right.
+%
+The constants and their types are explained in \sref{Constant Expressions}.
+
+%----- VARIABLES AND DEFINES   ------
+\subsubsection{Variables and Defines}
+\label{Variables and Defines}
+\index{defines}
+\index{variables}
+
+A \grammar{variable\_identifier} and \grammar{define\_identifier} are
+expressions which identify a variable or a define, respectively. 
+%
+Their syntax rules are:
+
+\begin{Grammar}
+define_identifier :: complex_identifier
+
+variable_identifier :: complex_identifier
+\end{Grammar}
+%
+The syntax and semantics of \grammar{complex\_identifiers} are explained
+in \sref{References to Module Components}.  
+%
+All defines and variables referenced in expressions should be
+declared. All identifiers (variables, defines, symbolic constants,
+etc) can be used prior to their definition, i.e. there is no constraint on
+order such as in C where a declaration of a variable should always be
+placed in text above the variable use.
+%
+See more information about define and variable declarations in
+\sref{DEFINE Declarations} and \sref{Variable Declarations}.
+
+A define is a kind of macro. 
+%
+Every time a define is met in expressions, it is substituted by the
+expression associated with this define. 
+%
+Therefore, the type of a define is the type of the associated
+expression in the current context.
+%
+Define expressions may contain \operator{next} operators; Normal rules
+apply: No nested \operator{next} operators.
+
+\grammar{variable\_identifier} represents state, input, and frozen
+variables. 
+%
+The type of a variable is specified in its declaration. 
+%
+For more information about variables, see \sref{Definition of the
+FSM}, \sref{State Variables}, \sref{Input Variables}, and
+\sref{Frozen Variables}.
+%
+Since a \grammar{symbolic constant} is syntactically indistinguishable
+from \grammar{variable\_iden\-tifiers} and
+\grammar{define\_identifiers}, a symbol table is used to distinguish
+them from each other.
+
+%-----  PARENTHESES  ------
+\subsubsection{Parentheses}
+\label{Parentheses}
+\index{parentheses}
+
+Parentheses may be used to group expressions. 
+%
+The type of the whole expression is the same as the type of the
+expression in the parentheses.
+
+%-----    ------
+\subsubsection{Logical and Bitwise !}
+\label{Logical and Bitwise NOT}
+\index{NOT! logical and bitwise}
+\index{operators!NOT}
+
+The \emph{signature} of the logical and bitwise NOT operator
+\operator{!} is:\\
+
+\begin{tabular}{l@{ : }l}
+\operator{!} & \Boolean $\rightarrow$ \Boolean\\
+             & \UWord[N] $\rightarrow$ \UWord[N]\\
+             & \SWord[N] $\rightarrow$ \SWord[N]\\
+\end{tabular}\\
+
+\noindent This means that the operation can be applied to \Boolean,
+\UWord and \SWord operands. 
+%
+The type of the whole expression is the same as the type of the
+operand.
+%
+If the operand is not \Boolean, \UWord or \SWord then the expression
+violates the type system and \nusmv will throw an error.
+
+
+%-----    ------
+\subsubsection{Logical and Bitwise \operator{\&}, \operator{|}, \operator{xor}, \operator{xnor}, \operator{->}, \operator{<->}}
+\label{Logical and Bitwise AND, OR, XOR, XNOR, IMPLIES and IFF}
+\index{AND! logical and bitwise}
+\index{OR! logical and bitwise}
+\index{XOR! logical and bitwise}
+\index{XNOR! logical and bitwise}
+\index{IMPLIES! logical and bitwise}
+\index{IFF! logical and bitwise}
+\index{operators!AND}
+\index{operators!OR}
+\index{operators!XOR}
+\index{operators!XNOR}
+\index{operators!IMPLIES}
+\index{operators!IFF}
+
+Logical and bitwise binary operators \operator{\&} (AND), \operator{|}
+(OR), \operator{xor} (exclusive OR), \operator{xnor} (negated
+exclusive OR), \operator{->} (implies) and \operator{<->} (if and only
+if) are similar to the unary operator \operator{!}, except that they
+take two operands.
+%
+Their signature is:\\
+
+\noindent
+\begin{tabular}{l@{ : }l}
+\operator{\&}, \operator{|}, \operator{xor}, \operator{xnor}, \operator{->}, \operator{<->}
+     & \Boolean * \Boolean $\rightarrow$ \Boolean\\
+     & \UWord[N] * \UWord[N] $\rightarrow$ \UWord[N]\\
+     & \SWord[N] * \SWord[N] $\rightarrow$ \SWord[N]\\
+\end{tabular}\\
+
+\noindent the operands can be of \Boolean, \UWord or \SWord type, and the type
+of the whole expression is the type of the operands.  
+%
+Note that both word operands should have the same width.
+
+%-----    ------
+\subsubsection{Equality (\operator{=}) and Inequality (\operator{!=})}
+\label{Equality and Inequality}
+\index{operators!equality}
+\index{operators!inequality}
+
+The operators \operator{=} (equality) and \operator{!=} (inequality)
+have the following signature:\\
+
+\noindent
+\begin{tabular}{ll}
+\operator{=}, \operator{!=}
+     &{ : }\Boolean * \Boolean $\rightarrow$ \Boolean\\
+     &{ : }\Integer * \Integer $\rightarrow$ \Boolean\\
+     &{ : }\SymbEnum  * \SymbEnum $\rightarrow$  \Boolean\\
+     &{ : }\IntSymbEnum * \IntSymbEnum $\rightarrow$ \Boolean\\
+     &{ : }\UWord[N] * \UWord[N] $\rightarrow$ \Boolean\\
+     &{ : }\SWord[N] * \SWord[N] $\rightarrow$ \Boolean\\
+%     &{ : }\WordArray[{[N][M]}] * \WordArray[{[N][M]}] $\rightarrow$ \Boolean\\
+\end{tabular}\\
+
+No implicit type conversion is performed. 
+%
+For example, in the expression\\
+%
+\code{TRUE = 5}\\
+%
+\noindent the left operand is of type \Boolean and the right one is of
+type \Integer. 
+%
+Though the signature of the operation does not have a \Boolean *
+\Integer rule, the expression is not correct, because no implicit type
+conversion will be performed. One can use the \operator{toint} or
+the \operator{bool} for explicit casts. \\
+%
+For example:
+
+\code{toint(TRUE) = 5}
+
+or
+
+\code{TRUE = bool(5)}
+
+\noindent This is also true if one of the operands is of type \UWord[1]
+and the other one is of the type \Boolean. Explicit cast must be used
+(e.g. using \operator{word1} or \operator{bool})
+
+
+%-----    ------
+\subsubsection{Relational Operators \operator{>}, \operator{<}, \operator{>=}, \operator{<=}}
+\label{Relational Operators}
+\index{\operator{>},\operator{<},\operator{>=},\operator{<=}}
+\index{operators!relational}
+
+The relational operators \operator{>} (greater than), \operator{<}
+(less than), \operator{>=} (greater than or equal to) and
+\operator{<=} (less than or equal to) have the following signature:\\
+
+\begin{tabular}{l@{ : }l}
+\operator{>}, \operator{<}, \operator{>=}, \operator{<=}
+& \Integer * \Integer $\rightarrow$ \Boolean\\
+& \UWord[N] * \UWord[N] $\rightarrow$ \Boolean\\
+& \SWord[N] * \SWord[N] $\rightarrow$ \Boolean\\
+\end{tabular}
+
+
+%-----    ------
+\subsubsection{Arithmetic Operators \operator{+}, \operator{-}, \operator{*}, \operator{/}}
+\label{Arithmetic Operators}
+\index{operators!arithmetic}
+\index{\operator{+},\operator{-},\operator{*},\operator{/}}
+
+The arithmetic operators \operator{+} (addition), \operator{-} (unary
+negation or binary subtraction), \operator{*} (multiplication) and
+\operator{/} (division) have the following signature:\\
+
+\begin{tabular}{l@{ : }l}
+\operator{+}, \operator{-}, \operator{*}, \operator{/}
+     & \Integer * \Integer $\rightarrow$ \Integer\\
+     & \UWord[N] * \UWord[N] $\rightarrow$ \UWord[N]\\
+     & \SWord[N] * \SWord[N] $\rightarrow$ \SWord[N]\vspace{10pt}\\
+\operator{-}(unary) 
+     & \Integer $\rightarrow$ \Integer\\
+     & \UWord[N] $\rightarrow$ \UWord[N]\\
+     & \SWord[N] $\rightarrow$ \SWord[N]\\
+
+\end{tabular}\\
+
+\noindent Before checking the expression for being correctly typed,
+the implicit type conversion can be applied to \emph{one} of the
+operands.
+%
+If the operators are applied to \UWord[N] or \SWord[N]type, then the operations
+are performed modulo $2^N$.
+
+The result of the \operator{/} operator is the quotient from the
+division of the first operand by the second.
+%
+The result of the \operator{/} operator is
+the algebraic quotient with any fractional part discarded (this is
+often called ``truncation towards zero'').
+%
+If the quotient \code{a/b} is representable, the expression
+\code{(a/b)*b + (a mod b)} shall equal \code{a}.
+%
+If the value of the second operand is zero, the behavior is undefined
+and an error is thrown by \nusmv.
+%
+The semantics is equivalent to the corresponding one of C/C++
+languages.
+
+In the versions of \nusmv prior to 2.4.0 the semantics of division was
+different. See page \pageref{Old division semantics} for more detail.
+
+
+%-----    ------
+\subsubsection{Remainder Operator \operator{mod}}
+\label{Remainder Operator}
+\index{operator!mod}
+\index{\operator{mod}}
+
+The result of the \operator{mod} operator is the
+algebraic remainder of the division.
+%
+If the value of the second operand is zero, the behavior is undefined
+and an error is thrown by \nusmv.
+
+The signature of the remainder operator is:\\
+
+\begin{tabular}{l@{ : }l}
+\operator{mod} & \Integer * \Integer $\rightarrow$ \Integer\\
+               & \UWord[N] * \UWord[N] $\rightarrow$ \UWord[N]\\
+               & \SWord[N] * \SWord[N] $\rightarrow$ \SWord[N]\\
+\end{tabular}\\
+
+\noindent The semantics of \operator{mod} operator is
+equivalent to the corresponding operator \operator{\%} of C/C++
+languages. Thus if the quotient \code{a/b} is representable, the
+expression \code{(a/b)*b + (a mod b)} shall equal \code{a}.
+
+
+\bigskip
+
+\textbf{\textit{Note:}}\label{Old division semantics}
+in older versions of \nusmv (priori 2.4.0)
+the semantics of quotient and remainder were different.  Having the
+division and remainder operators $/$ and $mod$ be of the current, i.e.
+C/C++'s, semantics the older semantics of division was given by
+the formula:\\
+\indent IF (a $mod$  b $<$ 0) THEN (a $/$ b $-$ 1) ELSE (a $/$ b)\\
+and the semantics of remainder operator was given by the formula:\\
+\indent IF (a $mod$  b $<$ 0) THEN (a $mod$ b $+$ b) ELSE (a $mod$ b)\\
+Note that in both versions the equation \code{(a/b)*b + (a mod b) = a}
+holds. For example, in the current version of NuSMV the following
+holds:\\
+\begin{tabular}{ll}
+ 7/5 = 1   &  7 mod 5 = 2\\
+ -7/5 = -1 & -7 mod 5 = -2\\
+ 7/-5=-1   &  7 mod -5 = 2\\
+ -7/-5=1   & -7 mod -5 = -2
+\end{tabular}\\
+whereas in the older versions on NuSMV the equations were\\
+\begin{tabular}{ll}
+ 7/5 = 1   &  7 mod 5 = 2\\
+ -7/5 = -2 & -7 mod 5 = 3\\
+ 7/-5=-1   &  7 mod -5 = 2\\
+ -7/-5=0   & -7 mod -5 = -7
+\end{tabular}\\
+When supplied, the command line option -old\_div\_op switches the
+semantics of division and remainder to the old one.
+
+\bigskip
+\textbf{\textit{Note:}}\label{Remainder vs Modulo operator}
+semantics of \emph{modulo} operator can be obtained from the
+remainder operator by exploiting the equivalence:
+
+\indent (n modulo M) $\equiv$ ((n $mod$ M) $+$ M) $mod$ M
+
+Where $mod$ is the remainder operator.
+
+%-----    ------
+\subsubsection{Shift Operators \operator{<<}, \operator{>>}}
+%\subsubsection{Shift and Rotate Operators \operator{<<}, \operator{>>}, \operator{<<<}, \operator{>>>}}
+\label{Shift Operators}
+\index{Shift Operator}
+%\index{Rotate Operator}
+%\index{operators!rotate}
+\index{operators!shift}
+\index{\operator{<<}, \operator{>>}}
+
+The signature of the shift %and rotate
+operators is:\\
+
+\begin{tabular}{l@{ : }l}
+\operator{<<}, \operator{>>}%, \operator{<<<}, \operator{>>>}
+& \UWord[N] * \Integer $\rightarrow$ \UWord[N]\\
+& \SWord[N] * \Integer $\rightarrow$ \SWord[N]\\
+& \UWord[N] * \UWord[M] $\rightarrow$ \UWord[N]\\
+& \SWord[N] * \UWord[M] $\rightarrow$ \SWord[N]\\
+\end{tabular}\\
+Before checking the expression for being correctly typed, the right
+operand can be implicitly converted from \Boolean to \Integer type.
+
+Left shift \operator{<<} (right shift \operator{>>}) operation shifts
+to the left (right) the bits of the left operand by the number
+specified in the right operand.
+%
+A shift by N bits is equivalent to N shifts by 1 bit.
+%
+A bit shifted behind the word bound is lost. 
+%
+During shifting a word is padded with zeros with the exception of
+the right shift for \SWord, in which case a word is padded
+with its highest bit.
+%
+%Rotates (\operator{<<<} and \operator{>>>}) are similar to shifts
+%except that a bit shifted behind the word bound appears on the other
+%side of the word. 
+%
+For instance,
+
+\begin{center}
+\begin{tabular}{l@{\qquad\qquad\qquad\qquad}l}
+0ub4\_0101 \operator{<<} 2 is equal to & 0sb3\_1011 \operator{>>} 2 is equal to \\
+0ub4\_0100 \operator{<<} 1 is equal to & 0sb3\_1110 \operator{>>} 1 is equal to \\
+0ub4\_1000 \operator{<<} 0 is equal to & 0sb3\_1111 \operator{>>} 0 is equal to \\
+0ub4\_1000 and                         & 0sb3\_1111\\
+\end{tabular}
+\end{center}
+
+
+It has to be remarked that the shifting %and rotation
+requires the right operand to be greater or equal to zero and less
+then or equal to the width of the word it is applied to. 
+%
+\nusmv raises an error if a shift is attempted that does %/rotation 
+ not satisfy this restriction.
+
+%-----    ------
+\subsubsection{Index Subscript Operator \operator{[~]}}
+\label{Index Subscript Operator}
+\index{index subscript operator}
+\index{operators!index subscript}
+\index{\operator{[]}}
+
+The index subscript operator extracts one element of an array in the
+typical fashion.
+%
+On the left of \operator{[]} there has to be an expression
+of array type.
+%
+The index expression in the brackets has to be an expression of
+\Integer or \AnyWord type with value greater or equal to lower bound
+and less or equal to the upper bound of the array.
+%
+The signature of the index subscript operator is:\\
+
+\noindent
+\begin{tabular}{l@{ : }l}
+\operator{[~]} 
+& \Array N..M of subtype * \AnyWord[N] $\rightarrow$ subtype\\
+& \Array N..M of subtype * \Integer $\rightarrow$ subtype \\
+\end{tabular}\\
+
+For example, for below declarations
+%
+\footnote{See \ref{Array Define Declarations}) for array defines and 
+\ref{Type Specifiers} for array variables.}
+%
+:
+\begin{nusmvCode}
+MODULE main
+ VAR a : array -1 .. 4 of array 1 .. 2 of boolean;
+ DEFINE d := [[12, 4], [-1,2]];
+ VAR r : 0..1;
+\end{nusmvCode}
+expressions \code{a[-1]}, \code{a[0][r+1]} and \code{d[r][1]} are
+valid whereas \code{a[0]},  \code{a[0][r]} and \code{d[0][r-1]} will
+cause out of bound error.
+
+%-----    ------
+\subsubsection{Bit Selection Operator \operator{[ :~]}}
+\label{Bit Selection Operator}
+\index{bit selection operator}
+\index{operators!bit selection}
+\index{\operator{[:]}}
+
+The bit selection operator extracts consecutive bits from a \UWord or
+\SWord expression, resulting in a new \UWord expression.
+%
+This operation always decreases the width of a word or leaves it
+intact. 
+%
+The expressions in the brackets have to be integer constants which
+specify the high and low bound.
+%
+The high bound must be greater than or equal to the low bound.
+%
+The bits count from 0. 
+%
+The result of the operations is \UWord value consisting of the
+consecutive bits beginning from the high bound of the operand down to,
+and including, the low bound bit.
+%
+For example, 0sb7\_1011001[4:1] extracts bits 1 through 4 (including 1st
+and 4th bits) and is equal to 0ub4\_1100.
+%
+0ub3\_101[0:0] extracts bit number 0 and is equal to 0ub1\_1.\\
+
+The signature of the bit selection operator is:\\
+
+\noindent
+\begin{tabular}{l@{ : }l}
+\operator{[ :~]} 
+& \UWord[N] * $\Integer_{h}$ * $\Integer_{l}$ $\rightarrow$
+  \UWord[$\Integer_{h} - \Integer_{l} + 1$]\\
+& \SWord[N] * $\Integer_{h}$ * $\Integer_{l}$ $\rightarrow$
+  \UWord[$\Integer_{h} - \Integer_{l} + 1$]\\
+\end{tabular}\\
+
+\textit{where} $0 \leq \Integer_{l} \leq \Integer_{h} <$ \code{N}
+
+
+%-----    ------
+\subsubsection{Word Concatenation Operator \code{::}}
+\label{Word Concatenation Operator}
+\index{operators!word concatenation}
+\index{concatenation operator}
+\index{\operator{::}}
+
+The concatenation operator joins two words (\UWord or \SWord or both)
+together to create a larger \UWord type.
+%
+The operator itself is two colons (\operator{::}), and its signature
+is as follows:\\
+
+\begin{tabular}{l@{ : }l}
+\operator{::} & \AnyWord[M] * \AnyWord[N] $\rightarrow$ \UWord[M+N]\\
+\end{tabular}\\
+
+\noindent where \AnyWord[N] is \UWord[N] or \SWord[N].
+The left-hand operand will make up the upper bits of the new
+word, and the right-hand operand will make up the lower bits. The
+result is always \UWord.
+%
+For example, given the two words \code{w1 := 0ub4\_1101} and \code{w2
+:= 0sb2\_00}, the result of \code{w1{\operator{::}}w2} is
+\code{0ub6\_110100}.
+
+
+%-----    ------
+\subsubsection{Word sizeof Operator}
+\label{Word sizeof Operator}
+\index{sizeof operator}
+
+\operator{sizeof} operator provides a very simple way for retrieving the width of a word. The behavior of this operator can be
+described as follows:\\
+\\
+let w be a \AnyWord[N] : \operator{sizeof}(w) returns N.\\
+\\
+The signature of the operator is:\\
+
+\begin{tabular}{l@{ : }l}
+\operator{sizeof} 
+& \UWord $\rightarrow$ \Integer\\
+& \SWord $\rightarrow$ \Integer\\
+\end{tabular}\\
+%
+%-----    ------
+\subsubsection{Extend Word Conversions}
+\label{Extend Word Conversions}
+\index{extend operator}
+
+\operator{extend} operator increases the width of a word by attaching 
+additional bits on the left. If the provided word is unsigned then
+zeros are added, otherwise if the word is signed the highest (sing)
+bit is repeated corresponding number of times.
+
+The signature of the operator is:\\
+
+\begin{tabular}{l@{ : }l}
+\operator{extend} 
+& \UWord[N] * \Integer $\rightarrow$ \UWord[N+\Integer]\\
+& \SWord[N] * \Integer $\rightarrow$ \SWord[N+\Integer]\\
+\end{tabular}\\
+
+\noindent For example:
+%
+\begin{center}
+\begin{tabular}{l}
+{\operator{extend}}(0ub3\_101, 2) = 0ub5\_00101 \\ 
+{\operator{extend}}(0sb3\_101, 2) = 0sb5\_11101 \\ 
+{\operator{extend}}(0sb3\_011, 2) = 0sb5\_00011 \\ 
+\end{tabular}
+\end{center}
+
+\noindent Note that the right operand of \operator{extend} has to be 
+an integer constant greater or equal to zero.
+
+%-----    ------
+\subsubsection{Resize Word Conversions}
+\label{Resize Word Conversions}
+\index{resize operator}
+
+\operator{resize} operator provides a more comfortable way
+of changing the width of a word. The behavior of this operator
+can be described as follows:
+
+let w be a M bits \UWord and N be the required width: if M = N, w is
+returned unmodified; if N is less than M, bits in the range [N-1:0]
+are extracted from w; if N is greater than M, w is extended of (N - M)
+bits up to required width, padding with zeroes.
+
+let w be a M bits \SWord and N be the required width: if M = N, w is
+returned unmodified; if N is less than M, bits in the range [N-2:0]
+are extracted from w, while N-1-ith bit is forced to preserve the
+value of the original sign bit of w (M-1-ith bit); if N is greater than M, w is
+extended of (N - M) bits up to required width, extending sign bit.
+
+The signature of the operator is:\\
+
+\begin{tabular}{l@{ : }l}
+\operator{resize} 
+& \UWord * \Integer $\rightarrow$ \UWord[\Integer]\\
+& \SWord * \Integer $\rightarrow$ \SWord[\Integer]\\
+\end{tabular}\\
+%
+
+%-----    ------
+\subsubsection{Set Expressions}
+\label{Set Expressions}
+\index{set expressions}
+\index{operators!union}
+
+The set expression is an expression defining a set of \Boolean,
+\Integer and \SymbEnum values. 
+A set expression can be created with the \operator{union}
+operator. For example, \code{1 \operator{union} 0} specifies the set
+of values \code{1} and \code{0}. 
+One or both of the operands of \operator{union} can be sets.  In this
+case, \operator{union} returns a union of these sets. For example,
+expression \code{(1 \operator{union} 0) \operator{union} -3} specifies
+the set of values \code{1}, \code{0} and \code{-3}.
+
+\emph{Note that there cannot be a set of sets in NuSMV}. 
+Sets can contain only singleton values, but not other sets.
+
+The signature of the \operator{union} operator is:\\
+\begin{tabular}{ll}
+\operator{union} 
+ &{ : }\BoolSet * \BoolSet $\rightarrow$ \BoolSet\\
+ &{ : }\IntSet * \IntSet $\rightarrow$ \IntSet\\
+ &{ : }\SymbSet * \SymbSet $\rightarrow$ \SymbSet\\
+ &{ : }\IntSymbSet * \IntSymbSet \\
+ & \qquad $\rightarrow$ \IntSymbSet\\
+\end{tabular}\\
+Before checking the expression for being correctly typed, if it is
+possible, both operands are converted to their counterpart \Set types
+\footnote{See \ref{Set Types} for more information about the \Set types
+and their counterpart types}, which virtually means converting
+individual values to singleton sets. Then both operands are
+implicitly converted to a minimal type that covers both operands.
+If after these manipulations the operands do not satisfy the signature 
+of \reserved{union} operator, an error is raised by \nusmv.
+
+
+\index{expressions!sets}
+
+There is also another way to write a set expression by enumerating all
+its values between curly brackets. The syntactic rule for the values
+in curly brackets is:\\
+\begin{Grammar}
+set_body_expr :: 
+        basic_expr
+      | set_body_expr \textbf{,} basic_expr
+\end{Grammar}
+
+Enumerating values in curly brackets is semantically equivalent to
+writing them connected by \operator{union} operators. For example,
+expression \code{\{exp1, exp2, exp3\}} is equivalent to \code{exp1
+\operator{union} exp2 \operator{union} exp3}.  Note that according to
+the semantics of \operator{union} operator, expression \code{\{\{1,
+2\}, \{3, 4\}\}} is equivalent to \code{\{1, 2, 3, 4\}}, i.e.  there
+is no actually set of sets.
+
+ Set expressions can be used only as operands of \operator{union}
+ and \operator{in} operations, as the right operand of \operator{case}
+ and as the second and the third operand of \itebullet expressions and
+ assignments.  In all other places the use of set expressions is
+ prohibited.
+
+%-----    ------
+\subsubsection{Inclusion Operator \reserved{in}}
+\label{Inclusion Operator}
+\index{inclusion operator}
+\index{operators!inclusion}
+
+The inclusion operator `\reserved{in}' tests the left operand for
+being a subset of the right operand. If either operand is a number or a
+symbolic value instead of a set, it is coerced to a singleton set.
+
+The signature of the \operator{in} operator is:\\
+
+\begin{tabular}{ll}
+\operator{in} &{ : }\BoolSet * \BoolSet $\rightarrow$ \Boolean\\
+&{ : }\IntSet * \IntSet $\rightarrow$ \Boolean\\
+&{ : }\SymbSet * \SymbSet $\rightarrow$ \Boolean\\
+&{ : }\IntSymbSet * \IntSymbSet $\rightarrow$ \Boolean\\
+\end{tabular}\\
+Similar to \operator{union} operation, before checking the
+expression for being correctly typed, if it is possible, both operands
+are converted to their counterpart \Set types
+\footnote{See \ref{Set Types} for more information about the \Set types
+and their counterpart types}. Then, if required, implicit type
+conversion is carried out on \emph{one} of the operands.
+
+
+%-----    ------
+\subsubsection{Case Expressions}
+\label{Case Expressions}
+\index{case expressions}
+\index{expressions!case}
+
+A case expression has the following syntax:
+%
+\begin{Grammar}
+case_expr :: \reserved{case} case_body \reserved{esac}
+
+case_body ::
+        basic_expr \textbf{:} basic_expr {;}
+      | case_body basic_expr \textbf{:} basic_expr {;}
+\end{Grammar}
+
+\noindent A \grammar{case\_expr} returns the value of the first
+expression on the right hand side of `\code{:}', such that the
+corresponding condition on the left hand side evaluates to
+\code{TRUE}.
+%
+For example, the result of the expression
+\begin{alltt}
+\begin{tabular}{l}
+\textbf{case}\\
+ left_expression_1 \textbf{:} right_expression_1 \textbf{;}\\
+ left_expression_2 \textbf{:} right_expression_2 \textbf{;}\\
+ ...\\
+ left_expression_N \textbf{:} right_expression_N \textbf{;}\\
+\textbf{esac}
+\end{tabular}
+\end{alltt}
+
+\noindent is \code{right\_expression\_k} such that for all $i$ from
+$0$ to $k-1$, \code{left\_expression\_i} is \code{FALSE}, and
+\code{left\_expression\_k} is \code{TRUE}.
+%
+It is an error if all expressions on the left hand side evaluate
+to \code{FALSE}.
+
+The type of expressions on the left hand side must be \Boolean.  If
+one of the expression on the right is of a \Set type then, if it is
+possible, all remaining expressions on the right are converted to
+their counterpart \Set types \footnote{See \ref{Set Types} for
+information on \Set types and their counterpart types}. The type of
+the whole expression is such a minimal type\footnote{See \sref{Type
+Order} for the information on the order of types.} that all of the
+expressions on the right (after possible convertion to \Set types) can
+be implicitly converted to this type.
+%
+If this is not possible, \nusmv throws an error.
+
+\bigskip
+\textbf{\textit{Note:}}
+\label{ref::caseconditionexample}
+Prior to version 2.5.1, using \code{1}
+as \code{left\_expression\_N} was pretty common, e.g:
+\begin{verbatim}
+case 
+  cond1 : expr1;
+  cond2 : expr2;
+  ...
+  1     : exprN; -- otherwise
+esac
+\end{verbatim}
+
+Since version 2.5.1 \Integer values are no longer implicitly casted
+to \Boolean, and \code{1} has to be written as \code{TRUE} instead.
+For backward compatibility options, please see page
+\pageref{ref::backwardcompatibility}.
+
+%-----    ------
+\subsubsection{If-Then-Else expressions}
+\label{If-Then-Else expressions}
+\index{if-then-else expressions}
+
+In certain cases, the syntax described above may look a bit awkard. In
+simpler cases, it is possible to use the alternative, terser,
+\itebullet expression. This construct is defined as follows:
+
+\begin{Grammar}
+        cond_expr \operator{?} basic_expr1 \operator{:} basic_expr2
+\end{Grammar}
+
+This expression evaluates to basic\_expr1 if the condition in
+    cond\_expr evaluates to true, and to basic\_expr2 otherwise.
+Therefore, the expressions \code{cond1 ? exp1 : exp2} and \code{case
+    cond1 : exp1; \code{TRUE} : expr2; esac} are equivalent.
+
+%-----    ------
+\subsubsection{Basic Next Expression}
+\label{Basic Next Expression}
+\index{basic next expression}
+\index{expressions!basic next}
+
+\grammar{Next expressions} refer to the values of variables in the next
+state.
+%
+For example, if a variable \code{\textbf{v}} is a state variable, then
+\code{\textbf{next(v)}} refers to that variable \code{\textbf{v}} in
+the next time step.
+%
+A \operator{next} applied to a complex expression is a
+shorthand method of applying \operator{next} to all the variables in
+the expressions recursively.
+%
+Example: \code{{\operator{next}}((1 + a) + b)} is equivalent to
+\code{(1 + {\operator{next}}(a)) + {\operator{next}}(b)}.
+%
+Note that the \operator{next} operator cannot be applied twice, i.e.
+\code{{\operator{next}}({\operator{next}}(a))} is \emph{not} allowed.
+
+The syntactic rule is:
+
+\begin{Grammar}
+basic_next_expr :: \operator{next} \textbf{(} basic_expr \textbf{)}
+\end{Grammar}
+%
+A \grammar{next expression} does not change the type.
+
+%-----    ------
+\subsubsection{Count Operator}
+\label{count operator}
+\index{operators!count}
+The \operator{count} operator counts the number of expressions
+which are true. 
+%
+The \operator{count} operator is a syntactic sugar for
+\begin{Grammar}
+     \operator{toint}\textbf{(}bool_expr1\textbf{)} +\\
+     \operator{toint}\textbf{(}bool_expr2\textbf{)} +\\
+     ... +\\
+     \operator{toint}\textbf{(}bool_exprN\textbf{)}
+\end{Grammar}
+%
+This operator has been introduced in version 2.5.1, to simplify
+the porting of those models which exploited the implicit casting
+of \Integer to \Boolean to encoding e.g. predicates like:
+
+\code{ (b0 + b1 + ... + bN) < 3 -- at most two bits are enabled }
+%
+Since version 2.5.1, this expression can be written as:
+
+\code{ count(b0 + b1 + ... + bN) < 3 }
+
+
+%-----    ------
+\subsection{Simple and Next Expressions}
+\label{Simple and Next Expressions}
+\index{simple expressions}
+\index{next expressions}
+\index{expressions!simple}
+\index{expressions!next}
+
+\grammar{Simple\_expressions} are expressions built only from the
+values of variables in the current state.
+%
+Therefore, the \grammar{simple\_expression} cannot have a
+\operator{next} operation inside and the syntax of
+\grammar{simple\_ex\-pressions} is as follows:
+%
+\begin{Grammar}
+simple_expr :: basic_expr
+\end{Grammar}
+%
+with the alternative \grammar{basic\_next\_expr} \emph{not}
+allowed. 
+%
+\grammar{Simple\_expressions} can be used to specify sets of states,
+for example, the initial set of states.
+%
+The \grammar{next\_expression} relates current and next state
+variables to express transitions in the FSM. 
+%
+The \grammar{next\_expression} \emph{can} have \operator{next}
+operation inside, i.e.
+%
+\begin{Grammar}
+next_expr :: basic_expr
+\end{Grammar}
+%
+with the alternative \grammar{basic\_next\_expr} allowed.
+%
+%\index{expressions!next set}
+%\index{expressions!simple set}
+%%
+%There are also similar expressions to denote
+%\grammar{set\_expressions}, i.e.
+%%
+%\begin{Grammar}
+%%next_expr :: basic_expr
+%simple_expr :: basic_expr
+%\end{Grammar}
+%
+%where \grammar{next\_expr} may have any expressions defined by
+%\grammar{basic\_expr}, and \grammar{simple\_expr} cannot
+%have the keyword \operator{next} inside.
+
+%-----    ------
+\subsection{Type conversion operators}
+\label{Type conversion operators}
+\index{Type conversion operators}
+\index{operators!cast}
+
+
+%-----    ------
+\subsubsection{Integer conversion operator}
+\label{Integer Conversion Operator}
+\index{toint operator}
+
+\operator{toint} converts an \UWord \grammar{constant} or a 
+\SWord \grammar{constant}, or a \Boolean expression to an 
+\Integer representing its value. Also \Integer expressions are 
+allowed, but no action is performed.
+%
+The signature of this conversion operator is:\\
+
+\begin{tabular}{l@{ : }l}
+\operator{toint} & \Integer $\rightarrow$ \Integer\\
+\operator{toint} & \Boolean $\rightarrow$ \Integer\\
+\operator{toint} & \UWord $\rightarrow$ \Integer\\
+\operator{toint} & \SWord $\rightarrow$ \Integer\\
+\end{tabular}\\
+%
+\\
+Warning: using the \operator{toint} operator with word variables may
+cause bad performances of the system. Performances may degrade with
+the increase of the number of bits of the word expression.
+
+%-----    ------
+\subsubsection{Boolean conversion operator}
+\label{Boolean Conversion Operator}
+\index{bool operator}
+
+\operator{bool} converts \UWord[1] and \Integer expressions
+to \Boolean. Also \Boolean expressions are allowed, but no 
+action is perfomed.
+%
+In case of \Integer expression, the result of the conversion
+is \code{FALSE} if the expression resolves to \code{0},
+\code{TRUE} otherwise.  In case of \UWord[1] expression, the conversion obeys
+the following table:
+%
+\begin{center}
+\begin{tabular}{p{0.3\textwidth}p{0.3\textwidth}}
+{\operator{bool}}(0ub1\_0) = FALSE\\ 
+{\operator{bool}}(0ub1\_1) = TRUE\\
+\end{tabular}
+\end{center}
+
+\subsubsection{Integer to Word Constants Conversion}
+\label{Integer to Word Constants Conversion}
+\index{swconst operator}
+\index{uwconst operator}
+
+\operator{swconst}, \operator{uwconst} convert an \Integer \grammar{constant}
+into a \SWord \grammar{constant} or \UWord \grammar {constant} of
+given size respectively.
+%
+The signature of these conversion operator is:\\
+
+\begin{tabular}{l@{ : }l}
+\operator{swconst} & \Integer * \Integer $\rightarrow$ \SWord\\
+\operator{uwconst} & \Integer * \Integer $\rightarrow$ \UWord\\
+\end{tabular}\\
+
+\noindent Where the left \Integer parameter is the \textbf{value}
+and the right \Integer parameter is the \textbf{size} in bits of the
+generated \UWord or \SWord \grammar{constant}.
+
+\subsubsection{Word1 Explicit Conversions}
+\label{Word[1] Explicit Conversions}
+\index{word1 operator}
+
+\operator{word1} converts a \Boolean to a \UWord[1].
+%
+The signature of this conversion operator is:\\
+
+\begin{tabular}{l@{ : }l}
+\operator{word1} & \Boolean $\rightarrow$ \UWord[1]\\
+\end{tabular}\\
+
+\noindent The conversion obeys the following table:
+%
+\begin{center}
+\begin{tabular}{p{0.3\textwidth}p{0.3\textwidth}}
+{\operator{word1}}(FALSE) = 0ub1\_0\\ 
+{\operator{word1}}(TRUE) = 0ub1\_1\\
+\end{tabular}
+\end{center}
+
+%-----    ------
+\subsubsection{Unsigned and Signed Explicit Conversions}
+\label{Unsigned and Signed Explicit Conversions}
+\index{signed operator}
+\index{unsigned operator}
+
+\operator{unsigned} converts a \SWord[N] to an \UWord[N], while
+\operator{signed} performs the opposite operation and converts 
+an \UWord[N] to a \SWord[N]. Both operations do not change the bit
+representation of a provided word.
+%
+The signatures of these conversion operators are:\\
+
+\begin{tabular}{l@{ : }l}
+\operator{unsigned} & \SWord[N] $\rightarrow$ \UWord[N]\\
+\operator{signed} & \UWord[N] $\rightarrow$ \SWord[N]\\
+\end{tabular}\\
+
+\noindent For example:
+%
+\begin{center}
+\begin{tabular}{l}
+{\operator{signed}}(0ub\_101) = 0sb\_101 \\ 
+{\operator{signed}}(0ud3\_5) = -0sd3\_3 \\ 
+{\operator{unsigned}}(0sb\_101) = 0usb\_101 \\ 
+{\operator{unsigned}}(-0sd3\_3) = 0ud3\_5 \\ 
+\end{tabular}
+\end{center}
+
+
+
+
+%-------------------- DEFINITION OF FSM -----------------------------------
+
+\section{Definition of the FSM}
+\label{Definition of the FSM}
+\index{definition of the FSM}
+
+We consider a Finite State Machine (FSM) described in terms of
+\emph{state variables}, \emph{input variables}, and \emph{frozen
+variables}, which may assume different values in different
+\emph{states}, of a \emph{transition relation} describing how inputs
+leads from one state to possibly many different states, and of
+\emph{Fairness conditions} that describe constraints on the valid
+paths of the execution of the FSM.
+%
+In this document, we distinguish among constraints (used to constrain
+the behavior of a FSM, e.g.\ a modulo 4 counter increments its value
+modulo 4), and specifications (used to express properties to verify on
+the FSM (e.g.\ the counter reaches value 3).
+
+In the following it is described how these concepts can be declared in
+the \nusmv language.
+
+%-----    ------
+\subsection{Variable Declarations}
+\label{Variable Declarations}
+\index{variable declarations}
+
+A variable can be an input, a frozen, or a state variable. 
+%
+The declaration of a variable specifies the variable's type with the
+help of type specifier.
+
+%-----    ------
+\subsubsection{Type Specifiers}
+\label{Type Specifiers}
+\index{type specifiers}
+%
+\index{syntax rules!type specifiers}
+A \grammar{type specifier} has the following syntax:
+%
+\begin{Grammar}
+type_specifier ::
+        simple_type_specifier
+      | module_type_specifier
+
+simple_type_specifier :: 
+        \textbf{boolean}
+      | \textbf{word} \textbf{[} basic_expr \textbf{]} 
+      | \textbf{unsigned word} \textbf{[} basic_expr \textbf{]} 
+      | \textbf{signed word} \textbf{[} basic_expr \textbf{]} 
+      | \textbf{\{} enumeration_type_body \textbf{\}}
+      | basic_expr \textbf{..} basic_expr
+      | \textbf{array} basic_expr \textbf{..} basic_expr
+        \ \ \textbf{of} simple_type_specifier
+
+enumeration_type_body ::
+        enumeration_type_value
+      | enumeration_type_body \textbf{,} enumeration_type_value
+
+enumeration_type_value ::
+        symbolic_constant
+      | integer_number
+\end{Grammar}
+% 
+There are two kinds of \grammar{type specifier}: a \grammar{simple
+type specifier} and a \grammar{module type specifier}. 
+%
+The \grammar{module type specifier} is explained later in
+\sref{MODULE Instantiations}.
+%
+The \grammar{simple type specifier} comprises \Boolean type, \Integer
+type, \Enum types, \UWord, \SWord and arrays 
+%and \WordArray[] 
+types.
+
+The \Boolean type is specified by the keyword \reserved{boolean}. 
+%The \Integer type is specified by the keyword \reserved{Integer}. 
+
+A \Enum type is specified by full enumeration of all the values the
+type comprises. 
+%
+For example, possible \Enum type specifiers are \code{\{0,2,3,-1\}},
+\code{\{1,0, OK\}}, \code{\{OK, FAIL, running\}}. \code{FALSE} and 
+\code{TRUE} values cannot be used as \Enum type specifiers
+%
+The values in the list are enclosed in curly brackets and separated by
+commas.
+%
+The values may be \grammar{integer numbers}, \grammar{symbolic
+constants}, or both.
+%
+All values in the list should be distinct from each other, although the
+order of values is not important. 
+
+Note, expressions cannot be of the actual \Enum types, but only the
+simplified versions of \Enum types, such as \SymbEnum and \IntSymbEnum.
+
+A \grammar{type specifier} can be given by two expressions
+separated by \code{\textbf{..}} (\code{<TWO DOTS>}). The two
+expressions have both to evaluate to constants integer numbers, and
+may contain names of defines and module formal parameters. For example,
+\code{-1 - P1 .. 5 + D1}, where \code{P1} refers to a module formal 
+parameter, and \code{D1} refers to a define. Both \code{P1} and 
+\code{D1} have to be statically evaluable to integer constants.
+
+This is just a shorthand for a \Enum type containing the list
+of \grammar{integer numbers} from the range given in \grammar{type
+specifier}.
+%
+For example, the \grammar{type specifiers} \code{-1..5} and
+\code{\{-1,0,1,2,3,4,5\}} are equivalent. 
+%
+Note that the evaluated number on the left from the two dots must
+be less than or equal to the evaluated number on the right.
+
+The \UWord type is specified by the keywords \reserved{unsigned word}
+(where \reserved{unsigned} may be skipped) with a \grammar{basic\_expr} 
+supplied in square brackets.
+%
+The expression must be statically evaluable to a constant integer
+number whose value must be greater than zero. 
+%
+The \SWord type is specified in a similar way with the keywords
+\reserved{signed word}.
+%
+The purpose of the word types is to offer integer and bitwise
+arithmetic.
+
+
+An array type is denoted by a sequence of the keyword
+\reserved{array}, a \grammar{basic\_expr} specifying the lower
+bound of the array index, two dots \code{\textbf{..}}, a
+\grammar{basic\_expr} specifying the upper bound of the array
+index, the keyword \reserved{of}, and the type of array's
+elements. The elements can themselves be arrays. The two bound
+expressions have to be statically evaluable to constant integer
+numbers, and may contain names of defines and module formal
+parameters.
+
+
+%-----    ------
+\subsubsection{State Variables}
+\label{State Variables}
+\index{state variables}
+\index{\code{VAR} declaration}
+%
+A state of the model is an assignment of values to a set of state
+and frozen variables. 
+%
+State variables (and also instances of modules) are declared by the
+notation:
+%
+\begin{Grammar}
+var_declaration :: \reserved{VAR} var_list
+
+var_list :: identifier \textbf{:} type_specifier \textbf{;}
+          | var_list identifier \textbf{:} type_specifier \textbf{;}
+\end{Grammar}
+%
+A \grammar{variable declaration} specifies the identifier of the
+variables and its type. 
+%
+A variable can take the values only from the domain of its type. In
+particular, a variable of a \Enum type may take only the values
+enumerated in the \grammar{type specifier} of the declaration.
+
+%-----    ------
+\subsubsection{Input Variables}
+\label{Input Variables}
+\index{input variables syntax}
+\index{\code{IVAR} declaration}
+%
+\code{IVAR}s (input variables) are used to label transitions of the
+Finite State Machine. The difference between the syntax for the input
+and state variables declarations is the keyword indicating the
+beginning of a declaration:
+%
+\begin{Grammar}
+ivar_declaration :: \reserved{IVAR} simple_var_list
+simple_var_list ::
+        identifier \textbf{:} simple_type_specifier \textbf{;}
+      | simple_var_list identifier \textbf{:} simple_type_specifier \textbf{;}
+\end{Grammar}
+%
+Another difference between input and state variables is that input
+variables cannot be instances of modules.
+%
+The usage of input variables is more limited than the usage of state
+variables which can occur everywhere both in the model and
+specifications.
+%
+Namely, input variables cannot occur in:
+
+\begin{itemize}
+\item Left-side of assignments. For example all these assignments 
+  are not allowed:
+
+  \code{IVAR i : boolean;}\\
+  \code{ASSIGN}\\
+  \code{init(i) := TRUE;}\\
+  \code{next(i) := FALSE;}
+
+\item \code{INIT} statements. For example:
+
+  \code{IVAR i : boolean;}\\
+  \code{VAR s : boolean;}\\
+  \code{INIT i = s}
+
+\item Scope of \code{next} expressions. For example:
+
+  \code{IVAR i : boolean;}\\
+  \code{VAR s : boolean;}\\
+  \code{TRANS i -> s} -- this is allowed\\
+  \code{TRANS next(i -> s)} -- this is NOT allowed
+
+\item Some specification kinds: \code{CTLSPEC}, \code{SPEC},
+      \code{INVARSPEC}, \code{COMPUTE}, \code{PSLSPEC}. For example:
+
+  \code{IVAR i : boolean;}\\
+  \code{VAR s : boolean;}\\
+  \code{SPEC AF (i -> s)} -- this is NOT allowed\\
+  \code{LTLSPEC F (X i -> s)} -- this is allowed
+
+
+\item Anywhere in the FSM when checking invariants with BMC and the
+  ``DUAL'' algorithm. See at page \pageref{bmc::dual} for further
+  information.
+
+\end{itemize}
+
+
+%-----    ------
+\subsubsection{Frozen Variables}
+\label{Frozen Variables}
+\index{frozen variables syntax}
+\index{\code{FROZENVAR} declaration}
+%
+\code{FROZENVAR}s (frozen variables) are variables that retain their
+initial value throughout the evolution of the state machine; this
+initial value can be constrained in the same ways as for normal state
+variables. Similar to input variables the difference between the
+syntax for the frozen and state variables declarations is the keyword
+indicating the beginning of a declaration:
+%
+\begin{Grammar}
+frozenvar_declaration :: \reserved{FROZENVAR} simple_var_list
+\end{Grammar}
+%
+The semantics of some frozen variable \code{a} is that of a state
+variable accompanied by an assignment that keeps its value constant
+(it is handled more efficiently, though):
+
+\begin{tabular}{@{\hspace{1cm}}l}\\
+\code{ASSIGN next(a) := a;}\\\\
+\end{tabular}
+
+As a consequence, frozen variables may not have their current and next
+value set in an \code{ASSIGN} statement, i.e. statements such as
+\code{ASSIGN next(a) := expr;} and \code{ASSIGN a := expr;} are
+illegal. Apart from that frozen variables may occur in the definition
+of the FSM in any place in which a state variable may occur. Some
+examples are as follows:
+
+\begin{itemize}
+
+\item Left-side current and next state assignments are illegal, while
+init state assignments are allowed:
+
+  \code{FROZENVAR a :~boolean;}\\
+  \code{FROZENVAR b :~boolean;}\\
+  \code{FROZENVAR c :~boolean;}\\
+  \code{VAR d :~boolean;}\\
+  \code{FROZENVAR e :~boolean;}\\
+  \code{ASSIGN}\\
+  \code{init(a) := d; -- legal}\\
+  \code{next(b) := d; -- illegal}\\
+  \code{c       := d; -- illegal}\\
+  \code{e       := a; -- also illegal}
+
+\item \code{INIT}, \code{TRANS}, \code{INVAR}, \code{FAIRNESS},
+\code{JUSTICE}, and \code{COMPASSION} statements are all legal. So is
+the scope of a \code{next} expression. For example:
+
+  \code{-- the following has an empty state space}\\
+  \code{FROZENVAR a :~boolean;}\\
+  \code{INIT a}\\
+  \code{INVAR !a}\\
+  \code{}\\
+  \code{-- alternatively, this has two initial states, deadlocking}\\
+  \code{FROZENVAR b :~boolean;}\\
+  \code{TRANS next(b) <-> !b}\\
+  \code{}\\
+  \code{-- and that's just unfair}\\
+  \code{FROZENVAR c :~boolean;}\\
+  \code{FAIRNESS c}\\
+  \code{FAIRNESS !c}
+
+\item All kinds of specifications involving frozen variables are
+allowed, e.g.:
+
+  \code{FROZENVAR c :~boolean;}\\
+  \code{-- True by definition.}\\
+  \code{SPEC AG ((c -> AG c) \& ((!c) -> AG !c))}\\
+  \code{-- Here, neither is true.}\\
+  \code{INVARSPEC c}\\
+  \code{INVARSPEC !c}\\
+  \code{-- False (as above).}\\
+  \code{LTLSPEC (G F c) \& (G F !c)}
+
+\end{itemize}
+
+%-----    ------
+\subsubsection{Examples}
+\label{Examples of variable declaration}
+\index{input variables syntax}
+\index{state variables syntax}
+\index{\code{IVAR} declaration}
+\index{\code{VAR} declaration}
+
+Below are examples of state, frozen, and input variable declarations:
+
+\begin{tabular}{@{\hspace{1cm}}l}\\
+\code{VAR a :~boolean;}\\
+\code{FROZENVAR b :~0..1;}\\
+\code{IVAR c :~\{TRUE, FALSE\};}\\\\
+\end{tabular}
+
+\noindent The variable \code{a} is a state variable,
+\code{b} is a frozen variable, and \code{c} is an input variable;
+%
+In the following examples:
+
+\begin{tabular}{@{\hspace{1cm}}l}\\
+\code{VAR d :~\{stopped, running, waiting, finished\};}\\
+\code{VAR e :~\{2, 4, -2, 0\};}\\
+\code{VAR f :~\{1, a, 3, d, q, 4\};}\\\\
+\end{tabular}
+
+\noindent the variables \code{d}, \code{e} and \code{f} are of \Enum types,
+and all their possible values are specified in the \grammar{type
+specifiers} of their declarations.
+
+\begin{tabular}{@{\hspace{1cm}}l}\\
+\code{VAR g :~unsigned word[3];}\\\\
+\code{VAR h :~word[3];}\\\\
+\code{VAR i :~signed word[4];}\\\\
+\end{tabular}
+
+\noindent The variables \code{g} and \code{h} are of 3-bits-wide
+\type{unsigned word} type (i.e.\@ \UWord[3]), and \code{i} is of
+4-bits-wide \type{signed word} type (i.e.\@ \SWord[4]).
+
+\begin{tabular}{@{\hspace{1cm}}l}\\
+\code{VAR j :~array -1..1 of boolean;}\\\\
+\end{tabular}
+
+\noindent The variable \code{j} is an array of \Boolean elements with
+indexes -1, 0 and 1.
+
+% For examples of module instantiation see \sref{MODULE Instantiations}.
+
+%-----    ------
+% \code{} used instead of \reserved{} so that font size is not reduced
+\subsection{\code{DEFINE} Declarations}
+\label{DEFINE Declarations}
+\index{DEFINE declarations}
+%
+In order to make descriptions more concise, a symbol can be associated
+with a common expression, and a \reserved{DEFINE} declaration
+introduces such a symbol.
+%
+The syntax for this kind of declaration is:
+%
+\begin{Grammar}
+define_declaration :: \reserved{DEFINE} define_body
+
+define_body :: identifier \operator{:=} simple_expr \textbf{;}
+             | define_body identifier \operator{:=} simple_expr \textbf{;}
+\end{Grammar}
+%
+\reserved{DEFINE} associates an \grammar{identifier} on the left hand
+side of the \operator{`:='} with an expression on the right side.
+%
+A define statement can be considered as a macro. 
+%
+Whenever a define \grammar{identifier} occurs in an expression, the
+\grammar{identifier} is syntactically replaced by the expression it is
+associated with.
+%
+The associated expression is always evaluated in the context of the
+statement where the \grammar{identifier} is declared (see \sref{Context}
+for an explanation of contexts).
+%
+Forward references to defined symbols are allowed but circular
+definitions are not, and result in an error.
+%
+The difference between defined symbols and variables is that while
+variables are statically typed, definitions are not.
+
+%-----  ARRAY DEFINE DECLARATION  ------
+\subsection{Array Define Declarations}
+\label{Array Define Declarations}
+\index{array define declarations}
+\index{DEFINE : array}
+%
+It is possible to specify an array expressions. This
+feature is experimental and currently available only through
+\reserved{DEFINE} declaration.
+%
+The syntax for this kind of declaration is:
+%
+\begin{Grammar}
+array_define_declaration :: 
+                  \reserved{DEFINE} identifier \operator{:=} array_expression \textbf{;}
+
+array_expression :: \operator{[} array_contents \operator{]}
+                   | \operator{[} array_expression_list \operator{]}
+
+array_expression_list :: array_expression
+                        | array_expression \operator{,} array_expression_list
+
+array_contents :: next_expr \operator{,} array_contents
+                 | next_expr
+\end{Grammar}
+%
+Array \reserved{DEFINE} associates an \grammar{identifier} on the left hand
+side of the \operator{`:='} with an array expression.
+%
+As a normal \reserved{DEFINE} statement an array define is considered
+as a macro.
+%
+Whenever an array \grammar{identifier} occurs in an expression, the
+\grammar{identifier} is syntactically replaced by the array expression it is
+associated with.
+%
+As with normal \reserved{DEFINE} an array \reserved{DEFINE} expression
+is always evaluated in the context of the statement where the
+\grammar{identifier} is declared and forward references to defined symbols are
+allowed but circular definitions are not. 
+
+The type of an array expression \code{[exp1, exp2, \ldots, expN]} is
+\Array 0..N-1 of \code{type} where \code{type} is the least type such that 
+all \code{exp1, exp2, \ldots expN} can be converted to it.
+
+
+It is not possible to declare asymmetrical arrays. This means that
+it is forbidden to declare an array with a different number of
+elements in a dimension. For example, the following code will result
+in an error:
+%
+\begin{nusmvCode}
+DEFINE
+   x := [[1,2,3], [1,2]];
+\end{nusmvCode}
+
+%-----    ------
+\subsection{\code{CONSTANTS} Declarations}
+\label{CONSTANTS Declarations}
+\index{CONSTANTS declarations}
+%
+\reserved{CONSTANTS} declarations allow the user to explicitly 
+declare symbolic constants that might occur or not within the FSM that
+is being defined. 
+%
+\reserved{CONSTANTS} declarations are expecially useful 
+in those conditions that require symbolic constants to occur only
+in \reserved{DEFINEs} body (e.g. in generated models).
+For an example of usage see also the command \command{write\_boolean\_model}.
+%
+A constant is allowed to be declared multiple times, as after the
+first declaration any further declaration will be ignored.
+%
+\reserved{CONSTANTS} declarations are an extension of the original 
+\smv grammar, and they are supported since \NuSMV.
+%
+The syntax for this kind of declaration is:
+%
+\begin{Grammar}
+constants_declaration :: \reserved{CONSTANTS} constants_body \textbf{;}
+
+constants_body :: identifier 
+             | constants_body  \operator{,} identifier
+\end{Grammar}
+
+
+%-----    ------
+\subsection{\code{INIT} Constraint}
+\label{INIT Constraint}
+\index{INIT constraint}
+%
+The set of initial states of the model is determined by a \Boolean
+expression under the \reserved{INIT} keyword.
+%
+The syntax of an \code{INIT} constraint is:
+%
+\begin{Grammar}
+init_constrain :: \reserved{INIT} simple_expr [\textbf{;}]
+\end{Grammar}
+%
+Since the expression in the \code{INIT} constraint is a
+\grammar{simple\_expression}, it cannot contain the \operator{next()}
+operator.
+%
+The expression also has to be of type \Boolean.
+%
+If there is more than one \code{INIT} constraint, the initial set is
+the conjunction of all of the \code{INIT} constraints.
+
+%-----    ------
+\subsection{\code{INVAR} Constraint}
+\label{INVAR Constraint}
+\index{INVAR constraint}
+%
+The set of invariant states can be specified using a \Boolean
+expression under the \reserved{INVAR} keyword.
+%
+The syntax of an \code{INVAR} constraint is:
+%
+\begin{Grammar}
+invar_constraint :: \reserved{INVAR} simple_expr [\textbf{;}]
+\end{Grammar}
+%
+Since the expression in the \code{INVAR} constraint is a
+\grammar{simple\_expression}, it cannot contain the \operator{next()}
+operator. 
+%
+If there is more than one \code{INVAR} constraint, the invariant set
+is the conjunction of all of the \code{INVAR} constraints.
+
+%-----    ------
+\subsection{\code{TRANS} Constraint}
+\label{TRANS Constraint}
+\index{TRANS constraint}
+%
+The transition relation of the model is a set of current state/next
+state pairs. 
+%
+Whether or not a given pair is in this set is determined by a boolean
+expression, introduced by the \reserved{TRANS} keyword. 
+%
+The syntax of a \code{TRANS} constraint is:
+%
+\begin{Grammar}
+trans_constraint :: \reserved{TRANS} next_expr [\textbf{;}]
+\end{Grammar}
+%
+It is an error for the expression to be not of the \Boolean type.
+%
+If there is more than one \code{TRANS} constraint, the transition
+relation is the conjunction of all of \code{TRANS} constraints.
+
+% \code{} used instead of \reserved{} so that font size is not reduced
+\subsection{\code{ASSIGN} Constraint}
+\label{ASSIGN Constraint}
+\index{\code{ASSIGN} constraint}
+%
+An assignment  has the form:
+%
+\begin{Grammar}
+assign_constraint :: \reserved{ASSIGN} assign_list
+
+assign_list :: assign \textbf{;}
+             | assign_list assign \textbf{;}
+
+assign ::
+    complex_identifier          \operator{:=} simple_expr
+  | \reserved{init} \textbf{(} complex_identifier \textbf{)} \operator{:=} simple_expr
+  | \reserved{next} \textbf{(} complex_identifier \textbf{)} \operator{:=} next_expr
+\end{Grammar}
+%
+On the left hand side of the assignment, \grammar{identifier} denotes
+the current value of a variable,
+`{\reserved{init}}\code{\textbf{(}identifier\textbf{)}}' denotes its
+initial value, and
+`{\reserved{next}}\code{\textbf{(}identifier\textbf{)}}' denotes its
+value in the next state.
+%
+If the expression on the right hand side evaluates to a not-\Set
+expression such as \grammar{integer number} or \grammar{symbolic
+constant}, the assignment simply means that the left hand side is
+equal to the right hand side.
+%
+On the other hand, if the expression evaluates to a set, then the
+assignment means that the left hand side is contained in that set. 
+%
+It is an error if the value of the expression is not contained in the
+range of the variable on the left hand side.
+
+Semantically assignments can be expressed using other kinds of
+constraints:\\
+
+\begin{tabular}{l@{\ is equivalent to\  }l}
+%\multicolumn{2}{c}{\ }\\
+\code{ASSIGN a := exp;} & \code{INVAR a in exp;}\\
+\code{ASSIGN init(a) := exp;} & \code{INIT a in exp;}\\
+\code{ASSIGN next(a) := exp;} & \code{TRANS next(a) in exp;}\\
+\multicolumn{2}{c}{\ }\\
+\end{tabular}\\
+
+\noindent Notice that, an additional constraint is forced when
+assignments are used with respect to their corresponding constraints
+counterpart: when a variable is assigned a value that it is not an
+element of its declared type, an error is raised.
+
+The allowed types of the assignment operator are:
+
+\begin{tabular}{ll}
+\operator{:=} &{ : }\Integer * \Integer\\
+&{ : }\Integer * \IntSet \\
+&{ : }\SymbEnum * \SymbEnum\\
+&{ : }\SymbEnum * \SymbSet\\
+&{ : }\IntSymbEnum * \IntSymbEnum \\
+&{ : }\IntSymbEnum * \IntSymbSet \\
+&{ : }\UWord[N] * \UWord[N] \\
+&{ : }\SWord[N] * \SWord[N] \\
+% &{ : }\WordArray[{[N][M]}] * \WordArray[{[N][M]}] \\
+\end{tabular}\\
+Before checking the assignment for being correctly typed,
+the implicit type conversion can be applied to the \emph{right} operand.
+
+%-----    ------
+\subsubsection{Rules for assignments}
+
+Assignments describe a system of equations that say how the FSM
+evolves through time.
+%
+With an arbitrary set of equations there is no guarantee that a
+solution exists or that it is unique.
+%
+We tackle this problem by placing certain restrictive syntactic rules
+on the structure of assignments, thus guaranteeing that the program is
+implementable.
+
+The restriction rules for assignments are:
+%
+\begin{itemize}
+  \item \textbf{The single assignment rule} -- each variable may be
+        assigned only once.
+
+
+  \item \textbf{The circular dependency rule} -- a set of equations
+        must not have ``cycles'' in its dependency graph not broken by delays.
+\end{itemize}
+
+The single assignment rule disregards conflicting definitions, and can
+be formulated as: one may either assign a value to a variable
+``\code{x}'', or to ``\reserved{next(}x\reserved{)}'' and
+``\reserved{init(}x\reserved{)}'', but not both. For instance, the
+following are legal assignments:
+
+\begin{center}
+  \begin{tabular}{|l|l|}\hline
+    Example 1 & \code{x} \reserved{:=} \code{expr$_1$}\reserved{;} \\
+    \ & \ \\\hline
+    Example 2 & \reserved{init(}\code{x}\reserved{)} \reserved{:=} \code{expr$_1$}\reserved{;} \\
+    \ & \ \\\hline
+    Example 3 & \reserved{next(}\code{x}\reserved{)} \reserved{:=} \code{expr$_1$}\reserved{;} \\
+    \ & \ \\\hline
+    Example 4 & \reserved{init(}\code{x}\reserved{)} \reserved{:=} \code{expr$_1$}\reserved{;} \\
+              & \reserved{next(}\code{x}\reserved{)} \reserved{:=} \code{expr$_2$}\reserved{;} \\
+    \hline
+\end{tabular}
+\end{center}
+while the following are illegal assignments:
+
+\begin{center}
+  \begin{tabular}{|l|l|}\hline
+    Example 1 & \code{x} \reserved{:=} \code{expr$_1$}\reserved{;} \\
+    \ & \code{x} \reserved{:=} \code{expr$_2$}\reserved{;} \\\hline
+    Example 2 & \reserved{init(}\code{x}\reserved{)} \reserved{:=} \code{expr$_1$}\reserved{;} \\
+    \ & \reserved{init(}\code{x}\reserved{)} \reserved{:=} \code{expr$_2$}\reserved{;} \\\hline
+    Example 3 & \code{x} \reserved{:=} \code{expr$_1$}\reserved{;} \\
+    \ & \reserved{init(}\code{x}\reserved{)} \reserved{:=} \code{expr$_2$}\reserved{;}\\\hline
+    Example 4 & \code{x} \reserved{:=} \code{expr$_1$}\reserved{;} \\
+              & \reserved{next(}\code{x}\reserved{)} \reserved{:=} \code{expr$_2$}\reserved{;} \\
+    \hline
+\end{tabular}
+\end{center}
+
+If we have an assignment like \code{x} \reserved{:=} \code{y}
+\reserved{;}, then we say that \code{x} \emph{depends on} \code{y}. A
+\emph{combinatorial loop} is a cycle of dependencies not broken by
+delays. For instance, the assignments:
+%
+\begin{nusmvCode}
+x := y;
+y := x;
+\end{nusmvCode}
+%
+form a combinatorial loop. Indeed, there is no fixed order in which we
+can compute \code{x} and \code{y}, since at each time instant the
+value of \code{x} depends on the value of \code{y} and vice-versa. We
+can introduce a ``unit delay dependency'' using the \reserved{next()}
+operator.
+%
+\begin{nusmvCode}
+      x := y;
+next(y) := x;
+\end{nusmvCode}
+%
+In this case, there is a unit delay dependency between \code{x} and
+\code{y}. 
+%
+A combinatorial loop is a cycle of dependencies whose total delay is
+zero. In \nusmv combinatorial loops are illegal. This guarantees that
+for any set of equations describing the behavior of variable, there is
+at least one solution. There might be multiple solutions in the case
+of unassigned variables or in the case of non-deterministic
+assignments such as in the following example,
+%
+\begin{nusmvCode}
+    next(x) := case x = 1 : 1;
+                    TRUE  : \{0,1\};
+               esac;
+\end{nusmvCode}
+
+
+
+%-----    ------
+\subsection{\code{FAIRNESS} Constraints}
+\label{FAIRNESS Constraints}
+\index{\code{FAIRNESS} constraints}
+\index{fairness constraints}
+\index{justice constraints}
+\index{compassion constraints}
+\index{fair paths}
+%
+A fairness constraint restricts the attention only to \dfn{fair
+execution paths}. When evaluating specifications, the model checker
+considers path quantifiers to apply only to fair paths.
+
+\nusmv supports two types of fairness constraints, namely justice
+constraints and compassion constraints. 
+%
+A justice constraint consists of a formula \code{f}, which is assumed
+to be true infinitely often in all the fair paths.
+%
+In \nusmv, justice constraints are identified by
+keywords \reserved{JUSTICE} and, for backward compatibility,
+\reserved{FAIRNESS}.
+%
+A compassion constraint consists of a pair of formulas \code{(p,q)};
+if property \code{p} is true infinitely often in a fair path, then
+also formula \code{q} has to be true infinitely often in the fair
+path.
+%
+In \nusmv, compassion constraints are identified by keyword
+\reserved{COMPASSION}.~\footnote{In the current version of \nusmv,
+compassion constraints are supported only for BDD-based LTL model
+checking. We plan to add support for compassion constraints also for
+CTL specifications and in Bounded Model Checking in the next releases
+of \nusmv.} 
+%
+If compassion constraints are used, then the model must not contain any
+input variables. 
+%
+Currently, \nusmv does not enforce this so it is the responsibility of
+the user to make sure that this is the case.
+
+Fairness constraints are declared using the following syntax (all
+expressions are expected to be \Boolean):
+%
+\begin{Grammar}
+fairness_constraint ::
+       \reserved{FAIRNESS} simple_expr [\textbf{;}]
+     | \reserved{JUSTICE} simple_expr [\textbf{;}]
+     | \reserved{COMPASSION} \textbf{(} simple_expr \textbf{,} simple_expr \textbf{)} [\textbf{;}]
+\end{Grammar}
+%
+A path is considered fair if and only if it satisfies all the
+constraints declared in this manner.
+
+
+%-----    ------
+\subsection {\code{MODULE} Declarations}
+\label{MODULE Declarations}
+\index{MODULE declarations}
+%
+A module declaration is an encapsulated collection of declarations,
+constraints and specifications. 
+%
+A module declaration also opens a new
+identifier scope.
+%
+Once defined, a module can be reused as many times as
+necessary. 
+%
+Modules are used in such a way that each instance of a module refers to
+different data structures. 
+%
+A module can contain instances of other modules, allowing a structural
+hierarchy to be built. 
+%
+The syntax of a module declaration is as follows:
+%
+\index{syntax rules!module declarations}
+\begin{Grammar}
+module :: \reserved{MODULE} identifier [\textbf{(} module_parameters \textbf{)}] [module_body]
+
+module_parameters ::
+          identifier
+        | module_parameters \textbf{,} identifier
+
+module_body :: 
+          module_element 
+        | module_body module_element
+           
+module_element ::
+          var_declaration
+        | ivar_declaration
+        | frozenvar_declaration
+        | define_declaration
+        | constants_declaration
+        | assign_constraint
+        | trans_constraint
+        | init_constraint
+        | invar_constraint
+        | fairness_constraint
+        | ctl_specification
+        | invar_specification
+        | ltl_specification
+        | compute_specification
+        | isa_declaration
+\end{Grammar}
+%
+The \grammar{identifier} immediately following the keyword
+\reserved{MODULE} is the name associated with the module. 
+%
+Module names have a separate name space in the program, and hence may
+clash with names of variables and definitions. 
+%
+The optional list of identifiers in parentheses are the formal
+parameters of the module.
+
+%-----    ------
+\subsection {\code{MODULE} Instantiations}
+\label{MODULE Instantiations}
+\index{MODULE instantiations}
+
+An \emph{instance} of a module is created using the \reserved{VAR}
+declaration (see \sref{State Variables}) with a module type specifier
+(see \sref{Type Specifiers}).
+%
+The syntax of a \grammar{module type specifier} is:
+
+\begin{Grammar}
+module_type_specifier ::     
+      | identifier [ \textbf{(} [ parameter_list ] \textbf{)} ]
+      | \reserved{process} identifier [ \textbf{(} [ parameter_list ] \textbf{)} ]
+
+parameter_list ::
+        next_expr
+      | parameter_list \textbf{,} next_expr
+\end{Grammar}
+%
+A variable declaration with a \grammar{module type specifier}
+introduces a name for the module instance. 
+%
+The \grammar{module type specifier} provides the name of the
+instantiating module and also a list of actual parameters, which are
+assigned to the formal parameters of the module.
+%
+An actual parameter can be any legal \grammar{next expression} (see
+\sref{Simple and Next Expressions}). 
+%
+It is an error if the number of actual parameters is different from
+the number of formal parameters. 
+%
+Whenever formal parameters occur in expressions within the module,
+they are replaced by the actual parameters. 
+%
+The semantic of module instantiation is similar to
+call-by-reference.\footnote{This also means that the actual parameters
+are analyzed in the context of the variable declaration where the module
+is instantiated, not in the context of the expression where the formal
+parameter occurs.}
+
+Here are examples:
+%
+\begin{nusmvCode}
+MODULE main
+...
+ VAR
+  a : boolean;
+  b : foo(a);
+...
+MODULE foo(x)
+ ASSIGN
+   x := TRUE;
+\end{nusmvCode}
+%
+the variable \code{a} is assigned the value \code{TRUE}. 
+%
+This distinguishes the call-by-reference mechanism from a
+call-by-value scheme.
+
+\noindent Now consider the following program:
+%
+\begin{nusmvCode}
+MODULE main
+...
+ DEFINE
+   a := 0;
+ VAR
+   b : bar(a);
+...
+MODULE bar(x)
+ DEFINE
+   a := 1;
+   y := x;
+\end{nusmvCode}
+%
+In this program, the value of \code{y} is \code{0}. On the other hand,
+using a call-by-name mechanism, the value of \code{y} would be
+\code{1}, since \code{a} would be substituted as an expression for
+\code{x}.
+
+\noindent Forward references to module names are allowed, but circular
+references are not, and result in an error.
+
+The keyword \reserved{process} is explained in \sref{Processes}.
+
+%-----    ------
+\subsection{References to Module Components (Variables and Defines)}
+\label{References to Module Components}
+\index{identifiers}
+
+As described in \sref{Variables and Defines}, defines and variables
+can be referenced in expressions as \code{variable\_identifiers} and
+\code{define\_identifiers} respectively, both of which are
+\grammar{complex identifiers}. 
+%
+The syntax of a \grammar{complex identifier} is:\\
+
+\index{syntax rules!complex identifiers}
+\begin{Grammar}
+complex_identifier ::
+        identifier
+      | complex_identifier \textbf{.} identifier
+      | complex_identifier \textbf{[} simple_expression \textbf{]}
+      | \reserved{self}
+\end{Grammar}
+
+Every variable and define used in an expression should be declared. It
+is possible to have forward references when a variable or define
+identifier is used textually before the corresponding declaration.
+
+Notations with \code{\textbf{.}} (\code{<DOT>}) are used to access the
+components of modules.
+%
+For example, if \code{m} is an instance of a module (see \sref{MODULE
+Instantiations} for information about instances of modules) then the
+expression \code{m.c} identifies the component \code{c} of the module
+instance \code{m}. 
+%
+This is precisely analogous to accessing a component of a structured
+data type.
+
+Note that actual parameters of a module can potentially be instances
+of other modules.
+%
+Therefore, parameters of modules allow access to the components of
+other module instances, as in the following example:
+%
+\begin{nusmvCode}
+MODULE main
+...  VAR
+  a : bar;
+  m : foo(a);
+...
+MODULE bar
+ VAR
+   q : boolean;
+   p : boolean;
+
+MODULE foo(c)
+ DEFINE
+   flag := c.q | c.p;
+\end{nusmvCode}
+%
+Here, the value of `\code{m.flag}' is the logical \operator{OR} of
+`\code{a.p}' and `\code{a.q}'.
+
+
+Individual elements of an array are accessed in the typical fashion
+with the index given in square brackets. See \ref{Index Subscript
+Operator} for more information.
+
+
+It is possible to refer to the name that the current module has been
+instantiated to by using the \reserved{self} built-in
+identifier.\index{self}
+%
+\begin{nusmvCode}
+MODULE container(init_value1, init_value2)
+  VAR c1 : counter(init_value1, self);
+  VAR c2 : counter(init_value2, self);
+
+MODULE counter(init_value, my_container)
+  VAR v: 1..100;
+  ASSIGN 
+     init(v) := init_value;
+  DEFINE 
+     greatestCounterInContainer := v >= my_container.c1.v &
+                                   v >= my_container.c2.v;
+
+MODULE main
+  VAR c : container(14, 7);
+  SPEC
+    c.c1.greatestCounterInContainer;
+\end{nusmvCode}
+%
+In this example an instance of the module \code{container} is passed
+to the sub-module \code{counter}. 
+%
+In the \code{main} module, \code{c} is declared to be an instance of
+the module \code{container}, which declares two instances of the module
+\code{counter}.
+%
+Every instance of the \code{counter} module has a define
+\code{greatestCounterInContainer} which specifies the condition when
+this particular \code{counter} has the greatest value in the container
+it belongs to.  
+%
+So a \code{counter} needs access to the parent \code{container} to
+access all the \code{counters} in the \code{container}.
+
+
+%-----    ------
+\subsection{Processes}
+\label{Processes}
+\index{process keyword}
+\index{processes}
+%
+\fbox{\parbox[t]{\textwidth} {
+\emph{Important!} \\
+Since \nusmv version 2.5.0 processes are \emph{deprecated}.
+In future versions of \nusmv processes may be no longer supported,
+and only synchronous FSM will be supported by the input language.
+Modeling of asynchronous processes will have to be resolved at
+higher level.
+}}
+%
+%
+\vspace{3mm}
+
+Processes are used to model interleaving
+concurrency. A \dfn{process} is a module which is instantiated
+using the keyword `\reserved{process}' (see \sref{MODULE
+Instantiations}).
+%
+The program executes a step by non-deterministically choosing a
+process, then executing all of the assignment statements in that
+process in parallel. 
+%
+It is implicit that if a given variable is not assigned by the
+process, then its value remains unchanged.
+%
+Note that only assignments of the form
+%
+\begin{nusmvCode}
+ASSIGN next(\emph{var_name}) := \ldots ;
+\end{nusmvCode}
+%
+are influenced by processes. All other kinds of assignments and
+all constraints (such as \code{TRANS}, \code{INVAR}, etc) are always in
+force, independent of which process is selected for execution.
+
+Each instance of a process has a special \Boolean variable associated
+with it, called \code{running}.\index{\code{running}}
+%
+The value of this variable is \code{TRUE} if and only if the process
+instance is currently selected for execution.
+%
+No two processes may be running at the same time.
+
+Note that (only) in the presence of processes NuSMV internally
+declares special variables \code{running}
+and \code{\_process\_selector\_}. These names should NOT be used in
+user's own declarations (when processes are used), but they can be
+referenced for example in the transition relation of a module.
+
+Furthermore, if the user declares \code{N} processes, there will be
+\code{N+1} processes allocated, as the module \code{main} has always its 
+own process associated. In the following example there are three
+process, \code{p1}, \code{p2} and \code{main}:
+%
+\begin{nusmvCode}
+MODULE my_module
+  -- my module definition...
+
+MODULE main
+  VAR 
+    p1 : process my_module;
+    p2 : process my_module;
+
+\end{nusmvCode}
+%
+
+%-----    ------
+\subsection{A Program and the \code{main} Module}
+\label{Main Module}
+\index{main module}
+%
+\index{syntax rules!main program}
+The syntax of a \nusmv program is:
+%
+\begin{Grammar}
+program :: module_list
+
+module_list ::
+          module
+        | module_list module
+\end{Grammar}
+%
+There must be one module with the name \code{main} and no formal
+parameters.
+%
+The module \code{main} is the one evaluated by the interpreter.
+
+%-----    ------
+\subsection{Namespaces and Constraints on Declarations}
+\label{Namespaces}
+\index{namespaces}
+\index{declarations}
+%
+Identifiers in the \nusmv input language may reference five different
+entities: modules, variables, defines, module instances, and symbolic
+constants.
+
+Module identifiers have their own separate namespace. 
+%
+Module identifiers can be used in \grammar{module type specifiers}
+only, and no other kind of identifiers can be used there (see
+\sref{MODULE Instantiations}).
+%
+Thus, module identifiers may be equal to other kinds of identifiers
+without making the program ambiguous. 
+%
+However, no two modules should be declared with the same
+identifier. 
+%
+Modules cannot be declared in other modules, therefore they are always
+referenced by simple \grammar{identifiers}.
+
+Variable, define, and module instance identifiers are introduced in a
+program when the module containing their declarations is
+instantiated. 
+%
+Inside this module the variables, defines and module instances may be
+referenced by the simple \grammar{identifiers}.
+%
+Inside other modules, their simple identifiers should be preceded by
+the identifier of the module instance containing their declaration and
+\code{\textbf{.}} (\code{<DOT>}).
+%
+Such identifiers are called \grammar{complex identifier}.
+%
+The \emph{full identifier} is a \grammar{complex identifier} which
+references a variable, define, or a module instance from inside the
+\code{main} module. 
+
+Let us consider the following:
+%
+\begin{nusmvCode}
+MODULE main
+  VAR a : boolean;
+  VAR b : foo;
+  VAR c : moo;
+
+MODULE foo
+  VAR q : boolean;
+      e : moo;
+
+MODULE moo
+  DEFINE f := 0 < 1;
+
+MODULE not_used
+  VAR n : boolean;
+  VAR t : used;
+
+MODULE used
+  VAR k : boolean;
+\end{nusmvCode}
+%
+The full identifier of the variable \code{a} is \code{a}, the full
+identifier of the variable \code{q} (from the module \code{foo}) is
+\code{b.q}, the full identifier of the module instance \code{e} (from
+the module \code{foo}) is \code{b.e}, the full identifiers of the
+define \code{f} (from the module \code{moo}) are \code{b.e.f} and
+\code{c.f}, because two module instances contain this define.
+%
+Notice that, the variables \code{n} and \code{k} as well as the module
+instance \code{t} do not have full identifiers because they cannot be
+accessed from \code{main} (since the module \code{not\_used} is not
+instantiated).
+
+In the \nusmv language, variable, define, and module instances belong
+to one namespace, and no two full identifiers of different variable,
+define, or module instances should be equal. Also, none of them can be
+redefined.
+
+A \grammar{symbolic constant} can be introduced by a variable
+declaration if its type specifier enumerates the \grammar{symbolic
+constant}. For example, the variable declaration
+%
+\begin{nusmvCode}
+  VAR a : \{OK, FAIL, waiting\};
+\end{nusmvCode}
+%
+declares the variable \code{a} as well as the \grammar{symbolic
+constants} \code{OK}, \code{FAIL} and \code{waiting}. 
+%
+The full identifiers of the \grammar{symbolic constants} are equal to
+their simple \grammar{identifiers} with the additional condition --
+the variable whose declaration declares the \grammar{symbolic
+constants} also has a full identifier.
+
+\grammar{Symbolic constants} have a separate namespace, so their
+identifiers may potentially be equal, for example, variable
+identifiers. 
+%
+It is an error, if the same identifier in an expression can
+simultaneously refer to a \grammar{symbolic constant} and a variable
+or a define.
+%
+A \grammar{symbolic constant} may be declared an arbitrary number of
+times, but it must be declared at least once, if it is used in an
+expression.
+
+%-----    ------
+\subsection{Context}
+\label{Context}
+\index{context}
+
+Every module instance has its own \emph{context}, in which all
+expressions are analyzed. 
+%
+The context can be defined as the full identifiers of variables
+declared in the module without their simple identifiers.
+%
+Let us consider the following example:
+%
+\begin{nusmvCode}
+MODULE main
+  VAR a : foo;
+  VAR b : moo;
+
+MODULE foo
+  VAR c : moo;
+
+MODULE moo
+  VAR d : boolean;
+\end{nusmvCode}
+%
+The context of the module \code{main} is \code{`'}(empty)\footnote{
+The module \code{main} is instantiated with the so called empty
+identifier which cannot be referenced in a program.}, the context of
+the module instance \code{a} (and inside the module \code{foo}) is
+\code{`a.'}, the contexts of module \code{moo} may be \code{`b.'}  (if
+the module instance \code{b} is analyzed) and \code{`a.c.'} (if the
+module instance \code{a.c} is analyzed).
+
+%-----    ------
+\subsection{\code{ISA} Declarations}
+\label{ISA Declarations}
+\index{ISA declarations}
+%
+There are cases in which some parts of a module could be shared among
+different modules, or could be used as a module themselves. 
+%
+In \nusmv it is possible to declare the common parts as separate
+modules, and then use the \reserved{ISA} declaration to import the
+common parts inside a module declaration. 
+%
+The syntax of an \grammar{isa\_declaration} is as follows:
+%
+\begin{Grammar}
+isa_declaration :: \reserved{ISA} identifier
+\end{Grammar}
+%
+where \grammar{identifier} must be the name of a declared module. 
+%
+The \grammar{ISA\_declaration} can be thought as a simple macro
+expansion command, because the body of the module referenced by an
+\code{ISA} command is replaced to the \grammar{ISA\_declaration}.
+
+\textbf{Warning:} \reserved{ISA} is a deprecated feature and will be
+removed from future versions of \nusmv. Therefore, avoid the use of
+\grammar{ISA\_declarations}. Use module instances instead.
+
+%-------------------- SPECIFICATIONS -----------------------------------
+
+\section{Specifications}
+%
+The specifications to be checked on the FSM can be expressed in
+temporal logics like Computation Tree Logic CTL, Linear Temporal Logic
+LTL extended with Past Operators, and Property Specification Language
+(PSL) \cite{PSLLRM} that includes CTL and LTL with Sequencial Extended
+Regular Expressions (SERE), a variant of classical regular expressions.
+%
+It is also possible to analyze quantitative characteristics of the FSM
+by specifying real-time CTL specifications. 
+%
+Specifications can be positioned within modules, in which case they
+are preprocessed to rename the variables according to their context.
+
+CTL and LTL specifications are evaluated by \nusmv in order to
+determine their truth or falsity in the FSM. 
+%
+When a specification is discovered to be false, \nusmv constructs and
+prints a counterexample, i.e. a trace of the FSM that falsifies the
+property.
+
+%-----    ------
+\subsection{CTL Specifications}
+\label{CTL Specifications}
+\index{ CTL specifications}
+%
+A CTL specification is given as a formula in the temporal logic CTL,
+introduced by the keyword `\reserved{CTLSPEC}' (however, deprecated
+keyword `\reserved{SPEC}' can be used instead.)
+%
+The syntax of this specification is:
+%
+\begin{Grammar}
+ctl_specification :: \reserved{CTLSPEC} ctl_expr [\textbf{;}]
+                   | \reserved{SPEC} ctl_expr [\textbf{;}]
+                   | \reserved{CTLSPEC} \reserved{NAME} name \textbf{:=} ctl_expr [\textbf{;}]
+                   | \reserved{SPEC} \reserved{NAME} name \textbf{:=} ctl_expr [\textbf{;}]
+
+\end{Grammar}
+%
+The syntax of CTL formulas recognized by \nusmv is as follows:
+%
+\begin{Grammar}
+ctl_expr ::
+    simple_expr                 -- a simple boolean expression
+    | \textbf{(} ctl_expr \textbf{)}
+    | \operator{!} ctl_expr                -- logical not
+    | ctl_expr \operator{\&} ctl_expr       -- logical and
+    | ctl_expr \operator{|} ctl_expr       -- logical or
+    | ctl_expr \operator{xor} ctl_expr     -- logical exclusive or
+    | ctl_expr \operator{xnor} ctl_expr    -- logical NOT exclusive or
+    | ctl_expr \operator{->} ctl_expr      -- logical implies
+    | ctl_expr \operator{<->} ctl_expr     -- logical equivalence
+    | \reserved{EG} ctl_expr               -- exists globally
+    | \reserved{EX} ctl_expr               -- exists next state
+    | \reserved{EF} ctl_expr               -- exists finally
+    | \reserved{AG} ctl_expr               -- forall globally
+    | \reserved{AX} ctl_expr               -- forall next state
+    | \reserved{AF} ctl_expr               -- forall finally
+    | \reserved{E} \textbf{[} ctl_expr \reserved{U} ctl_expr \textbf{]} -- exists until
+    | \reserved{A} \textbf{[} ctl_expr \reserved{U} ctl_expr \textbf{]} -- forall until
+\end{Grammar}
+%
+Since \grammar{simple\_expr} cannot contain the \operator{next}
+operator, \grammar{ctl\_expr} cannot contain it either.
+%
+The \grammar{ctl\_expr} should also be a \Boolean expression.
+
+Intuitively the semantics of CTL operators is as follows:
+% 
+\begin{itemize}
+  \item \code{\reserved{EX} \textit{p}}
+        is true in a state $s$ if \emph{there exists} a state
+        $s^\prime$ such that a transition goes from $s$ to $s^\prime$
+        and \textit{p} is true in $s^\prime$.
+  \item \code{\reserved{AX} \textit{p}}
+        is true in a state $s$ if \emph{for all} states $s^\prime$
+        where there is a transition from $s$ to $s^\prime$, \textit{p}
+        is true in $s^\prime$.
+  \item \code{\reserved{EF} \textit{p}}
+       is true in a state $s_0$ if \emph{there exists} a series of
+       transitions $s_0 \rightarrow s_1$, $s_1 \rightarrow s_2$,
+       \ldots, $s_{n-1} \rightarrow s_n$ such that \textit{p} is true
+       in $s_n$.
+  \item \code{\reserved{AF} \textit{p}}
+       is true in a state $s_0$ if \emph{for all} series of
+       transitions $s_0 \rightarrow s_1$, $s_1 \rightarrow s_2$,
+       \ldots, $s_{n-1} \rightarrow s_n$ \textit{p} is true in $s_n$.
+
+  \item \code{\reserved{EG} \textit{p}}
+       is true in a state $s_0$ if \emph{there exists} an infinite
+       series of transitions $s_0 \rightarrow s_1$, $s_1 \rightarrow
+       s_2$, \ldots~such that \textit{p} is true in \emph{every}
+       $s_i$.
+  \item \code{\reserved{AG} \textit{p}}
+       is true in a state $s_0$ if \emph{for all} infinite series of
+       transitions $s_0 \rightarrow s_1$, $s_1 \rightarrow s_2$,
+       \ldots~\textit{p} is true in \emph{every} $s_i$.
+  \item \code{\textbf{E[}\textit{p} \textbf{U} \textit{q}\textbf{]}}
+       is true in a state $s_0$ if \emph{there exists} a series of
+       transitions $s_0 \rightarrow s_1$, $s_1 \rightarrow s_2$,
+       \ldots, $s_{n-1} \rightarrow s_n$ such that \textit{p} is true
+       in \emph{every} state from $s_0$ to $s_{n-1}$ and \textit{q} is
+       true in state $s_n$.
+  \item \code{\textbf{A[}\textit{p} \textbf{U} \textit{q}\textbf{]}}
+       is true in a state $s_0$ if \emph{for all} series of
+       transitions $s_0 \rightarrow s_1$, $s_1 \rightarrow s_2$,
+       \ldots, $s_{n-1} \rightarrow s_n$ \textit{p} is true in
+       \emph{every} state from $s_0$ to $s_{n-1}$ and \textit{q} is
+       true in state $s_n$.
+\end{itemize}
+A CTL formula is true if it is true in \emph{all} initial states.
+
+For a detailed description about the semantics of \emph{PSL}
+operators, please see \cite{PSLLRM}. 
+
+%-----    ------
+\subsection{Invariant Specifications}
+\label{INVAR Specifications}
+\index{INVARSPEC Specifications}
+\index{Invariant Specifications}
+
+It is also possible to specify invariant specifications with special
+constructs. Invariants are propositional formulas which must hold
+invariantly in the model.
+%
+The corresponding command is \reserved{INVARSPEC}, with syntax:
+%
+\begin{Grammar}
+invar_specification :: \reserved{INVARSPEC} next_expr \textbf{;}
+                       \reserved{INVARSPEC} \reserved{NAME} name \textbf{:=} next_expr [\textbf{;}]
+\end{Grammar}
+%
+This statement is intuitively equivalent to 
+%
+\begin{Grammar}
+SPEC  AG simple_expr ;
+\end{Grammar}
+%
+but can be checked by a specialised algorithm during reachability
+analysis and Invariant Specifications can contain \operator{next}
+operators.  Fairness constraints are not taken into account during
+invariant checking.
+
+%-----    ------
+\subsection{LTL Specifications}
+\label{LTL Specifications}
+\index{LTL Specifications}
+%
+LTL specifications are introduced by the keyword
+\reserved{LTLSPEC}. 
+%
+The syntax of this specification is:
+%
+\begin{Grammar}
+ltl_specification :: \reserved{LTLSPEC} ltl_expr [\textbf{;}]
+                     \reserved{LTLSPEC} \reserved{NAME} name \textbf{:=} ltl_expr [\textbf{;}]
+\end{Grammar}
+%
+The syntax of LTL formulas recognized by \nusmv is as follows:
+\begin{Grammar}
+ltl_expr ::
+    simple_expr              -- a simple boolean expression
+    | \textbf{(} ltl_expr \textbf{)}
+    | \operator{!} ltl_expr             -- logical not
+    | ltl_expr \operator{\&} ltl_expr    -- logical and
+    | ltl_expr \operator{|} ltl_expr    -- logical or
+    | ltl_expr \operator{xor} ltl_expr  -- logical exclusive or
+    | ltl_expr \operator{xnor} ltl_expr -- logical NOT exclusive or
+    | ltl_expr \operator{->} ltl_expr   -- logical implies
+    | ltl_expr \operator{<->} ltl_expr  -- logical equivalence
+    -- FUTURE
+    | \reserved{X} ltl_expr             -- next state
+    | \reserved{G} ltl_expr             -- globally
+    | \reserved{F} ltl_expr             -- finally
+    | ltl_expr \reserved{U} ltl_expr    -- until
+    | ltl_expr \reserved{V} ltl_expr    -- releases
+    -- PAST
+    | \reserved{Y} ltl_expr             -- previous state
+    | \reserved{Z} ltl_expr             -- not previous state not
+    | \reserved{H} ltl_expr             -- historically
+    | \reserved{O} ltl_expr             -- once 
+    | ltl_expr \reserved{S} ltl_expr    -- since
+    | ltl_expr \reserved{T} ltl_expr    -- triggered
+\end{Grammar}
+%
+Intuitively the semantics of LTL operators is as follows:
+% 
+\begin{itemize}
+  \item \code{\reserved{X} \textit{p}}
+        is true at time $t$ if \textit{p} is true at time $t+1$.
+  \item \code{\reserved{F} \textit{p}}
+        is true at time $t$ if \textit{p} is true at \emph{some} time
+        $t^\prime \ge t$.
+  \item \code{\reserved{G} \textit{p}}
+        is true at time $t$ if \textit{p} is true at \emph{all} times
+        $t^\prime \ge t$.
+  \item \code{\textit{p} \reserved{U} \textit{q}}
+        is true at time $t$ if \textit{q} is true at \emph{some} time
+        $t^\prime \ge t$, and \emph{for all} time $t^{\prime\prime}$
+        (such that $t \le t^{\prime\prime} < t^\prime$) \textit{p} is
+        true.
+  \item \code{\textit{p} \reserved{V} \textit{q}}
+        is true at time $t$ if \textit{q} holds at \emph{all} time steps $t^\prime
+        \geq t$ up to and including the time step $t^{\prime\prime}$
+        where \textit{p} also holds. Alternatively, it may be the case that \textit{p}
+        \emph{never} holds in which case \textit{q} must hold in \emph{all} time
+        steps $t^\prime \geq t$.
+  \item \code{\reserved{Y} \textit{p}} is true at time $t > t_0$ if \textit{p} holds
+        at time $t - 1$. \code{\reserved{Y} \textit{p}} is \emph{false} at time $t_0$.
+  \item \code{\reserved{Z} \textit{p}} is equivalent to \code{\reserved{Y} \textit{p}}
+        with the exception that the expression is \emph{true} at time $t_0$.
+  \item \code{\reserved{H} \textit{p}} is true at time $t$ if \textit{p} holds in \emph{all}
+        previous time steps $t^\prime \leq t$.
+  \item \code{\reserved{O} \textit{p}} is true at time $t$ if \textit{p} held in \emph{at least one}
+        of the previous time steps $t^\prime \leq t$.
+  \item \code{\textit{p} \reserved{S} \textit{q}} is true at time $t$ if \textit{q} held at time
+        $t^\prime \leq t$ and \textit{p} holds in \emph{all} time steps $t^{\prime\prime}$ such
+        that $t^\prime < t^{\prime\prime} \le t$.
+  \item \code{\textit{p} \reserved{T} \textit{q}} is true at time $t$ if \textit{p} held at time
+        $t^\prime \leq t$ and \textit{q} holds in \emph{all} time steps $t^{\prime\prime}$ such
+        that $t^\prime \le t^{\prime\prime} \le t$. Alternatively, if \textit{p} has \emph{never}
+        been true, then \textit{q} must hold in all time steps $t^{\prime\prime}$ such
+        that $t_0 \le t^{\prime\prime} \le t$
+\end{itemize}
+An LTL formula is true if it is true at the initial time $t_0$.
+
+In \nusmv, LTL specifications can be analyzed both by means of
+BDD-based reasoning, or by means of SAT-based bounded model
+checking. 
+%
+In the case of BDD-based reasoning, \nusmv proceeds according to
+\cite{CGH97}. 
+%
+For each LTL specification, a tableau of the behaviors falsifying the
+property is constructed, and then synchronously composed with the
+model. 
+%
+With respect to \cite{CGH97}, the approach is fully integrated within
+\nusmv, and allows full treatment of past temporal operators. 
+%
+Note that the counterexample is generated in such a way to show that the falsity
+of a LTL specification may contain state variables which have been
+introduced by the tableau construction procedure.
+
+In the case of SAT-based reasoning, a similar tableau construction is
+carried out to encode the paths of limited length, violating the
+property.
+%
+\nusmv generates a propositional satisfiability problem, that is then
+tackled by means of an efficient SAT solver \cite{BCCZ99}.
+
+In both cases, the tableau constructions are completely transparent to
+the user.
+
+%-----    ------
+\subsubsection{Important Difference Between BDD and SAT Based LTL Model Checking}
+\label{Important Difference Between BDD and SAT Based LTL Model Checking}
+\index{Important Difference Between BDD and SAT Based LTL Model Checking}
+
+If a FSM to be checked it not total (i.e. has deadlock state) the
+model checking may return different results for the same LTL
+specification depending on the verification engine used.  For
+example, for below model:
+%
+\begin{nusmvCode}
+MODULE main
+VAR s : boolean;
+TRANS s = TRUE
+LTLSPEC G (s = TRUE)
+\end{nusmvCode}
+%
+the LTL specification is proved valid by BDD-based model checking but
+is violated by SAT-based bounded model checking. The counter-example
+found consists of one state \code{s=FALSE}.
+
+This difference between the results is caused by the fact that BDD
+model checking investigates only \emph{infinite} paths whereas
+SAT-based model checking is able to deal also with
+\emph{finite} paths.
+%
+Apparently infinite paths cannot ever have \code{s=FALSE} as then the
+transition relation will not hold between the consecutive states in
+the path.
+%
+A \emph{finite} path consisting of just one state \code{s=FALSE}
+violates the specification \code{G (s = TRUE)} and is still consistent
+with the FSM as the transition relation is not taken ever and there is
+not initial condition to violate. Note however that this state is a
+deadlock and cannot have consecutive states.
+
+In order to make SAT-based bound model checking ignore finite paths
+it is enough to add a fairness condition to the \code{main} module:
+%
+\begin{nusmvCode}
+JUSTICE TRUE;
+\end{nusmvCode}
+%
+Being limited to fair paths, SAT-based bounded model checking cannot
+find a finite counter-example and results of model checking become
+consistent with BDD-based model checking.
+
+%-----    ------
+\subsection{Real Time CTL Specifications and Computations}
+\label{Real Time CTL Specifications and Computations}
+\index{Real Time CTL Specifications and Computations}
+
+\nusmv allows for Real Time CTL specifications~\cite{EMSS91}.
+%
+\nusmv assumes that each transition takes unit time for
+execution.
+%
+RTCTL extends the syntax of CTL path expressions with the following
+bounded modalities:
+%
+\begin{Grammar}
+rtctl_expr ::
+        ctl_expr
+      | \reserved{EBF} range rtctl_expr
+      | \reserved{ABF} range rtctl_expr
+      | \reserved{EBG} range rtctl_expr
+      | \reserved{ABG} range rtctl_expr
+      | \reserved{A} \textbf{[} rtctl_expr \reserved{BU} range rtctl_expr \textbf{]}
+      | \reserved{E} \textbf{[} rtctl_expr \reserved{BU} range rtctl_expr \textbf{]}
+range  :: integer_number \textbf{..} integer_number
+\end{Grammar}
+%
+Given ranges must be non-negative.\\
+%
+Intuitively, the semantics of the RTCTL operators is as follows:\\
+%
+\begin{itemize}
+  \item \code{\reserved{EBF} \textit{m}\textbf{..}\textit{n} \textit{p}}
+        requires that there exists a path starting from a state, such
+        that property \textit{p} holds in a future time instant
+        \textit{i}, with $m \leq i \leq n$
+  \item \code{\reserved{ABF} \textit{m}\textbf{..}\textit{n} \textit{p}}
+        requires that for all paths starting from a state, property
+        \textit{p} holds in a future time instant \textit{i}, with $m
+        \leq i \leq n$
+  \item \code{\reserved{EBG} \textit{m}\textbf{..}\textit{n} \textit{p}}
+        requires that there exists a path starting from a state, such
+        that property \textit{p} holds in all future time instants
+        \textit{i}, with $m \leq i \leq n$
+  \item \code{\reserved{ABG} \textit{m}\textbf{..}\textit{n} \textit{p}}
+        requires that for all paths starting from a state, property
+        \textit{p} holds in all future time instants \textit{i}, with
+        $m \leq i \leq n$
+  \item \code{\reserved{E} \textbf{[} \textit{p} \reserved{BU} \textit{m}\textbf{..}\textit{n} \textit{q} \textbf{]}}
+        requires that there exists a path starting from a state, such
+        that property \textit{q} holds in a future time instant
+        \textit{i}, with $m \leq i \leq n$, and property \textit{p}
+        holds in all future time instants \textit{j}, with $m \leq j <
+        i$
+  \item \code{\reserved{A} \textbf{[} \textit{p} \reserved{BU} \textit{m}\textbf{..}\textit{n} \textit{q} \textbf{]}},
+        requires that for all paths starting from a state, property
+        \textit{q} holds in a future time instant \textit{i}, with $m
+        \leq i \leq n$, and property \textit{p} holds in all future
+        time instants \textit{j}, with $m \leq j < i$
+\end{itemize}
+%
+Real time CTL specifications can be defined with the following syntax,
+which extends the syntax for CTL specifications. (keyword
+`\reserved{SPEC}' is deprecated)
+%
+\begin{Grammar}
+rtctl_specification :: \reserved{CTLSPEC} rtctl_expr [\textbf{;}]
+                     | \reserved{SPEC} rtctl_expr [\textbf{;}]
+                     | \reserved{CTLSPEC} \reserved{NAME} name \textbf{:=} rtctl_expr [\textbf{;}]
+                     | \reserved{SPEC} \reserved{NAME} name \textbf{:=} rtctl_expr [\textbf{;}]
+\end{Grammar}
+%
+With the \reserved{COMPUTE} statement, it is also possible to compute
+quantitative information on the FSM. 
+%
+In particular, it is possible to compute the exact bound on the delay
+between two specified events, expressed as CTL formulas. 
+%
+The syntax is the following:
+%
+\begin{Grammar}
+compute_specification :: \reserved{COMPUTE} compute_expr [\textbf{;}]
+                         \reserved{COMPUTE} \reserved{NAME} name \textbf{:=} compute_expr [\textbf{;}]
+\end{Grammar}
+%
+where
+%
+\begin{Grammar}
+compute_expr :: \reserved{MIN} \textbf{[} rtctl_expr \textbf{,} rtctl_expr \textbf{]}
+              | \reserved{MAX} \textbf{[} rtctl_expr \textbf{,} rtctl_expr \textbf{]}
+\end{Grammar}
+%
+\code{\reserved{MIN} \textbf{[}\textit{start} \textbf{,}
+\textit{final}]} returns the length of the shortest path from a state
+in \textit{start} to a state in \textit{final}.
+%
+For this, the set of states reachable from \textit{start} is
+computed. 
+%
+If at any point, we encounter a state satisfying \textit{final}, we
+return the number of steps taken to reach the state. 
+%
+If a fixed point is reached and no computed states intersect
+\textit{final} then \dfn{infinity} is returned.
+
+\noindent\code{\reserved{MAX} \textbf{[}\textit{start} \textbf{,}
+\textit{final}]} returns the length of the longest path from a state
+in \textit{start} to a state in \textit{final}. 
+%
+If there exists an infinite path beginning in a state in
+\textit{start} that never reaches a state in \textit{final}, then
+\textit{infinity} is returned. If any of the initial or final states 
+is empty, then \textit{undefined} is returned.
+
+It is important to remark here that if the FSM is not total (i.e. it
+contains deadlock states) \reserved{COMPUTE} may produce wrong
+results. It is possible to check the FSM against deadlock states by
+calling the command \command{check\_fsm}.
+
+
+%-----    ------
+\subsection{PSL Specifications}
+\label{PSL Specifications}
+\index{PSL Specifications}
+%
+\nusmv allows for PSL specifications as from version 1.01 of PSL
+Language Reference Manual \cite{PSLLRM}. PSL specifications
+are introduced by the keyword ``\code{PSLSPEC}''. The syntax of this
+declaration (as from the PSL parsers distributed by IBM, \cite{PSLparser}) is:
+%
+\begin{Grammar}
+pslspec_declaration :: \reserved{PSLSPEC} psl_expr [\textbf{;}]
+                       \reserved{PSLSPEC} \reserved{NAME} name \textbf{:=} psl_expr [\textbf{;}]
+\end{Grammar}
+%
+where
+%
+\begin{Grammar}
+psl_expr ::
+   psl_primary_expr
+ | psl_unary_expr
+ | psl_binary_expr
+ | psl_conditional_expr
+ | psl_case_expr
+ | psl_property
+\end{Grammar}
+%
+The first five classes define the building blocks for
+\code{psl\_property} and provide means of combining
+instances of that class; they are defined as follows:
+
+\begin{Grammar}
+psl_primary_expr ::
+   number                              ;; a numeric constant
+ | boolean                             ;; a boolean constant
+ | word                                ;; a word constant
+ | var_id                              ;; a variable identifier
+ | \textbf{\{} psl_expr \textbf{,} ... \textbf{,} psl_expr \textbf{\}}
+ | \textbf{\{} psl_expr "\{" psl_expr \textbf{,} ... \textbf{,} "psl_expr" \textbf{\}}\textbf{\}}
+ | \textbf{(} psl_expr \textbf{)}
+
+psl_unary_expr ::
+   \operator{+} psl_primary_expr     
+ | \operator{-} psl_primary_expr  
+ | \operator{!} psl_primary_expr  
+ | \operator{bool} \textbf{(} psl_expr \textbf{)}
+ | \operator{word1} \textbf{(} psl_expr \textbf{)}
+ | \operator{uwconst} \textbf{(} psl_expr, psl_expr \textbf{)}
+ | \operator{swconst} \textbf{(} psl_expr, psl_expr \textbf{)}
+ | \operator{sizeof} \textbf{(} psl_expr \textbf{)}
+ | \operator{toint} \textbf{(} psl_expr \textbf{)}
+ | \operator{signed} \textbf{(} psl_expr \textbf{)}
+ | \operator{unsigned} \textbf{(} psl_expr \textbf{)}
+ | \operator{extend} \textbf{(} psl_expr, psl_primary_expr \textbf{)}
+ | \operator{resize} \textbf{(} psl_expr, psl_primary_expr \textbf{)}
+ | \operator{select} \textbf{(} psl_expr, psl_expr, psl_expr \textbf{)}
+
+psl_binary_expr ::
+   psl_expr \operator{+} psl_expr    
+ | psl_expr \operator{union} psl_expr 
+ | psl_expr \operator{in} psl_expr 
+ | psl_expr \operator{-} psl_expr   
+ | psl_expr \operator{*}psl_expr   
+ | psl_expr \operator{/} psl_expr   
+ | psl_expr \operator{\%} psl_expr 
+ | psl_expr \operator{==} psl_expr    
+ | psl_expr \operator{!=} psl_expr  
+ | psl_expr \operator{<} psl_expr       
+ | psl_expr \operator{<=} psl_expr       
+ | psl_expr \operator{>} psl_expr       
+ | psl_expr \operator{>=} psl_expr       
+ | psl_expr \operator{&} psl_expr 
+ | psl_expr \operator{|} psl_expr 
+ | psl_expr \operator{xor} psl_expr 
+ | psl_expr \operator{xnor} psl_expr 
+ | psl_expr \operator{<<} psl_expr 
+ | psl_expr \operator{>>} psl_expr 
+ | psl_expr \operator{::} psl_expr 
+psl_conditional_expr ::
+ psl_expr \textbf{?} psl_expr \textbf{:} psl_expr 
+psl_case_expr ::
+ \reserved{case}
+     psl_expr \textbf{:} psl_expr \textbf{;}
+     ...
+     psl_expr \textbf{:} psl_expr \textbf{;}
+ \reserved{endcase}
+\end{Grammar}
+%
+Among the subclasses of \code{psl\_expr} we depict the class
+\code{psl\_bexpr} that will be used in the following to identify purely
+boolean, i.e. not temporal, expressions. The class of PSL properties
+\code{psl\_property} is defined as follows:
+%
+\begin{Grammar}
+psl_property :: 
+   replicator psl_expr ;; a replicated property 
+ | FL_property \reserved{abort} psl_bexpr
+ | psl_expr \operator{<->} psl_expr
+ | psl_expr \operator{->} psl_expr
+ | FL_property       
+ | OBE_property      
+replicator :: 
+   \reserved{forall} var_id [index_range] \reserved{in} value_set \textbf{:} 
+index_range :: 
+   \textbf{[} range \textbf{]} 
+range :: 
+   low_bound \textbf{:} high_bound 
+low_bound :: 
+   number              
+ | identifier         
+high_bound :: 
+   number 
+ | identifier
+ | \reserved{inf}             ;; inifite high bound 
+value_set :: 
+   \textbf{\{} value_range \textbf{,} ... \textbf{,} value_range \textbf{\}}
+ | \reserved{boolean}
+value_range :: 
+   psl_expr
+ | range
+\end{Grammar}
+%
+The instances of \code{FL\_property} are temporal properties built
+using LTL operators and SEREs operators, and are defined as follows:
+%
+
+\begin{Grammar}
+FL_property ::
+ ;; PRIMITIVE LTL OPERATORS
+   \reserved{X} FL_property                      
+ | \reserved{X!} FL_property                     
+ | \reserved{F} FL_property                      
+ | \reserved{G} FL_property                      
+ | \textbf{[} FL_property \reserved{U} FL_property \textbf{]}  
+ | \textbf{[} FL_property \reserved{W} FL_property \textbf{]}  
+ ;; SIMPLE TEMPORAL OPERATORS
+ | \reserved{always} FL_property                 
+ | \reserved{never} FL_property                  
+ | \reserved{next} FL_property                   
+ | \reserved{next!} FL_property                  
+ | \reserved{eventually!} FL_property            
+ | FL_property \reserved{until!} FL_property     
+ | FL_property \reserved{until} FL_property      
+ | FL_property \reserved{until!_} FL_property                                     
+ | FL_property \reserved{until_} FL_property     
+ | FL_property \reserved{before!} FL_property    
+ | FL_property \reserved{before} FL_property     
+ | FL_property \reserved{before!_} FL_property   
+ | FL_property \reserved{before_} FL_property    
+ ;; EXTENDED NEXT OPERATORS
+ | \reserved{X} [number] \textbf{(} FL_property \textbf{)}
+ | \reserved{X!} [number] \textbf{(} FL_property \textbf{)}                     
+ | \reserved{next} [number] \textbf{(} FL_property \textbf{)}                   
+ | \reserved{next!} [number] \textbf{(} FL_property \textbf{)}                  
+ ;;
+ | \reserved{next_a} [range] \textbf{(} FL_property \textbf{)}
+ | \reserved{next_a!} [range] \textbf{(} FL_property \textbf{)}
+ | \reserved{next_e} [range] \textbf{(} FL_property \textbf{)}
+ | \reserved{next_e!} [range] \textbf{(} FL_property \textbf{)}
+ ;;
+ | \reserved{next_event!} \textbf{(} psl_bexpr \textbf{)} \textbf{(} FL_property \textbf{)}
+ | \reserved{next_event} \textbf{(} psl_bexpr \textbf{)} \textbf{(} FL_property \textbf{)}
+ | \reserved{next_event!} \textbf{(} psl_bexpr \textbf{)} \textbf{[} number \textbf{]}  \textbf{(} FL_property \textbf{)}
+ | \reserved{next_event} \textbf{(} psl_bexpr \textbf{)} \textbf{[} number \textbf{]}  \textbf{(} FL_property \textbf{)}
+ ;;
+ | \reserved{next_event_a!} \textbf{(} psl_bexpr \textbf{)} \textbf{[}psl_expr\textbf{]}  \textbf{(} FL_property \textbf{)}
+ | \reserved{next_event_a} \textbf{(} psl_bexpr \textbf{)} \textbf{[}psl_expr\textbf{]}  \textbf{(} FL_property \textbf{)}
+ | \reserved{next_event_e!} \textbf{(} psl_bexpr \textbf{)} \textbf{[}psl_expr\textbf{]}  \textbf{(} FL_property \textbf{)}
+ | \reserved{next_event_e} \textbf{(} psl_bexpr \textbf{)} \textbf{[}psl_expr\textbf{]}  \textbf{(} FL_property \textbf{)}
+ ;; OPERATORS ON SEREs
+ | sequence \textbf{(} FL_property \textbf{)}
+ | sequence \textbf{|->} sequence [\textbf{!}]
+ | sequence \textbf{|=>} sequence [\textbf{!}]
+ ;;
+ | \reserved{always} sequence
+ | \reserved{G} sequence
+ | \reserved{never} sequence
+ | \reserved{eventually!} sequence
+ ;;
+ | \reserved{within!} \textbf{(} sequence_or_psl_bexpr \textbf{,} psl_bexpr \textbf{)} sequence
+ | \reserved{within} \textbf{(} sequence_or_psl_bexpr \textbf{,} psl_bexpr \textbf{)} sequence
+ | \reserved{within!_} \textbf{(} sequence_or_psl_bexpr \textbf{,} psl_bexpr \textbf{)} sequence
+ | \reserved{within_} \textbf{(} sequence_or_psl_bexpr \textbf{,} psl_bexpr \textbf{)} sequence
+ ;;
+ | \reserved{whilenot!} \textbf{(} psl_bexpr \textbf{)} sequence
+ | \reserved{whilenot} \textbf{(} psl_bexpr \textbf{)} sequence
+ | \reserved{whilenot!_} \textbf{(} psl_bexpr \textbf{)} sequence
+ | \reserved{whilenot_} \textbf{(} psl_bexpr \textbf{)} sequence
+sequence_or_psl_bexpr ::
+   sequence
+ | psl_bexpr
+\end{Grammar}
+%
+Please note that instances of \code{FL\_property} cannot be combined
+with the ``\textbf{=}'', ``\textbf{!=}'' and ``\textbf{==}''.\\
+%
+Sequences, i.e. istances of class \code{sequence}, are defined as follows:
+%
+\begin{Grammar}
+sequence ::
+   \textbf{\{} SERE \textbf{\}}
+SERE ::
+   sequence
+ | psl_bexpr
+ ;; COMPOSITION OPERATORS
+ | SERE \operator{;} SERE
+ | SERE \operator{:} SERE
+ | SERE \operator{&} SERE
+ | SERE \operator{&&} SERE
+ | SERE \operator{|} SERE
+ ;; RegExp QUALIFIERS
+ | SERE \textbf{[*} [count] \textbf{]}
+ | \textbf{[*} [count] \textbf{]}
+ | SERE \textbf{[+]}
+ | \textbf{[+]}
+ ;;
+ | psl_bexpr \textbf{[=} count \textbf{]}
+ | psl_bexpr \textbf{[->} count \textbf{]}
+count ::
+   number
+ | range
+\end{Grammar}
+%
+Istances of \code{OBE\_property} are CTL properties in the PSL style
+and are defined as follows:
+%
+\begin{Grammar}
+OBE_property ::
+   \reserved{AX} OBE_property
+ | \reserved{AG} OBE_property
+ | \reserved{AF} OBE_property
+ | \reserved{A} \textbf{[} OBE_property \reserved{U} OBE_property \textbf{]}
+ | \reserved{EX} OBE_property
+ | \reserved{EG} OBE_property
+ | \reserved{EF} OBE_property
+ | \reserved{E} \textbf{[} OBE_property \reserved{U} OBE_property \textbf{]}
+\end{Grammar}
+%
+The \nusmv parser allows to input any specification based on the
+grammar above, but currently, verification of PSL specifications is
+supported only for the OBE subset, and for a subset of PSL for
+which it is possible to define a translation into LTL. For the
+specifications that belong to these subsets, it is possible to apply
+all the verification techniques that can be applied to LTL and CTL
+Specifications.
+
+
+\section{Variable Order Input}
+\label{Variable::Order::Input}
+%
+It is possible to specify the order in which variables should appear
+in the BDD's generated by \nusmv. 
+%
+The file which gives the desired order can be read in using the
+\commandopt{i} option in batch mode or by setting the
+\envvar{input\_order\_file} environment variable in interactive mode.
+%
+ \footnote{Note that if the ordering is not provided by a user then
+ \nusmv decides by itself how to order the variables. Two shell
+ variables \varName{bdd\_static\_order\_heuristics} (see page
+ \pageref{bdd_static_order_heuristics}) and
+ \varName{vars\_order\_type} (see page \pageref{vars_order_type}) allow
+ to control the ordering creation.}
+
+%-----    ------
+\subsection{Input File Syntax}
+\label{Input File Syntax}
+\index{ Input File Syntax}
+%
+The syntax for input files describing the desired variable ordering is
+as follows, where the file can be considered as a list of variable
+names, each of which must be on a separate line:
+%
+\begin{Grammar}
+vars_list :: \textit{EMPTY}
+         | var_list_item vars_list
+
+var_list_item :: complex_identifier
+             | complex_identifier \textbf{.} integer_number
+\end{Grammar}
+%
+Where \textit{\texttt{EMPTY}} means parsing nothing.
+
+This grammar allows for parsing a list of variable names of the
+following forms:
+%
+\begin{nusmvCode}
+Complete_Var_Name        -- to specify an ordinary variable
+Complete_Var_Name[index] -- to specify an array variable element
+Complete_Var_Name.NUMBER -- to specify a specific bit of a
+                         -- scalar variable
+\end{nusmvCode}
+%
+where \grammar{Complete\_Var\_Name} is just the name of the variable if
+it appears in the module \code{MAIN}, otherwise it has the module
+name(s) prepended to the start, for example:\\
+
+\code{mod1.mod2...modN.varname}\\
+
+\noindent where \code{varname} is a variable in \code{modN}, and
+\code{modN.varname} is a variable in \code{modN-1}, and so
+on. Note that the module name \code{main} is implicitely prepended
+to every variable name and therefore must not be included in their
+declarations.
+
+\noindent Any variable which appears in the model file, but not the
+ordering file is placed after all the others in the
+ordering. Variables which appear in the ordering file but not the
+model file are ignored. In both cases \nusmv displays a warning
+message stating these actions.
+
+Comments can be included by using the same syntax as regular \nusmv
+files. That is, by starting the line with \texttt{--}.
+
+
+%-----    ------
+\subsection{Scalar Variables}
+\label{Scalar Variables}
+\index{Scalar Variables}
+%
+A variable, which has a finite range of values that it can take, is
+encoded as a set of \Boolean variables (i.e.\@ bits). These boolean variables
+represent the binary equivalents of all the possible values for the
+scalar variable. Thus, a scalar variable that can take values from 0
+to 7 would require three \Boolean variables to represent it.
+
+It is possible not only to declare the position of a scalar variable
+in the ordering file, but each of the \Boolean variables which
+represent it.
+
+\noindent If only the scalar variable itself is named then all the
+boolean variables which are actually used to encode it are grouped
+together in the BDD package.
+
+\noindent Variables which are grouped together will always remain next
+to each other in the BDD package and in the same order. 
+%
+When dynamic variable re-ordering is carried out, the group of
+variables are treated as one entity and moved as such.
+
+\noindent If a scalar variable is omitted from the ordering file then
+it will be added at the end of the variable order and the specific-bit
+variables that represent it will be grouped together. 
+%
+However, if any specific-bit variables have been declared in the
+ordering file (see below) then these will not be grouped with the
+remaining ones.
+
+\noindent It is also possible to specify the location of specific bit variables
+anywhere in the ordering.
+%
+This is achieved by first specifying the scalar variable name in the
+desired location, then simply specifying
+\texttt{Complete\_Var\_Name.i} at the position where you want that bit
+variable to appear:
+%
+\begin{Grammar}
+...
+Complete\_Var\_Name
+...
+Complete\_Var\_Name.i
+...
+\end{Grammar}
+%
+The result of doing this is that the variable representing the
+\textit{$i^{th}$} bit is located in a different position to the
+remainder of the variables representing the rest of the bits. 
+%
+The specific-bit variables \textit{varname.0, ..., varname.i-1,
+varname.i+1, ..., varname.N} are grouped together as before.
+
+If any one bit occurs before the variable it belongs to, the remaining
+specific-bit variables are not grouped together:
+%
+\begin{Grammar}
+...
+Complete\_Var\_Name.i
+...
+Complete\_Var\_Name
+...
+\end{Grammar}
+%
+The variable representing the \textit{$i^{th}$} bit is located at the
+position given in the variable ordering and the remainder are located
+where the scalar variable name is declared. In this case, the
+remaining bit variables will not be grouped together.
+
+\noindent This is just a short-hand way of writing each individual
+specific-bit variable in the ordering file. The following are
+equivalent:
+
+\begin{small} 
+\begin{tabular}{ll} \texttt{\ldots} &
+\texttt{\ldots}\\ \texttt{Complete\_Var\_Name.0} &
+\texttt{Complete\_Var\_Name.0}\\ \texttt{Complete\_Var\_Name.1} &
+\texttt{Complete\_Var\_Name}\\ \texttt{$\vdots$} & \raisebox{1ex}{\texttt{\ldots}}\\
+% Have to use \raisebox{} since \cdots display differently (not affected by \texttt{})
+\texttt{Complete\_Var\_Name.N-1}\\ \texttt{\ldots} &
+\end{tabular}
+\end{small}
+
+\noindent where the scalar variable \grammar{Complete\_Var\_Name}
+requires N boolean variables to encode all the possible values that it
+may take. 
+%
+It is still possible to then specify other specific-bit variables at
+later points in the ordering file as before.\\
+
+%-----    ------
+\subsection{Array Variables}
+\label{Array Variables}
+\index{ Array Variables}
+
+When declaring array variables in the ordering file, each individual
+element must be specified separately.
+%
+It is not permitted to specify just the name of the array.
+%
+The reason for this is that the actual definition of an array in the
+model file is essentially a shorthand method of defining a list of
+variables that all have the same type. 
+%
+Nothing is gained by declaring it as an array over declaring each of
+the elements individually, and there is no difference in terms of the
+internal representation of the variables.
+
+
+\section{Clusters Ordering}
+%
+When \nusmv builds a clusterized BDD-based FSM during model
+construction, an initial simple clusters list is roughly constructed
+by iterating through a \emph{list of variables}, and by constructing
+the clusters by picking the transition relation associated to each
+variable in the list. Later, the clusters list will be refined and
+improved by applying the clustering alghorithm that the user
+previoulsy selected (see partitioning methods at page
+\ref{build::model} for further information).
+
+
+In \cite{fm06}, Wendy Johnston and others from University of
+Queensland, showed that choosing a good ordering for the initial list
+of variables that is used to build the clusters list may lead to a
+dramatic improvement of performances. They did experiments in a
+modified version of \nusmv, by allowing the user to specify a variable
+ordering to be used when constructing the initial clusters list. The
+prototype code has been included in version 2.4.1, that offers the new
+option \code{trans\_order\_file} to specify a file containing a
+variable ordering (see at page \pageref{build::model} for further
+information).
+
+
+Grammar of the clusters ordering file is the same of variable ordering
+file presented in section \ref{Variable::Order::Input} at page
+\pageref{Variable::Order::Input}.
+

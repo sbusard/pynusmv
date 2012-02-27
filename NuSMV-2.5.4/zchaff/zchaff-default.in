@@ -1,0 +1,27 @@
+#! /bin/sh
+
+# ----------------------------------------------------------------------
+# ZChaff settings for NuSMV
+#
+# ** WARNING ** DO NOT CHANGE THIS FILE!
+# Instead copy it to 'zchaff-default' and modify your local version if 
+# you need to customize it.
+# ----------------------------------------------------------------------
+
+# this is for the older version
+#zchaff_ver=2004.11.15
+#zchaff_zip=zchaff.$zchaff_ver.zip
+#zchaff_dir=zchaff
+
+zchaff_ver=2007.3.12
+zchaff_zip=zchaff.64bit.$zchaff_ver.zip
+zchaff_url="http://www.princeton.edu/~chaff/zchaff/${zchaff_zip}"
+zchaff_dir=zchaff64
+
+# ----------------------------------------------------------------------
+zchaff_patch=zchaff.64bit.${zchaff_ver}_nusmv.patch
+zchaff_link=zchaff_v${zchaff_ver}
+zchaff_libname=sat
+zchaff_ifcname=SAT_C.h
+
+patched_tag=patched_${zchaff_ver}

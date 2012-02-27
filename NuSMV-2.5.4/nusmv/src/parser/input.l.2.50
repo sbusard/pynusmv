@@ -1,0 +1,143 @@
+  /* **************************************************************  -*-C-*-  ***/
+
+"MODULE"                {yylval.lineno = yylineno; return(TOK_MODULE);}
+"process"               {yylval.lineno = yylineno; return(TOK_PROCESS);}
+"DEFINE"                {yylval.lineno = yylineno; return(TOK_DEFINE);}
+"MDEFINE"               {yylval.lineno = yylineno; return(TOK_ARRAY_DEFINE);}
+"VAR"                   {yylval.lineno = yylineno; return(TOK_VAR);}
+"FROZENVAR"             {yylval.lineno = yylineno; return(TOK_FROZENVAR);}
+"IVAR"                  {yylval.lineno = yylineno; return(TOK_IVAR);}
+"INIT"                  {yylval.lineno = yylineno; return(TOK_INIT);}
+"TRANS"                 {yylval.lineno = yylineno; return(TOK_TRANS);}
+"INVAR"                 {yylval.lineno = yylineno; return(TOK_INVAR);}
+"SPEC"                  {yylval.lineno = yylineno; return(TOK_SPEC);}
+"CTLSPEC"               {yylval.lineno = yylineno; return(TOK_CTLSPEC);}
+"LTLSPEC"               {yylval.lineno = yylineno; return(TOK_LTLSPEC);}
+"PSLSPEC"               {yylval.lineno = yylineno; Parser_switch_to_psl(); return(TOK_PSLSPEC);}
+"COMPUTE"               {yylval.lineno = yylineno; return(TOK_COMPUTE);}
+"INVARSPEC"             {yylval.lineno = yylineno; return(TOK_INVARSPEC);}
+"NAME"                  {yylval.lineno = yylineno; return(TOK_NAME);}
+"CONSTRAINT"            {yylval.lineno = yylineno; return(TOK_CONSTRAINT);}
+"CONSTANTS"             {yylval.lineno = yylineno; return(TOK_CONSTANTS);}
+"SIMPWFF"               {yylval.lineno = yylineno; return(TOK_SIMPWFF);}
+"NEXTWFF"               {yylval.lineno = yylineno; return(TOK_NEXTWFF);}
+"CTLWFF"                {yylval.lineno = yylineno; return(TOK_CTLWFF);}
+"LTLWFF"                {yylval.lineno = yylineno; return(TOK_LTLWFF);}
+"COMPWFF"               {yylval.lineno = yylineno; return(TOK_COMPWFF);}
+"COMPID"                {yylval.lineno = yylineno; return(TOK_COMPID);}
+"IN"                    {yylval.lineno = yylineno; return(TOK_INCONTEXT);}
+"FAIRNESS"              {yylval.lineno = yylineno; return(TOK_FAIRNESS);}
+"JUSTICE"               {yylval.lineno = yylineno; return(TOK_JUSTICE);}
+"COMPASSION"            {yylval.lineno = yylineno; return(TOK_COMPASSION);}
+"ISA"                   {yylval.lineno = yylineno; return(TOK_ISA);}
+"ASSIGN"                {yylval.lineno = yylineno; return(TOK_ASSIGN);}
+
+"array"                 {yylval.lineno = yylineno; return(TOK_ARRAY);}
+"bool"                  {yylval.lineno = yylineno; return(TOK_BOOL);}
+"of"                    {yylval.lineno = yylineno; return(TOK_OF);}
+"boolean"               {yylval.lineno = yylineno; return(TOK_BOOLEAN);}
+"integer"               {yylval.lineno = yylineno; return(TOK_INTEGER);}
+"Integer"               {yylval.lineno = yylineno; return(TOK_INTEGER);}
+"real"                  {yylval.lineno = yylineno; return(TOK_REAL);}
+"Real"                  {yylval.lineno = yylineno; return(TOK_REAL);}
+"word1"                 {yylval.lineno = yylineno; return(TOK_WORD1);}
+"word"                  {yylval.lineno = yylineno; return(TOK_WORD);}
+"Word"                  {yylval.lineno = yylineno; return(TOK_WORD);}
+
+"signed"                {yylval.lineno = yylineno; return(TOK_SIGNED);}
+"unsigned"              {yylval.lineno = yylineno; return(TOK_UNSIGNED);}
+"extend"                {yylval.lineno = yylineno; return(TOK_EXTEND);}
+
+"uwconst"               {yylval.lineno = yylineno; return(TOK_UWCONST);}
+"swconst"               {yylval.lineno = yylineno; return(TOK_SWCONST);}
+
+"resize"                {yylval.lineno = yylineno; return(TOK_WRESIZE);}
+"sizeof"                {yylval.lineno = yylineno; return(TOK_WSIZEOF);}
+"toint"                 {yylval.lineno = yylineno; return(TOK_WTOINT);}
+"count"                 {yylval.lineno = yylineno; return(TOK_COUNT);}
+
+"READ"                  {yylval.lineno = yylineno; return(TOK_WAREAD);}
+"WRITE"                 {yylval.lineno = yylineno; return(TOK_WAWRITE);}
+
+"EX"                    {yylval.lineno = yylineno; return(TOK_EX);}
+"AX"                    {yylval.lineno = yylineno; return(TOK_AX);}
+"EF"                    {yylval.lineno = yylineno; return(TOK_EF);}
+"AF"                    {yylval.lineno = yylineno; return(TOK_AF);}
+"EG"                    {yylval.lineno = yylineno; return(TOK_EG);}
+"AG"                    {yylval.lineno = yylineno; return(TOK_AG);}
+"E"                     {yylval.lineno = yylineno; return(TOK_EE);}
+"F"                     {yylval.lineno = yylineno; return(TOK_OP_FUTURE);}
+"O"                     {yylval.lineno = yylineno; return(TOK_OP_ONCE);}
+"G"                     {yylval.lineno = yylineno; return(TOK_OP_GLOBAL);}
+"H"                     {yylval.lineno = yylineno; return(TOK_OP_HISTORICAL);}
+"X"                     {yylval.lineno = yylineno; return(TOK_OP_NEXT);}
+"Y"                     {yylval.lineno = yylineno; return(TOK_OP_PREC);}
+"Z"                     {yylval.lineno = yylineno; return(TOK_OP_NOTPRECNOT);}
+"A"                     {yylval.lineno = yylineno; return(TOK_AA);}
+"U"                     {yylval.lineno = yylineno; return(TOK_UNTIL);}
+"S"                     {yylval.lineno = yylineno; return(TOK_SINCE);}
+"V"                     {yylval.lineno = yylineno; return(TOK_RELEASES);}
+"T"                     {yylval.lineno = yylineno; return(TOK_TRIGGERED);}
+"BU"                    {yylval.lineno = yylineno; return(TOK_BUNTIL);}
+"EBF"                   {yylval.lineno = yylineno; return(TOK_EBF);}
+"ABF"                   {yylval.lineno = yylineno; return(TOK_ABF);}
+"EBG"                   {yylval.lineno = yylineno; return(TOK_EBG);}
+"ABG"                   {yylval.lineno = yylineno; return(TOK_ABG);}
+"MIN"                   {yylval.lineno = yylineno; return(TOK_MMIN);}
+"MAX"                   {yylval.lineno = yylineno; return(TOK_MMAX);}
+"("                     {yylval.lineno = yylineno; return(TOK_LP);}
+")"                     {yylval.lineno = yylineno; return(TOK_RP);}
+"["                     {yylval.lineno = yylineno; return(TOK_LB);}
+"]"                     {yylval.lineno = yylineno; return(TOK_RB);}
+"{"                     {yylval.lineno = yylineno; return(TOK_LCB);}
+"}"                     {yylval.lineno = yylineno; return(TOK_RCB);}
+"FALSE"                 {
+                                yylval.node = new_node(FALSEEXP,Nil,Nil);
+                                return(TOK_FALSEEXP);
+                        }
+"TRUE"                  {
+                                yylval.node = new_node(TRUEEXP,Nil,Nil);
+                                return(TOK_TRUEEXP);
+                        }
+"case"                  {yylval.lineno = yylineno; return(TOK_CASE);}
+"esac"                  {yylval.lineno = yylineno; return(TOK_ESAC);}
+":="                    {yylval.lineno = yylineno; return(TOK_EQDEF);}
+"+"                     {yylval.lineno = yylineno; return(TOK_PLUS);}
+"-"                     {yylval.lineno = yylineno; return(TOK_MINUS);}
+"*"                     {yylval.lineno = yylineno; return(TOK_TIMES);}
+"/"                     {yylval.lineno = yylineno; return(TOK_DIVIDE);}
+"mod"                   {yylval.lineno = yylineno; return(TOK_MOD);}
+"<<"                    {yylval.lineno = yylineno; return(TOK_LSHIFT);}
+">>"                    {yylval.lineno = yylineno; return(TOK_RSHIFT);}
+"<<<"                   {yylval.lineno = yylineno; return(TOK_LROTATE);}
+">>>"                   {yylval.lineno = yylineno; return(TOK_RROTATE);}
+"="                     {yylval.lineno = yylineno; return(TOK_EQUAL);}
+"!="                    {yylval.lineno = yylineno; return(TOK_NOTEQUAL);}
+"<="                    {yylval.lineno = yylineno; return(TOK_LE);}
+">="                    {yylval.lineno = yylineno; return(TOK_GE);}
+"<"                     {yylval.lineno = yylineno; return(TOK_LT);}
+">"                     {yylval.lineno = yylineno; return(TOK_GT);}
+"next"                  {yylval.lineno = yylineno; return(TOK_NEXT);}
+"init"                  {yylval.lineno = yylineno; return(TOK_SMALLINIT);}
+"self"                  {yylval.lineno = yylineno; return(TOK_SELF);}
+"union"                 {yylval.lineno = yylineno; return(TOK_UNION);}
+"in"                    {yylval.lineno = yylineno; return(TOK_SETIN);}
+".."                    {yylval.lineno = yylineno; return(TOK_TWODOTS);}
+"."                     {yylval.lineno = yylineno; return(TOK_DOT);}
+"->"                    {yylval.lineno = yylineno; return(TOK_IMPLIES);}
+"<->"                   {yylval.lineno = yylineno; return(TOK_IFF);}
+"|"                     {yylval.lineno = yylineno; return(TOK_OR);}
+"&"                     {yylval.lineno = yylineno; return(TOK_AND);}
+"xor"                   {yylval.lineno = yylineno; return(TOK_XOR);}
+"xnor"                  {yylval.lineno = yylineno; return(TOK_XNOR);}
+"!"                     {yylval.lineno = yylineno; return(TOK_NOT);}
+"?"                     {yylval.lineno = yylineno; return(TOK_QUESTIONMARK);}
+","                     {yylval.lineno = yylineno; return(TOK_COMMA);}
+":"                     {yylval.lineno = yylineno; return(TOK_COLON);}
+";"                     {yylval.lineno = yylineno; return(TOK_SEMI);}
+"::"                    {yylval.lineno = yylineno; return(TOK_CONCATENATION);}
+
+
+"PRED"                  {yylval.lineno = yylineno; return(TOK_PRED);}
+"PREDICATES"            {yylval.lineno = yylineno; return(TOK_PREDSLIST);}
+"MIRROR"                {yylval.lineno = yylineno; return(TOK_MIRROR);}

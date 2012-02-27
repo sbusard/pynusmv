@@ -1,0 +1,27 @@
+% -*-latex-*-
+\begin{nusmvCommand} {clean\_sexp2bdd\_cache} 
+{Cleans the cached results of evaluations of symbolic expressions
+to ADD and BDD representations.}
+
+\cmdLine{clean\_sexp2bdd\_cache [-h]}
+
+During conversion of symbolic expressions to ADD and BDD
+representations the results of evaluations are normally cached (see
+additionally the environment variable
+\envvar{enable\_sexp2bdd\_caching}). This allows to save time by avoid the
+construction of BDD for the same symbolic expression several time.
+
+In some situations it may be preferable to clean the cache and
+free collected ADD and BDD. This operation can be done, for example,
+to free some memory. Another possible reason is that dynamic
+reordering may modify all existing BDDs, and cleaning the cache
+thereby freeing the BDD may speed up the reordering.
+
+This command is designed specifically to free the internal cache of
+evaluated expressions and their ADDs and BDDs.
+%
+Note that only the cache of symbolic-expression-to-bdd evaluator is
+freed.  BDDs of variables, constants and expressions collected in BDD
+FSM or anywhere else are not freed.
+
+\end{nusmvCommand}

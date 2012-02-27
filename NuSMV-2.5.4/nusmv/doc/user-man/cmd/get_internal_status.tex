@@ -1,0 +1,18 @@
+% -*-latex-*-
+\begin{nusmvCommand} {get\_internal\_status} {Prints out the internal status of the system.}
+
+\cmdLine{get\_internal\_status [-h]}
+
+Prints out the internal status of the system. i.e.
+\begin{itemize}
+\item \natnum{-1}: \command{read\_model} has not yet been executed or
+  an error occurred during its execution.
+\item  \natnum{0}: \command{flatten\_hierarchy} has not yet been
+  executed or an error occurred during its execution.
+\item  \natnum{1}: \command{encode\_variables} has not yet been executed
+  or an error occurred during its execution.
+\item  \natnum{2}: \command{build\_model} has not yet been executed or
+  an error occurred during its execution.
+\end{itemize}
+
+\end{nusmvCommand}

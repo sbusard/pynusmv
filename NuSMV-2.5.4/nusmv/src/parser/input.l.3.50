@@ -1,0 +1,11 @@
+/***************************************************************  -*-C-*-  ***/
+static int nusmv_skip_comment()
+{
+  register int c;
+
+  do {
+    c = input();
+  } while ( c != '\n' && c != EOF );
+  return(0);
+}
+

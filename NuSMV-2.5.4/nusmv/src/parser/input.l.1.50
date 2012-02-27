@@ -1,0 +1,153 @@
+/***************************************************************  -*-C-*-  ***/
+%{
+/**CFile***********************************************************************
+
+  FileName    [input.l]
+
+  PackageName [parser]
+
+  Synopsis    [Lexical analyzer for the NuSMV input language]
+
+  SeeAlso     [grammar.y]
+
+  Author      [Marco Roveri]
+
+  Copyright   [
+  This file is part of the ``parser'' package of NuSMV version 2.
+  Copyright (C) 1998-2005 by CMU and FBK-irst.
+
+  NuSMV version 2 is free software; you can redistribute it and/or
+  modify it under the terms of the GNU Lesser General Public
+  License as published by the Free Software Foundation; either
+  version 2 of the License, or (at your option) any later version.
+
+  NuSMV version 2 is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+  Lesser General Public License for more details.
+
+  You should have received a copy of the GNU Lesser General Public
+  License along with this library; if not, write to the Free Software
+  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307  USA.
+
+  For more information on NuSMV see <http://nusmv.fbk.eu>
+  or email to <nusmv-users@fbk.eu>.
+  Please report bugs to <nusmv-users@fbk.eu>.
+
+  To contact the NuSMV development board, email to <nusmv@fbk.eu>. ]
+
+******************************************************************************/
+
+#if HAVE_CONFIG_H
+#include "nusmv-config.h"
+#endif
+
+#include "util.h"
+
+#include "utils/utils.h"
+#include "utils/ustring.h"
+#include "node/node.h"
+#include "utils/error.h"
+#include "utils/WordNumber.h"
+
+#include <ctype.h>
+#include <stdlib.h> /* for strtol */
+#include <limits.h> /* for LLONG_MAX */
+
+#include "utils/portability.h" /* for errno */
+#include "parser/grammar.h" /* For yacc/lex interaction */
+
+/* For direct interpretation of atomic (ATOM and NUMBER)
+   and boolan (TRUE and FALSE) constants. */
+#include "parser/symbols.h"
+
+static char rcsid[] UTIL_UNUSED = "$Id: input.l,v 1.12.2.4.4.30.4.18 2010-02-02 10:09:34 nusmv Exp $";
+
+static int nusmv_skip_comment ARGS((void));
+
+EXTERN void Parser_switch_to_psl ARGS((void));
+
+/* The below code is only meaningful for flex version 2.5.31 which is
+   buggy since it does not define the yy_prev_more_offset static
+   variable */
+#if defined YY_FLEX_SUBMINOR_VERSION &&         \
+  defined YY_FLEX_MAJOR_VERSION &&              \
+  defined YY_FLEX_MINOR_VERSION
+#if YY_FLEX_SUBMINOR_VERSION == 31 &&           \
+  YY_FLEX_MINOR_VERSION == 5 &&                 \
+  YY_FLEX_MAJOR_VERSION == 2
+static int yy_prev_more_offset = 0;
+#endif
+#endif
+
+#if ! NUSMV_HAVE_ISATTY
+static inline int isatty(int d) { return 0; }
+#endif
+
+/*
+   The following are needed in order to allow parsing of long
+   comments, that otherwise will cause errors since flex thinks that
+   it is using REJECT even if it isn't.  The "%option noreject" seems
+   to be ignored in the latest (and previous) versions of flex.
+*/
+#ifdef YY_USES_REJECT
+#undef YY_USES_REJECT
+#endif
+
+#if NUSMV_HAVE_ERRNO_H
+#define YY_INPUT(buf, result, max_size) \
+        if ( YY_CURRENT_BUFFER->yy_is_interactive ) \
+                { \
+                int c = '*', n; \
+                for (n=0; n<max_size && \
+                     (c = getc(yyin)) != EOF && \
+                     c!=' ' && c!='\n' && c!='\t' && c!='\r' && c!='\f'; ++n ) \
+                        buf[n] = (char) c; \
+                if (c==' ' || c=='\n' || c=='\t' || c=='\r' || c=='\f') buf[n++] = (char) c; \
+                if (c == EOF && ferror(yyin)) YY_FATAL_ERROR( "input in flex scanner failed" ); \
+                result = n; \
+                } \
+        else \
+                { \
+                errno=0; \
+                while ( (result = fread(buf, 1, max_size, yyin))==0 && ferror(yyin)) \
+                        { \
+                        if(errno != EINTR) \
+                                { \
+                                YY_FATAL_ERROR( "input in flex scanner failed" ); \
+                                break; \
+                                } \
+                        errno=0; \
+                        clearerr(yyin); \
+                        } \
+                }
+#else /*  NUSMV_HAVE_ERRNO_H */
+#define YY_INPUT(buf, result, max_size) \
+        if ( YY_CURRENT_BUFFER->yy_is_interactive ) \
+                { \
+                int c = '*', n; \
+                for (n=0; n<max_size && \
+                     (c = getc(yyin)) != EOF && \
+                     c!=' ' && c!='\n' && c!='\t' && c!='\r' && c!='\f'; ++n ) \
+                        buf[n] = (char) c; \
+                if (c==' ' || c=='\n' || c=='\t' || c=='\r' || c=='\f') buf[n++] = (char) c; \
+                if (c == EOF && ferror(yyin)) YY_FATAL_ERROR( "input in flex scanner failed" ); \
+                result = n; \
+                } \
+        else \
+                { \
+                while ( (result = fread(buf, 1, max_size, yyin))==0 && ferror(yyin)) \
+                        { \
+                        clearerr(yyin); \
+                        } \
+                }
+#endif /* NUSMV_HAVE_ERRNO_H */
+
+%}
+%a        15000
+%o        25000
+
+%pointer
+%option yylineno
+%option noreject
+%option always-interactive

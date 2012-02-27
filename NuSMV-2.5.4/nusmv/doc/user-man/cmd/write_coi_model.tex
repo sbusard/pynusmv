@@ -1,0 +1,34 @@
+% -*-latex-*-
+\begin{nusmvCommand} {write\_coi\_model} {Writes a restricted flat model to a file}
+
+\cmdLine{write\_coi\_model [-h] [-n idx | -p "expr" | -P "name"] [-c | -l | -i | -s | -q] [-C] [-g] }
+
+Writes the currently loaded SMV model in the specified file, after
+having flattened it. If a property is specified, the dumped model is
+the result of applying the Cone Of Influence over that
+property. otherwise, a restricted SMV model is dumped for each
+property in the property database.
+
+Processes are eliminated and a corresponding equivalent model is
+printed out.
+
+If no file is specified, stderr is used for output
+\begin{cmdOpt}
+\opt{-o \parameter{\filename{filename}}} {Attempts to write the flat
+SMV model in \filename{filename}}
+\opt{-p \parameter{expr}}{Applies COI for the given expression
+  expression. Notice that also the property type has to be specified}
+\opt{-P \parameter{name}}{Applies COI for property named "name"}
+\opt{-n \parameter{idx}}{Applies COI for property stored with index "idx"}
+\opt{-c}{Dumps COI model for all CTL properties}
+\opt{-l}{Dumps COI model for all LTL properties}
+\opt{-i}{Dumps COI model for all INVAR properties}
+\opt{-s}{Dumps COI model for all PSL properties}
+\opt{-q}{Dumps COI model for all COMPUTE properties}
+\opt{-C}{Only prints the list of variables that are in the COI of
+  properties}
+\opt{-g}{Dumps the COI model that represents the union of all COI
+  properties}
+\end{cmdOpt}
+
+\end{nusmvCommand}

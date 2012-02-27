@@ -1,0 +1,60 @@
+% -*-latex-*-
+\begin{nusmvCommand}{history} {list previous commands and their event numbers}
+
+\label{History Command}
+
+\cmdLine{history [-h] [<num>]}
+
+Lists previous commands and their event numbers.  This is a \unix-like
+history mechanism inside the \nusmv shell.\\
+
+\begin{cmdOpt}
+\opt{<num>}{Lists the last \texttt{<num>} events.  Lists the last 30
+              events if \texttt{<num>} is not specified. }
+\end{cmdOpt}
+
+History Substitution:\\
+  The history substitution mechanism is a simpler version of the csh history
+  substitution mechanism.  It enables you to reuse words from previously typed
+  commands.
+
+The default history substitution character is the `\%' (`!' is default
+for shell escapes, and `\#' marks the beginning of a comment). This
+can be changed using the \command{set} command. In this description '\%' is
+used as the history\_char.  The `\%' can appear anywhere in a line.  A
+line containing a history substitution is echoed to the screen after
+the substitution takes place.  `\%' can be preceded by a `\' in order
+to escape the substitution, for example, to enter a `\%' into an alias
+or to set the prompt.
+
+Each valid line typed at the prompt is saved.  If the \command{history}
+variable is set (see help page for \command{set}), each line is also echoed
+to the history file.  You can use the \command{history} command to list the
+previously typed commands. 
+
+Substitutions: \\ At any point in a line these history substitutions
+are available.
+        
+\begin{cmdOpt}
+\opt{\%:0}{   Initial word of last command.}
+
+\opt{\%:n}{ n-th argument of last command.}
+
+\opt{\%\$}{   Last argument of last command.}
+
+\opt{\%*}{   All but initial word of last command.}
+
+\opt{\%\%}{    Last command.}
+
+\opt{\%stuf}{ Last command beginning with ``stuf".}
+
+\opt{\%n}{    Repeat the n-th command.}
+
+\opt{\%-n}{  Repeat the n-th previous command.}
+
+\opt{$\widehat{\ }$old$\widehat{\ }$new}{ Replace ``old'' with ``new''
+in previous command.  Trailing spaces are significant during
+substitution.  Initial spaces are not significant.}
+        
+\end{cmdOpt}
+\end{nusmvCommand}

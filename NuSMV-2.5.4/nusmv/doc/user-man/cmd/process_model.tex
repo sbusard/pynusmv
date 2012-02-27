@@ -1,0 +1,31 @@
+% -*-latex-*-
+\begin{nusmvCommand}{process\_model} {Performs the batch steps and then returns control to the interactive shell.}
+
+\cmdLine{process\_model [-h] [-f] [-r] [-i model-file] [-m Method]}
+
+Reads the model, compiles it into BDD and performs the model checking
+of all the specification contained in it. If the environment variable
+\envvar{forward\_search} has been set before, then the set of
+reachable states is computed. If the option \code{-r} is specified,
+the reordering of variables is performed and a dump of the variable
+ordering is performed accordingly. This command simulates the batch
+behavior of \nusmv and then returns the control to the interactive
+shell.
+
+\begin{cmdOpt}
+\opt{-f}{Forces the model construction even when Cone Of Influence is
+enabled.}
+\opt{-r}{Forces a variable reordering at the end of the computation, 
+ and dumps the new variables ordering to the default ordering file. 
+ This options acts like the command line option \code{-reorder}.}
+ 
+\opt{-i \parameter{\filename{model-file}}}{Sets the environment variable
+\envvar{input\_file} to file \filename{model-file}, and reads the
+model from file \filename{model-file}.}
+ 
+\opt{-m \parameter{\set{Method}{Monolithic, Threshold, Iwls95CP}}}{Sets the environment variable
+\envvar{partition\_method} to \code{Method} and uses it as
+partitioning method.}
+
+\end{cmdOpt}
+\end{nusmvCommand}

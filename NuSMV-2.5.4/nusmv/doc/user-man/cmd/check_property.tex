@@ -1,0 +1,49 @@
+% -*-latex-*-
+\begin{nusmvCommand}{check\_property} {Checks a property into the current list of properties, 
+  or a newly specified property}
+
+\cmdLine{check\_property [-h] [-n number | -P "name"] | [(-c | -l | -i | -s | -q ) [-p "formula
+   [IN context]"]]}
+
+Checks the specified property taken from the property list, or adds
+the new specified property and checks it. It is possible to check
+\code{LTL, CTL, INVAR, PSL} and quantitative (\code{COMPUTE})
+properties. Every newly inserted property is inserted and checked.
+
+See variable \varName{use\_coi\_size\_sorting} for changing properties
+verification order.
+
+\begin{cmdOpt}
+\opt{-n \parameter{\natnum{number}}}{Checks the property stored at the given index}
+
+\opt{-P \parameter{\natnum{name}}}{Checks the property named \natnum{name} in
+the property database.} 
+
+\opt{-c}{Checks all the \code{CTL} properties not already checked. If
+-p is used, the given formula is expected to be a \code{CTL}
+formula.}
+
+\opt{-l}{Checks all the \code{LTL} properties not already checked. If
+-p is used, the given formula is expected to be a \code{LTL}
+formula.}
+
+\opt{-i}{Checks all the \code{INVAR} properties not already checked. If
+-p is used, the given formula is expected to be a \code{INVAR}
+formula.}
+
+\opt{-s}{Checks all the \code{PSL} properties not already checked. If
+\code{-p} is used, the given formula is expected to be a \code{PSL}
+formula.}
+ 
+\opt{-q}{Checks all the \code{COMPUTE} properties not already checked. If
+-p is used, the given formula is expected to be a \code{COMPUTE}
+formula.}
+
+\opt{-p \parameter{"\anyexpr [IN context]"}}{Checks the formula
+          specified on the command-line.  \code{context} is the module
+          instance name which the variables in \anyexpr must be
+          evaluated in.}
+
+\end{cmdOpt}
+
+\end{nusmvCommand}

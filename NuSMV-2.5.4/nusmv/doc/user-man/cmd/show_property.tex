@@ -1,0 +1,49 @@
+% -*-latex-*-
+\begin{nusmvCommand} {show\_property} {Shows the currently stored properties}
+
+\cmdLine{show\_property [-h] [-n idx | -P "name"] [-c | -l | -i | -s | -q] [-f | -v | -u] [-m | -o] [-F format]}
+
+Shows the properties currently stored in the list of properties. This
+list is initialized with the properties (CTL, LTL, INVAR, COMPUTE)
+present in the input file, if any; then all of the properties added by
+the user with the relative \command{check\_property} or \command{add\_property}
+commands are appended to this list.  For every property, the following
+informations are displayed:
+\begin{itemize}
+\item the identifier of the property (a progressive number);
+\item the property name if available; 
+\item the property formula; 
+\item the type (CTL, LTL, INVAR, PSL, COMPUTE)
+\item the status of the formula (Unchecked, True, False) or the result
+  of the quantitative expression, if any (it can be infinite);
+\item if the formula has been found to be false, the index number of
+  the corresponding counterexample trace.
+\end{itemize}
+By default, all the properties currently stored in the list of
+properties are shown. Specifying the suitable options, properties with
+a certain status (Unchecked, True, False) and/or of a certain type
+(e.g. CTL, LTL), or with a given identifier, it is possible to let the
+system show a restricted set of properties. It is allowed to insert
+only one option per status and one option per type.
+
+\begin{cmdOpt}
+\opt{-P \parameter{name}}{Prints out the property named "name"}
+\opt{-n \parameter{idx}}{Prints out the property numbered "idx"}
+\opt{-c}{Prints only CTL properties}
+\opt{-l}{Prints only LTL properties}
+\opt{-i}{Prints only INVAR properties}
+\opt{-q}{Prints only COMPUTE properties}
+\opt{-u}{Prints only unchecked properties}
+\opt{-t}{Prints only those properties found to be true}
+\opt{-f}{Prints only those properties found to be false}
+\opt{-s}{Prints the number of stored properties}
+\opt{-o \parameter{\filename{filename}}} {Writes the output generated
+  by the command to \filename{filename}}
+\opt{-F \parameter{\filename{format}}} {Prints with the specified
+  format.  {\it tabular} and {\it xml} are common formats, however use
+  \command{-F help} to see all available formats.}
+\opt{-m}{Pipes the output through the program specified by the PAGER
+  shell variable if defined, else through the UNIX "more" command}
+\end{cmdOpt}
+
+\end{nusmvCommand}

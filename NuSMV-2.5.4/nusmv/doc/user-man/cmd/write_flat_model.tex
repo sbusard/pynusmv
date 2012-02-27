@@ -1,0 +1,25 @@
+% -*-latex-*-
+\begin{nusmvCommand} {write\_flat\_model} {Writes a flat model to a file}
+
+\cmdLine{write\_flat\_model [-h] [-A] [-o filename]}
+
+Writes the currently loaded SMV model in the specified file, after
+having flattened it. Processes are eliminated and a
+corresponding equivalent model is printed out.
+
+If no file is specified, the file specified via the environment
+variable \envvar{output\_flatten\_model\_file} is used if any, otherwise
+standard output is used.
+
+\begin{cmdOpt}
+\opt{-o \parameter{\filename{filename}}} {Attempts to write the flat
+SMV model in \filename{filename}}
+
+\opt{-A} {Writes the flat SMV model using a renaming map to
+  ``anonimize'' the model. All the symbols except numerical constanst
+  will be renamed.}
+\end{cmdOpt}
+
+
+
+\end{nusmvCommand}

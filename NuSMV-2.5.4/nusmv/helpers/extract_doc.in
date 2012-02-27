@@ -1,0 +1,242 @@
+#!/bin/sh
+
+# FileName	[ extract_doc.in ]
+#
+# PackageName	[ NuSMV ]
+#
+# Synopsis	[ Extraction of the documentation ]
+#
+# Description	[ Routines to extract documentation from the NuSMV code ]
+#
+# Author	[ Marco Roveri ]
+#
+# Copyright	[Copyright (C) 2004 by ITC-irst ]
+#
+# NuSMV version 2 is free software; you can redistribute it and/or 
+# modify it under the terms of the GNU Lesser General Public 
+# License as published by the Free Software Foundation; either 
+# version 2 of the License, or (at your option) any later version.
+#
+# NuSMV version 2 is distributed in the hope that it will be useful, 
+# but WITHOUT ANY WARRANTY; without even the implied warranty of 
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+# Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public 
+# License along with this library; if not, write to the Free Software 
+# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307  USA.
+#
+# For more information on NuSMV see <http://nusmv.fbk.eu>
+# or email to <nusmv-users@fbk.eu>.
+# Please report bugs to <nusmv-users@fbk.eu>.
+#
+# To contact the NuSMV development board, email to <nusmv@fbk.eu>.]
+#
+
+
+if [ $# != 2 ]; then
+    echo "Generate NuSMV documentation"
+    echo "Usage: $0 <NuSMV-BUILD-DIR> <NuSMV-SRC-DIR>"
+    exit 1
+fi
+
+BUILDDIR=$1
+SRCDIR=$2
+
+DOCDIR=${BUILDDIR}/doc
+HTMLDOCDIR=${DOCDIR}/html
+HELPDIR=${BUILDDIR}/share/help
+PKGINDEXFILE=${HTMLDOCDIR}/NuSMV_Pkg_index.html
+CMDINDEXFILE=${HTMLDOCDIR}/NuSMV_Cmd_index.html
+GLOBALINDEXFILE=${HTMLDOCDIR}/index.html
+CREDITSFILE=${HTMLDOCDIR}/credit.html
+
+PERL=@PERL@
+HTMLDUMP=@HTMLDUMP@
+
+# adds all required addons
+addons="@ADDONS_PKGS@"
+ADDONS=
+for addon in $addons; do
+		ADDONS="addons_core/$addon $ADDONS"
+done
+
+PKGS="set mc compile utils rbc dag parser prop\
+ dd opt cmd hrc simulate fsm sat enc trace node be trans ltl bmc cinit $ADDONS"
+
+EXTDOC="${PERL} ${SRCDIR}/helpers/extdoc"
+EXTINDEX="${PERL} ${SRCDIR}/helpers/extindex"
+
+if [ ! -d ${DOCDIR} ]; then
+    mkdir -p ${DOCDIR}
+fi
+
+if [ ! -d ${HTMLDOCDIR} ]; then
+    mkdir -p ${HTMLDOCDIR}
+fi
+
+for pkg in $PKGS; do
+    echo Generating docs in package $pkg
+    ${EXTDOC} --html=${HTMLDOCDIR} ${SRCDIR}/src/${pkg}/${pkg}
+
+    # Looking for sub packages
+    d=`(cd ${SRCDIR}/src/${pkg}; find . -mindepth 1 -type d -print | grep -v -E "CVS|\.svn" | grep -v .deps | grep -v .libs | grep -v ltl2smv)`
+    if [ "x${d}x" != "xx" ]; then
+        for sd in ${d}; do
+            _sd=`echo "$sd" | sed 's/\.\///'`
+            echo Generating docs in sub package ${SRCDIR}/src/${pkg}/${_sd}
+            if [ ! -d ${HTMLDOCDIR}/${pkg}/$_{sd} ]; then
+                mkdir -p ${HTMLDOCDIR}/${pkg}/${_sd}
+            fi
+            ${EXTDOC} --html=${HTMLDOCDIR}/${pkg}/${_sd} ${SRCDIR}/src/${pkg}/${_sd}/
+        done
+    fi
+done
+
+# ${EXTINDEX} ${HTMLDOCDIR} ${HTMLDOCDIR}/*/*/
+
+echo Creating the NuSMV Package Structure Documentation in file ${PKGINDEXFILE}
+echo "<html><head><title>The NuSMV Package Structure</title></head>" > ${PKGINDEXFILE}
+echo "<body>" >> ${PKGINDEXFILE}
+echo "<h1>The NuSMV Package Structure</h1>" >> ${PKGINDEXFILE}
+echo "<hr>" >> ${PKGINDEXFILE}
+echo "<ul>" >> ${PKGINDEXFILE}
+
+SPKGS=`(for i in $PKGS; do echo $i; done;) | sort`
+for pkg in $SPKGS; do
+    echo "<li><a href=\"${pkg}AllByFile.html\">" $pkg "</a></li>" >> ${PKGINDEXFILE}
+
+    if [ -d ${HTMLDOCDIR}/${pkg} ]; then
+        d=`(cd ${HTMLDOCDIR}/${pkg}; find . -mindepth 1 -type d -print | sort)`
+        if [ "x${d}x" != "xx" ]; then
+            echo "<ul>" >> ${PKGINDEXFILE}
+            for sd in $d; do
+                _sd=`echo "$sd" | sed 's/\.\///'`
+                echo "<li><a href=\"${pkg}/${_sd}/AllByFile.html\">" $_sd "</a></li>" >> ${PKGINDEXFILE}
+            done
+            echo "</ul>" >> ${PKGINDEXFILE}
+        fi
+    fi
+done
+echo "</ul>" >> ${PKGINDEXFILE}
+echo "<hr>" >> ${PKGINDEXFILE}
+echo "<address><a href=\"http://nusmv.fbk.eu\">NuSMV</a> &lt;<a href=\"mailto:nusmv@fbk.eu\">nusmv@fbk.eu</a>&gt;</address>" >> ${PKGINDEXFILE}
+echo "</body>" >> ${PKGINDEXFILE}
+echo "</html>" >> ${PKGINDEXFILE}
+
+
+
+function extractcommand() {
+    cfile=$1
+    htmldir=$2
+
+    ${PERL} -- <<EOF 
+   open( CMDFILE, "$cfile" ) ||
+       die("Couldn't open \$commandName for reading\n");
+
+
+   \$commandName = "$cfile";
+   \$basefile = \$commandName;
+   \$remove = "$htmldir/";
+   \$remove =~ s/\//\\\\\//;
+   \$basefile =~ s/\$remove//;
+
+   while ( <CMDFILE> ) {
+
+       if ( /^<h3>/ ) {
+   	s/^[^-]* - //;
+   	s/<\/h3>\$//;
+   	\$commandSynopsis = \$_;
+   	last;
+       }
+   }
+
+   close( CMDFILE );
+
+   \$commandName =~ s/^.*\///;
+   \$commandName =~ s/Cmd.html\$//;
+
+   print "<dt> <a href=\"\$basefile\">";
+   print "<code>\$commandName</code></a></dt>\n";
+   print "<dd> \$commandSynopsis</dd>\n";
+EOF
+}
+
+echo Creating the NuSMV Interactive Shell Commands Documentation in file ${CMDINDEXFILE}
+
+echo "<html><head><title>The NuSMV Interactive Shell Commands</title></head>"  > ${CMDINDEXFILE}
+echo "<body>"  >> ${CMDINDEXFILE}
+echo "<h1>The NuSMV Interactive Shell Commands</h1>" >> ${CMDINDEXFILE}
+echo "<hr>" >> ${CMDINDEXFILE}
+echo "<dl>" >> ${CMDINDEXFILE}
+
+
+
+CMDS=`find ${HTMLDOCDIR} -name '*Cmd.html' -print | sort`
+for file in ${CMDS}; do
+    extractcommand ${file} ${HTMLDOCDIR}  >> ${CMDINDEXFILE}
+done
+
+echo "</dl>" >> ${CMDINDEXFILE}
+echo "<hr>"  >> ${CMDINDEXFILE}
+echo "<address><a href=\"http://nusmv.fbk.eu\">NuSMV</a> &lt;<a href=\"mailto:nusmv@fbk.eu\">nusmv@fbk.eu</a>&gt;</address>"  >> ${CMDINDEXFILE}
+echo "</body>"  >> ${CMDINDEXFILE}
+echo "</html>" >> ${CMDINDEXFILE}
+
+echo Generating Credits
+cat - <<EOF > ${CREDITSFILE}
+
+EOF
+
+for pkg in $SPKGS; do
+    if [ -d ${HTMLDOCDIR}/${pkg} ]; then
+        d=`(cd ${HTMLDOCDIR}/${pkg}; find . -type d -print | sort)`
+        if [ "x${d}x" != "xx" ]; then
+            for sd in $d; do
+                _sd=`echo "$sd" | sed 's/\.\///'`
+                cp ${CREDITSFILE} ${HTMLDOCDIR}/${pkg}/${_sd}
+            done
+        fi
+    fi
+done
+
+
+echo Generating Global Index in ${GLOBALINDEXFILE}
+
+pfile=`basename ${PKGINDEXFILE}`
+cfile=`basename ${CMDINDEXFILE}`
+
+cat - <<EOF > ${GLOBALINDEXFILE}
+<html><head><title>The NuSMV Documentation</title></head>
+<body>
+<h1>The NuSMV Documentation</h1>
+<hr>
+<ul>
+ <li><a href="$pfile">The NuSMV Package Structure</a></li>
+ <li><a href="$cfile">The NuSMV Interactive Shell Commands</a></li>
+</ul>
+<hr>
+<address><a href=\"http://nusmv.fbk.eu\">NuSMV</a> &lt;<a href=\"mailto:nusmv@fbk.eu\">nusmv@fbk.eu</a>&gt;</address>
+</body>
+</html>
+EOF
+
+
+if [ ! -d ${HELPDIR} ]; then
+    mkdir -p ${HELPDIR}
+fi
+
+
+
+#for file in ${HTMLDOCDIR}/*Cmd.html ${HTMLDOCDIR}/*/*/*Cmd.html; do 
+for file in ${CMDS}; do
+    echo Converting ${file} to file ${HELPDIR}/`basename ${file} .html`.txt
+    if [ ${HTMLDUMP} = "lynx_or_links_is_missing" ]; then
+        echo "The on-line help for this command is not available." > ${HELPDIR}/`basename ${file} .html`.txt
+        echo "Probably because lynx or links is not installed on your system." >> ${HELPDIR}/`basename ${file} .html`.txt
+        echo "In order to get the on-line help to work, first install " >> ${HELPDIR}/`basename ${file} .html`.txt
+        echo "lynx or links and then configure and compile NuSMV again" >> ${HELPDIR}/`basename ${file} .html`.txt
+    else
+        ${HTMLDUMP} -dump ${file} > ${HELPDIR}/`basename ${file} .html`.txt
+    fi
+done

@@ -1,0 +1,59 @@
+% -*-latex-*-
+\begin{nusmvCommand} {check\_ltlspec\_bmc\_inc} {Checks the given LTL
+specification, or all LTL specifications if no formula is given, 
+using an incremental algorithm.
+Checking parameters are the maximum length and the loopback value}
+
+\cmdLine{check\_ltlspec\_bmc\_inc [-h ] | [-n idx | -p "formula [IN
+      context]" | -P "name" ] [-k max\_length] [-l loopback]}
+
+For each problem this command incrementally generates many
+satisfiability subproblems and calls the SAT solver on each one of them. The
+incremental algorithm exploits the fact that subproblems have common
+subparts, so information obtained during a previous call to the SAT solver
+can be used in the consecutive ones. Logically, this command does
+the same thing as \code{check\_ltlspec\_bmc} (see the description on
+page \pageref{checkLtlspecBmcCoomand}) but usually runs
+considerably quicker. A SAT solver with an incremental interface
+is required by this command, therefore if no such SAT solver is
+provided then this command will be unavailable.
+
+See variable \varName{use\_coi\_size\_sorting} for changing properties
+verification order.
+
+\begin{cmdOpt}
+
+\opt{-n \parameter{\natnum{\it index}}}{\natnum{\it index} is the numeric index 
+of a valid LTL specification formula actually located in the properties database.}
+       
+\opt{-p \parameter{"\anyexpr [IN context]"}}{Checks the \anyexpr specified on
+the command-line. \code{context} is the module instance name which
+the variables in \anyexpr must be evaluated in.}
+            
+\opt{-P \parameter{\natnum{name}}}{Checks the LTL property named \natnum{name} in
+the property database.} 
+
+\opt{-k \parameter{\natnum{\it max\_length}}}{\natnum{\it max\_length} is the maximum problem
+bound must be reached. Only natural numbers are valid values for this
+option. If no value is given the environment variable \envvar{\it
+bmc\_length} is considered instead.}
+
+\opt{-l \parameter{\set{\it loopback}{\range{0}{max\_length-1},
+       \range{-1}{bmc\_length}, X, *}}}{The {\it loopback} value may be: }
+       \tabItem{a natural number in (0, {\it max\_length-1}). A positive sign (`+')
+       can be also used as prefix of the number. Any invalid
+       combination of length and loopback will be skipped during the
+       generation/solving process.}
+       \tabItem{a negative number in
+       (-1, -{\it bmc\_length}). In this case {\it loopback} is
+       considered a value relative to {\it max\_length}.  Any invalid
+       combination of length and loopback will be skipped during the
+       generation/solving process.}
+       \tabItem{the symbol
+       `\varvalue{X}', which means ``no loopback".}
+       \tabItem{the
+       symbol `\varvalue{*}', which means ``all possible loopback from
+       zero to {\it length-1}" .}
+
+\end{cmdOpt}
+\end{nusmvCommand}

@@ -1,0 +1,53 @@
+% -*-latex-*-
+\begin{nusmvCommand} {check\_ltlspec\_bmc\_onepb} {Checks the given LTL specification, or all LTL specifications if no formula is given. Checking parameters are the single problem bound and the loopback value}
+
+\cmdLine{check\_ltlspec\_bmc\_onepb [-h ] | [ -n idx | -p "formula"
+    [IN context] | -P "name"] [-k length] [-l loopback] [-o filename]}
+
+As command \command{check\_ltlspec\_bmc} but it produces only one
+single problem with fixed bound and loopback values, with no iteration
+of the problem bound from zero to max\_length.
+
+\begin{cmdOpt}
+
+\opt{-n \parameter{\natnum{\it index}}}{{\it index} is the numeric index of a valid LTL
+specification formula actually located in the properties database.
+The validity of {\it index} value is checked out by the system.}
+
+\opt{-p \parameter{"\anyexpr [IN context]"}}{Checks the \anyexpr
+specified on the command-line. \code{context} is the module instance
+name which the variables in \anyexpr must be evaluated in.}
+
+\opt{-P \parameter{\natnum{name}}}{Checks the LTL property named \natnum{name} in
+the property database.} 
+
+\opt{-k \parameter{\natnum{\it length}}}{{\it length} is the problem bound used when
+generating the single problem. Only natural numbers are valid values
+for this option. If no value is given the environment variable
+\envvar{bmc\_length} is considered instead.}
+
+\opt{-l \parameter{\set{\it loopback}{\range{0}{max\_length-1},
+       \range{-1}{bmc\_length}, X, *}}}{The {\it loopback} value may be:}
+       \tabItem{a natural number in (0, {\it max\_length-1}). A positive sign ('+') can 
+       be also used as prefix of the number. Any invalid combination of length 
+       and loopback will be skipped during the generation/solving process.}
+       \tabItem{a negative number in (-1, -{\it bmc\_length}). In this case 
+       {\it loopback} is considered a value relative to {\it length}. 
+       Any invalid combination of length and loopback will be skipped 
+       during the generation/solving process.}
+       \tabItem{the symbol '\varvalue{X}', which means ``no loopback'' .}
+       \tabItem{the symbol '\varvalue{*}', which means ``all possible loopback from zero to 
+       {\it length-1}''.}
+       
+\opt{ -o \parameter{\filename{\it filename}}}{ {\it filename} is the name of the dumped
+dimacs file.  It may contain special symbols which will be
+macro-expanded to form the real file name. Possible symbols are: }
+       \tabItem{@F: model name with path part.}
+       \tabItem{@f: model name without path part.} 
+       \tabItem{@k: current problem bound.} 
+       \tabItem{@l: current loopback value.} 
+       \tabItem{@n: index of the currently processed formula in the property 
+       database.} 
+       \tabItem{@@: the '@' character.}
+\end{cmdOpt}
+\end{nusmvCommand}

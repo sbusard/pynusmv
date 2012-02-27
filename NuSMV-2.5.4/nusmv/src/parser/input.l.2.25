@@ -1,0 +1,6 @@
+  /* **************************************************************  -*-C-*-  ***/
+
+[ \n\t\r\f]             ;
+"--"                    nusmv_skip_comment();
+^"#"" "[0-9]+.*\n       sscanf(yytext,"# %d",&yylineno);
+^"#".*\n                rpterr("Unexpected preprocessor directive:\n %s\n",yytext);

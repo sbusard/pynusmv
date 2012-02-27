@@ -1,0 +1,25 @@
+% -*-latex-*-
+\begin{nusmvCommand} {encode\_variables} {Builds the BDD variables
+    necessary to compile the model into a BDD.}
+
+\cmdLine{encode\_variables [-h] [-i order-file]}
+
+Generates the boolean BDD variables and the ADD needed to encode
+propositionally the (symbolic) variables declared in the model. The
+variables are created as default in the order in which they appear in
+a depth first traversal of the hierarchy.\\The input order file can be
+partial and can contain variables not declared in the model. Variables
+not declared in the model are simply discarded. Variables declared in
+the model which are not listed in the ordering input file will be
+created and appended at the end of the given ordering list, according
+to the default ordering.
+
+\begin{cmdOpt}
+\opt{-i \parameter{\filename{order-file}}}{Sets the environment variable
+\envvar{input\_order\_file} to \filename{order-file}, and reads the
+variable ordering to be used from file  \filename{order-file}. This can
+be combined with the \command{write\_order} command. The variable
+ordering is written to a file, which can be inspected and reordered by
+the user, and then read back in.}
+\end{cmdOpt}
+\end{nusmvCommand}

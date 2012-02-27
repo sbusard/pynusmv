@@ -1,0 +1,17 @@
+% -*-latex-*-
+\begin{nusmvCommand}{print\_reachable\_states} {Prints out the number of reachable states}
+
+\cmdLine{print\_reachable\_states [-h] [-v] [-d] [-f] [-o filename]}
+
+Prints the number of reachable states of the given model. In verbose
+mode, prints also the list of all reachable states.  The reachable
+states are computed if needed.
+
+\begin{cmdOpt}
+\opt{-v}{Prints the list of reachable states}
+\opt{-d}{Prints the list of reachable states with defines (Requires -v)}
+\opt{-f}{Prints the formula representing the reachable states}
+\opt{-o \filename{filename}}{Prints the result on the specified \filename{filename} instead of on standard output}
+\end{cmdOpt}
+
+\end{nusmvCommand}

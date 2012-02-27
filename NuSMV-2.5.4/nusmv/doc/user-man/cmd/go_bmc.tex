@@ -1,0 +1,17 @@
+% -*-latex-*-
+\begin{nusmvCommand} {go\_bmc} {Initializes the system for the BMC verification.}
+
+\cmdLine{go\_bmc [-h] [-f]}
+
+This command initializes the system for verification. It is equivalent
+to the command sequence \command{read\_model},
+\command{flatten\_hierarchy}, \command{encode\_variables}, \linebreak
+\command{build\_boolean\_model}, \command{bmc\_setup}.  If some
+commands have already been executed, then only the remaining ones will
+be invoked.
+
+\begin{cmdOpt}
+\opt{-f}{Forces model construction even when Cone Of Influence is enabled.}
+\end{cmdOpt}
+
+\end{nusmvCommand}

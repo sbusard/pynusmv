@@ -1,0 +1,32 @@
+% -*-latex-*-
+\begin{nusmvCommand} {read\_trace} {Loads a previously saved trace}
+
+\cmdLine{read\_trace [-h | [-i filename] [-u] [-s] filename]}
+
+\begin{cmdOpt}
+
+\opt{-i \parameter{\filename{filename}}}{ Reads in a trace from the
+  specified file. Note that the file must only contain one trace.
+  \emph{This option has been deprecated}. Use the explicit filename
+  argument instead.  }
+
+\opt{-u}{ Turns ``undefined symbol'' error into a warning. The loader
+  will ignore assignments to undefined symbols.}
+
+\opt{-s}{ Turns ``wrong section'' error into a warning. The loader
+  will accept symbol assignment even if they are in a
+  different section than expected. Assignments will be silently moved
+  to appropriate section, i.e. misplaced assignments to state symbols
+  will be moved back to previous state section and assignments to
+  input/combinatorial symbols will be moved forward to successive
+  input/combinatorial section. Such a way if a variable in a
+  model was input and became state or vice versa the existing
+  traces still can be read and executed.}
+\end{cmdOpt}
+
+Loads a trace which has been previously output to a file with the XML
+Format Output plugin. The model from which the trace was originally
+generated must be loaded and built using the command ``\command{go}''
+first.\\Please note that this command is only available on systems
+that have the Expat XML parser library installed.
+\end{nusmvCommand}

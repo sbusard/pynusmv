@@ -1,0 +1,44 @@
+% -*-latex-*-
+\begin{nusmvCommand}{pick\_state} {Picks a state from the set of initial states}
+ 
+\cmdLine{pick\_state [-h] [-v] [-r | -i [-a]] [-c "constraints" | -s trace.state]}
+
+Chooses an element from the set of initial states, and makes it the
+\code{current state} (replacing the old one). The chosen state is
+stored as the first state of a new trace ready to be lengthened by
+\code{steps} states by the \command{simulate} command. The state can
+be chosen according to different policies which can be specified via
+command line options. By default the state is chosen in a
+deterministic way.\\
+\begin{cmdOpt}
+\opt{-v}{Verbosely prints out chosen state (all state and frozen
+  variables, otherwise it prints out only the label \code{t.1} of the
+  state chosen, where \code{t} is the number of the new trace, that is
+  the number of traces so far generated plus one).}
+
+\opt{-r}{Randomly picks a state from the set of initial states.}
+
+\opt{-i}{ Enables the user to interactively pick up an initial state.
+  The user is requested to choose a state from a list of possible
+  items (every item in the list doesn't show frozen and state
+  variables unchanged with respect to a previous item). If the number
+  of possible states is too high, then the user has to specify some
+  further constraints as ``simple expression''.}
+
+\opt{-a}{ Displays all state and frozen variables (changed and
+  unchanged with respect to a previous item) in an interactive
+  picking. This option works only if the \commandopt{i} options has
+  been specified.}
+
+\opt{-c \parameter{"constraints"}}{ Uses \code{constraints} to
+  restrict the set of initial states in which the state has to be
+  picked.  \code{constraints} must be enclosed between double quotes
+  \code{" "}.}
+
+\opt{-s \parameter{trace.state}}{Picks state from trace.state label. A
+  new simulation trace will be created by copying prefix of the source
+  trace up to specified state.}
+
+\end{cmdOpt}
+
+\end{nusmvCommand}

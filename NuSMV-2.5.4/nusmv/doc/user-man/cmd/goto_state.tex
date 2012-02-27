@@ -1,0 +1,22 @@
+% -*-latex-*-
+\begin{nusmvCommand} {goto\_state} {Goes to a given state of a trace}
+
+\cmdLine{goto\_state [-h] state\_label}
+
+Makes \code{state\_label} the \emph{current state}. This command is used to
+navigate along traces produced by \nusmv. During the navigation, there
+is a \emph{current state}, and the \emph{current trace} is the trace
+the \emph{current state} belongs to.
+
+\code{state\_label} is in the form \emph{trace.state} where 
+\begin{description}
+  \item [trace] is the index of the trace which the state has to be taken from.
+
+  \item [state] is the index of the state within the given
+    trace. If \code{state} is a negative number, then the state
+    index is intended to be relative to the length of the given
+    trace. For example \code{2.-1} means the last state of the
+    trace \code{2}. 2.-2 is the state before the last state, etc.
+\end{description}
+
+\end{nusmvCommand}

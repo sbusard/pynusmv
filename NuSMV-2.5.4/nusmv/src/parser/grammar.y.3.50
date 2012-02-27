@@ -1,0 +1,240 @@
+/***************************************************************  -*-C-*-  ***/
+
+/* Additional source code */
+
+/* outputs the current token with the provided string and then may terminate */
+void yyerror(char *s)
+{
+  /* In the input.l file we explicity tell flex that we want a pointer
+     (see man flex -> %pointer). So we don't need to check if yytext
+     is declared as pointer or as array  */
+  extern char* yytext;
+  extern int yylineno;
+  OptsHandler_ptr opmgr = OptsHandler_get_instance();
+  
+  if (OptsHandler_get_bool_option_value(opmgr, OPT_PARSER_IS_LAX)) {
+    parser_add_syntax_error(get_input_file(opmgr), yylineno, yytext, s);
+  }
+  else {
+    start_parsing_err();
+    fprintf(nusmv_stderr, "at token \"%s\": %s\n", yytext, s);
+    if (opt_batch(opmgr)) { finish_parsing_err(); }
+  }
+}
+
+/* the same as yyerror, except at first it sets the line number and does
+ not output the current token
+*/
+void yyerror_lined(const char *s, int line)
+{
+  extern char* yytext;
+  extern int yylineno;
+  OptsHandler_ptr opmgr = OptsHandler_get_instance();
+
+  /*set the line number */
+  yylineno = line;
+
+  if (OptsHandler_get_bool_option_value(opmgr, OPT_PARSER_IS_LAX)) {
+    parser_add_syntax_error(get_input_file(opmgr), line, yytext, s);
+  }
+  else {
+    start_parsing_err();
+    fprintf(nusmv_stderr, ": %s\n", s);
+    if (opt_batch(opmgr)) { finish_parsing_err(); }
+  }
+}
+
+int yywrap()
+{
+  return(1);
+}
+
+
+/* Given a node (possibly a relative or absolute context)
+   constructs a node that is contextualized absolutely
+   (i.e. relatively to main module). This is used to construct
+   context of properties that have to be instatiated in main
+   module */
+static node_ptr node2maincontext(node_ptr node)
+{
+  node_ptr ctx;
+
+  if (node_get_type(node) == CONTEXT) {
+    /* already a context */
+    ctx = CompileFlatten_concat_contexts(Nil, car(node));
+    return find_node(CONTEXT, ctx, cdr(node));
+  }
+
+  /* an atom, array or dot */
+  return find_node(CONTEXT, Nil, node);
+}
+
+/* This functions build the COLON node for case expressions.  If
+   backward compatibility is enabled, and the condition expression is
+   found to be the constant "1", then a warning is printed and the
+   condition is replaced with TRUE. */
+static node_ptr build_case_colon_node(node_ptr l,
+                                      node_ptr r,
+                                      int linum)
+{
+  node_ptr res;
+
+  static int user_warned = 0;
+
+  if (opt_backward_comp(OptsHandler_get_instance()) &&
+      (NUMBER == node_get_type(l)) && (1 == NODE_TO_INT(car(l)))) {
+
+    /* Print this warning only once. */
+    if (!user_warned) {
+      fprintf(nusmv_stderr,
+              "\nWARNING *** Option backward_compatibility (-old) is deprecate ***\n");
+      fprintf(nusmv_stderr,
+              "WARNING *** and will no longer be supported in future NuSMV versions. ***\n\n");
+      user_warned = 1;
+    }
+
+    fprintf(nusmv_stderr, "WARNING (");
+
+    if (get_input_file(OptsHandler_get_instance())) {
+      fprintf(nusmv_stderr, "file %s", get_input_file(OptsHandler_get_instance()));
+    }
+    else fprintf(nusmv_stderr, "file stdin");
+
+    fprintf(nusmv_stderr,
+            ", line %d) : Deprecated use of \"1\" for case condition\n", linum);
+
+    res = new_lined_node(COLON, new_node(TRUEEXP, Nil, Nil), r, linum);
+  }
+  else {
+    res = new_lined_node(COLON, l, r, linum);
+  }
+
+  return res;
+}
+
+/* this functions checks that the expression is formed syntactically correct.
+   Takes the expression to be checked, the expected kind of the
+   expression. Returns true if the expression is formed correctly, and
+   false otherwise.
+   See enum EXP_KIND for more info about syntactic well-formedness.
+*/
+static boolean isCorrectExp(node_ptr exp, enum EXP_KIND expectedKind)
+{
+  switch(node_get_type(exp))
+    {
+      /* atomic expression (or thier operands have been checked earlier) */
+    case FAILURE:
+    case FALSEEXP:
+    case TRUEEXP:
+    case NUMBER:
+    case NUMBER_UNSIGNED_WORD:
+    case NUMBER_SIGNED_WORD:
+    case NUMBER_FRAC:
+    case NUMBER_REAL:
+    case NUMBER_EXP:
+    case UWCONST:
+    case SWCONST:
+    case TWODOTS:
+    case DOT:
+    case ATOM:
+    case SELF:
+    case ARRAY:
+    case COUNT:
+      return true;
+
+      /* unary operators incompatible with LTL and CTL operator */
+    case CAST_BOOL:
+    case CAST_WORD1:
+    case CAST_SIGNED:
+    case CAST_UNSIGNED:
+    case WSIZEOF:
+    case CAST_TOINT:
+      if (EXP_LTL == expectedKind || EXP_CTL == expectedKind) {
+        return isCorrectExp(car(exp), EXP_SIMPLE);
+      }
+      /* unary operators compatible with LTL and CTL operator */
+    case NOT:
+    case UMINUS:
+      return isCorrectExp(car(exp), expectedKind);
+
+      /* binary opertors incompatible with LTL and CTL operator */
+    case BIT_SELECTION:
+    case CASE: case COLON:
+    case CONCATENATION:
+    case TIMES: case DIVIDE: case PLUS :case MINUS: case MOD:
+    case LSHIFT: case RSHIFT: case LROTATE: case RROTATE:
+    case WAREAD: case WAWRITE: /* AC ADDED THESE */
+    case UNION: case SETIN:
+    case EQUAL: case NOTEQUAL: case LT: case GT: case LE: case GE:
+    case IFTHENELSE:
+    case EXTEND:
+    case WRESIZE:
+      if (EXP_LTL == expectedKind || EXP_CTL == expectedKind) {
+        return isCorrectExp(car(exp), EXP_SIMPLE)
+          && isCorrectExp(cdr(exp), EXP_SIMPLE);
+      }
+      /* binary opertors compatible LTL and CTL operator */
+    case AND: case OR: case XOR: case XNOR: case IFF: case IMPLIES:
+      return isCorrectExp(car(exp), expectedKind)
+        && isCorrectExp(cdr(exp), expectedKind);
+
+      /* next expression */
+    case NEXT:
+      if (EXP_NEXT != expectedKind) {
+        yyerror_lined("unexpected 'next' operator", node_get_lineno(exp));
+        return false;
+      }
+      return isCorrectExp(car(exp), EXP_SIMPLE); /* NEXT cannot contain NEXT */
+
+      /* CTL unary expressions */
+    case EX: case AX: case EF: case AF: case EG: case AG:
+    case ABU: case EBU:
+    case EBF: case ABF: case EBG: case ABG:
+      if (EXP_CTL != expectedKind) {
+        yyerror_lined("unexpected CTL operator", node_get_lineno(exp));
+        return false;
+      }
+      return isCorrectExp(car(exp), EXP_CTL); /* continue to check CTL */
+
+      /* CTL binary expressions */
+    case AU: case EU:
+      if (EXP_CTL != expectedKind) {
+        yyerror_lined("unexpected CTL operator", node_get_lineno(exp));
+        return false;
+      }
+      return isCorrectExp(car(exp), EXP_CTL)
+        && isCorrectExp(cdr(exp), EXP_CTL); /* continue to check CTL */
+
+
+      /* LTL unary expressions */
+    case OP_NEXT: case OP_PREC: case OP_NOTPRECNOT: case OP_GLOBAL:
+    case OP_HISTORICAL: case OP_FUTURE: case OP_ONCE:
+      if (EXP_LTL != expectedKind) {
+        yyerror_lined("unexpected LTL operator", node_get_lineno(exp));
+        return false;
+      }
+      return isCorrectExp(car(exp), EXP_LTL); /* continue to check LTL */
+
+
+      /* LTL binary expressions */
+    case UNTIL: case SINCE:
+      if (EXP_LTL != expectedKind) {
+        yyerror_lined("unexpected LTL operator", node_get_lineno(exp));
+        return false;
+      }
+      return isCorrectExp(car(exp), EXP_LTL)
+        && isCorrectExp(cdr(exp), EXP_LTL); /* continue to check LTL */
+
+    default: nusmv_assert(false); /* unknown expression */
+    }
+  return false; /* should never be invoked */
+}
+
+
+static int nusmv_parse_psl()
+{
+  int res;
+  res = psl_yyparse();
+  return res;
+}
+

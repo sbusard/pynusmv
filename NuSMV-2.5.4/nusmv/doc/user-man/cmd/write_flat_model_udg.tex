@@ -1,0 +1,19 @@
+% -*-latex-*-
+\begin{nusmvCommand} {write\_flat\_model\_udg} {Writes the currently loaded SMV model in the specified uDraw file}
+
+\cmdLine{write\_flat\_model\_udg [-h] [-o filename]}
+
+Processes are eliminated and a corresponding equivalent model is
+printed out in uDraw format.  If no file is specified, the file
+specified with the environment variable
+\envvar{output\_flatten\_model\_file} is used if any, otherwise
+standard output is used as output.
+
+\begin{cmdOpt}
+\opt{-o \parameter{\filename{filename}}} {Attempts to write the flat
+SMV model in \filename{filename}}
+\end{cmdOpt}
+
+
+
+\end{nusmvCommand}

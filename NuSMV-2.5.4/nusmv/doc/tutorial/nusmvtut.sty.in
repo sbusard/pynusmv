@@ -1,0 +1,91 @@
+%/**LaTex style file *************************************************************
+%
+%  FileName    [nusmvtut.sty]
+%
+%  PackageName [nusmvtut]
+%
+%  Synopsis    [style option for writing documentation for NuSMV tutorial.]
+%
+%  Description [This style file defines various shorthand commands
+%  uded throughout the tutorial and may later include a specific
+%  environment for printed output from NuSMV. This file has been
+%  adapted from ''nusmv.sty'', written by Ashutosh Trivedi]
+%		
+%  RequirePackage  [index, alltt, xspace, ... ]
+%
+%  Author      [Gavin Keighren]
+%
+%  Copyright   [
+%
+%  NuSMV version 2 is free software; you can redistribute it and/or 
+%  modify it under the terms of the GNU Lesser General Public 
+%  License as published by the Free Software Foundation; either 
+%  version 2 of the License, or (at your option) any later version.
+%
+%  NuSMV version 2 is distributed in the hope that it will be useful, 
+%  but WITHOUT ANY WARRANTY; without even the implied warranty of 
+%  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+%  Lesser General Public License for more details.
+%
+%  You should have received a copy of the GNU Lesser General Public 
+%  License along with this library; if not, write to the Free Software 
+%  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307  USA.
+%
+%  For more information on NuSMV see <http://nusmv.fbk.eu>
+%  or email to <nusmv-users@fbk.eu>.
+%  Please report bugs to <nusmv-users@fbk.eu>.
+%
+%  To contact the NuSMV development board, email to <nusmv@fbk.eu>. ]
+%
+%
+%******************************************************************************/
+
+\ProvidesPackage{nusmvtut}
+
+\RequirePackage{alltt}
+\RequirePackage{index}
+\RequirePackage{xspace}
+
+% Two different indexes for Command and Variables, in addition to
+% generic index.
+\newindex{com}{adx}{and}{Command Index}
+\newindex{var}{ndx}{nnd}{Variable Index}
+
+% shorthand for command and variable index.
+\def\cindex{\index[com]}
+\def\vindex{\index[var]}
+
+% Change it to reflect new NuSMV version.
+\newcommand{\NuSMV}{NuSMV @NUSMV_MAJ_VER@\xspace} 
+\newcommand{\nusmvtxt}{NuSMV} 
+\newcommand{\nusmv}{\textsc{\nusmvtxt}\xspace} 
+\newcommand{\nusmvhead}{\nusmvtxt\xspace}
+\newcommand{\nusmvTwo}{\textsc{NuSMV2}\xspace}
+\newcommand{\nusmvprompt}{\texttt{NuSMV>}\xspace}
+\newcommand{\nusmvtext}[1]{\textbf{\texttt{#1}}\xspace}
+
+% NuSMV command/variable related formatting
+\newcommand{\commandopt}[1]{\texttt{-#1}\xspace}
+
+% Shell related formatting
+\newcommand{\shellprompt}{\texttt{system\_prompt>}\xspace}
+\newcommand{\shelltext}[1]{\textbf{\texttt{#1}}\xspace}
+
+\newcommand{\ret}{\texttt{<RET>}\xspace} 
+\newcommand{\code}[1]{\texttt{#1}\xspace}
+\newcommand{\filename}[1]{\texttt{#1}\xspace}
+\newcommand{\command}[1]{\texttt{#1}\xspace}
+\newcommand{\varName}[1]{\texttt{#1}\xspace}
+
+% Copyright message.
+\newcommand{\copymsg}{Copyright \copyright 1998-2002 by CMU and ITC-irst.} 
+
+% shorthand for showing chapter and section refereces in a better way.
+% use \cref{<chapter_label>} for referring to chapters and
+% use \sref{<section_label>} for referring to sections.
+\newcommand{\cref}[1]{Chapter~\ref{#1} [#1], page~\pageref{#1}}
+\newcommand{\sref}[1]{Section~\ref{#1} [#1], page~\pageref{#1}}
+
+% For keeping the proper margin.
+\def\changemargin#1#2{\list{}{\rightmargin#2\leftmargin#1}\item[]}
+\let\endchangemargin=\endlist 

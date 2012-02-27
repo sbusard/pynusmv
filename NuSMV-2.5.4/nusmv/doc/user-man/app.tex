@@ -1,0 +1,187 @@
+% -*-latex-*-
+\chapter{Compatibility with CMU \smv}
+%
+The \nusmv language is mostly source compatible with the original
+version of \smv distributed at Carnegie Mellon University from which
+we started.
+%
+In this appendix we describe the most common problems that can be
+encountered when trying to use old CMU \smv programs with \nusmv.
+
+The main problem is variable names in old programs that conflicts with
+new reserved keywords.  
+%
+The list of the new reserved keywords of \nusmv w.r.t. CMU \smv is the
+following:
+
+\begin{table}[h]
+\begin{tabular}{p{100pt}p{300pt}}
+%
+\code{F, G, X, U, V, W, H, O, Y, Z, S, T, B} &
+These names are reserved for the LTL temporal operators.\\
+%
+\code{CTLSPEC} &
+It is used to introduce CTL specifications. \\
+%
+\code{LTLSPEC} &
+It is used to introduce LTL specifications. \\
+%
+\code{INVARSPEC} &
+It is used to introduce invariant specifications.\\
+%
+\code{PSLSPEC} &
+It is used to introduce PSL specifications.\\
+%
+\code{IVAR} &
+It is used to introduce input variables. \\
+%
+\code{FROZENVAR} &
+It is used to introduce frozen variables. \\
+%
+\code{JUSTICE} &
+It is used to introduce ``justice'' fairness constraints.\\
+%
+\code{COMPASSION} &
+It is used to introduce ``compassion'' fairness constraints. \\
+%
+\code{CONSTANTS} &
+It is used to force declaration of constants. \\
+%
+\code{word} &
+It is used to declare word type variables. \\
+%
+\code{word1} &
+It is used to cast boolean expressions to word type.\\
+%
+\code{bool} &
+It is used to cast word1 expressions to boolean type.\\
+%
+\code{unsigned} &
+It is used to cast signed words to unsigned ones.\\
+%
+\code{signed} &
+It is used to cast unsigned words to signed ones.\\
+%
+\code{extend} &
+It is used to increase the width of words.\\
+%
+\end{tabular}
+\end{table}
+
+The \code{IMPLEMENTS}, \code{INPUT}, \code{OUTPUT} statements are not
+no longer supported by \nusmv.
+
+\nusmv differs from CMU \smv also in the controls that are performed
+on the input formulas. 
+%
+Several formulas that are valid for CMU \smv, but that have no clear
+semantics, are not accepted by \nusmv. 
+
+In particular:
+
+\begin{itemize}
+
+\item It is no longer possible to write formulas containing
+      nested`\code{next}'.
+\begin{alltt}
+TRANS
+  next(alpha & next(beta | next(gamma))) -> delta
+\end{alltt}
+
+\item It is no longer possible to write formulas containing
+      `\code{next}' in the right hand side of ``normal'' and ``init''
+      assignments (they are allowed in the right hand side of ``next''
+      assignments), and with the statements `\code{INVAR}' and
+      `\code{INIT}'.
+
+\begin{nusmvCode}
+INVAR
+  next(alpha) & beta
+INIT
+  next(beta) -> alpha
+ASSIGN
+  delta := alpha & next(gamma);       -- normal assignments
+  init(gamma) := alpha & next(delta); -- init assignments
+\end{nusmvCode}
+
+\item It is no longer possible to write `\code{SPEC}',
+      `\code{FAIRNESS}' statements containing `\code{next}'.
+
+\begin{nusmvCode}
+FAIRNESS
+ next(running)
+SPEC
+ next(x) & y
+\end{nusmvCode}
+
+\item The check for circular dependencies among variables has been 
+      done more restrictive.  We say that variable \textit{x} depends on
+      variable \textit{y} if \textit{x := f(y)}.  We say that there is a
+      circular dependency in the definition of \textit{x} if:
+
+\begin{itemize}
+  \item  \textit{x} depends on itself ( e.g. \textit{x := f(x,y)} );
+  \item \textit{x} depends on \textit{y} and \textit{y} depends on
+        \textit{x} (e.g. \textit{x := f(y)} and \textit{y := f(x)} or
+        \textit{x := f(z)}, \textit{z := f(y)} and \textit{y := f(x)} ).
+\end{itemize}
+%
+In the case of circular dependencies among variables there is no fixed
+order in which we can compute the involved variables. Avoiding
+circular dependencies among variables guarantee that there exists an
+order in which the variables can be computed. In \nusmv circular
+dependencies are not allowed.
+
+In CMU \smv the test for circular dependencies is able to detect
+circular dependencies only in ``normal'' assignments, and not in
+``next'' assignments. The circular dependencies check of \nusmv has
+been extended to detect circularities also in ``next''
+assignments. For instance the following fragment of code is accepted
+by CMU \smv but discarded by \nusmv.
+
+\begin{nusmvCode}
+MODULE main
+VAR
+  y : boolean;
+  x : boolean;
+ASSIGN
+  next(x) := x & next(y);
+  next(y) := y & next(x);
+\end{nusmvCode}
+\end{itemize}
+
+Another difference between \nusmv and CMU \smv is in the variable
+order file.  
+%
+The variable ordering file accepted by \nusmv can be partial and can
+contain variables not declared in the model. Variables listed in the
+ordering file but not declared in the model are simply discarded. 
+%
+The variables declared in the model but not listed in the variable
+file provided in input are created at the end of the given ordering
+following the default ordering. 
+%
+All the ordering files generated by CMU \smv are accepted in input
+from \nusmv but the ordering files generated by \nusmv may be not
+accepted by CMU \smv.  
+%
+Notice that there is no guarantee that a good ordering for CMU \smv is
+also a good ordering for \nusmv.  
+%
+In the ordering files for \nusmv, identifier
+\code{\_process\_selector\_} can be used to control the position of
+the variable that encodes process selection. 
+%
+In CMU \smv it is not possible to control the position of this
+variable in the ordering; it is hard-coded at the top of the ordering.
+%
+A further difference about variable ordering consists in the fact that
+in \nusmv it is allowed to specify single bits of scalar variables. In
+the example:
+\begin{nusmvCode}
+VAR x : 0..7;
+\end{nusmvCode}
+
+\nusmv will create three variables \code{x.0}, \code{x.1} and
+\code{x.2} that can be explicitly mentioned in the variable ordering
+file to fine control their ordering. 

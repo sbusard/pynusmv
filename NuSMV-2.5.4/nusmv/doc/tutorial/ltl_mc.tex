@@ -1,0 +1,140 @@
+% -*-latex-*-
+\section{Linear Temporal Logic}
+\label{Linear Temporal Logic}
+\index{Linear Temporal Logic}
+
+\nusmv allows for specifications expressed in LTL. Intuitively,
+while CTL specifications express properties over the computation tree of
+the FSM (branching-time approach), LTL characterizes each linear path
+induced by the FSM (linear-time approach). The two logics have in
+general different expressive power, but also share a significant
+intersection that includes most of the common properties used in
+practice.
+\index{LTL Operators}
+Typical LTL operators are:
+\begin{itemize}
+\item \code{F p} (read ``in the future \code{p}''), 
+stating that a certain condition \code{p} holds in one of the future
+time instants;
+\item \code{G p} (read ``globally \code{p}''), 
+stating that a certain condition \code{p} holds in all future time 
+instants;
+\item \code{p U q} (read ``\code{p} until \code{q}''),
+stating that condition \code{p} holds until a state is reached where
+condition \code{q} holds;
+\item \code{X p} (read ``next \code{p}''),
+stating that condition \code{p} is true in the next state.
+\end{itemize}
+We remark that, differently from CTL, LTL temporal operators do not have
+path quantifiers. In fact, LTL formulas are evaluated on linear paths,
+and a formula is considered true in a given state if it is true for all
+the paths starting in that state.
+
+
+\section{Semaphore Example}
+\label{LTL Semaphore Example}
+\index{Examples!Semaphore!LTL}
+
+\index{Specification!LTL}
+Consider the case of the semaphore program and of the safety and
+liveness properties already described in \cref{CTL Model Checking}. 
+These properties correspond to LTL formulas
+\begin{alltt}
+G ! (proc1.state = critical & proc2.state = critical)
+\end{alltt}
+expressing that the two processes cannot be in the critical region
+at the same time, and 
+\begin{alltt}
+G (proc1.state = entering -> F proc1.state = critical)
+\end{alltt}
+expressing that whenever a process wants to enter its critical session,
+it eventually does.
+
+\index{LTLSPEC keyword}
+If we add the two corresponding LTL specification to the program, as
+follows:\footnote{In \nusmv a LTL specification are introduced by
+the keyword ``\code{LTLSPEC}''.}
+\begin{alltt}
+MODULE main
+ VAR
+   semaphore : boolean;
+   proc1     : process user(semaphore);
+   proc2     : process user(semaphore);
+ ASSIGN
+   init(semaphore) := FALSE;
+ LTLSPEC G ! (proc1.state = critical & proc2.state = critical)
+ LTLSPEC G (proc1.state = entering -> F proc1.state = critical)
+MODULE user(semaphore)
+ VAR
+   state : \{idle, entering, critical, exiting\};
+ ASSIGN
+   init(state) := idle;
+   next(state) :=
+     case
+       state = idle                  : \{idle, entering\};
+       state = entering & !semaphore : critical;
+       state = critical              : \{critical, exiting\};
+       state = exiting               : idle;
+       TRUE                          : state;
+     esac;
+   next(semaphore) :=
+     case
+       state = entering : TRUE;
+       state = exiting  : FALSE;
+       TRUE             : semaphore;
+     esac;
+ FAIRNESS
+   running
+\end{alltt}
+\nusmv produces the following output:
+\begin{alltt}
+-- specification  G (!(proc1.state = critical & proc2.state = critical)) 
+-- is true
+-- specification  G (proc1.state = entering ->  F proc1.state = critical) 
+-- is false
+-- as demonstrated by the following execution sequence
+Trace Description: CTL Counterexample
+Trace Type: Counterexample
+-> State: 1.1 <-
+    semaphore = FALSE
+    proc1.state = idle
+    proc2.state = idle
+-> Input: 1.2 <-
+    _process_selector_ = proc2
+-- Loop starts here
+-> State 1.2 <-
+[...]
+\end{alltt}
+That is, the first specification is true, while the second is false and
+a counter-example path is generated.
+
+
+\section{Past Temporal Operators}
+\label{LTL Past Temporal Operators}
+\index{Past Temporal Operators (LTL)}
+
+In \nusmv, LTL properties can also include \emph{past} temporal
+operators. Differently from standard temporal operators, that allow to
+express properties over the future evolution of the FSM, past temporal
+operators allow to characterize properties of the path that lead to the
+current situation. The typical past operators are:
+\begin{itemize}
+\item \code{O p} (read "once \code{p}"), 
+stating that a certain condition \code{p} holds in one of the past
+time instants;
+\item \code{H p} (read "historically \code{p}"), 
+stating that a certain condition \code{p} holds in all previous time instants;
+\item \code{p S q} (read "\code{p} since \code{q}"),
+stating that condition \code{p} holds since a previous state where
+condition \code{q} holds;
+\item \code{Y p} (read "yesterday \code{p}"),
+stating that condition \code{p} holds in the previous time instant.
+\end{itemize}
+\noindent
+Past temporal operators can be combined with future temporal operators,
+and allow for the compact characterization of complex properties.
+
+A detailed description of the syntax of LTL formulas can be 
+found in the \NuSMV User Manual.
+%@node  Bounded Model Checking,  , LTL model checking, Tutorial
+%  node-name,  next,  previous,  up

@@ -1,0 +1,1360 @@
+% -*-latex-*-
+
+The main interaction mode of \nusmv is through an interactive shell.
+In this mode \nusmv enters a read-eval-print loop. The user can
+activate the various \nusmv computation steps as system commands with
+different options. These steps can therefore be invoked separately,
+possibly undone or repeated under different modalities. These steps
+include the construction of the model under different partitioning
+techniques, model checking of specifications, and the configuration of
+the BDD package. The interactive shell of \nusmv is activated from the
+system prompt as follows ('\nusmvprompt' is the default \nusmv
+shell prompt):
+
+\begin{alltt}
+\shellprompt \shelltext{\nusmvtxt -int} \ret
+\nusmvprompt
+\end{alltt}
+
+When running interactively, \nusmv first tries to read and execute
+commands from an initialization file if such file can be found and is
+readable unless \shelltext{-s} is passed on the command line. 
+
+First, file master.nusmvrc is looked for in directory defined in
+environment variable NUSMV\_LIBRARY\_PATH or in default library path
+if no such variable is defined. If no such file exists, file .nusmvrc
+is looked for in user's home directory and as a last attemp, .nusmvrc
+is looked for in current directory. Commands in the initialization
+file (if any) are executed consecutively. When initialization phase is
+completed the \nusmv shell is displayed and the system is now ready to
+execute user commands.
+
+A \nusmv command is a sequence of words. The first word specifies the
+command to be executed. The remaining words are arguments to the
+invoked command. Commands separated by a `\code{;}' are executed
+sequentially; the \nusmv shell waits for each command to terminate in
+turn. The behavior of commands can depend on environment variables,
+similar to \csh environment variables.
+
+It is also possible to make \nusmv read and execute a sequence of
+commands from a file, through the command line option 
+\shelltext{-source}:
+
+\begin{alltt}
+\shellprompt \shelltext{\nusmvtxt -source {\it cmd\_file}} \ret
+\end{alltt}
+
+\begin{nusmvTable}
+\opt{-source {\it cmd-file}}{
+\index{ \code{-source} {\it cmd-file}}
+Starts the interactive shell and then executes \nusmv commands from
+file {\it cmd-file}. If an error occurs during a command execution,
+commands that follow will not be executed. See also the variable
+\varName{ on\_failure\_script\_quits}. The option \shelltext{-source} 
+implies \shelltext{-int}. }
+
+\end{nusmvTable}
+
+\vspace{5mm}
+
+In the following we present the possible commands followed by the
+related environment variables, classified in different
+categories. Every command answers to the option \commandopt{h} by
+printing out the command usage. When output is paged for some commands
+(option \commandopt{m}), it is piped through the program specified by
+the \unix \shellvar{PAGER} shell variable, if defined, or through the
+\unix command \shellcommand{more}. Environment variables can be
+assigned a value with the \shellcommand{set} command.  Command
+sequences to \nusmv must obey the (partial) order specified in the
+Figure~\ref{flowchart} depicted at page \pageref{flowchart}. For
+instance, it is not possible to evaluate CTL expressions before the
+model is built.
+
+A number of commands and environment variables, like those dealing
+with file names, accept arbitrary strings. There are a few reserved
+characters which must be escaped if they are to be used literally in
+such situations. See the section describing the \command{history}
+command, on page \pageref{History Command}, for more information.\\
+
+The verbosity of \nusmv is controlled by the following environment
+variable.
+
+\begin{nusmvVar} {verbose\_level}{\range{0}{5}}{\natnum{0}}
+Controls the verbosity of the system. Possible values are integers from
+\varvalue{0} (no messages) to \varvalue{4} (full messages). The
+default value is \varvalue{0}.
+\end{nusmvVar}
+
+\section{Model Reading and Building}
+\index{model reading}
+\index{model parsing}
+\index{model compiling}
+The following commands allow for the parsing and compilation of the
+model into a BDD.
+
+\input{cmd/read_model}
+
+\begin{nusmvVar} {input\_file}{\filename{input\_file}}{none}
+Stores the name of the input file containing the
+model. It can be set by the \shellcommand{set} command or by the command
+line option `{\it -i}'. There is no default value.
+\end{nusmvVar}
+
+\begin{nusmvVar} {pp\_list}{\code{pps}}{none}
+Stores the list of pre-processors to be run on the input file before
+it is parsed by \nusmv. The pre-processors are executed in the order
+specified by this variable. The argument must either be the empty
+string (specifying that no pre-processors are to be run on the input
+file), one single pre-processor name or a space seperated list of
+pre-processor names inside double quotes. Any invalid names are
+ignored. The default is none.
+\end{nusmvVar}
+
+\input{cmd/flatten_hierarchy}
+
+\begin{nusmvVar} {disable\_syntactic\_checks}{none}{none}
+Enables or disables the syntactic checks that are performed by
+the \shellcommand{flatten\_hierarchy} command. Warning: If the model
+is not well-formed, \nusmv may result in unpredictable results, use
+this option at your own risk.
+\end{nusmvVar}
+
+\begin{nusmvVar} {keep\_single\_value\_vars}{none}{none}
+Enables or disables the conversion of variables that can assume only
+one single possible value into constant DEFINEs.
+\end{nusmvVar}
+
+\label{ref::backwardcompatibility}
+\begin{nusmvVar} {backward\_compatibility}{none}{none}
+  It is used to enable or disable type checking and other features
+  provided by \NuSMV. If set to \code{1} then the type checking is
+  turned off, and \nusmv behaves as the old versions w.r.t. type
+  checking and other features like writing of flattened and
+  booleanized SMV files and promotion of boolean constants to their
+  integer counterpart. If set to \code{0} then the type checking is
+  turned on, and whenever a type error is encountered while compiling
+  a \nusmv program the user is informed and the execution stopped.
+ \\ 
+
+  Since \nusmv 2.5.1, backward compatibility mode introduces a porting
+  feature from old models which use constant \code{1} as \code{case}
+  conditions, instead of forcing the use of \code{TRUE}.
+  %
+\\
+
+  The option by default it set to \code{0}.
+\end{nusmvVar}
+
+
+\begin{nusmvVar}{type\_checking\_warning\_on}{none}{none}
+  Enables notification of warning messages generated by the type
+  checking. If set to \code{0}, then messages are disregarded,
+  otherwise if set to \code{1} they are notified to the user.
+%
+  As default it set to \code{1}.
+\end{nusmvVar}
+
+\input{cmd/show_vars}
+
+\input{cmd/show_dependencies}
+
+\input{cmd/encode_variables}
+
+\begin{nusmvVar} {input\_order\_file}{\filename{input\_order\_file}}{none}
+\label{input_order_file}
+Indicates the file name containing the variable ordering to be used in
+building the model by the `\command{encode\_variables}' command. 
+%
+A value for this variable can also be provided with command line
+option \shelltext{-i}.
+%
+There is no default value.
+\end{nusmvVar}
+
+\begin{nusmvVar} {write\_order\_dumps\_bits}{none}{none}
+Changes the behaviour of the command \command{write\_order}. 
+
+When this variable is set, \command{write\_order} will dump the bits
+constituting the boolean encoding of each scalar variable, instead of
+the scalar variable itself. This helps to work at bits level in the
+variable ordering file. See the command \command{write\_order} for
+further information. The default value is \varvalue{1}. 
+\end{nusmvVar}
+
+\input{cmd/write_order}
+
+\begin{nusmvVar} {output\_order\_file}{\filename{output\_order\_file}}
+{\filename{temp.ord}}
+%
+The file where the current variable ordering has to be written. A
+value for this variable can also be provided with command line option
+\shelltext{-o}.
+%
+The default value is `\filename{temp.ord}'.
+%
+\index{\filename{temp.ord}}
+\end{nusmvVar}
+
+\begin{nusmvVar} {vars\_order\_type}{\set{Ordering type}{
+	inputs\_before, inputs\_after, topological,
+    inputs\_before\_bi, inputs\_after\_bi, topological\_bi}}
+    {inputs\_before\_bi}
+\label{vars_order_type}
+
+ Controls the manner variables are ordered by default, when a variable
+ ordering is not specified by a user and not computed statically by
+ heuristics (see variables \varName{input\_order\_file} on page
+ \pageref{input_order_file} and
+ \varName{bdd\_static\_order\_heuristics} on page
+ \pageref{bdd_static_order_heuristics}).
+
+The individual bits of variables may or may not be interleaved. When
+bits interleaving is \emph{not} used then bits belonging to one
+variable are grouped together in the ordering.
+%
+Otherwise, the bits interleaving is applied and all higher bits of all
+variables are ordered before all the lower bits, i.e.\@ N-th bits of
+all variables go before (N-1)th bits.
+%
+The exception is boolean variables which are ordered before variables
+of any other type though boolean variables consist of only 0-th bit.
+
+The value of \varName{vars\_order\_type} may be:
+\begin{itemize}
+\item {\varvalue{\bf inputs\_before}}. Input variables are forced to be 
+  ordered \emph{before} state and frozen variables (default). No bits
+  interleaving is done.
+
+\item {\varvalue{\bf inputs\_after}}. Input variables are forced to be 
+  ordered \emph{after} state and frozen variables. No bits
+  interleaving is done.
+
+\item {\varvalue{\bf topological}}. Input, state and frozen variables 
+  are ordered as they are declared in the input smv file.
+  No bits interleaving is done.
+
+\item {\varvalue{\bf inputs\_before\_bi}}. Bits are \emph{interleaved} and
+ in every group of N-th bits input variables are forced to be ordered
+ \emph{before} state and frozen variables. This is the default value.
+
+\item {\varvalue{\bf inputs\_after\_bi}}. Bits are \emph{interleaved} and
+ in every group of N-th bits input variables are forced to be 
+  ordered \emph{after} state and frozen variables.
+
+\item {\varvalue{\bf topological\_bi}}. Bits are \emph{interleaved} and
+ in every group of N-th bits input, state and frozen variables 
+ are ordered as they are declared in the input smv file.
+
+\item {\varvalue{\bf lexicographic}}. This is deprecated value. \varvalue{topological} has to be used instead.
+
+\end{itemize}
+\end{nusmvVar}
+
+\begin{nusmvVar} {bdd\_static\_order\_heuristics}
+   {\set{BDD Static Order Heuristics}{none, basic}}{basic}
+\label{bdd_static_order_heuristics}
+%
+ When a variable ordering is not specified (see variable
+ \varName{input\_order\_file} on page \pageref{input_order_file})
+ \nusmv can try to guess a good ordering by analyzing the input model.
+
+ Possible values are:
+\begin{itemize}
+\item {\varvalue{\bf none}} No heuristics are applied.
+\item {\varvalue{\bf basic}} This heuristics creates some initial ordering 
+ and then moves scalar and word variables in this ordering to form
+ groups. Groups go one after another and every group contains
+ variables which interact with each other in the model. For example,
+ having variables \code{a,b,c,d,e,f} and a single model constraint
+ \code{TRANS next(a)=b+1 -> (next(c)=d/e \& next(f)!=a)} will results
+ in 2 groups of variables \code{\{a,b,f\}} and \code{\{c,d,e\}}.
+
+ Shell variable \varName{vars\_order\_type} (page
+ \pageref{vars_order_type}) provides additional control over the
+ heuristics. In particular, it allows to put input/state variables in
+ the initial ordering at the begin, the end or in topological order.
+ Moreover, if the value of this variable is ending in \varvalue{\bf{\_bi}}
+ then in very individual group the bits of variables are additionally
+ interleaved.
+
+ Note that variable groups created by the heuristics has nothing to do
+ with BDD package groups which disallow dynamic reordering of
+ variables in one group. After the heuristics is applied the dynamic
+ reordering may move any bit of any variable at any position.
+
+\end{itemize}
+\end{nusmvVar}
+
+
+\label{build::model}
+\input{cmd/build_model}
+
+\begin{nusmvVar} {partition\_method}
+{\set{Method}{Monolithic, Threshold, Iwls95CP}} {none} The method to
+be used in building the transition relation, and to compute images and
+preimages. Possible values are:
+
+\begin{itemize}
+\item {\varvalue{\bf Monolithic}}. No partitioning at all.
+
+\item {\varvalue{\bf Threshold}}. Conjunctive partitioning, with a simple
+threshold heuristic. Assignments are collected in a single cluster
+until its size grows over the value specified in the variable
+\varName{conj\_part\_threshold}. It is possible (default) to use affinity
+clustering to improve model checking performance. See
+\varName{affinity} variable.
+
+\item {\varvalue{\bf Iwls95CP}}. Conjunctive partitioning, with clusters 
+generated and ordered according to the heuristic described
+in~\cite{RAP+95}. Works in conjunction with the variables
+\varName{image\_cluster\_size},
+\varName{image\_W1}, \varName{image\_W2}, \varName{image\_W3}, \varName{image\_W4}.
+It is possible (default) to use affinity clustering to improve model 
+checking performance. See \varName{affinity} variable. It is also possible
+to avoid (default) preordering of clusters (see~\cite{RAP+95}) by
+setting the \varName{iwls95preorder} variable appropriately.
+\end{itemize}
+
+\end{nusmvVar}
+
+\begin{nusmvVar}{conj\_part\_threshold}{\natnum{Number}}{\natnum{0}}
+The limit of the size of clusters in conjunctive partitioning. The
+default value is \varvalue{0} BDD nodes.
+\end{nusmvVar}
+
+\begin{nusmvVar} {affinity}{\set{value}{0, 1}}{\natnum{1}}
+Enables affinity clustering heuristic described in \cite{MOON00},
+possible values are \varvalue{0} or \varvalue{1}. The default value is \varvalue{1}.
+\end{nusmvVar}
+
+\begin{nusmvVar} {trans\_order\_file}{\filename{tv\_file}}{none}
+Reads the a variables list from file {\it tv\_file}, to be used when
+clustering the transition relation.  This feature has been provided by
+Wendy Johnston, University of Queensland. The results of Johnston's
+research have been presented at FM 2006 in Hamilton, Canada. See
+\cite{fm06}.
+\end{nusmvVar}
+
+% \begin{nusmvVar} {image\_cluster\_size, image\_W\{1,2,3,4\}}
+% The parameters to configure the behavior of the \Iwls partitioning
+% algorithm.  \varName{image\_cluster\_size} is used as threshold value
+% for the clusters. The default value is \varvalue{1000} BDD nodes. The
+% other parameters attribute different weights to the different factors
+% in the algorithm. The default values are \varvalue{6}, \varvalue{1},
+% \varvalue{1}, \varvalue{2} respectively. (For a detailed description,
+% please refer to \cite{RAP+95}.)
+% \end{nusmvVar}
+% SPLIT INTO SEPERATE ENTRIES:
+
+\begin{nusmvVar}{image\_cluster\_size}{\natnum{Number}}{\natnum{1000}}
+One of the parameters to configure the behaviour of the \Iwls
+partitioning algorithm. \varName{image\_cluster\_size} is used as
+threshold value for the clusters. The default value is \varvalue{1000}
+BDD nodes.
+\end{nusmvVar}
+
+\begin{nusmvVar}{image\_W\{1,2,3,4\}}{\natnum{Number}}{\natnum{\{6,1,1,2\}}}
+The other parameters for the \Iwls partitioning algorithm. These
+attribute different weights to the different factors in the
+algorithm. The default values are \varvalue{6}, \varvalue{1},
+\varvalue{1}, \varvalue{6} respectively. (For a detailed description,
+please refer to \cite{RAP+95}.)
+\end{nusmvVar}
+
+\begin{nusmvVar} {iwls95preorder}{\set{value}{0,1}}{\natnum{0}}
+Enables cluster preordering following heuristic described in
+\cite{RAP+95}, possible values are \varvalue{0} or \varvalue{1}. The
+default value is \varvalue{0}. Preordering can be very slow.
+\end{nusmvVar}
+
+\begin{nusmvVar} {image\_verbosity}{\set{value}{0,1}}{\natnum{0}}
+Sets the verbosity for the image method \Iwls, possible values
+are \varvalue{0} or \varvalue{1}. The default value is \varvalue{0}.
+\end{nusmvVar}
+
+\input{cmd/print_iwls95options}
+\input{cmd/go}
+\input{cmd/get_internal_status}
+\input{cmd/process_model}
+\input{cmd/build_flat_model}
+\input{cmd/build_boolean_model}
+
+\input{cmd/write_flat_model}
+\begin{nusmvVar} {output\_flatten\_model\_file}{\filename{output\_flatten\_model\_file}}{\filename{stdout}}
+The file where the flattened model has to be written. The default value is
+`\filename{stdout}'.
+\end{nusmvVar}
+
+\begin{nusmvVar} {daggifier\_enabled}{\set{value}{0,1}}{\natnum{1}}
+Determines whether the expression daggifier in the model dumping
+features is enabled or not. The default is enabled.
+\end{nusmvVar}
+
+\begin{nusmvVar} {daggifier\_depth\_threshold} {\natnum{Number}} {\natnum{2}}
+Sets the minimum threshold for expressions depth to be daggified.
+\end{nusmvVar}
+
+\begin{nusmvVar} {daggifier\_counter\_threshold} {\natnum{Number}} {\natnum{3}}
+Sets the minimum threshold for expressions count to be
+daggified. (i.e. expression must show at least \natnum{Number} time to
+be daggified
+\end{nusmvVar}
+
+\begin{nusmvVar} {daggifier\_statistics}{\set{value}{0,1}}{\natnum{0}}
+Prints daggifier statistics after model dumping.
+\end{nusmvVar}
+
+\input{cmd/write_boolean_model}
+\begin{nusmvVar}{output\_boolean\_model\_file}
+{\filename{output\_boolean\_model\_file}}{\filename{stdout}} 
+The file where the flattened and booleanized model has to be written. The
+default value is `\filename{stdout}'.
+\end{nusmvVar}
+
+\begin{nusmvVar}{output\_word\_format}{\set{value}{2,8,10,16}}
+{\natnum{10}} This variable sets in which base \UWord and \SWord
+constants are outputted (during traces, counterexamples, etc,
+printing). Possible values are 2, 8, 10 and 16. Note that if a part of
+an input file is outputted (for example, if a specification expression
+is outputted) then the \UWord and \SWord constants remain in same
+format as they were written in the input file.
+\end{nusmvVar}
+
+\section{Commands for Checking Specifications}
+The following commands allow for the BDD-based model checking of a
+\nusmv model.
+
+\input{cmd/compute_reachable}
+\input{cmd/print_reachable_states}
+\input{cmd/check_fsm}
+
+\begin{nusmvVar} {check\_fsm}{\set{value}{0,1}}{\natnum{0}}
+Controls the activation of the totality check of the transition relation
+during the \linebreak \command{process\_model} call. Possible values are \varvalue{0} or
+\varvalue{1}. Default value is \varvalue{0}.
+\end{nusmvVar}
+%  [[[ ROVERI .  If the transition relation is not total then a potential
+% deadlock state is printed. This checking is performed by computing
+% @emph{(not(EX(reachable_states)) and INVAR)} if the result of such a
+% computation is the set of deadlock states.  The reachable states are
+% computed before, in order to ensure that the deadlock states are
+% actually reachable.  ]]]
+
+\input{cmd/print_fsm_stats}
+\input{cmd/print_fair_states}
+\input{cmd/print_fair_transitions}
+
+\input{cmd/check_ctlspec}
+\input{cmd/check_spec}
+
+\begin{nusmvVar} {ag\_only\_search}{\set{value}{0,1}}{\natnum{0}}
+Enables the use of an ad hoc algorithm for checking AG formulas.
+Given a formula of the form \formula{AG alpha}, the algorithm computes
+the set of states satisfying \formula{alpha}, and checks whether it
+contains the set of reachable states. If this is not the case, the
+formula is proved to be false.
+\end{nusmvVar}
+
+\begin{nusmvVar} {forward\_search}{\set{value}{0,1}}{\natnum{1}}
+Enables the computation of the reachable states during the
+\command{process\_model} command and when used in conjunction with the
+\envvar{ag\_only\_search} environment variable enables the use of an ad hoc
+algorithm to verify invariants. Since version 2.4.0, this option is
+set by default.
+\end{nusmvVar}
+
+
+\begin{nusmvVar} {ltl\_tableau\_forward\_search}{\set{value}{0,1}}{\natnum{0}}
+Forces the computation of the set of reachable states for the tableau
+resulting from BDD-based LTL model checking, performed by command
+\command{check\_ltlspec}. If the variable
+\envvar{ltl\_tableau\_forward\_search} is not set (default), the
+resulting tableau will inherit the computation of the reachable states
+from the model, if enabled. If the variable is set, the reachable
+states set will be calculated for the model \emph{and} for the tableau
+resulting from LTL model checking. This might improve performances of
+the command \command{check\_ltlspec}, but may also lead to a dramatic
+slowing down. This variable has effect only when the calculation of
+reachable states for the model is enabled (see
+\envvar{forward\_search}).
+\end{nusmvVar}
+
+\begin{nusmvVar} {oreg\_justice\_emptiness\_bdd\_algorithm}{\set{Algorithm}{EL_bwd, EL_fwd}}{EL_bwd}
+The algorithm used to determine language emptiness of a B\"uchi fair transition system.
+%
+The algorithm may be used from the following commands: \command{check\_ltlspec}, \command{check\_pslspec}. %VS: \command{\_language\_emptyness}, \command{check\_pslspec\_ba}
+%
+Possible values are:
+\begin{itemize}
+\item {\varvalue{\bf EL\_bwd}} The default value. The Emerson-Lei algorithm \cite{DBLP:conf/lics/EmersonL86} in its usual backwards direction, i.e., using backward image computations.
+\item {\varvalue{\bf EL\_fwd}} A variant of the Emerson-Lei algorithm that uses only forward image computations (see, e.g., \cite{THenzingerOKupfermanSQadeer-FMSD-2003}). This variant requires the variables \envvar{forward\_search}, \envvar{ltl\_tableau\_forward\_search}, \envvar{use\_reachable\_states} to be set. Furthermore, counterexample computation is not yet implemented, i.e., \envvar{counter\_examples} should not be set. When invoking one of the commands mentioned above, all required settings are performed automatically if not already found as needed, and are restored after execution of the command.
+\end{itemize}
+\end{nusmvVar}
+
+\input{cmd/check_invar}
+\input{cmd/check_ltlspec}
+\input{cmd/check_compute}
+\input{cmd/check_property}
+\input{cmd/add_property}
+\input{cmd/show_property}
+\input{cmd/write_coi_model}
+
+\begin{nusmvVar} {cone\_of\_influence}{\set{value}{0,1}}{\natnum{1}}
+Uses the cone of influence reduction when checking properties. When
+cone of influence reduction is active, the problem encoded in the
+solving engine consists only of the relevant parts of the model for
+the property being checked. This can greatly help in reducing solving
+time and memory usage.  Note however, that a COI counter-example trace
+may or may not be a valid counter-example trace for the original model.
+\end{nusmvVar}
+
+\begin{nusmvVar} {use\_coi\_size\_sorting}{\set{value}{0,1}}{\natnum{1}}
+Uses the cone of influence variables set size for properties sorting,
+before the verification step. If set to 1, properties are verified
+starting with the one that has the smallest COI set, ending with the
+property with the biggest COI set. If set to 0, properties are
+verified according to the declaration order in the input file
+\end{nusmvVar}
+
+
+\begin{nusmvVar} {prop\_print\_method}{\set{value}{name,index,truncated,formula}}{\natnum{formula}}
+Determines how properties are printed. The following methods are
+available:
+\begin{itemize}
+  \item[\textbf{name}] Prints the property name. If not available, defaults to
+        method ``index''
+
+  \item[\textbf{index}] Prints the property index. If not available, defaults
+       to method ``truncated''
+
+  \item[\textbf{truncated}] Prints the formula of the property. If the formula
+  is longer than 40 characters, it is truncated
+
+  \item[\textbf{formula}] The default method, simply prints the formula
+\end{itemize}
+\end{nusmvVar}
+
+
+\section{Commands for Bounded Model Checking}
+\label{Commands for Bounded Model Checking}
+\index{Commands for Bounded Model Checking} 
+
+In this section we describe in detail the commands for doing and
+controlling Bounded Model Checking in \nusmv.  Bounded Model Checking
+is based on the reduction of the bounded model checking problem to a
+propositional satisfiability problem. After the problem is generated,
+\nusmv internally calls a propositional SAT solver in order to find an
+assignment which satisfies the problem.  Currently \nusmv supplies two
+SAT solvers: \zchaff and \minisat. If none of the two is enabled, all
+Bounded Model Checking part in \nusmv will not be
+available. \zchaffminisatnotice They are therefore not included in the
+source code distribution or in some of the binary distributions
+of \nusmv.
+
+Some commands for Bounded Model Checking use incremental algorithms.
+These algorithms exploit the fact that satisfiability
+problems generated for a particular bounded model checking problem
+often share common subparts. So information obtained during solving of
+one satisfiability problem can be used in solving of
+another one. The incremental algorithms usually run quicker then
+non-incremental ones but require a SAT solver with incremental
+interface. At the moment, only \zchaff and \minisat offer such an
+interface.  If none of these solvers are linked to \nusmv, then the
+commands which make use of the incremental algorithms will not be available.
+
+It is also possible to generate the satisfiability problem without
+calling the SAT solver. Each generated problem is dumped in
+\dimacs format to a file. \dimacs is the standard format used as input
+by most SAT solvers, so it is possible to use \nusmv with a separate
+external SAT solver. At the moment, the \dimacs files can be generated only by
+commands which do not use incremental algorithms.
+
+\input{cmd/bmc_setup}
+\input{cmd/go_bmc}
+
+\begin{nusmvVar} {sexp\_inlining}{\set{value}{0,1}}{\natnum{0}}
+
+This variable enables the Sexp inlining when the boolean
+model is built. Sexp inlining is performed in a similar way to RBC
+inlining (see system variable
+\varName{rbc\_inlining}) but the underlying 
+structures and kind of problem are different, because inlining is applied 
+at the Sexp level instead of the RBC level.
+
+Inlining is applied to initial states, invariants and transition
+relations. By default, Sexp inlining is disabled.
+\end{nusmvVar}
+
+\begin{nusmvVar} {rbc\_inlining}{\set{value}{0,1}}{\natnum{0}}
+When set, this variable makes BMC perform the RBC inlining before
+committing any problem to the SAT solver. Depending on the problem
+structure and length, the inlining may either make SAT solving
+much faster, or slow it down dramatically.
+Experiments showed an average improvement in time of SAT solving
+when RBC inlining is enabled. RBC inlining is enabled by default.
+
+The idea about inlining was taken from \cite{abdulla00symbolic} by
+Parosh Aziz Abdulla, Per Bjesse and Niklas E\'en.
+\end{nusmvVar}
+
+\begin{nusmvVar} {rbc\_rbc2cnf\_algorithm}
+{\set{RBC-to-CNF conversion algorithm}{tseitin, sheridan}}{sheridan}
+%
+This variable defines the algorithm used for conversion from RBC to
+CNF format in which a problem is supplied to a SAT solver. The default
+value '\varvalue{sheridan}' refers to \cite{DBLP:conf/sat/Sheridan04}
+algorithm which allows to obtain a more compact CNF formulas.  The
+other value '\varvalue{tseitin}' refers to a standard Tseiting
+transformation algorithm.
+\end{nusmvVar}
+
+
+\input{cmd/check_ltlspec_bmc}
+\input{cmd/check_ltlspec_bmc_onepb}
+\input{cmd/gen_ltlspec_bmc}
+\input{cmd/gen_ltlspec_bmc_onepb}
+\input{cmd/check_ltlspec_bmc_inc}
+
+\input{cmd/check_ltlspec_sbmc}
+\input{cmd/check_ltlspec_sbmc_inc}
+\input{cmd/gen_ltlspec_sbmc}
+
+\begin{nusmvVar} {bmc\_length}{\natnum{Number}}{\natnum{10}}
+Sets the generated problem bound. Possible values are any natural
+number, but must be compatible with the current value held by the
+variable \emph{bmc\_loopback}. The default value is \varvalue{10}.
+\end{nusmvVar}
+
+\begin{nusmvVar} {bmc\_loopback}{\set{loop}{\range{0}{bmc\_length-1},
+\range{-1}{-bmc\_length}, X, *}}{*}
+Sets the generated problem loop. Possible values are: 
+
+\begin{itemize}
+\item Any natural number, but less than the current value of
+the variable \emph{bmc\_length}. In this case the loop point is absolute.
+\item Any negative number, but greater than or equal to
+-\emph{bmc\_length}. In this case specified loop is the loop length. 
+\item The symbol '\varvalue{X}', which means ``no loopback".
+\item The symbol '\varvalue{*}', which means ``any possible loopbacks".
+\end{itemize}
+
+The default value is \varvalue{*}.
+\end{nusmvVar}
+
+\begin{nusmvVar} {bmc\_optimized\_tableau}{\set{value}{0,1}}{\natnum{0}}
+Uses depth1 optimization for LTL Tableau construction in BMC.
+\end{nusmvVar}
+
+\begin{nusmvVar} {bmc\_force\_pltl\_tableau}{\set{value}{0,1}}{\natnum{0}}
+Forces to use PLTL instead of LTL for BMC tableau construction.
+\end{nusmvVar}
+
+\begin{nusmvVar} {bmc\_dimacs\_filename}{\filename{bmc\_dimacs\_filename}}{\filename{@f\_k@k\_l@l\_n@n.dimacs}}
+This is the default file name used when generating \dimacs problem
+dumps. This variable may be taken into account by all commands which
+belong to the gen\_ltlspec\_bmc family.  \dimacs file name can contain
+special symbols which will be expanded to represent the actual file
+name. Possible symbols are:
+
+\begin{itemize}
+\item {\bf @F}
+The currently loaded model name with full path. 
+\item {\bf @f}
+The currently loaded model name without path part. 
+\item {\bf @n}
+The numerical index of the currently processed formula in the property
+database.
+\item {\bf @k} 
+The currently generated problem length. 
+\item {\bf @l}
+The currently generated problem loopback value.   
+\item {\bf @@}
+The `@' character.   
+\end{itemize}
+
+The default value is ``\filename{@f\_k@k\_l@l\_n@n}".
+\end{nusmvVar}
+
+\begin{nusmvVar} {bmc\_sbmc\_gf\_fg\_opt}{none}{none}
+Controls whether the system exploits an optimization when performing
+SBMC on formulae in the form $F G p$ or $G F p$. The default value is
+\varvalue{1} (active).
+\end{nusmvVar}
+
+
+\input{cmd/check_invar_bmc}
+
+\input{cmd/gen_invar_bmc}
+
+\input{cmd/check_invar_bmc_inc}
+
+\label{bmc::dual}
+
+\begin{nusmvVar} {bmc\_invar\_alg}
+{\set{invariant proving algorithm}{classic, een-sorensson}}{classic}
+Sets the default algorithm used by the command \code{check\_invar\_bmc}. 
+Possible values are \varvalue{classic} and \varvalue{een-sorensson}.
+The default value is \varvalue{classic}.
+\end{nusmvVar}
+
+\begin{nusmvVar} {bmc\_inc\_invar\_alg}
+{\set{invariant proving incremental algorithm}{dual, zigzag}}{dual}
+Sets the default algorithm used by the command \code{check\_invar\_bmc\_inc}. 
+Possible values are \code{dual} and \code{zigzag}.
+The default value is \varvalue{dual}.
+\end{nusmvVar}
+
+\begin{nusmvVar} {bmc\_invar\_dimacs\_filename}{\filename{bmc\_invar\_dimacs\_filename}}{\filename{@f\_invar\_n@n.dimacs}}
+This is the default file name used when generating \dimacs invar
+dumps. This variable may be taken into account by the command
+\command{gen\_invar\_bmc}.  \dimacs file name can contain special symbols which will
+be expanded to represent the actual file name. Possible symbols are:
+\begin{itemize}
+\item {\bf @F}
+The currently loaded model name with full path. 
+\item {\bf @f}
+The currently loaded model name without path part. 
+\item {\bf @n}
+The numerical index of the currently processed formula in the properties
+database.
+\item {\bf @@}
+The `@' character.   
+\end{itemize}
+The default value is ``\filename{@f\_invar\_n@n}".\\
+\end{nusmvVar}
+
+\begin{nusmvVar} {sat\_solver}{\set{SAT Solver}{\zchaff, \minisat}}{\minisat}
+The SAT solver's name actually to be used. Default SAT solver
+is \minisat.  Depending on the \nusmv configuration, also the \zchaff
+SAT solver can be available or not. \zchaffminisatnotice. If no SAT
+solver has been configured, BMC commands and environment variables
+will not be available.
+\end{nusmvVar}
+
+\input{cmd/bmc_simulate}
+
+\section{Commands for checking PSL specifications}
+\label{Commands for checking PSL specifications}
+\index{Commands for checking PSL specifications}
+
+The following command allow for model checking of PSL specifications.
+
+\input{cmd/check_pslspec}
+
+
+\section{Simulation Commands}
+\label{Simulation Commands}
+\index{ Simulation Commands}
+
+In this section we describe the commands that allow to simulate a
+\nusmv specification. See also the section \sref{Traces} that
+describes the commands available for manipulating traces.
+
+\input{cmd/pick_state}
+
+\input{cmd/simulate}
+
+\begin{nusmvVar} {default\_simulation\_steps}{\range{1}{infinity}}{10}
+Controls the default number of steps performed by all simulation
+commands. The default is 10.
+\end{nusmvVar}
+
+\begin{nusmvVar} {shown\_states}{\range{1}{100}}{\natnum{25}}
+Controls the  maximum number  of states tail  will be shown  during an
+interactive simulation session. Possible values are integers from
+\varvalue{1} to \varvalue{100}. The default value is \varvalue{25}.
+\end{nusmvVar}
+
+\begin{nusmvVar} {traces\_hiding\_prefix}{\set{String prefix}}{``\_\_``}
+see section \ref{Displaying Traces} for a detailed description.
+\end{nusmvVar}
+
+\begin{nusmvVar} {traces\_regexp}{\set{Posix Basic RE}}{````}
+see section \ref{Displaying Traces} for a detailed description.
+\end{nusmvVar}
+
+\section{Execution Commands}
+\label{Execution Commands}
+\index{ Execution Commands}
+
+In this section we describe the commands that allow to perform
+trace re-execution on a given model. See also the section \sref{Traces} that
+describes the commands available for manipulating traces.
+
+\input{cmd/execute_traces}
+\input{cmd/execute_partial_traces}
+
+\section{Traces}
+\label{Traces}
+\index{Traces}
+% 
+A trace consists of an initial state, optionally followed by a
+sequence of states-inputs pairs corresponding to a possible execution
+of the model. Apart, from the initial state, each pair contains the
+inputs that caused the transition to the new state, and the new state
+itself. The initial state has no such input values defined as it does
+not depend on the values of any of the inputs. The values of any
+constants declared in \texttt{DEFINE} sections are also part of a
+trace. If the value of a constant depends only on state and frozen
+variables then it will be treated as if it is a state variable too. If
+it depends only on input variables then it will be treated as if it is
+an input variable. If however, a constant depends upon both input and
+state/frozen variables and/or \texttt{NEXT}ed state variables, then it
+gets displayed in a separate ``combinatorial'' section. Since the
+values of any such constants depend on one or more inputs, the initial
+state does not contain this section either.\\
+
+Traces are created by \nusmv when a formula is found to be false; they
+are also generated as a result of a simulation (\sref{Simulation
+  Commands}) or partial trace re-execution (\sref{Execution
+  Commands}). Each trace has a number, and the states-inputs pairs are
+numbered within the trace.  Trace {\it n} has states/inputs {\it n.1,
+  n.2, n.3, "..."} where \textit{n.1} represents the initial state.\\
+
+When Cone of Influence (COI) is enabled when generating a trace
+(e.g. when performing model checking), the generated trace will
+contain only the relevant symbols (variables and DEFINEs) which are
+in the COI projected by the variables occurring in the property
+which is being checked. The symbols which are left out of the COI,
+will be not visible in the generated trace, as they do not occur in
+the problem encoded in the solving engine. Notice that when COI is
+enabled, the generated trace may or may not be a valid
+counter-example trace for the original model.
+
+\subsection{Inspecting Traces}
+\label{Inspecting Traces}
+\index{ Inspecting Traces}
+%
+The trace inspection commands of \nusmv allow for navigation along the
+labelled states-inputs pairs of the traces produced. During the
+navigation, there is a {\it current state}, and the {\it current
+trace} is the trace the {\it current state} belongs to. The commands
+are the following:
+
+\input{cmd/goto_state}
+\input{cmd/print_current_state}
+
+
+\subsection{Displaying Traces}
+\label{Displaying Traces}
+\index{ Displaying Traces}
+%
+\nusmv comes with three trace plugins (see \sref{Trace Plugins}) which
+can be used to display traces in the system. Once a trace has been
+generated by \nusmv it is printed to \texttt{stdout} using the trace
+explanation plugin which has been set as the current default. The
+command \command{show\_traces} (see \sref{Simulation Commands}) can
+then be used to print out one or more traces using a different trace
+plugin, as well as allowing for output to a file.
+
+Generation and displaying of traces can be enabled/disabled by
+setting variable \envvar{counter\_examples}. Some filtering of
+symbols that are presented when showing traces can be controlled
+by variables \envvar{traces\_hiding\_prefix} and 
+\envvar{traces\_regexp}.
+
+\begin{nusmvVar} {counter\_examples}{\set{value}{0,1}}{\natnum{1}}
+This determines whether traces are generated when needed. See also
+command line option \commandopt{dcx}.
+\end{nusmvVar}
+
+\begin{nusmvVar} {traces\_hiding\_prefix}{\set{String prefix}}{``\_\_``}
+Symbols names that match this string prefix will be not printed
+out when showing a trace. This variable may be used to avoid
+displaying symbols that are expected to be not visible to the
+user. For example, this variable is exploited when dumping
+booleanized models, as \nusmv may introduce hidden placeholding
+symbols as \code{DEFINES} that do not carry any useful information
+for the user, and that would make traces hardly readable if
+printed. Default is \code{\_\_}
+\end{nusmvVar}
+
+\begin{nusmvVar} {traces\_regexp}{\set{Posix Basic RE}}{````}
+Only symbols whose names match this regular expression will be
+printed out when showing a trace. This option might be used by
+users that are interested in showing only some symbol names. Names
+are first filtered out by applying matching of the dual
+variable \envvar{traces\_hiding\_prefix}, and then
+filtered names are checked against content
+of \envvar{traces\_regexp}. Given regular expression
+can be a Posix Basic Regular Expression. Matching is carried out
+on symbol names without any contextual information, like module
+hierarchy. For example in \code{m1.m2.name} only \code{name} is
+checked for filtering. 
+
+Notice that depending on the underlaying platform and operating
+system this variable might be not available.
+\end{nusmvVar}
+
+\begin{nusmvVar} {show\_defines\_in\_traces}{\set{value}{0,1}}{\natnum{1}}
+Controls whether defines should be printed as part of a trace or be
+skipped. Skipping printing of the defines can help in reducing time
+and memory usage required to build very big traces.
+\end{nusmvVar}
+
+\begin{nusmvVar} {traces\_show\_defines\_with\_next}{\set{value}{0,1}}{\natnum{1}}
+Controls whether defines containing next operators should be printed
+as part of a trace or be skipped.
+\end{nusmvVar}
+
+\subsection{Trace Plugin Commands}
+\label{Trace Plugin Commands}
+\index{ Trace Plugin Commands}
+The following commands relate to the plugins which are available
+in \nusmv.
+
+\input{cmd/show_plugins}
+
+\begin{nusmvVar} {default\_trace\_plugin}{\range{0}{5}}{\natnum{0}}
+This determines which trace plugin will be used by default when traces
+that are generated by \nusmv are to be shown. The values that this
+variable can take depend on which trace plugins are installed. Use the
+command
+\command{show\_plugins} to see which ones are available. The default
+value is \varvalue{0}.
+\end{nusmvVar}
+
+\input{cmd/show_traces}
+\input{cmd/read_trace}
+
+
+\section{Trace Plugins}
+\label{Trace Plugins}
+\index{ Trace Plugins}
+\nusmv comes with three plugins which can be used to display a trace
+that has been generated:
+
+\begin{center}
+\begin{tabular}{l}
+Basic Trace Explainer\\
+States/Variables Table\\
+XML Format Printer\\
+\end{tabular}
+\end{center}
+
+There is also an xml loader which can read in any trace which has been
+output to a file by the XML Format Printer. Note however that this
+loader is only available on systems that have the Expat XML parser
+library installed.\\
+\\
+Once a trace has been generated it is output to \texttt{stdout} using
+the currently selected plugin. The command \command{show\_traces} can
+be used to output any previuosly generated, or loaded, trace to a
+specific file.
+
+\subsection{Basic Trace Explainer}
+\label{Basic Trace Explainer}
+\index{ Basic Trace Explainer}
+
+This plugin prints out each state (the current values of the
+variables) in the trace, one after the other. The initial state
+contains all the state and frozen variables and their initial
+values. States are numbered in the following fashion:
+
+\begin{center}
+\texttt{trace\_number.state\_number}
+\end{center}
+
+There is the option of printing out the value of every variable in
+each state, or just those which have changed from the previous
+one. The one that is used can be chosen by selecting the appropriate
+trace plugin. The values of any constants which depend on both input
+and state or frozen variables are printed next. It then prints the set of inputs
+which cause the transition to a new state (if the model contains
+inputs), before actually printing the new state itself. The set of
+inputs and the subsequent state have the same number associated to
+them.
+
+In the case of a looping trace, if the next state to be printed is the
+same as the last state in the trace, a line is printed stating that
+this is the point where the loop begins.
+
+With the exception of the initial state, for which no input values are
+printed, the output syntax for each state is as follows:
+
+\begin{alltt}
+-> Input: TRACE_NO.STATE_NO <-
+    /* for each input var (being printed), i: */
+    INPUT_VARi = VALUE
+-> State: TRACE_NO.STATE_NO <-
+    /* for each state and frozen var (being printed), j: */
+    STATE_VARj = VALUE
+    /* for each combinatorial constant (being printed), k: */
+    CONSTANTk = VALUE
+\end{alltt}
+
+where \texttt{INPUT\_VAR}, \texttt{STATE\_VAR} and \texttt{CONSTANT}
+have the relevant module names prepended to them (seperated by a
+period) with the exception of the module ``\texttt{main}'' .
+
+The version of this plugin which only prints out those variables whose
+values have changed is the initial default plugin used by \nusmv.
+
+
+\subsection{States/Variables Table}
+\label{States/Variables Table}
+\index{ States/Variables Table}
+
+This trace plugin prints out the trace as a table, either with the
+states on each row, or in each column. The entries along the state
+axis are:
+
+\begin{center}
+\texttt{S1 C2 I2 S2 ...~Cn In Sn}
+\end{center}
+
+where \texttt{S1} is the initial state, and \texttt{$I_i$} gives the
+values of the input variables which caused the transition from state
+\texttt{$S_{i-1}$} to state \texttt{$S_i$}. \texttt{$C_i$} gives the
+values of any combinatorial constants, where the value depends on the
+values of the state or frozen variables in state \texttt{$S_{i-1}$} and the
+values of input variables in state \texttt{$S_i$}.
+
+The variables in the model are placed along the other axis. Only the
+values of state and frozen variables are displayed in the 
+State row/column, only
+the values of input variables are displayed in the Input row/column
+and only the values of combinatorial constants are displayed in the
+Constants row/column. All remaining cells have '\texttt{-}' displayed.
+
+
+\subsection{XML Format Printer}
+\label{XML Format Printer}
+\index{ XML Format Printer}
+
+This plugin prints out the trace either to \texttt{stdout} or to a
+specified file using the command \command{show\_traces}.  If traces
+are to be output to a file with the intention of them being loaded
+again at a later date, then each trace must be saved in a separate
+file. This is because the XML Reader plugin does not currently support
+multiple traces per file.\\The format of a dumped XML trace file is as
+follows:
+
+\begin{alltt}
+<?XML_VERSION_STRING?>
+<counter-example type=TRACE_TYPE desc=TRACE_DESC>
+
+  /* for each state, i: */
+  <node>
+    <state id=i>
+
+      /* for each state and frozen var, j: */
+      <value variable=j>VALUE</value>
+
+    </state>
+    <combinatorial id=i+1>
+
+      /* for each combinatorial constant, k: */
+      <value variable=k>VALUE</value>
+
+    </combinatorial>
+    <input id=i+1>
+
+      /* for each input var, l: */
+      <value variable=l>VALUE</value>
+
+    </input>
+  </node>
+
+</counter-example>
+\end{alltt}
+
+Note that for the last state in the trace, there is no input section
+in the node tags. This is because the inputs section gives the new
+input values which cause the transition to the next state in the
+trace. There is also no combinatorial section as this depends on the
+values of the inputs and are therefore undefined when there are no
+inputs.
+
+
+\subsection{XML Format Reader}
+\label{XML Format Reader}
+\index{ XML Format Reader}
+
+This plugin makes use of the Expat XML parser library and as such can
+only be used on systems where this library is available. Previously
+generated traces for a given model can be loaded using this plugin
+provided that the original model file\footnote{To be exact, $M_1
+\subseteq M_2$, where $M_1$ is the model from which the trace was
+generated, and $M_2$ is the currently loaded, and built, model. Note
+however, that this may mean that the trace is not valid for the model
+$M_2$.} has been loaded, and built using the command \command{go}.
+
+When a trace is loaded, it is given the smallest available trace
+number to identify it. It can then be manipulated in the same way as
+any generated trace.
+
+
+\section{Interface to the DD Package}
+\label{Interface to DD package}
+\index{interface to DD Package}
+\label{DD package interface}
+\index{ DD package interface}
+
+\nusmv uses the state of the art BDD package \cudd \cite{Som98}.
+Control over the BDD package can be very important to tune the
+performance of the system. In particular, the order of variables is
+critical to control the memory and the time required by operations
+over BDDs.  Reordering methods can be activated to determine better
+variable orders, in order to reduce the size of the existing BDDs.
+
+Reordering of the variables can be triggered in two ways: by the user,
+or by the BDD package.  In the first way, reordering is triggered by
+the interactive shell command \command{dynamic\_var\_ordering} with the
+\commandopt{f} option.
+
+Reordering is triggered by the BDD package when the number of nodes
+reaches a given threshold. The threshold is initialized and
+automatically adjusted after each reordering by the package.  This is
+called dynamic reordering, and can be enabled or disabled by the
+user.  Dynamic reordering is enabled with the shell command
+\command{dynamic\_var\_ordering} with the option \commandopt{e}, and disabled
+with the \commandopt{d} option. Variable \envvar{dynamic\_reorder} can also be used
+to determine whether dynamic reordering is active.
+%
+If dynamic reordering is enabled it may be beneficial also to disable 
+BDD caching by unsetting variable \envvar{enable\_sexp2bdd\_caching}.
+
+\begin{nusmvVar} {dynamic\_reorder}{}{}
+Determines whether dynamic reordering is active. If this variable is
+set, dynamic reordering will take place as described above. If not set
+(default), no dynamic reordering will occur. This variable can also be
+set by passing \commandopt{dynamic} command line option when invoking
+\nusmv.
+\end{nusmvVar}
+
+\begin{nusmvVar} {reorder\_method}{\set{Method}{sift, random, random\_pivot,
+sift\_converge, symmetry\_sift, symetry\_sift\_converge,
+window\{2,3,4\}, window\{2,3,4\}\_converge, group\_sift,
+group\_sift\_converge, annealing, genetic, exact, linear, linear\_converge}}{sift}
+Specifies the ordering method to be used when dynamic variable
+reordering is fired. The possible values, corresponding to the
+reordering methods available with the \cudd package, are listed below.
+The default value is \varvalue{sift}.
+
+\begin{supertabular}{lp{210pt}}
+\opt{\varvalue{sift}:} {
+Moves each variable throughout the order to find an optimal position for
+that variable (assuming all other variables are fixed). This generally
+achieves greater size reductions than the window method, but is slower.}
+
+\opt{\varvalue{random}:}{
+Pairs of variables are randomly chosen, and swapped in the order. The
+swap is performed by a series of swaps of adjacent variables. The best
+order among those obtained by the series of swaps is retained. The
+number of pairs chosen for swapping equals the number of variables in
+the diagram.}
+
+\opt{\varvalue{random\_pivot}:}{
+Same as \varvalue{random}, but the two variables are chosen so that the
+first is above the variable with the largest number of nodes, and the
+second is below that variable. In case there are several variables tied
+for the maximum number of nodes, the one closest to the root is used.}
+
+\opt{\varvalue{sift\_converge}:}{
+The \varvalue{sift} method is iterated until no further improvement is
+obtained.}
+
+\opt{\varvalue{symmetry\_sift}:}{
+This method is an implementation of symmetric sifting. It is similar to
+sifting, with one addition: Variables that become adjacent during
+sifting are tested for symmetry. If they are symmetric, they are linked
+in a group. Sifting then continues with a group being moved, instead of
+a single variable.}
+
+\opt{\varvalue{symmetry\_sift\_converge}:}{
+The \varvalue{symmetry\_sift} method is iterated until no further improvement
+is obtained.}
+
+\optns{\varvalue{window2}:}{}
+\optns{\varvalue{window3}:}{}
+\opt{window4:}{
+Permutes the variables within windows of {\it n} adjacent variables, where
+{\it n} can be either 2, 3 or 4, so as to minimize the overall BDD
+size.}
+
+\optns{\varvalue{window2\_converge}:}{}
+\optns{\varvalue{window3\_converge}:}{}
+\opt{\varvalue{window4\_converge}:}{
+The \varvalue{window\{2,3,4\}} method is iterated until no further improvement is
+obtained.}
+
+\opt{\varvalue{group\_sift}:}{
+This method is similar to \varvalue{symmetry\_sift}, but uses more general
+criteria to create groups.}
+
+\opt{\varvalue{group\_sift\_converge}:}{
+The \varvalue{group\_sift} method is iterated until no further improvement
+is obtained.}
+
+\opt{\varvalue{annealing}:}{
+This method is an implementation of simulated annealing for variable
+ordering. This method is potentially very slow.}
+
+\opt{\varvalue{genetic}:}{
+This method is an implementation of a genetic algorithm for variable
+ordering. This method is potentially very slow.}
+
+\opt{\varvalue{exact}:}{
+This method implements a dynamic programming approach to exact
+reordering. It only stores one BDD at a time. Therefore, it is relatively
+efficient in terms of memory. Compared to other reordering strategies,
+it is very slow, and is not recommended for more than 16 boolean
+variables.}
+
+\opt{\varvalue{linear}:}{
+This method is a combination of sifting and linear transformations.}
+
+\opt{\varvalue{linear\_conv}:}{
+The \varvalue{linear} method is iterated until no further improvement is obtained.}
+
+\end{supertabular}
+\end{nusmvVar}
+
+\input{cmd/dynamic_var_ordering}
+
+\input{cmd/clean_sexp2bdd_cache}
+\input{cmd/print_formula}
+
+\begin{nusmvVar} {enable\_sexp2bdd\_caching}{\set{value}{0,1}}{\natnum{1}}
+This variable determines if during evaluation of symbolic expression
+to ADD and BDD representations the obtained results are cached or not. 
+%
+Note that if the variable is set down consequently computed results
+are not cached but the previously cached data remain unmodified and
+will be used during later evaluations.
+
+The default value of this variable is \varvalue{1} which can be changed by
+a command line option \commandopt{disable\_sexp2bdd\_caching}.
+
+For more information about the reasons of why BDD cache should be
+disabled in some situations see command \command{clean\_sexp2bdd\_cache}.
+\end{nusmvVar}
+
+\input{cmd/print_bdd_stats}
+
+\input{cmd/set_bdd_parameters}
+
+\section{Administration Commands}
+\label{administration commands}
+\index{administration commands}
+
+This section describes the administrative commands offered by the
+interactive shell of \nusmv.
+
+\begin{nusmvCommand}{!}{shell\_command}
+\cindex{"!, \see{bang}}
+``\command{!}" executes a shell command. The \shellcommand{shell\_command} is
+executed by calling \shellcommand{bin/sh -c {shell\_command}}. If the command
+does not exists or you have not the right to execute it, then an error
+message is printed.
+\end{nusmvCommand}
+
+\input{cmd/alias}
+\input{cmd/echo}
+\input{cmd/help}
+\input{cmd/history}
+\input{cmd/print_usage}
+\input{cmd/quit}
+\input{cmd/reset}
+\input{cmd/set}
+\input{cmd/source}
+\input{cmd/time}
+\input{cmd/unalias}
+
+\newpage
+\input{cmd/unset}
+
+\input{cmd/usage}
+
+\input{cmd/which}
+
+\section{Other Environment Variables}
+\label{Shell configuration Variables}
+\index{ Shell configuration Variables}
+%
+The behavior of the system depends on the value of some environment
+variables. For instance, an environment variable specifies the
+partitioning method to be used in building the transition relation.  The
+value of environment variables can be inspected and modified with the
+\shellcommand{set} command. Environment variables can be either logical
+or utility.
+
+\begin{nusmvVar} {autoexec}{<command string>}{none}
+Defines a command string to be automatically executed after every
+command processed by the command interpreter. This may be useful for
+timing commands, or tracing the progress of optimization.
+\end{nusmvVar}
+
+\begin{nusmvVar} {on\_failure\_script\_quits}{none}{none}
+When a non-fatal error occurs during the interactive mode, the
+interactive interpreter simply stops the currently executed command,
+prints the reason of the problem, and prompts for a new command.  When
+set, this variables makes the command interpreter quit when an error
+occur, and then quit \nusmv. This behaviour might be useful when the
+command \command{source} is controlled by either a system pipe or
+a shell script. Under these conditions a mistake within the script
+interpreted by \command{source} or any unexpected error might
+hang the controlling script or pipe, as by default the interpreter
+would simply give up the current execution, and wait for further
+commands. 
+The default value of this environment variable is \varvalue{0}.
+\end{nusmvVar}
+
+
+\begin{nusmvVar}{filec}{\set{value}{on,off}}{off}
+Enables file completion a la \csh.  If the system has been compiled
+with the \nusmvreadline library, the user is able to perform file
+completion by typing the \tab key (in a way similar to the file
+completion inside the \bash shell). If the system has not been
+compiled with the \nusmvreadline library, a built-in method to perform
+file completion a la \csh can be used. This method is enabled with
+the `\command{set filec}' command. The \csh file completion method can
+be also enabled if the \nusmvreadline library has been used. In this case
+the features offered by \nusmvreadline will be disabled.
+\end{nusmvVar}
+
+\begin{nusmvVar}{shell\_char}{<any character>}{!}
+\envvar{shell\_char} specifies a character to be used as shell escape.
+The default value of this environment variable is `\varvalue{!}'.
+\end{nusmvVar}
+
+\begin{nusmvVar} {history\_char}{<any character>}{\%}
+\envvar{history\_char} specifies a character to be used in history
+substitutions.
+The default value of this environment variable is `\varvalue{\%}'.
+\end{nusmvVar}
+
+\begin{nusmvVar} {open\_path}{<path names>}{none}
+\code{open\_path} (in analogy to the shell-variable \shellvar{PATH}) is a
+list of colon-separated strings giving directories to be searched
+whenever a file is opened for read. Typically the current directory
+(\code{.}) is first in this list. The standard system library
+(\stdsyslib) \vindex{\stdsyslib}
+is always implicitly appended to the current path. This provides a
+convenient short-hand mechanism for reaching standard library files.
+\end{nusmvVar}
+
+\begin{nusmvVar} {nusmv\_stderr}{\filename{stderr\_file}}{none}
+Standard error (normally \code{stderr}) can be re-directed to a file
+by setting the variable \envvar{nusmv\_stderr}.
+\end{nusmvVar}
+
+\begin{nusmvVar} {nusmv\_stdout}{\filename{stdout\_file}}{none}
+Standard output (normally \code{stdout}) can be re-directed to a file
+by setting the internal variable \envvar{nusmv\_stdout}.
+\end{nusmvVar}
+
+\begin{nusmvVar} {nusmv\_stdin}{\filename{stdin\_file}}{none}
+Standard input (normally \code{stdin}) can be re-directed to a file
+by setting the internal variable \envvar{nusmv\_stdin}.
+\end{nusmvVar}
+
+\begin{figure}[t]
+\label{flowchart}
+\begin{center}
+%\includegraphics[width=0.8\textwidth]{cmdpo}
+\includegraphics[width=\textwidth]{cmdpo}
+\caption{The dependency among \nusmv commands.}
+\end{center}
+\end{figure}

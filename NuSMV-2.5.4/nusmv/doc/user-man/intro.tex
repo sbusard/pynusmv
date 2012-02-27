@@ -1,0 +1,73 @@
+% -*-latex-*-
+\nusmv is a symbolic model checker originated from the
+reengineering, reimplementation and extension of CMU \smv, the
+original BDD-based model checker developed at CMU \cite{McMil93}.
+The \nusmv project aims at the development of a state-of-the-art
+symbolic model checker, designed to be applicable in technology
+transfer projects: it is a well structured, open, flexible and
+documented platform for model checking, and is robust and close to
+industrial systems standards \cite{CCGR00}.
+
+Version 1 of \nusmv basically implements BDD-based symbolic model checking.
+Version 2 of \nusmv (\nusmvTwo in the following) 
+inherits all the functionalities of the previous version, and extends them in
+several directions \cite{CCG+02}.
+The main novelty in \nusmvTwo is the integration of model checking
+techniques based on propositional satisfiability (SAT) \cite{BCCZ99}.
+SAT-based model checking is currently enjoying a substantial success
+in several industrial fields, and opens up new research directions.
+BDD-based and SAT-based model checking are often able to solve
+different classes of problems, and can therefore be seen as
+complementary techniques.
+
+Starting from \nusmvTwo, we are also adopting a new development and
+license model. \nusmvTwo is distributed with an OpenSource
+license\footnote{(see \url{http://www.opensource.org})}, that
+allows anyone interested to freely use the tool and to participate in
+its development. The aim of the \nusmv OpenSource project is to
+provide to the model checking community a common platform for the
+research, the implementation, and the comparison of new symbolic model
+checking techniques. Since the release of \nusmvTwo, the \nusmv team
+has received code contributions for different parts of the system.
+Several research institutes and commercial companies have expressed
+interest in collaborating to the development of \nusmv. The main
+features of \nusmv are the following:
+\begin{itemize}
+\item {\bf Functionalities.}
+\nusmv allows for the representation of synchronous and
+asynchronous finite state systems\footnote{However, asynchronous
+processes are deprecated in version 2.5.0 and later, and may be no
+longer supported in future versions.}, and for the analysis of
+specifications expressed in Computation Tree Logic (CTL) and Linear
+Temporal Logic (LTL), using BDD-based and SAT-based model checking
+techniques.  Heuristics are available for achieving efficiency and
+partially controlling the state explosion.  The interaction with
+the user can be carried on with a textual interface, as well as in
+batch mode.
+\item{\bf Architecture.}
+A software architecture has been defined. The different components and
+functionalities of \nusmv have been isolated and separated in
+modules. Interfaces between modules have been provided. This 
+reduces the effort needed to modify and extend \nusmv.
+\item{\bf Quality of the implementation.}
+\nusmv is written in ANSI C, is POSIX compliant, and has been
+debugged with Purify in order to detect memory leaks. Furthermore, the
+system code is thoroughly commented. \nusmv uses the state of the
+art BDD package developed at Colorado University, and provides a general
+interface for linking with state-of the-art SAT solvers. This makes
+\nusmv very robust, portable, efficient, and easy to
+understand by people other than the developers.
+\end{itemize}
+This document is structured as follows.
+\begin{itemize}
+%\item In \cref{Tutorial} 
+%we give an introduction to the usage of the main 
+%functionalities of \nusmv. 
+\item In \cref{Input Language} we define the syntax of the input language of
+\nusmv.
+\item In \cref{Running NuSMV interactively} the commands of the
+interaction shell are described.
+\item In \cref{Running NuSMV batch}
+we define the batch mode of \nusmv.
+\end{itemize}
+\nusmv is available at \url{http://nusmv.fbk.eu}.

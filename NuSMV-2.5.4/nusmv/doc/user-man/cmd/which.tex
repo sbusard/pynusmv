@@ -1,0 +1,16 @@
+% -*-latex-*-
+\begin{nusmvCommand} {which} {Looks for a file called "file\_name"}
+
+\cmdLine{which [-h] <file\_name>}
+
+Looks for a file in a set of directories which includes the current
+directory as well as those in the \nusmv path.  If it finds the
+specified file, it reports the found file's path.  The searching path
+is specified through the \command{set open\_path} command in
+\filename{.nusmvrc}.\\
+
+\begin{cmdOpt}
+\opt{\filename{<file\_name>}}{File to be searched}
+\end{cmdOpt}
+
+\end{nusmvCommand}

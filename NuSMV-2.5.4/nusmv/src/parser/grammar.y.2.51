@@ -1,0 +1,27 @@
+/***************************************************************  -*-C-*-  ***/
+
+begin         : {
+  if (PARSE_MODULES != parse_mode_flag) {
+    yyerror("unexpected MODULE definition encountered during parsing");
+    YYABORT;
+  }
+}
+               module_list
+                {
+                  parsed_tree = $2;
+                }
+              | {
+                  if (PARSE_COMMAND != parse_mode_flag) {
+                    yyerror("unexpected command encountered during parsing");
+                    YYABORT;
+                  }
+                }
+               command {parsed_tree = $2;}
+              | {
+                  if (PARSE_LTL_EXPR != parse_mode_flag){
+                    yyerror("unexpected expression encountered during parsing");
+                    YYABORT;
+                  }
+                }
+               ltl_expression  {parsed_tree = $2;}
+              ;

@@ -1,0 +1,543 @@
+% -*-latex-*-
+In this section we give a short introduction to the use of Bounded Model
+Checking (BMC) in \nusmv. For a more in-depth 
+introduction to the theory underlying BMC please refer to \cite{BCCZ99}.
+%
+To perform SAT based bounded model checking \nusmv needs to be linked
+to an external Sat Solver. If none is provided, all Bounded Model
+Checking routines in \nusmv will not be available. Currently
+\nusmv supports two SAT solvers: MiniSat and Zchaff.
+
+% % % A simple model
+
+Consider the following model, representing a simple, deterministic
+counter modulo $8$ (we assume that the following specification is
+contained in file \filename{bmc\_tutorial.smv}):
+\begin{alltt}
+MODULE main
+VAR 
+  y : 0..15;
+ASSIGN 
+  init(y) := 0;
+TRANS
+  case
+     y = 7 :  next(y) = 0; 
+     TRUE  :  next(y) = ((y + 1) mod 16);
+  esac
+\end{alltt}
+
+This slightly artificial model has only the state variable \code{y}, ranging
+from $0$ to $15$. The values of \code{y} are limited by the transition relation
+to the [0, 7] interval. The counter starts from \code{0}, deterministically
+increments by one the value of \code{y} at each transition up to $7$, and then
+restarts from zero. 
+% % % %  Checking of LTL properties
+
+\section{Checking LTL Specifications}
+\label{Checking LTL Specifications}
+\index{Checking LTL Specifications (BMC)}
+\index{Bounded Model Checking!Checking LTL Specifications}
+
+We would like to check with BMC the LTL specification \code{G ( y=4 -> X y=6 )} 
+expressing that ``each time the counter value is $4$, the next counter
+value will be $6$''. This specification is obviously false, and our first
+step is to use \nusmv BMC to demonstrate its falsity.
+To this purpose, we add the following specification to file \filename{bmc\_tutorial.smv}:
+\begin{alltt}
+LTLSPEC G ( y=4 -> X y=6 )
+\end{alltt}
+and we instruct \nusmv to run in BMC by using command-line option \code{-bmc}:
+\begin{alltt}
+\shellprompt \shelltext{\nusmvtxt -bmc bmc\_tutorial.smv}
+-- no counterexample found with bound 0 for specification 
+   G(y = 4 -> X y = 6)
+-- no counterexample found with bound 1 for ... 
+-- no counterexample found with bound 2 for ...
+-- no counterexample found with bound 3 for ...
+-- no counterexample found with bound 4 for ...
+-- specification  G (y = 4 ->  X y = 6)   is false
+-- as demonstrated by the following execution sequence
+Trace Description: BMC Counterexample
+Trace Type: Counterexample
+-> State: 1.1 <-
+  y = 0
+-> State: 1.2 <-
+  y = 1
+-> State: 1.3 <-
+  y = 2
+-> State: 1.4 <-
+  y = 3
+-> State: 1.5 <-
+  y = 4
+-> State: 1.6 <-
+  y = 5
+\shellprompt
+\end{alltt}
+%\noindent
+\nusmv has found that the specification is false, and is showing us a
+counterexample, i.e. a trace where the value of \code{y} becomes $4$ (at time
+$4$) and at the next step is not $6$.
+\begin{alltt}
+ bound:   0    1    2    3    4    5
+          o--->o--->o--->o--->o--->o
+ state:  y=0  y=1  y=2  y=3  y=4  y=5 
+\end{alltt}
+
+The output produced by \nusmv shows that, before the counterexample
+of length $5$ is found, \nusmv also tried to finds counterexamples of
+lengths $0$ to $4$. However, there are no such
+counterexamples. For instance, in the case of bound $4$, the traces of the
+model have the following form:
+\begin{alltt}
+ bound:   0    1    2    3    4   
+          o--->o--->o--->o--->o
+ state:  y=0  y=1  y=2  y=3  y=4  
+\end{alltt}
+%\noindent
+In this situation, \code{y} gets the value $4$, but it is impossible for
+\nusmv to say anything about the following state.
+
+\cindex{-bmc\_length}
+In general, in BMC mode \nusmv tries to find a counterexample of
+increasing length, and immediately stops when it succeeds, declaring
+that the formula is false. The maximum number of iterations can be
+controlled by using command-line option \code{-bmc\_length}.  The default
+value is $10$. 
+If the maximum number of iterations is reached and no counter-example is
+found, then \nusmv exits, and the truth of the formula is not
+decided. We remark that in this case we cannot conclude that the formula is true,
+but only that any counter-example should be longer than the maximum length.
+\begin{alltt}
+\shellprompt \shelltext{\nusmvtxt -bmc -bmc\_length 4 bmc\_tutorial.smv}
+-- no counterexample found with bound 0 for ...
+-- no counterexample found with bound 1 for ...
+-- no counterexample found with bound 2 for ...
+-- no counterexample found with bound 3 for ...
+-- no counterexample found with bound 4 for ...
+\shellprompt 
+\end{alltt}
+
+Let us consider now another property, \code{!G F (y = 2)}, stating that
+$y$ gets the value $2$ only a finite number of times. Again, this is a false
+property due to the cyclic nature of the model. Let us modify the
+specification of file \filename{bmc\_tutorial.smv} as follows:
+\begin{alltt}
+LTLSPEC !G F (y = 2)
+\end{alltt}
+%\noindent
+and let us run \nusmv in BMC mode:
+\begin{alltt}
+\shellprompt \shelltext{\nusmvtxt -bmc bmc\_tutorial.smv}
+-- no counterexample found with bound 0 for specification ! G  F y = 2
+-- no counterexample found with bound 1 for ...
+-- no counterexample found with bound 2 for ...
+-- no counterexample found with bound 3 for ...
+-- no counterexample found with bound 4 for ...
+-- no counterexample found with bound 5 for ...
+-- no counterexample found with bound 6 for ...
+-- no counterexample found with bound 7 for ...
+-- specification ! G  F y = 2   is false
+-- as demonstrated by the following execution sequence
+Trace Description: BMC Counterexample
+Trace Type: Counterexample
+-- Loop starts here
+-> State: 1.1 <-
+  y = 0
+-> State: 1.2 <-
+  y = 1
+-> State: 1.3 <-
+  y = 2
+-> State: 1.4 <-
+  y = 3
+-> State: 1.5 <-
+  y = 4
+-> State: 1.6 <-
+  y = 5
+-> State: 1.7 <-
+  y = 6
+-> State: 1.8 <-
+  y = 7
+-> State: 1.9 <-
+  y = 0
+\shellprompt
+\end{alltt}
+In this example \nusmv has increased the problem bound until a
+cyclic behavior of length 8 is found that contains a state where $y$ value
+is $2$. Since the behavior is cyclic, state $1.3$ is entered infinitely
+often and the property is false.
+\begin{alltt}
+                             =
+         +---------------------------------------+
+         |                                       |
+         |                                       |
+         |                                       |
+         o--->o--->o--->o--->o--->o--->o--->o--->o
+bound:   0    1    2    3    4    5    6    7    8
+y value: 0    1    2    3    4    5    6    7    0
+\end{alltt}
+
+
+\section{Finding Counterexamples}
+\label{Finding Counterexamples}
+\index{Finding Counterexamples (BMC)}
+\index{Bounded Model Checking!Finding Counterexamples}
+In general, BMC can find two kinds of counterexamples, depending on the
+property being analyzed. For safety properties (e.g. like the first one
+used in this tutorial), a counterexample is a finite sequence of
+transitions through different states.  For liveness properties,
+counterexamples are infinite but periodic sequences, and can be
+represented in a bounded setting as a finite prefix followed by a loop,
+i.e. a finite sequence of states ending with a loop back to some
+previous state. So a counterexample which demonstrates the falsity of a
+liveness property as ``\code{!~G F p}'' cannot be a finite sequence of
+transitions. It must contain a loop which makes the infinite sequence of
+transitions as well as we expected.
+\begin{alltt}
+                                   =
+                        +---------------------+
+                        |                     |
+                        |                     |
+                        |                     |
+       o--->o-...->o--->o--->o-...->o--->o--->o--->o--->
+time:  0    1      l-1  l    l+1    k-2  k-1  k    k+1   ...
+\end{alltt}
+
+Consider the above figure. It represents an examples of a generic
+infinite counterexample, with its two parts: the prefix part (times from
+$0$ to $l-1$), and the loop part (indefinitely from $l$ to $k-1$). Because the
+loop always jumps to a previous time it is called \emph{loopback}. 
+The loopback condition requires that state k is identical to state $l$. 
+As a consequence, state $k+1$ is forced to be equal to
+state $l+1$, state $k+2$ to be equal to state $l+2$, and so on.
+
+\cindex{check\_ltlspec\_bmc\_onepb}
+A fine-grained control of the length and of the loopback condition for
+the counter-example can be specified by using command
+\command{check\_ltlspec\_bmc\_onepb} in interactive mode. This command accepts options \commandopt{k}, that specifies the length of the
+counter-example we are looking for, and \commandopt{l}, that defines the
+loopback condition. Consider the following interactive session:
+\begin{alltt}
+\shellprompt \shelltext{\nusmvtxt -int bmc\_tutorial.smv}
+\nusmvprompt \nusmvtext{go\_bmc}
+\nusmvprompt \nusmvtext{check\_ltlspec\_bmc\_onepb -k 9 -l 0}
+-- no counterexample found with bound 9 and loop at 0 for specification 
+   ! G  F y = 2
+\nusmvprompt \nusmvtext{check\_ltlspec\_bmc\_onepb -k 8 -l 1}
+-- no counterexample found with bound 8 and loop at 1 for specification 
+   ! G  F y = 2
+\nusmvprompt \nusmvtext{check\_ltlspec\_bmc\_onepb -k 9 -l 1}
+-- specification ! G  F y = 2   is false
+-- as demonstrated by the following execution sequence
+Trace Description: BMC Counterexample
+Trace Type: Counterexample
+-> State: 1.1 <-
+  y = 0
+-- Loop starts here
+-> State: 1.2 <-
+  y = 1
+-> State: 1.3 <-
+  y = 2
+-> State: 1.4 <-
+  y = 3
+-> State: 1.5 <-
+  y = 4
+-> State: 1.6 <-
+  y = 5
+-> State: 1.7 <-
+  y = 6
+-> State: 1.8 <-
+  y = 7
+-> State: 1.9 <-
+  y = 0
+-> State: 1.10 <-
+  y = 1
+\nusmvprompt \nusmvtext{quit}
+\shellprompt
+\end{alltt}
+
+\nusmv did not find a counterexample for cases ($k=9, l=0$) and
+($k=8, l=1$). The following figures show that these case look for
+counterexamples that do not match with the model of the counter, so it
+is not possible for \nusmv to satisfy them.
+\begin{alltt}
+k = 9, l = 0:
+                                =
+         +--------------------------------------------+
+         |                                            |
+         |                                            |
+         |                                            |
+         o--->o--->o--->o--->o--->o--->o--->o--->o--->o
+bound:   0    1    2    3    4    5    6    7    8    9
+y value: 0    1    2    3    4    5    6    7    0    1
+          
+\end{alltt}
+
+\begin{alltt}
+k = 8, l = 1:
+                             =
+              +----------------------------------+
+              |                                  |
+              |                                  |
+              |                                  |
+         o--->o--->o--->o--->o--->o--->o--->o--->o
+bound:   0    1    2    3    4    5    6    7    8
+y value: 0    1    2    3    4    5    6    7    0
+\end{alltt}
+
+Case ($k=9, l=1$), instead allows for a counter-example:
+\begin{alltt}
+k = 9, l = 1:
+                                =
+              +---------------------------------------+
+              |                                       |
+              |                                       |
+              |                                       |
+         o--->o--->o--->o--->o--->o--->o--->o--->o--->o
+bound:   0    1    2    3    4    5    6    7    8    9
+y value: 0    1    2    3    4    5    6    7    0    1
+          
+\end{alltt}
+\index{Loopback Condition}
+In \nusmv it is possible to specify the loopback condition in four
+different ways:
+\begin{itemize}
+\item {\bf The loop as a precise time-point.}
+Use a natural number as the argument of option \commandopt{l}.
+\item {\bf The loop length.} 
+Use a negative number as the argument of option \commandopt{l}.
+The negative number is the
+loop length, and you can also imagine it as a precise time-point loop
+relative to the path bound.
+\item {\bf No loopback.} 
+Use symbol `X' as the argument of option \commandopt{l}. In this case
+\nusmv will not find infinite counterexamples.
+\item {\bf All possible loops.} 
+Use symbol `*' as the argument of option \commandopt{l}. In this case
+\nusmv will search counterexamples for paths with any possible
+loopback structure. A counterexample with no loop will be also
+searched. This is the default value for option \commandopt{l}.
+\end{itemize}
+
+In the following example we look for a counter-example of length $12$ with
+a loop of length $8$:
+\begin{alltt}
+\shellprompt \shelltext{\nusmvtxt -int bmc\_tutorial.smv}
+\nusmvprompt \nusmvtext{go\_bmc}
+\nusmvprompt \nusmvtext{check\_ltlspec\_bmc\_onepb -k 12 -l -8}
+-- specification ! G  F y = 2   is false
+-- as demonstrated by the following execution sequence
+Trace Description: BMC Counterexample
+Trace Type: Counterexample
+-> State: 1.1 <-
+  y = 0
+-> State: 1.2 <-
+  y = 1
+-> State: 1.3 <-
+  y = 2
+-> State: 1.4 <-
+  y = 3
+-- Loop starts here
+-> State: 1.5 <-
+  y = 4
+-> State: 1.6 <-
+  y = 5
+-> State: 1.7 <-
+  y = 6
+-> State: 1.8 <-
+  y = 7
+-> State: 1.9 <-
+  y = 0
+-> State: 1.10 <-
+  y = 1
+-> State: 1.11 <-
+  y = 2
+-> State: 1.12 <-
+  y = 3
+-> State: 1.13 <-
+  y = 4
+\nusmvprompt   
+\end{alltt}
+\pagebreak[3]
+This picture illustrates the produced counterexample in a more
+effective way:\\
+\begin{alltt}
+                                           =
+                         +-------------------------------+
+                         |                               |
+                         |                               |
+                         |                               |
+         o-->o-->o-->o-->o-->o-->o-->o-->o-->o-->o-->o-->o
+bound:   0   1   2   3   4   5   6   7   8   9   10  11  12
+y value: 0   1   2   3   4   5   6   7   0   1   2   3   4
+\end{alltt} 
+If no loopback is specified, \nusmv is not able to
+find a counterexample for the given liveness property:
+\begin{alltt}
+\shellprompt \shelltext{\nusmvtxt -int bmc\_tutorial.smv}
+\nusmvprompt \nusmvtext{go\_bmc}
+\nusmvprompt \nusmvtext{check\_ltlspec\_bmc\_onepb -k 12 -l X}
+-- no counterexample found with bound 12 and no loop for ...
+\nusmvprompt
+\end{alltt}
+% % % %  Checking of invariant properties
+
+\section{Checking Invariants}
+\label{Checking Invariants}
+\index{Checking Invariants (BMC)}
+\index{Bounded Model Checking!Checking Invariants}
+
+Ahead of version 2.2.2, \nusmv supported only the 2-step inductive
+reasoning algorithm for invariant checking. As will become clear from
+this tutorial, this algorithm is not complete, so in certain cases it
+cannot be used to state whether an invariant specification is actually
+true or false.
+
+Since version 2.2.2, \nusmv supports total inductive reasoning,
+which might be heavier than the 2-step approach but can
+make invariant specifications provable even when the latter fails. 
+
+Please refer to \cite{een04temporal} for a more in-depth explanation
+of the theory underlying the algorithms for total temporal induction.
+
+
+\subsection{2-Step Inductive Reasoning}
+\index{Checking Invariants (BMC)!2-step Inductive Reasoning}
+\index{Inductive Reasoning (2-Step)}
+
+Bounded Model Checking in \nusmv can be used not only for checking LTL
+specification, but also for checking invariants. An invariant is a
+propositional property which must always hold.  BMC tries to prove the
+truth of invariants via a process of inductive reasoning, by checking
+if (i) the property holds in every initial state, and (ii) if it holds
+in any state reachable from any state where it holds.
+
+Let us modify file \filename{bmc\_tutorial.smv} by replacing the LTL specification
+with the following invariant specification:
+\begin{alltt}
+INVARSPEC y in (0..12)
+\end{alltt}
+%\noindent 
+and let us run \nusmv in BMC mode:
+\begin{alltt}
+\shellprompt \shelltext{\nusmvtxt -bmc bmc\_tutorial.smv}
+-- cannot prove the invariant y in (0 .. 12) : the induction fails
+-- as demonstrated by the following execution sequence
+Trace Description: BMC Counterexample
+Trace Type: Counterexample
+-> State: 1.1 <-
+  y = 12
+-> State: 1.2 <-
+  y = 13
+\shellprompt
+\end{alltt}
+
+\nusmv reports that the given invariant cannot be proved, and it shows a
+state satisfying ``\code{y} in ($0..12$)'' that has a successor state
+not satisfying "\code{y} in ($0..12$)''. This two-steps sequence of
+assignments shows why the induction fails. Note that \nusmv does not
+state the given formula is really false, but only that it cannot be
+proven to be true using the 2-step inductive reasoning described
+previously.
+
+If we try to prove the stronger invariant \code{y in (0..7)} we obtain:
+\begin{alltt}
+\shellprompt \shelltext{\nusmvtxt -bmc bmc\_tutorial.smv}
+-- invariant y in (0 .. 7)   is true
+\shellprompt
+\end{alltt}
+In this case \nusmv is able to prove that \code{y in (0..7)} is
+true. 
+As a consequence, also the weaker invariant \code{y in (0..12)} is true, even if
+\nusmv is not able to prove it in BMC mode. 
+On the other hand, the returned counter-example can be used
+to \emph{strengthen} the invariant, until \nusmv is able to prove it.
+
+\pagebreak[3]
+Now we check the false invariant \code{y in (0..6)}:
+\begin{alltt}
+-- cannot prove the invariant y in (0 .. 6) : the induction fails
+-- as demonstrated by the following execution sequence
+Trace Description: BMC Counterexample
+Trace Type: Counterexample
+-> State: 1.1 <-
+  y = 6
+-> State: 1.2 <-
+  y = 7
+\nusmvprompt
+\end{alltt}
+As for property \code{y in (0..12)}, \nusmv returns a two steps
+sequence showing that the induction fails. 
+The difference is that, in the former case state 'y=12' is NOT reachable, while in the
+latter case the state 'y=6' can be reached. 
+
+
+\subsection{Complete Invariant Checking}
+\index{Checking Invariants (BMC)!Complete Invariant Checking}
+
+Since version 2.2.2, complete invariant checking can be obtained by
+running the command \command{check\_invar\_bmc} in interactive mode, and
+specifying the algorithm \code{``een-sorensson''} using the option
+\commandopt{a}. If an incremental sat solver is available, the command \\
+\command{check\_invar\_bmc\_inc} may also be used.
+
+The classic 2-step algorithm was not able to prove directly the truth
+of the invariant \\
+\code{y in (0..12)}. This invariant can now be easily
+checked by the complete invariant checking algorithm.
+
+\begin{alltt}
+\shellprompt \shelltext{\nusmvtxt -int bmc\_tutorial.smv}
+\nusmvprompt \nusmvtext{go\_bmc}
+\nusmvprompt \nusmvtext{check\_invar\_bmc -a een-sorensson -p "y in (0..12)"}
+-- no proof or counterexample found with bound 0 ...
+-- no proof or counterexample found with bound 1 ...
+-- no proof or counterexample found with bound 2 ... 
+-- no proof or counterexample found with bound 3 ...
+-- no proof or counterexample found with bound 4 ... 
+-- no proof or counterexample found with bound 5 ... 
+-- invariant y in (0 .. 12)   is true
+\nusmvprompt
+\end{alltt}
+
+As can be inferred from this example, \nusmv proved that the
+invariant actually holds, requiring a length of 6 to prove it.
+
+Complete invariant checking can also prove that an invariant does not
+hold, and provide a convincing counter-example for it. For example
+property \code{y in (0..6)} that the \code{``classic''} algorithm failed to check
+is now proved to be false:
+
+\begin{alltt}
+\nusmvprompt \nusmvtext{check\_invar\_bmc -a een-sorensson -p "y in (0..6)"}
+-- no proof or counterexample found with bound 0 ...
+-- no proof or counterexample found with bound 1 ...
+-- no proof or counterexample found with bound 2 ...
+-- no proof or counterexample found with bound 3 ...
+-- no proof or counterexample found with bound 4 ...
+-- no proof or counterexample found with bound 5 ...
+-- no proof or counterexample found with bound 6 ...
+-- invariant y in (0 .. 6)   is false
+-- as demonstrated by the following execution sequence
+Trace Description: BMC Counterexample
+Trace Type: Counterexample
+-> State: 1.1 <-
+  y = 0
+-> State: 1.2 <-
+  y = 1
+-> State: 1.3 <-
+  y = 2
+-> State: 1.4 <-
+  y = 3
+-> State: 1.5 <-
+  y = 4
+-> State: 1.6 <-
+  y = 5
+-> State: 1.7 <-
+  y = 6
+-> State: 1.8 <-
+  y = 7
+\nusmvprompt
+\end{alltt}
+
+The provided counter-example shows that \code{y} actually can reach a
+value out of the set \code{(0..6)}. 	

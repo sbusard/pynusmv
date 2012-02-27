@@ -1,0 +1,349 @@
+% -*-latex-*-
+% Appendix giving formal typing rules of NuSMV input language
+
+\chapter{Typing Rules}
+This appendix gives the explicit formal typing rules for {\nusmv}'s
+input language, as well as notes on implicit conversion and casting.
+
+In the following, an atomic constant is defined as being any sequence
+of characters starting with a character in the set \code{\{A-Za-z\_\}}
+and followed by a possible empty sequence of characters from the set
+\code{\{A-Za-z0-9\_\$\#-$\backslash$\}}. An integer is any whole
+number, positive or negative.
+
+\section{Types}
+
+The main types recognised by \nusmv are as follows:
+\begin{itemize}
+\item[] \Boolean 
+\item[] \Integer 
+\item[] \SymbEnum 
+\item[] \IntSymbEnum 
+\item[] \BoolSet
+\item[] \IntSet 
+\item[] \SymbSet 
+\item[] \IntSymbSet 
+\item[] \UWord[N] (where \code{N} is any whole number $\geq$ 1)
+\item[] \SWord[N] (where \code{N} is any whole number $\geq$ 1)
+%\item[] \WordArray[{[N][M]}] (where \code{N} and \code{M} are any whole number $\geq$ 1)
+\end{itemize}
+
+For more detalied description of existing types see \sref{Types}.
+ 
+\section{Implicit Conversion}
+There is only one kind of implicit convertion. 
+%
+% This figure must be a copy from \sref{Type Order} !!!!!
+\begin{figure}[h]
+\begin{center}
+\begin{tabular}{c@{\qquad}c}
+      \begin{tabular}{cc}
+	\Boolean\\
+      \end{tabular}
+      \begin{tabular}{cc}
+	\Integer & \SymbEnum\\
+	$\downarrow$ & $\downarrow$\\
+	\multicolumn{2}{c}{\IntSymbEnum}\\
+      \end{tabular} & 
+%
+      \begin{tabular}{c}
+	\UWord[1]\\
+	\\
+	\raisebox{1.3ex}[0pt]{~\UWord[2]}\\
+	\UWord[3]\\
+	\ldots \\
+      \end{tabular} \\\\\\
+%
+      \begin{tabular}{cc}
+	\BoolSet\\
+      \end{tabular}
+      \begin{tabular}{cc}
+	\IntSet & \SymbSet\\
+	$\downarrow$ & $\downarrow$\\
+	\multicolumn{2}{c}{\IntSymbSet}\\
+      \end{tabular} &
+%
+      \begin{tabular}{c}
+	\SWord[1]\\
+	\\
+	\raisebox{1.3ex}[0pt]{~\SWord[2]}\\
+	\SWord[3]\\
+	\ldots \\
+      \end{tabular} \\
+%
+%      \begin{tabular}{c}
+%	\WordArray[{[1][1]}]\\
+%	\\
+%	\raisebox{1.3ex}[0pt]{~\WordArray[{[1][2]}]}\\
+%	\WordArray[{[1][3]}]\\
+%	\ldots \\
+%      \end{tabular}
+\end{tabular}
+\end{center}
+\caption{The ordering on the types in \nusmv\label{app_fig:typehierarchy}}
+\end{figure}
+For more information on type ordering see \sref{Implicit Type Conversion}.
+
+Implicit type convertions changes the type of an
+expression to its counterpart \Set type. The Figure~\ref{app_fig:set-type-cast} shows the
+direction of such convertions.
+%
+% This figure must be consisten with description in \labe{Set Types}
+\begin{figure}[h]
+\begin{center}
+\begin{tabular}{l}
+ \Boolean $\rightarrow$ \BoolSet \\
+\Integer $\rightarrow$ \IntSet \\
+\SymbEnum $\rightarrow$ \SymbSet \\ 
+ \IntSymbEnum $\rightarrow$ \IntSymbSet \\
+\end{tabular}
+\end{center}
+\caption{Implicit convertion to counterpart \Set types\label{app_fig:set-type-cast}}
+\end{figure}
+For more information on \Set types and their counterpart types see
+\sref{Set Types}.
+
+
+\section{Type Rules}
+The type rules are presented below with the operators on the left and
+the signatures of the rules on the right. To save space, more than one
+operator may be on the left-hand side, and it is also the case that an
+individual operator may have more than one signature. For more information
+on these expressions and their type rules see \sref{Expressions}.
+
+\vspace{0.3in}
+
+% Constants
+\begin{tabular}{l@{ : }l}
+\multicolumn{2}{l}{\textbf{Constants}}\\
+\hline
+\multicolumn{2}{l}{~}\\
+boolean\_constant & \Boolean\\
+integer\_constant & \Integer\\
+symbolic\_constant & \SymbEnum \\
+word\_constant & \UWord[N] or \SWord[N](where \code{N} is the number of bits required)\\
+range\_constant & \IntSet \\
+\end{tabular}
+
+\vspace{0.3in}
+
+% Variable and Define
+\begin{tabular}{l@{ : }l}
+\multicolumn{2}{l}{\textbf{Variable and Define}}\\
+\hline
+\multicolumn{2}{l}{~}\\
+variable\_identifier & \code{Type} (where \code{Type} is the type of the variable)\\
+define\_identifier & \code{Type} (where \code{Type} is the type of the define's expression)\\
+\end{tabular}
+
+\vspace{0.3in}
+
+% Arithmetic Operators
+\begin{tabular}{l@{ : }l}
+\multicolumn{2}{l}{\textbf{Arithmetic Operators}}\\
+\hline
+\multicolumn{2}{l}{~}\\
+\code{-}  
+ & \Integer $\rightarrow$ \Integer\\
+ & \UWord[N] $\rightarrow$ \UWord[N]\\
+ & \SWord[N] $\rightarrow$ \SWord[N]\\
+\code{+}, \code{-}, \code{/}, \code{*} 
+ & \Integer * \Integer $\rightarrow$ \Integer\\
+ & \UWord[N] * \UWord[N] $\rightarrow$ \UWord[N]\\
+ & \SWord[N] * \SWord[N] $\rightarrow$ \SWord[N]\\
+\code{mod} 
+ & \Integer * \Integer $\rightarrow$ \Integer\\
+ & \UWord[N] * \UWord[N] $\rightarrow$ \UWord[N]\\
+ & \SWord[N] * \SWord[N] $\rightarrow$ \SWord[N]\\
+\multicolumn{2}{r}{\footnotesize{For operations on words, the result is
+                   taken modulo $2^N$}}\\
+\code{>}, \code{<}, \code{>=}, \code{<=} 
+ & \Integer * \Integer $\rightarrow$ \Boolean\\
+ & \UWord[N] * \UWord[N] $\rightarrow$ \Boolean\\
+ & \SWord[N] * \SWord[N] $\rightarrow$ \Boolean\\
+\end{tabular}
+
+\vspace{0.3in}
+
+% Logic Operators
+\begin{tabular}{l@{ : }l}
+\multicolumn{2}{l}{\textbf{Logic Operators}}\\
+\hline
+\multicolumn{2}{l}{~}\\
+\code{!} (negation) 
+ & \Boolean $\rightarrow$ \Boolean\\
+ & \UWord[N] $\rightarrow$ \UWord[N]\\
+ & \SWord[N] $\rightarrow$ \SWord[N]\\
+\code{\&}, \code{|}, \code{->}, \code{<->}, \code{xor}, \code{xnor} 
+ & \Boolean * \Boolean $\rightarrow$ \Boolean\\
+ & \UWord[N] * \UWord[N] $\rightarrow$ \UWord[N]\\
+ & \SWord[N] * \SWord[N] $\rightarrow$ \SWord[N]\\
+\code{=}, \code{!=} 
+ & \Boolean * \Boolean $\rightarrow$ \Boolean\\
+ & \Integer * \Integer $\rightarrow$ \Boolean\\
+ & \SymbEnum * \SymbEnum $\rightarrow$ \Boolean\\
+ & \IntSymbEnum * \\
+   \multicolumn{2}{r}{\IntSymbEnum  $\rightarrow$ \Boolean}\\
+ & \UWord[N] * \UWord[N] $\rightarrow$ \Boolean\\
+ & \SWord[N] * \SWord[N] $\rightarrow$ \Boolean\\
+% & \WordArray[{[N][M]}] * \WordArray[{[N][M]}] $\rightarrow$ \Boolean\\
+\end{tabular}
+
+\vspace{0.3in}
+
+% Index subscript Operators
+\begin{tabular}{l@{ : }l}
+\multicolumn{2}{l}{\textbf{Index Subscript Operator}}\\
+\hline
+\multicolumn{2}{l}{~}\\
+\code{$exp_1$[$exp_2$]}
+ & \Array N..M of subtype * \AnyWord[N] $\rightarrow$ subtype\\
+ & \Array N..M of subtype * \Integer $\rightarrow$ subtype\\
+\multicolumn{2}{l}{\qquad \footnotesize{the value of $exp_2$ has 
+to be in range [N, M]}}\\
+\end{tabular}
+
+\vspace{0.3in}
+
+% Bit-Wise Operators
+\begin{tabular}{l@{ : }l}
+\multicolumn{2}{l}{\textbf{Bit-Wise Operators}}\\
+\hline
+\multicolumn{2}{l}{~}\\
+\code{::} (concatenation) 
+ & \AnyWord[N] * \AnyWord[M] $\rightarrow$ \UWord[N+M]\\
+\multicolumn{2}{l}{\qquad \footnotesize{where \AnyWord can be any of \UWord or \SWord}}\\
+
+\code{$exp_1$[$exp_2$, $exp_3$]} 
+ & \UWord[N] * \Integer * \Integer $\rightarrow$ \UWord[$exp_3 - exp_2 + 1$]\\
+ & \SWord[N] * \Integer * \Integer $\rightarrow$ \UWord[$exp_3 - exp_2 + 1$]\\
+\multicolumn{2}{l}{\qquad \footnotesize{exressions $exp_2$ and $exp_3$
+must be integers such that 0 $\leq exp_2 \leq exp_3 <$ \code{N}}}\\
+\code{<<}, \code{>>} (shift) 
+ & \UWord[N] * \Integer $\rightarrow$ \UWord[N]\\
+ & \UWord[N] * \UWord $\rightarrow$ \UWord[N]\\
+ & \SWord[N] * \Integer $\rightarrow$ \SWord[N]\\
+ & \SWord[N] * \UWord $\rightarrow$ \SWord[N]\\
+%\code{<<<}, \code{>>>} (rotation) & \Word[N] * \Integer $\rightarrow$ \Word[N]\\
+%& \Word[N] * \Boolean $\rightarrow$ \Word[N]\\
+\end{tabular}
+
+\vspace{0.3in}
+
+% Set Operators
+\begin{tabular}{l@{ : }l}
+\multicolumn{2}{l}{\textbf{Set Operators}}\\
+\hline
+\multicolumn{2}{l}{~}\\
+\code{\{$exp_1, exp_2, \ldots, exp_n$\}} & equivalent to consecutive \code{union} operations\\
+\code{union} 
+ &\BoolSet * \BoolSet $\rightarrow$ \BoolSet\\
+ &\IntSet * \IntSet $\rightarrow$ \IntSet\\
+ &\SymbSet * \SymbSet $\rightarrow$ \SymbSet\\
+ &\IntSymbSet * \IntSymbSet \\
+ \multicolumn{2}{r}{$\rightarrow$ \IntSymbSet}\\
+ \multicolumn{2}{l}{\qquad \footnotesize{At first, if it is possible, the
+              operands are converted to their \Set counterpart types,}}\\
+ \multicolumn{2}{l}{\qquad \footnotesize{then both operands are implicitly
+              converted to a minimal common type}}\\
+\code{in} 
+ &\BoolSet * \BoolSet $\rightarrow$ \BoolSet\\
+ &\IntSet * \IntSet $\rightarrow$ \IntSet\\
+ &\SymbSet * \SymbSet $\rightarrow$ \SymbSet\\
+ &\IntSymbSet * \IntSymbSet \\
+ \multicolumn{2}{r}{$\rightarrow$ \IntSymbSet}\\
+ \multicolumn{2}{l}{\qquad \footnotesize{At first, if it is possible, the
+               operands are converted to their \Set counterpart types,}}\\
+ \multicolumn{2}{l}{\qquad \footnotesize{then implicit convertion is
+                performed on one of the operands}}\\
+\end{tabular}
+
+\vspace{0.3in}
+
+% Case Expression
+\begin{tabular}{ll}
+\multicolumn{2}{l}{\textbf{Case and If-Then-Else Expression}}\\
+\hline
+\multicolumn{2}{l}{~}\\
+\code{case} & \code{$cond_1$ : $result_1$;}\\
+& \code{$cond_2$ : $result_2$;}\\
+& $\dots$\\
+& \code{$cond_n$ : $result_n$;}\\
+\code{esac}\\\\
+%
+\multicolumn{2}{l}{$cond$ ? $result_1$ : $result_2$}\\\\
+%
+\multicolumn{2}{l}{\qquad \footnotesize{\code{$cond_i$} must be of type
+                   \Boolean. If one of \code{$result_i$} is of a \Set
+                   type then all other \code{$result_k$} are}}\\
+\multicolumn{2}{l}{\qquad \footnotesize{converted to their counterpart 
+                   \Set types. The overall type of the expression is such
+                   a minimal}}\\
+\multicolumn{2}{l}{\qquad \footnotesize{type that each 
+                   \code{$result_i$} can be implicitly converted to.}}\\
+%
+\end{tabular}
+
+\vspace{0.3in}
+
+% Formula Operators
+\begin{tabular}{l@{ : }l}
+\multicolumn{2}{l}{\textbf{Formula Operators}}\\
+\hline
+\multicolumn{2}{l}{~}\\
+\multicolumn{1}{l}{\code{EX}, \code{AX}, \code{EF}, \code{AF}, \code{EG}, \code{AG},}\\
+\indent\code{X}, \code{Y}, \code{Z}, \code{G}, \code{H}, \code{F}, \code{O} 
+ & \Boolean $\rightarrow$ \Boolean\\
+\code{A-U}, \code{E-U}, \code{U}, \code{S} 
+ & \Boolean * \Boolean $\rightarrow$ \Boolean\\
+\code{A-BU}, \code{E-BU} 
+ & \Boolean * \Integer * \Integer * \Boolean $\rightarrow$ \Boolean\\
+\code{EBF}, \code{ABF}, \code{EBG}, \code{ABG} 
+ & \Integer * \Integer * \Boolean $\rightarrow$ \Boolean\\
+\end{tabular}
+
+\vspace{0.3in}
+
+% Miscellaneous Operators
+\begin{tabular}{l@{ : }l}
+\multicolumn{2}{l}{\textbf{Miscellaneous Operators}}\\
+\hline
+\multicolumn{2}{l}{~}\\
+Integer\code{..}{Integer} 
+ & \code{integer\_number} * \code{integer\_number} $\rightarrow$ \Integer\\
+\code{bool}
+ & \UWord[1] $\rightarrow$ \Boolean\\
+ & \Integer $\rightarrow$ \Boolean\\
+\code{toint}
+ & \Boolean $\rightarrow$ \Integer\\
+ & \UWord[N] constant $\rightarrow$ \Integer\\
+ & \SWord[N] constant $\rightarrow$ \Integer\\
+\code{word1} 
+ & \Boolean $\rightarrow$ \UWord[1]\\
+\code{signed} 
+ & \UWord[N] $\rightarrow$ \SWord[N]\\
+\code{unsigned} 
+ & \SWord[N] $\rightarrow$ \UWord[N]\\
+\code{extend} 
+ & \UWord * \Integer $\rightarrow$ \UWord[N+\Integer]\\
+ & \SWord * \Integer $\rightarrow$ \SWord[N+\Integer]\\
+\code{next}, \code{init} 
+ & any type $\rightarrow$ the same type\\
+\code{()} 
+ & any type $\rightarrow$ the same type\\
+\code{:=} 
+ & \Boolean * \Boolean $\rightarrow$ no type\\
+ & \Integer * \Integer $\rightarrow$ no type\\
+ & \Integer * \IntSet $\rightarrow$ no type\\
+ & \SymbEnum * \SymbEnum $\rightarrow$ no type\\
+ & \SymbEnum * \SymbSet $\rightarrow$ no type\\
+ & \IntSymbEnum * \\
+   \multicolumn{2}{r}{\IntSymbEnum $\rightarrow$ no type}\\
+ & \IntSymbEnum * \\
+   \multicolumn{2}{r}{\IntSymbSet $\rightarrow$ no type}\\
+ & \UWord[N] * \UWord[N] $\rightarrow$ no type\\
+ & \SWord[N] * \SWord[N] $\rightarrow$ no type\\
+% & \WordArray[{[N][M]}] * \WordArray[{[N][M]}] $\rightarrow$ no type \\
+\multicolumn{2}{l}{\footnotesize{Implicit type conversion is performed on the right operand only}}\\
+\end{tabular}
+

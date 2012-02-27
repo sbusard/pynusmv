@@ -1,0 +1,54 @@
+% -*-latex-*-
+\begin{nusmvCommand} {check\_ltlspec\_sbmc\_inc} {\label{checkLtlspecSBmcInc}
+Checks the given LTL specification, or all LTL specifications if no
+formula is given.  Checking parameters are the maximum length and the
+loopback value}
+
+\cmdLine{check\_ltlspec\_sbmc\_inc [-h ] | [ -n idx | -p "formula [IN
+      context]" | -P "name"] [-k max\_length] [-N] [-c]}
+
+This command generates one or more problems, and calls SAT solver for
+each one. The Incremental BMC encoding used is the one by of Heljanko,
+Junttila and Latvala, as described in~\cite{cav05}.
+%
+For each problem this command incrementally generates many
+satisfiability subproblems and calls the SAT solver on each one of
+them.
+%
+Each problem is related to a specific problem bound, which
+increases from zero ($0$) to the given maximum problem length. Here
+\code{max\_length} is the bound of the problem that system is going to
+generate and solve.  In this context the maximum problem bound is
+represented by the \commandopt{k} command parameter, or by its default
+value stored in the environment variable \envvar{bmc\_length}. 
+
+The property to be checked may be specified using the \commandopt{n
+  idx}, the \commandopt{p "formula"} or the \commandopt{P "name"} options.
+
+See variable \varName{use\_coi\_size\_sorting} for changing properties
+verification order.
+
+\begin{cmdOpt}
+
+\opt{-n \parameter{\natnum{\it index}}}{\natnum{\it index} is the
+numeric index of a valid LTL specification formula actually located in
+the properties database.}
+       
+\opt{-p \parameter{"\anyexpr [IN context]"}}{Checks the \anyexpr specified on
+the command-line. \code{context} is the module instance name which
+the variables in \anyexpr must be evaluated in.}
+            
+\opt{-P \parameter{\natnum{name}}}{Checks the LTL property named \natnum{name} in
+the property database.} 
+            
+\opt{-k \parameter{\natnum{\it max\_length}}}{\natnum{\it max\_length} is the maximum problem
+bound to be checked. Only natural numbers are valid values for this
+option. If no value is given the environment variable \envvar{\it
+bmc\_length} is considered instead.}
+
+\opt{-N} {Does not perform virtual unrolling.}
+
+\opt{-c} {Performs completeness check.}
+
+\end{cmdOpt}
+\end{nusmvCommand}

@@ -1,0 +1,150 @@
+This file contains information about compiling MiniSat and linking it
+with NuSMV. 
+
+******************************************************************************
+*                          (0) NuSMV and MiniSat                             *
+******************************************************************************
+
+Since version 2.2.2, NuSMV is able to use the propositional solver "MiniSat" 
+(in addition to "Z-Chaff") to deal with the SAT instances generated
+during a Bounded-Model-Checking session. Further information about MiniSat
+can be found in the paper entitled "An Extensible SAT-solver", by Niklas Een
+and Niklas Sorensson.
+
+However, the NuSMV source distribution *DOES NOT INCLUDE* the MiniSat solver.
+Moreover, the default behavior of NuSMV's "configure/make" facility is to 
+ignore MiniSat while linking.
+
+In order to exploit MiniSat from within NuSMV, you have to proceed as follows.
+
+
+******************************************************************************
+*                          (1) Obtain MiniSat                                *
+******************************************************************************
+
+This can be done by downloading the source archive:
+
+     MiniSat_(version)_src.zip
+
+from the MiniSat home page: 
+ <http://www.cs.chalmers.se/Cs/Research/FormalMethods/MiniSat/>
+
+
+NuSMV has been successfully integrated with versions 1.12, 1.14,
+minisat2-061208, minisat2-070721, and minisat-2.2.0.
+
+However, notice that versions 1.12, 1.14 and minisat2-061208 are no
+longer supported, as several features are missing and they are
+affected by some portability issues which make them not compatible.
+
+The current version of NuSMV is linked to minisat2-070721. Version
+minisat-2.2.0 requires features which are being developed in NuSMV,
+and which are not available in the official versions yet.
+
+3
+Version minisat2-070721 and later can be freely used, when
+respecting the license:
+
+*******************************************************************************
+*** MiniSat -- Copyright (c) 2003-2005, Niklas Een, Niklas Sorensson        ***
+*** MiniSat -- Copyright (c) 2007-2010  Niklas Sorensson                    ***
+***                                                                         ***
+***  Permission is hereby granted, free of charge, to any person            ***
+***  obtaining a copy of this software and associated documentation         ***
+***  files (the "Software"), to deal in the Software without                ***
+***  restriction, including without limitation the rights to use, copy,     ***
+***  modify, merge, publish, distribute, sublicense, and/or sell copies     ***
+***  of the Software, and to permit persons to whom the Software is         ***
+***  furnished to do so, subject to the following conditions:               ***
+***                                                                         ***
+***  The above copyright notice and this permission notice shall be         ***
+***  included in all copies or substantial portions of the Software.        ***
+***                                                                         ***
+*** THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS ***
+*** OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF              ***
+*** MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND                   ***
+*** NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE  ***
+*** LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION  ***
+*** OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION   ***
+*** WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.         ***
+*******************************************************************************
+
+
+
+******************************************************************************
+*                    (2) Compiling MiniSat for NuSMV                         *
+******************************************************************************
+Prerequisites: A C++ compiler (like g++) is required. As Minisat is patched
+to be linked to nusmv, the program 'patch' is also required. 
+
+In the following, we assume that the archive is saved in the NuSMV root 
+directory. So, you should have:
+
+    [YOUR_PATH_TO_NUSMV]/nusmv/
+    [YOUR_PATH_TO_NUSMV]/cudd-2.4.1.1/
+    [YOUR_PATH_TO_NUSMV]/MiniSat/minisat2-070721.zip 
+
+You can download, unpack, patch and build the MiniSat library by
+issuing the command:
+    
+    $> cd  [YOUR_PATH_TO_NUSMV]/MiniSat/
+    $> ./build.sh
+
+which will create a link to the MiniSat library and header file into
+the directory:
+
+    [YOUR_PATH_TO_NUSMV]/
+
+build.sh will try downloading the requested version of MiniSAT if
+not found. If it fails to download it, you will have to download it
+manually from the MiniSAT homepage.
+
+If needed, it is be possible to use a different version of MiniSat by
+editing the file [YOUR_PATH_TO_NUSMV]/MiniSat/minisat-default
+accordingly (you may copy it from minisat-default.in)
+
+
+
+******************************************************************************
+*                     (3) Link minisat within NuSMV                          *
+******************************************************************************
+
+Since NuSMV version 2.3.1, a call to configure with no options will
+make NuSMV try linking MiniSat to be the default SAT solver. Since
+version 2.5.0, the previusly default SAT solver "SIM" is no longer
+available. If MiniSat is not found, ZChaff will be the default SAT
+solver if ZChaff is enabled at compile time, or else no SAT solvers
+will be available, and engines using SAT solvers like Bounded Model
+Checking BMC will be not available.
+
+After compiling MiniSat and CUDD, go to NuSMV's source directory and
+configure it:
+
+    $> cd [YOUR_PATH_TO_NUSMV]/nusmv
+    $> ./configure 
+    
+The default settings for "configure" work fine in our sample installation.
+However, if you have MiniSat somewhere else, then you may have to manually
+adjust a couple of options to make "configure" work. Type "configure --help"
+and take a look at the "--with-minisat-incdir" and "--with-minisat-libdir"
+options. These options tell the compiler where to find the MiniSat header
+and object files, respectively.
+
+If everything goes fine, at the end of the configuration step you should see
+a message like this:
+
+------------------------------------------------------------------
+The MINISAT library will be embedded into the NuSMV executable.
+------------------------------------------------------------------
+ 
+At this point, just execute make to obtain a version of NuSMV statically 
+linked with MiniSat.
+
+
+******************************************************************************
+*                     (4) Instruct NuSMV to use MiniSat                      *
+******************************************************************************
+
+If NuSMV has been successfully linked to MiniSat, MiniSat will be used
+by default. 
+

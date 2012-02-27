@@ -1,0 +1,75 @@
+% -*-latex-*-
+% header
+\documentclass[10pt]{report}
+\usepackage{a4}
+\usepackage{index}
+\usepackage{alltt}
+\usepackage{nusmvtut}
+\usepackage[OT1]{fontenc}
+\usepackage{type1cm}
+\usepackage{times}
+@IF_USE_PACKAGE_HYPERREF@
+\usepackage[bookmarks=true]{hyperref}
+\fi
+
+\makeindex
+\listfiles
+
+%body 
+\begin{document}
+\bibliographystyle{alpha}
+
+\input{title.tex}
+\pagenumbering{arabic}
+
+\tableofcontents
+
+\chapter{Introduction}
+\label{Introduction}
+\index{Introduction}
+\input{intro.tex}
+
+\chapter{Examples}
+\label{Examples}
+\index{Examples}
+\input{examples.tex}
+
+\chapter{Simulation}
+\label{Simulation}
+\index{Simulation}
+\input{simulation.tex}
+
+\chapter{CTL Model Checking}
+\label{CTL Model Checking}
+\index{CTL Model Checking}
+\index{Model Checking!CTL}
+\input{ctl_mc.tex}
+
+\chapter{LTL Model Checking}
+\label{LTL Model Checking}
+\index{LTL Model Checking}
+\index{Model Checking!LTL}
+\input{ltl_mc.tex}
+
+\chapter{Bounded Model Checking}
+\label{Bounded Model Checking}
+\index{Bounded Model Checking}
+\index{Model Checking!BMC}
+\input{bmc.tex}
+
+% Just to include all citations 
+\input{citeall.tex}
+
+% Print bibliography here.
+\bibliography{main}
+
+
+\cleardoublepage
+
+% Print Indices here
+\printindex[com]
+\printindex[var]
+\printindex
+
+\end{document}
+\endinput

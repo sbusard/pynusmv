@@ -1,0 +1,17 @@
+% -*-latex-*-
+\begin{nusmvCommand}{read\_model}{Reads a \nusmvhead file into
+    \nusmvhead.}
+
+\cmdLine{read\_model [-h] [-i model-file]}
+
+Reads a \nusmv file. If the \commandopt{i} option is not specified, it
+reads from the file specified in the environment variable
+\envvar{input\_file}.\\
+
+\begin{cmdOpt}
+\opt{-i \parameter{\filename{model-file}}}{Sets the environment variable
+\envvar{input\_file} to \filename{model-file}, and reads the model from
+the specified file.}
+\end{cmdOpt}
+
+\end{nusmvCommand}

@@ -1,0 +1,220 @@
+/***************************************************************  -*-C-*-  ***/
+%{
+/**CFile***********************************************************************
+
+  FileName    [grammar.y]
+
+  PackageName [parser]
+
+  Synopsis    [Grammar (for Yacc and Bison) of NuSMV input language]
+
+  SeeAlso     [input.l]
+
+  Author      [Andrei Tchaltsev, Marco Roveri]
+
+  Copyright   [
+  This file is part of the ``parser'' package of NuSMV version 2.
+  Copyright (C) 1998-2005 by CMU and FBK-irst.
+
+  NuSMV version 2 is free software; you can redistribute it and/or
+  modify it under the terms of the GNU Lesser General Public
+  License as published by the Free Software Foundation; either
+  version 2 of the License, or (at your option) any later version.
+
+  NuSMV version 2 is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+  Lesser General Public License for more details.
+
+  You should have received a copy of the GNU Lesser General Public
+  License along with this library; if not, write to the Free Software
+  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307  USA.
+
+  For more information on NuSMV see <http://nusmv.fbk.eu>
+  or email to <nusmv-users@fbk.eu>.
+  Please report bugs to <nusmv-users@fbk.eu>.
+
+  To contact the NuSMV development board, email to <nusmv@fbk.eu>. ]
+
+******************************************************************************/
+
+#if HAVE_CONFIG_H
+# include "nusmv-config.h"
+#endif
+
+#include <setjmp.h>
+
+#if NUSMV_HAVE_MALLOC_H
+# if NUSMV_HAVE_SYS_TYPES_H
+#  include <sys/types.h>
+# endif
+# include <malloc.h>
+#elif NUSMV_HAVE_SYS_MALLOC_H
+# if NUSMV_HAVE_SYS_TYPES_H
+#  include <sys/types.h>
+# endif
+# include <sys/malloc.h>
+#elif NUSMV_HAVE_STDLIB_H
+# include <stdlib.h>
+#endif
+
+#include <limits.h>
+
+#include "parser/parserInt.h"
+#include "utils/utils.h"
+#include "utils/ustring.h"
+#include "node/node.h"
+#include "opt/opt.h"
+#include "prop/propPkg.h"
+#include "utils/error.h"
+
+#include "parser/symbols.h"
+
+static char rcsid[] UTIL_UNUSED = "$Id: grammar.y,v 1.19.4.10.4.46.4.45 2010-02-17 15:13:41 nusmv Exp $";
+
+#define YYMAXDEPTH INT_MAX
+
+#define SYNTAX_ERROR_HANDLING(dest, src) \
+  {                                      \
+    if (OptsHandler_get_bool_option_value(OptsHandler_get_instance(), \
+                                          OPT_PARSER_IS_LAX)) {       \
+      dest = src;                                                     \
+    }                                                                 \
+    else {                                                            \
+      YYABORT;                                                        \
+    }                                                                 \
+ }
+
+
+node_ptr parsed_tree; /* the returned value of parsing */
+
+enum PARSE_MODE parse_mode_flag; /* the flag what should be parsed */
+
+extern FILE * nusmv_stderr;
+
+void yyerror ARGS((char *s));
+void yyerror_lined ARGS((const char *s, int line));
+static node_ptr node2maincontext ARGS((node_ptr node));
+
+/* this enum is used to distinguish
+   different kinds of expressions: SIMPLE, NEXT, CTL and LTL.
+   Since syntactically only one global kind of expressions exists,
+   we have to invoke a special function which checks that an expression
+   complies to the additional syntactic constrains.
+   So, if an ltl-expression is expected then occurrences of NEXT or EBF
+   operators will cause the termination of parsing.
+
+   NB: An alternative to invoking a checking function would be to write quite
+   intricate syntactic rules to distinguish all the cases.
+
+   NB: This checking function could also be a part of the type checker,
+   but it is more straightforward to write a separate function.
+*/
+  enum EXP_KIND {EXP_SIMPLE, EXP_NEXT, EXP_LTL, EXP_CTL};
+
+  static boolean isCorrectExp ARGS((node_ptr exp, enum EXP_KIND expectedKind));
+
+  static node_ptr build_case_colon_node ARGS((node_ptr l,
+                                              node_ptr r,
+                                              int linum));
+
+  static int nusmv_parse_psl ARGS((void));
+%}
+
+%union {
+  node_ptr node;
+  int lineno;
+}
+
+/*
+  All of the terminal grammar symbols (tokens recognized by the
+  lexical analyzer) Note: all binary operators associate from left to
+  right. The priority of operators is coded into the syntax rules,
+  i.e. the priority of operators in the token declarations below is
+  of not importance.
+
+  Note: The following token are not used inside the grammar, but are
+  used by other modules inside the system (i.e. the compiler, mc).
+  TOK_CONTEXT TOK_EU TOK_AU TOK_EBU TOK_ABU TOK_MINU TOK_MAXU
+  TOK_CONS TOK_BIT
+*/
+
+%left <lineno> TOK_CONSTRAINT
+%left <lineno> TOK_MODULE TOK_PROCESS TOK_CONTEXT TOK_EU TOK_AU TOK_EBU TOK_ABU TOK_MINU TOK_MAXU
+%left <lineno> TOK_VAR TOK_FROZENVAR TOK_IVAR TOK_DEFINE TOK_ARRAY_DEFINE TOK_INIT TOK_TRANS TOK_INVAR TOK_SPEC TOK_CTLSPEC TOK_LTLSPEC TOK_COMPUTE TOK_NAME
+%left <lineno> TOK_PSLSPEC
+%left <lineno> TOK_CONSTANTS
+%left <lineno> TOK_INVARSPEC TOK_FAIRNESS TOK_COMPASSION TOK_JUSTICE
+%left <lineno> TOK_ISA TOK_ASSIGN
+%left <lineno> TOK_OF TOK_CONS TOK_SEMI
+%left <lineno> TOK_LP TOK_RP TOK_RB TOK_LCB TOK_RCB
+%left <lineno> TOK_EQDEF TOK_TWODOTS
+%left <lineno> TOK_SELF
+%left <lineno> TOK_CASE TOK_ESAC TOK_COLON
+%left <lineno> TOK_INCONTEXT TOK_SIMPWFF TOK_NEXTWFF TOK_LTLWFF TOK_LTLPSL TOK_CTLWFF TOK_COMPWFF TOK_COMPID
+%left <lineno> TOK_ARRAY  TOK_BOOLEAN TOK_INTEGER TOK_REAL TOK_WORD
+%left <lineno> TOK_BOOL TOK_WORD1
+%left <lineno> TOK_WAREAD TOK_WAWRITE
+%left <lineno> TOK_SIGNED TOK_UNSIGNED TOK_EXTEND TOK_UWCONST TOK_SWCONST TOK_WRESIZE TOK_WSIZEOF TOK_WTOINT TOK_COUNT
+
+%left <node> TOK_ATOM TOK_FALSEEXP TOK_TRUEEXP
+%left <node> TOK_NUMBER TOK_NUMBER_FRAC TOK_NUMBER_REAL TOK_NUMBER_EXP
+%left <node> TOK_NUMBER_WORD
+
+%left  <lineno> TOK_COMMA TOK_IMPLIES TOK_IFF TOK_OR TOK_XOR TOK_XNOR TOK_AND TOK_NOT TOK_QUESTIONMARK
+%left  <lineno> TOK_EX TOK_AX TOK_EF TOK_AF TOK_EG TOK_AG TOK_EE TOK_AA
+%left  <lineno> TOK_SINCE TOK_UNTIL TOK_TRIGGERED TOK_RELEASES
+%left  <lineno> TOK_EBF TOK_EBG TOK_ABF TOK_ABG TOK_BUNTIL TOK_MMIN TOK_MMAX
+%left  <lineno> TOK_OP_NEXT TOK_OP_GLOBAL TOK_OP_FUTURE
+%left  <lineno> TOK_OP_PREC TOK_OP_NOTPRECNOT TOK_OP_HISTORICAL TOK_OP_ONCE
+%left  <lineno> TOK_EQUAL TOK_NOTEQUAL TOK_LT TOK_GT TOK_LE TOK_GE
+%left  <lineno> TOK_UNION TOK_SETIN TOK_LSHIFT TOK_RSHIFT TOK_LROTATE TOK_RROTATE
+%left  <lineno> TOK_MOD TOK_PLUS TOK_MINUS TOK_TIMES TOK_DIVIDE
+%left  <lineno> TOK_NEXT TOK_SMALLINIT TOK_CONCATENATION
+%left  <lineno> TOK_LB TOK_DOT TOK_BIT
+
+
+%nonassoc <lineno> TOK_PRED TOK_PREDSLIST TOK_MIRROR
+
+/* all nonterminals return a parse tree node */
+%type <node> number integer number_word number_frac number_real number_exp subrange subrangetype
+
+%type <node> constant primary_expr case_element_expr case_element_list_expr count_param_list
+%type <node> concatination_expr multiplicative_expr
+%type <node> additive_expr shift_expr
+%type <node> set_expr set_list_expr union_expr in_expr relational_expr
+%type <node> ctl_expr pure_ctl_expr ctl_and_expr
+%type <node> ctl_or_expr ctl_iff_expr ctl_implies_expr ctl_basic_expr
+%type <node> ltl_binary_expr ltl_unary_expr pure_ltl_unary_expr
+%type <node> and_expr or_expr iff_expr implies_expr basic_expr ite_expr
+%type <node> simple_expression next_expression ctl_expression ltl_expression
+
+%type <node> itype type module_type
+%type <node> type_value_list type_value complex_atom next_list_expression
+
+%type <node> module_list module module_sign atom_list
+%type <node> declarations declaration
+%type <node> var frozen_var var_decl var_decl_list
+%type <node> input_var ivar_decl fvar_decl ivar_decl_list fvar_decl_list
+%type <node> define_decls define_list define
+
+%type <node> array_contents array_expression_list array_expression
+%type <node> array_define_list array_define
+
+%type <node> assign assign_list one_assign
+%type <node> init invar trans
+%type <node> fairness justice compassion
+%type <node> invarspec ctlspec ltlspec pslspec compute
+%type <node> _invarspec _ctlspec _ltlspec _compute
+%type <node> constants constants_expression
+%type <node> compute_expression
+%type <node> isa
+%type <node> predicate predicate_list mirror
+
+
+%type <node> decl_var_id var_id
+
+%type <node> command command_case context _simpwff
+
+
+%start @start@

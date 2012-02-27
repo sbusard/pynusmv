@@ -1,0 +1,22 @@
+prefix=@prefix@
+exec_prefix=@exec_prefix@
+includedir=@includedir@
+libdir=${exec_prefix}/lib
+datarootdir=@prefix@/share
+datadir=@datadir@/nusmv
+sharedir=${datarootdir}
+
+sat_available=@have_sat_solver@
+minisat_libdir=@minisatlibdir@
+minisat_libname=@minisat_libname@
+
+cudddir=@cudddir@
+cuddname=@cuddname@
+cuddmkfile=@cudd_mkf@
+
+Name: NuSMV-2
+Description: New Symbolic Model Verifier
+Requires: 
+Version: @VERSION@
+Cflags: -I. -I.. -I${includedir}/nusmv -I${includedir}/${cuddname} 
+Libs: -L${libdir} -lnusmv

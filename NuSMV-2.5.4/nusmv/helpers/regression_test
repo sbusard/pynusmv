@@ -1,0 +1,118 @@
+#!/bin/sh 
+######################################################################
+# FileName    [regerssion_test]
+#
+# Synopsis    [Script to perform regression tests]
+#
+# Description [This script can be used to perform regression tests of
+#       the NuSMV system. To run this script you have to pass
+#       as arguments to the script itself the source directory
+#       where the directory containing the examples can be
+#       found, and the name of the directory of examples.
+#       Eg. suppose the examples are located in
+#       /export/nusmv/nusmv/examples the script has to be
+#       called as:
+#       regression_test /export/nusmv/nusmv examples
+#       The script searches direcories for files ending in
+#       ".smv" if any. For each file "file.smv" found it looks if
+#       there exist the files "file.ord" and "file.opt". The
+#       first is the file contains the ordering of variables,
+#       the second contains the options that ahve to be passed
+#       to NuSMV to execute fastly the corresponding example.]
+#
+# Author      [Marco Roveri]
+#
+# Copyright	[Copyright (C) 1998-2001 by CMU and ITC-irst. 
+#
+# NuSMV version 2 is free software; you can redistribute it and/or 
+# modify it under the terms of the GNU Lesser General Public 
+# License as published by the Free Software Foundation; either 
+# version 2 of the License, or (at your option) any later version.
+#
+# NuSMV version 2 is distributed in the hope that it will be useful, 
+# but WITHOUT ANY WARRANTY; without even the implied warranty of 
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+# Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public 
+# License along with this library; if not, write to the Free Software 
+# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307  USA.
+#
+# For more information on NuSMV see <http://nusmv.fbk.eu>
+# or email to <nusmv-users@fbk.eu>.
+# Please report bugs to <nusmv-users@fbk.eu>.
+#
+# To contact the NuSMV development board, email to <nusmv@fbk.eu>.]
+#
+######################################################################
+
+examples=
+
+# The NuSMV executable
+NuSMV=NuSMV
+
+# The examples dir
+example_dir=.
+
+if [ $# -ne 0 ]; then
+    if [ -d $1 ]; then
+        example_dir=$1/$2
+        NuSMV=$1/${NuSMV}
+        echo $example_dir
+        echo $NuSMV
+    else
+        echo Error $1 does not exists
+        exit 1
+    fi
+else 
+    echo "####################################################################"
+    echo "Usage: $0 <src_dir> <example_subdir>"
+    echo "####################################################################"
+    exit 1
+fi
+
+# extracts the examples file from the example dir
+example_pb='(a7|reactor|futurebus|tcas16|abp16)'
+examples=`find ${example_dir} -name "*.smv" -print | egrep -v ${example_pb}`
+
+# NuSMV options
+orig_options="-v 1 " 
+options=
+
+for file in ${examples}; do
+    echo "----------------------------------"
+    echo Checking $file
+    echo "----------------------------------"
+    ord_file=`echo $file | cut -f-2 -d"."`
+    opt_file=`echo $file | cut -f-2 -d"."`
+    options="${orig_options}"
+    if [ -f ${ord_file}.ord ]; then
+        if [ -f ${ord_file}.ordnusmv ]; then
+            options="${options} -i ${ord_file}.ordnusmv"
+        else 
+            options="${options} -i ${ord_file}.ord"
+        fi
+    fi
+    if [ -f ${ord_file}.ordnusmv ]; then
+        if [ -f ${ord_file}.ord ]; then
+            echo -n
+        else
+            options="${options} -i ${ord_file}.ordnusmv"
+        fi
+    fi
+    if [ -f ${opt_file}.opt ]; then
+        options="${options} `cat ${opt_file}.opt`"
+    fi
+    echo ${NuSMV} ${options} $file
+    ${NuSMV} ${options} $file
+done
+
+
+
+
+
+
+
+
+
+

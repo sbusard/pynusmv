@@ -1,0 +1,369 @@
+%/**LaTex style file *************************************************************
+%
+%  FileName    [nusmv.sty]
+%
+%  PackageName [nusmv]
+%
+%  Synopsis    [style option for writing documentation for NuSMV.]
+%
+%  Description [This style file defines nusmvTable, nusmvCommand and
+%  nusmvVar environment. In addition defvr is also supported currently
+%  but likely to be removed later.]
+%		
+%  RequirePackage  [supertabular, index, hyperref, alltt, epsfig,
+%  ifthen and colortbl]
+%
+%  Author      [A. Trivedi strongly revised by M. Roveri]
+%
+%  Copyright   [Copyright (C) 2010 by FBK-irst
+%
+%  NuSMV version 2 is free software; you can redistribute it and/or 
+%  modify it under the terms of the GNU Lesser General Public 
+%  License as published by the Free Software Foundation; either 
+%  version 2 of the License, or (at your option) any later version.
+%
+%  NuSMV version 2 is distributed in the hope that it will be useful, 
+%  but WITHOUT ANY WARRANTY; without even the implied warranty of 
+%  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+%  Lesser General Public License for more details.
+%
+%  You should have received a copy of the GNU Lesser General Public 
+%  License along with this library; if not, write to the Free Software 
+%  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307  USA.
+%
+%  For more information of NuSMV see <http://nusmv.fbk.eu>
+%  or email to <nusmv-users@fbk.eu>.
+%  Please report bugs to <nusmv-users@fbk.eu>.
+%
+%  To contact the NuSMV development board, email to <nusmv@fbk.eu>. ]
+%
+%
+%******************************************************************************/
+
+\ProvidesPackage{nusmv}
+
+\RequirePackage{graphicx}
+\RequirePackage{supertabular}
+\RequirePackage{index}
+\RequirePackage{alltt}
+\RequirePackage{ifthen}
+\RequirePackage{colortbl}
+\RequirePackage{xspace}
+\RequirePackage[OT1]{fontenc}
+\RequirePackage{type1cm}
+\RequirePackage{times}
+\RequirePackage{url}
+\RequirePackage[nottoc]{tocbibind}
+
+% We are providing Bibliography, not just references. 
+\renewcommand{\bibname}{Bibliography}
+
+% Two different indexes for Command and Variables, in addition to
+% generic index.
+\newindex{com}{adx}{and}{Command Index}
+\newindex{var}{ndx}{nnd}{Variable Index}
+
+% shorthand for command and variable index.
+\def\cindex{\index[com]}
+\def\vindex{\index[var]}
+
+% Change it to reflect new NuSMV version.
+\newcommand{\NuSMV}{NuSMV @NUSMV_MAJ_VER@\xspace} 
+\newcommand{\nusmvtxt}{NuSMV} 
+\newcommand{\nusmv}{\textsc{\nusmvtxt}\xspace} 
+\newcommand{\nusmvhead}{\nusmvtxt\xspace}
+\newcommand{\smv}{SMV\xspace}
+\newcommand{\nusmvTwo}{\textsc{NuSMV2}\xspace}
+\newcommand{\nusmvprompt}{\texttt{NuSMV>}\xspace}
+\newcommand{\nusmvtext}[1]{\textbf{\texttt{#1}}\xspace}
+\newcommand{\stdsyslib}{\texttt{NuSMV\_LIBRARY\_PATH}\xspace}
+
+% NuSMV command/variable related formatting
+\newcommand{\commandopt}[1]{\texttt{-#1}\xspace}
+\newcommand{\envvar}[1]{\texttt{#1}\xspace}
+\newcommand{\formula}[1]{\emph{#1}\xspace}
+\newcommand{\varvalue}[1]{\texttt{#1}\xspace}
+
+% Shell related formatting
+\newcommand{\csh}{``csh''\xspace}
+\newcommand{\bash}{``bash''\xspace}
+\newcommand{\shellprompt}{\texttt{system\_prompt>}\xspace}
+\newcommand{\shellcommand}[1]{``#1''\xspace}
+\newcommand{\shellvar}[1]{\texttt{#1}\xspace}
+\newcommand{\shelltext}[1]{\textbf{\texttt{#1}}\xspace}
+\newcommand{\nusmvreadline}{``readline''\xspace}
+
+% Formatting rules for other programs/systems
+\newcommand{\unix}{UNIX\xspace}
+\newcommand{\Iwls}{\textit{Iwls95CP}\xspace}
+\newcommand{\SIM}{SIM\xspace}  % \sim is used to display ~
+\newcommand{\zchaff}{Zchaff\xspace}
+\newcommand{\zchaffnotice}{Notice that \zchaff is for non-commercial
+  purposes only.\xspace}
+\newcommand{\minisat}{MiniSat\xspace}
+\newcommand{\minisatnotice}{Notice that \minisat is for non-commercial
+  purposes only.\xspace}
+\newcommand{\zchaffminisatnotice}{Notice that \zchaff and \minisat are for 
+non-commercial purposes only.\xspace}
+\newcommand{\dimacs}{DIMACS\xspace}
+\newcommand{\cudd}{CUDD\xspace}
+
+% (new) Command option parameter definitions
+\newcommand{\parameter}[1]{\texttt{#1}\xspace}
+\newcommand{\expression}[1]{\texttt{#1-expr}\xspace}
+\newcommand{\ctlexpr}{\expression{ctl}\xspace}
+\newcommand{\ltlexpr}{\expression{ltl}\xspace}
+\newcommand{\pslexpr}{\expression{psl}\xspace}
+\newcommand{\invarexpr}{\expression{invar}\xspace}
+\newcommand{\compexpr}{\expression{compute}\xspace}
+\newcommand{\anyexpr}{\texttt{formula}\xspace} % \formula arleady defined
+\newcommand{\integer}[1]{\texttt{#1}\xspace}
+\newcommand{\natnum}[1]{\texttt{#1}\xspace} % \natural already defined
+% The second argument is used to give the actual elements of the set
+% although they're not actually printed out by this command yet
+\newcommand{\set}[2]{\texttt{#1}\xspace}
+\newcommand{\range}[2]{\texttt{(#1, #2)}\xspace}
+
+\newcommand{\PROMPT}{\${}} 
+\newcommand{\ret}{\texttt{<RET>}\xspace} 
+\newcommand{\alt}{\texttt{<ALT>}\xspace} 
+\newcommand{\tab}{\texttt{<TAB>}\xspace} 
+\newcommand{\spc}{\texttt{<SPACE>}\xspace} 
+\newcommand{\code}[1]{\texttt{#1}\xspace}
+\newcommand{\type}[1]{\textsf{#1}\xspace}
+\newcommand{\reserved}[1]{\small{\textbf{\texttt{#1}}}\xspace}
+\newcommand{\operator}[1]{\small{\textbf{\texttt{#1}}}\xspace}
+\newcommand{\filename}[1]{\texttt{#1}\xspace}
+\newcommand{\command}[1]{\texttt{#1}\xspace}
+\newcommand{\cmdLine}[1]{\texttt{#1}\xspace}
+\newcommand{\varName}[1]{\texttt{#1}\xspace}
+
+% Types
+\newcommand{\Boolean}{\type{boolean}}
+\newcommand{\Integer}{\type{integer}}
+\newcommand{\Array}{\type{array}}
+\newcommand{\AnyWord}[1][$\bullet$]{\type{word[#1]}}
+\newcommand{\UWord}[1][$\bullet$]{\type{unsigned word[#1]}}
+\newcommand{\SWord}[1][$\bullet$]{\type{signed word[#1]}}
+\newcommand{\WordArray}[1][{[$\bullet$][$\bullet$]}]{\type{word-array#1}}
+\newcommand{\IntEnum}{\type{integer enum}}
+\newcommand{\SymbEnum}{\type{symbolic enum}}
+\newcommand{\IntSymbEnum}{\type{integers-and-symbolic enum}}
+\newcommand{\Enum}{\type{enumeration}}
+\newcommand{\BoolSet}{\type{boolean set}}
+\newcommand{\IntSet}{\type{integer set}}
+\newcommand{\SymbSet}{\type{symbolic set}}
+\newcommand{\IntSymbSet}{\type{integers-and-symbolic set}}
+\newcommand{\Set}{\type{set}}
+
+% Expressions
+\newcommand{\ite}[3]{(\ensuremath{#1} \operator{?} \ensuremath{#2} \operator{:} \ensuremath{#3})\xspace}
+\newcommand{\itebullet}{\ite{\bullet}{\bullet}{\bullet}}
+
+
+\newcommand{\grammar}[1]{\texttt{\small{#1}}\xspace}
+
+% Change copyright message.
+\newcommand{\copymsg}{Copyright \copyright 1998-2005 by CMU and ITC-irst.\\
+Copyright \copyright 2010 by FBK-irst.}
+
+% shorthand for showing chapter and section refereces in a better way.
+% use \cref{<chapter_label>} for referring to chapters and
+% use \sref{<section_label>} for referring to sections.
+\newcommand{\cref}[1]{Chapter~\ref{#1} [#1], page~\pageref{#1}}
+\newcommand{\sref}[1]{Section~\ref{#1} [#1], page~\pageref{#1}}
+
+% If you are defining something, it is lazy to use \dfn{<noun>} and if
+% it is a variable, use \vard{<var_name>}. Note vard stands for
+% VARiableDefinition.
+\newcommand{\dfn}[1]{\emph{#1}\index{#1}}
+\newcommand{\vard}[1]{\emph{#1}\vindex{#1}}
+
+% For keeping the proper margin.
+\def\changemargin#1#2{\list{}{\rightmargin#2\leftmargin#1}\item[]}
+\let\endchangemargin=\endlist 
+
+          %%%%%%%%%%%%%%%% Now Environments %%%%%%%%%%%%%%%%%%%%%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% For documenting a NuSMV command use this environment:
+% Usage: 
+%
+%   \begin{nusmvCommand}{<command_name>}{<command description>}
+%
+%      blah blah blah .....
+%
+%   \end{nusmvCommand}
+%
+% Take precaution by escaping (use \) underscores or some special LaTex
+% character inside this. Otherwise Indexes would be very very messy.
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\newenvironment{nusmvCommand}[2]
+{%
+  \noindent\ignorespaces\samepage\clubpenalty=1600\\%
+  \definecolor{Greyb}{cmyk}{0, 0, 0, 0.10}% 
+  \begin{tabular*}{1\textwidth}{p{0.7\textwidth} p{0.235\textwidth}|}
+  \rowcolor{Greyb} \textbf{#1} - \textit{#2} & {\hfill Command}\\
+  \hline\\[-\parskip]
+  \end{tabular*}%
+  \nopagebreak%
+  \begin{changemargin}{0.2in}{0.1in}%
+  \cindex{\texttt{#1}}%
+\nopagebreak[0]}
+{ 
+  \end{changemargin}
+  \par\noindent\ignorespacesafterend
+}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% For documenting a NuSMV ''environment variable'' use this environment:
+% Usage: 
+%
+%   \begin{nusmvVar}{<var_name>}
+%
+%      blah blah blah .....
+%
+%   \end{nusmvVar}
+%
+% Take precaution by escaping (use \) underscores or some special LaTex
+% character inside this. Otherwise Indexes would be very very messy.
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% USAGE: \nusmvVar{<VARNAME>}{<POSSIBLE VALUES>}{<DEFAULT>}
+% <DEFAULT> should be 'none' (without quotes) if there isn't one.
+\newenvironment{nusmvVar}[3]
+{
+  \noindent\ignorespaces\\
+  \definecolor{Greyb}{cmyk}{0, 0, 0, 0.10} 
+  \begin{tabular*}{1\textwidth}{p{0.65\textwidth} p{0.285\textwidth}|} 
+  \rowcolor{Greyb} \textbf{#1}  & {\hfill Environment Variable}\\ 
+  \hline
+  \end{tabular*} 
+  \begin{changemargin}{0.2in}{0.1in} 
+  \vindex{\texttt{#1}}
+} 
+{ 
+ \end{changemargin}
+  \par\noindent\ignorespacesafterend
+}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Use of defvr is deprecated, use nusmvCommand or nusmvVar
+% instead
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newenvironment{defvr}[2] 
+{
+  \noindent\ignorespaces
+  \begin{supertabular*}{1\textwidth}{@{\extracolsep{\fill}}p{240pt}r} 
+  #2 & #1\\ 
+  \end{supertabular*} 
+  \begin{changemargin}{0.5in}{0.0in} 
+} 
+{ 
+  \end{changemargin}
+  \par\noindent\ignorespacesafterend
+}
+
+%\newenvironment{defvr}[2]
+%{
+%\ifthenelse{\equal{#1}{Command}}{\begin{nusmvCommand}{#2}{}}{\begin{nusmvVar}{#2}}
+%}
+%{
+%\ifthenelse{\equal{#1}{Command}}{\end{nusmvCommand}}{\end{nusmvVar}}
+%}
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Shorthand for writing tables, btw we are using supertabular
+% environment and hiding nasty details here.
+%
+% Usage: 
+%
+%   \begin{nusmvTable}
+%
+%    something_1 & Explanation \\
+%    something_2 & Explanation \\
+%    yet another thing & Explanation \\
+%
+%   \end{nusmvTable}
+%
+% It is trivial to realize that this table can be use only for this
+% particular use and it is far from being generic. Just two columns,
+% but this can stretch multiple pages and I think it is looking pretty
+% good.
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newlength{\nusmvtablewidth}
+\setlength{\nusmvtablewidth}{215pt}
+\newenvironment{nusmvTable}%
+{\nopagebreak[5]%
+%\tablecaption{}
+\tablehead{}%
+\tabletail{}%
+\begin{supertabular}{p{0.45\nusmvtablewidth}p{\nusmvtablewidth}}%
+}%
+{%
+\end{supertabular}%
+}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Shorthand for command options cmdOpt
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% \newenvironment{cmdOpt}%
+% {%
+% \ \\%
+% \noindent\ignorespaces%
+% \nopagebreak[4]Command Options:\nopagebreak[4]%
+% \clubpenalty=4000\par\nopagebreak[4]%
+% \noindent\begin{nusmvTable}%
+% }%
+% {%
+% \end{nusmvTable}%
+% \par\noindent%\ignorespacesafterend%
+% }%
+ 
+\newenvironment{cmdOpt}%
+{%
+\par
+\noindent\ignorespaces\par%
+\begin{nusmvTable}
+\multicolumn{2}{l}{\hspace*{-5pt}Command Options:}\\[\parskip]%
+}%
+{%
+\end{nusmvTable}%
+\par\noindent%\ignorespacesafterend%
+}%
+
+\newcommand{\opt}[2]{\parbox[t]{0.55\nusmvtablewidth}{\texttt{#1}} & \noindent\ignorespaces #2 \\[1mm]}
+\newcommand{\optns}[2]{\parbox[t]{0.55\nusmvtablewidth}{\texttt{#1}} & \noindent\ignorespaces #2 \\}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newcommand{\tabItem}[1]
+{
+{ } & {\advance \nusmvtablewidth by -6pt % approximately the size of $\bullet~~
+$\bullet~~${\parbox[t]{\nusmvtablewidth}{#1}}
+\advance \nusmvtablewidth by 6pt
+}\\
+}
+
+
+\newenvironment{Grammar}%
+{%
+\begin{alltt}%
+\begin{small}%
+}%
+{
+\end{small}%
+\end{alltt}%
+}
+
+\newenvironment{nusmvCode}%
+{%
+\begin{alltt}%
+\begin{small}%
+}%
+{
+\end{small}%
+\end{alltt}%
+}

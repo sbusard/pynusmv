@@ -1,0 +1,640 @@
+% -*-latex-*-
+% Grammar Productions Appendix
+\chapter{Production Rules}
+This appendix contains the syntactic production rules for writing a \nusmv program.
+
+
+\subsubsection{Identifiers}
+\begin{Grammar}
+identifier :: 
+        identifier_first_character
+      | identifier identifier_consecutive_character
+
+identifier_first_character :: \emph{one of}
+        \textbf{A B C D E F G H I J K L M N O P Q R S T U V W X Y Z}
+        \textbf{a b c d e f g h i j k l m n o p q r s t u v w x y z _}
+
+identifier_consecutive_character :: 
+        identifier_first_character
+      | digit
+      | \emph{one of} \textbf{\$ \# -}
+
+digit :: \emph{one of} \textbf{0 1 2 3 4 5 6 7 8 9}
+\end{Grammar}
+
+Note that there are certain reserved keyword which cannot be used as
+identifiers (see page \pageref{list of reserved keywords}).
+
+\subsubsection{Variable and DEFINE Identifiers}
+\begin{Grammar}
+define_identifier :: complex_identifier
+
+variable_identifier :: complex_identifier
+\end{Grammar}
+
+
+\subsubsection{Complex Identifiers}
+\begin{Grammar}
+complex_identifier ::
+        identifier
+      | complex_identifier \textbf{.} identifier
+      | complex_identifier \textbf{[} simple_expression \textbf{]}
+      | \reserved{self}
+\end{Grammar}
+
+
+\subsubsection{Integer Numbers}
+\begin{Grammar}
+integer_number ::
+        \textbf{-} digit
+      | digit
+      | integer_number digit
+\end{Grammar}
+
+
+\subsubsection{Constants}
+\begin{Grammar}
+constant ::
+        boolean_constant
+      | integer_constant
+      | symbolic_constant
+      | word_constant
+      | range_constant
+\end{Grammar}
+
+\begin{Grammar}
+boolean_constant :: \emph{one of} 
+                    \reserved{FALSE} \reserved{TRUE}
+\end{Grammar}
+
+\begin{Grammar}
+integer_constant :: integer_number
+\end{Grammar}
+
+\begin{Grammar}
+symbolic_constant :: identifier
+\end{Grammar}
+
+\begin{Grammar}
+word_constant :: \textbf{0} [word_sign_specifier] word_base [word_width] \textbf{_} word_value
+
+word_sign_specifier :: \emph{one of} 
+        \textbf{u s}
+
+word_width :: integer_number (>0)
+
+word_base :: \textbf{b} | \textbf{B} | \textbf{o} | \textbf{O} | \textbf{d} | \textbf{D} | \textbf{h} |  \textbf{H}
+
+word_value :: 
+        hex_digit
+      | word_value hex_digit
+      | word_value \textbf{\_}
+
+hex_digit :: \emph{one of}  
+        \textbf{0 1 2 3 4 5 6 7 8 9 a b c d e f A B C D E F}
+\end{Grammar}
+
+Note that there are some additional restrictions on the exact format of word constants (see page \pageref{the notes on word constants}).
+
+\begin{Grammar}
+range_constant :: 
+        integer_number \textbf{..} integer_number
+\end{Grammar}
+
+\subsubsection{Basic Expressions}
+
+\begin{Grammar}
+basic_expr ::
+       constant                  \footnotesize{-- a constant}
+      | variable_identifier          \footnotesize{-- a variable identifier}
+      | define_identifier            \footnotesize{-- a define identifier}
+      | \textbf{(} basic_expr \textbf{)}
+      | \operator{!} basic_expr              \footnotesize{-- logical/bitwise NOT}
+      | basic_expr \operator{\&} basic_expr    \footnotesize{-- logical/bitwise AND}
+      | basic_expr \operator{|} basic_expr    \footnotesize{-- logical/bitwise OR}
+      | basic_expr \reserved{xor} basic_expr  \footnotesize{-- logical/bitwise exclusive OR}
+      | basic_expr \reserved{xnor} basic_expr \footnotesize{-- logical/bitwise NOT \reserved{xor}}
+      | basic_expr \operator{->} basic_expr   \footnotesize{-- logical/bitwise implication}
+      | basic_expr \operator{<->} basic_expr  \footnotesize{-- logical/bitwise equivalence}
+      | basic_expr \operator{=} basic_expr    \footnotesize{-- equality}
+      | basic_expr \operator{!=} basic_expr   \footnotesize{-- inequality}
+      | basic_expr \operator{<} basic_expr    \footnotesize{-- less than}
+      | basic_expr \operator{>} basic_expr    \footnotesize{-- greater than}
+      | basic_expr \operator{<=} basic_expr   \footnotesize{-- less than or equal}
+      | basic_expr \operator{>=} basic_expr   \footnotesize{-- greater than or equal}
+      | \operator{-} basic_expr              \footnotesize{-- unary minus}
+      | basic_expr \operator{+} basic_expr    \footnotesize{-- integer addition}
+      | basic_expr \operator{-} basic_expr    \footnotesize{-- integer subtraction}
+      | basic_expr \operator{*} basic_expr    \footnotesize{-- integer multiplication}
+      | basic_expr \operator{/} basic_expr    \footnotesize{-- integer division}
+      | basic_expr \reserved{mod} basic_expr  \footnotesize{-- integer remainder}
+      | basic_expr \operator{>>} basic_expr   \footnotesize{-- bit shift right}
+      | basic_expr \operator{<<} basic_expr   \footnotesize{-- bit shift left}
+      | basic_expr \textbf{[} index \textbf{]}         -- index subscript
+      | basic_expr \textbf{[} integer_number \textbf{:} integer_number \textbf{]}
+                                     \footnotesize{-- word bits selection}
+      | basic_expr \operator{::} basic_expr   \footnotesize{-- word concatenation}
+      | \operator{word1} \textbf{(} basic_expr \textbf{)} 
+                                 \footnotesize{-- boolean to word[1] convertion}
+      | \operator{bool} \textbf{(} basic_expr \textbf{)}  
+                                 \footnotesize{-- word[1] and integer to boolean convertion}
+      | \operator{toint} \textbf{(} basic_expr \textbf{)}  
+                                 \footnotesize{-- word[N] and boolean to integer convertion}
+      | \operator{signed} \textbf{(} basic_expr \textbf{)}
+                                 \footnotesize{-- unsigned to signed word convertion}
+      | \operator{unsigned} \textbf{(} basic_expr \textbf{)}
+                                 \footnotesize{-- signed to unsigned word convertion}
+      | \operator{extend} \textbf{(} basic_expr , basic_expr\textbf{)}  
+                                 \footnotesize{-- word width increase}
+      | \operator{resize} \textbf{(} basic_expr , basic_expr\textbf{)}  
+                                 \footnotesize{-- word width resizing}
+      | basic_expr \operator{union} basic_expr 
+                                 \footnotesize{-- union of set expressions }
+      | \textbf{\{} set_body_expr \textbf{\}}            \footnotesize{-- set expression}
+      | basic_expr \operator{in} basic_expr   \footnotesize{-- inclusion expression}
+      | basic_expr \operator{?} basic_expr \operator{:} basic_expr  
+                                 \footnotesize{-- if-then-else expression}
+      | \reserved{count} \textbf{(} basic_expr_list \textbf{)} 
+                       \footnotesize{-- count of TRUE boolean expressions}
+      | case_expr                    \footnotesize{-- case expression}
+      | \operator{next} \textbf{(} basic_expr \textbf{)}       \footnotesize{-- next expression}
+
+basic_expr_list ::
+        basic_expr
+      | basic_expr_list \textbf{,} basic_expr
+\end{Grammar}
+%      | basic_expr \operator{>>>} basic_expr  \footnotesize{-- bit rotation right}
+%      | basic_expr \operator{<<<} basic_expr  \footnotesize{-- bit rotation left}
+ 
+
+\begin{Grammar}
+set_body_expr :: 
+        basic_expr
+      | set_body_expr \textbf{,} basic_expr
+\end{Grammar}
+
+
+\subsubsection{Case Expression and If-Then-Else Expression}
+\begin{Grammar}
+case_expr :: \reserved{case} case_body \reserved{esac}
+
+case_body ::
+        basic_expr \textbf{:} basic_expr {;}
+      | case_body basic_expr \textbf{:} basic_expr {;}
+\end{Grammar}
+
+\begin{Grammar}
+basic_expr \operator{?} basic_expr \operator{:} basic_expr
+\end{Grammar}
+
+\subsubsection{Simple Expression}
+\begin{Grammar}
+simple_expr :: basic_expr
+\end{Grammar}
+
+Note that simple expressions \emph{cannot} contain \operator{next} operators.
+
+
+\subsubsection{Next Expression}
+\begin{Grammar}
+next_expr :: basic_expr
+\end{Grammar}
+
+
+\subsubsection{Type Specifier}
+\begin{Grammar}
+type_specifier ::
+        simple_type_specifier
+      | module_type_spicifier
+
+simple_type_specifier :: 
+        \textbf{boolean}
+      | \textbf{word} \textbf{[} integer_number \textbf{]} 
+      | \textbf{unsigned word} \textbf{[} integer_number \textbf{]} 
+      | \textbf{signed word} \textbf{[} integer_number \textbf{]} 
+      | \textbf{\{} enumeration_type_body \textbf{\}}
+      | integer_number \textbf{..} integer_number
+      | \textbf{array} integer_number \textbf{..} integer_number
+                 \textbf{of} simple_type_specifier
+
+enumeration_type_body ::
+        enumeration_type_value
+      | enumeration_type_body \textbf{,} enumeration_type_value
+
+enumeration_type_value ::
+        symbolic_constant
+      | integer_number
+\end{Grammar}
+
+
+\subsubsection{Module Type Specifier}
+\begin{Grammar}
+module_type_specifier ::     
+      | identifier [ \textbf{(} [ parameter_list ] \textbf{)} ]
+      | \reserved{process} identifier [ \textbf{(} [ parameter_list ] \textbf{)} ]
+
+parameter_list ::
+        simple_expr
+      | parameter_list \textbf{,} simple_expr
+\end{Grammar}
+
+
+\subsubsection{State, Input and Frozen Variables}
+\begin{Grammar}
+var_declaration :: \reserved{VAR} var_list
+
+ivar_declaration :: \reserved{IVAR} simple_var_list
+
+frozenvar_declaration :: \reserved{FROZENVAR} simple_var_list
+
+var_list :: identifier \textbf{:} type_specifier \textbf{;} 
+          | var_list identifier \textbf{:} type_specifier \textbf{;} 
+
+simple_var_list :: identifier \textbf{:} simple_type_specifier \textbf{;} 
+      | simple_var_list identifier \textbf{:} simple_type_specifier \textbf{;} 
+\end{Grammar}
+
+
+\subsubsection{DEFINE Declaration}
+\begin{Grammar}
+define_declaration :: \reserved{DEFINE} define_body
+
+define_body :: identifier \operator{:=} simple_expr \textbf{;}
+             | define_body identifier \operator{:=} simple_expr \textbf{;}
+\end{Grammar}
+
+
+\subsubsection{CONSTANTS Declaration}
+\begin{Grammar}
+constants_declaration :: \reserved{CONSTANTS} constants_body \textbf{;}
+
+constants_body :: identifier 
+             | constants_body  \operator{,} identifier
+\end{Grammar}
+
+
+\subsubsection{ASSIGN Declaration}
+\begin{Grammar}
+assign_constraint :: \reserved{ASSIGN} assign_list
+
+assign_list :: assign \textbf{;}
+             | assign_list assign \textbf{;}
+
+assign ::
+    complex_identifier          \operator{:=} simple_expr
+  | \reserved{init} \textbf{(} complex_identifier \textbf{)} \operator{:=} simple_expr
+  | \reserved{next} \textbf{(} complex_identifier \textbf{)} \operator{:=} next_expr
+\end{Grammar}
+
+
+\subsubsection{TRANS Statement}
+\begin{Grammar}
+trans_constraint :: \reserved{TRANS} next_expr [\textbf{;}]
+\end{Grammar}
+
+
+\subsubsection{INIT Statement}
+\begin{Grammar}
+init_constrain :: \reserved{INIT} simple_expr [\textbf{;}]
+\end{Grammar}
+
+
+\subsubsection{INVAR Statement}
+\begin{Grammar}
+invar_constraint :: \reserved{INVAR} simple_expr [\textbf{;}]
+\end{Grammar}
+
+
+\subsubsection{Module Declarations}
+\begin{Grammar}
+module :: \reserved{MODULE} identifier [\textbf{(}module_parameters\textbf{)}] [module_body]
+
+module_parameters ::
+          identifier
+        | module_parameters \textbf{,} identifier
+
+module_body :: 
+          module_element 
+        | module_body module_element
+           
+module_element ::
+          var_declaration
+        | ivar_declaration
+        | frozenvar_declaration
+        | define_declaration
+        | constants_declaration
+        | assign_constraint
+        | trans_constraint
+        | init_constraint
+        | invar_constraint
+        | fairness_constraint
+        | ctl_specification
+        | invar_specification
+        | ltl_specification
+        | compute_specification
+        | isa_declaration
+\end{Grammar}
+
+
+\subsubsection{ISA Declaration}
+\begin{Grammar}
+isa_declaration :: \reserved{ISA} identifier
+\end{Grammar}
+
+\textbf{Warning:} this is a deprecated feature and will eventually be removed from \nusmv. Use module instances instead.
+
+
+\subsubsection{CTL Specification}
+\begin{Grammar}
+ctl_specification :: \reserved{SPEC} ctl_expr \textbf{;}
+\end{Grammar}
+
+\begin{Grammar}
+ctl_expr ::
+    simple_expr                 -- a simple boolean expression
+    | \textbf{(} ctl_expr \textbf{)}
+    | \operator{!} ctl_expr                -- logical not
+    | ctl_expr \operator{\&} ctl_expr       -- logical and
+    | ctl_expr \operator{|} ctl_expr       -- logical or
+    | ctl_expr \operator{xor} ctl_expr     -- logical exclusive or
+    | ctl_expr \operator{xnor} ctl_expr    -- logical NOT exclusive or
+    | ctl_expr \operator{->} ctl_expr      -- logical implies
+    | ctl_expr \operator{<->} ctl_expr     -- logical equivalence
+    | \reserved{EG} ctl_expr               -- exists globally
+    | \reserved{EX} ctl_expr               -- exists next state
+    | \reserved{EF} ctl_expr               -- exists finally
+    | \reserved{AG} ctl_expr               -- forall globally
+    | \reserved{AX} ctl_expr               -- forall next state
+    | \reserved{AF} ctl_expr               -- forall finally
+    | \reserved{E} \textbf{[} ctl_expr \reserved{U} ctl_expr \textbf{]} -- exists until
+    | \reserved{A} \textbf{[} ctl_expr \reserved{U} ctl_expr \textbf{]} -- forall until
+\end{Grammar}
+
+
+\subsubsection{INVAR Specification}
+\begin{Grammar}
+invar_specification :: \reserved{INVARSPEC} simple_expr \textbf{;}
+\end{Grammar}
+
+This is equivalent to 
+%
+\begin{Grammar}
+SPEC  AG simple_expr ;
+\end{Grammar}
+%
+but is checked by a specialised algorithm during reachability analysis.
+
+
+\subsubsection{LTL Specification}
+\begin{Grammar}
+ltl_specification :: \reserved{LTLSPEC} ltl_expr [\textbf{;}]
+\end{Grammar}
+
+\begin{Grammar}
+ltl_expr ::
+    simple_expr              -- a simple boolean expression
+    | \textbf{(} ltl_expr \textbf{)}
+    | \operator{!} ltl_expr             -- logical not
+    | ltl_expr \operator{\&} ltl_expr    -- logical and
+    | ltl_expr \operator{|} ltl_expr    -- logical or
+    | ltl_expr \operator{xor} ltl_expr  -- logical exclusive or
+    | ltl_expr \operator{xnor} ltl_expr -- logical NOT exclusive or
+    | ltl_expr \operator{->} ltl_expr   -- logical implies
+    | ltl_expr \operator{<->} ltl_expr  -- logical equivalence
+    -- FUTURE
+    | \reserved{X} ltl_expr             -- next state
+    | \reserved{G} ltl_expr             -- globally
+    | \reserved{F} ltl_expr             -- finally
+    | ltl_expr \reserved{U} ltl_expr    -- until
+    | ltl_expr \reserved{V} ltl_expr    -- releases
+    -- PAST
+    | \reserved{Y} ltl_expr             -- previous state
+    | \reserved{Z} ltl_expr             -- not previous state not
+    | \reserved{H} ltl_expr             -- historically
+    | \reserved{O} ltl_expr             -- once 
+    | ltl_expr \reserved{S} ltl_expr    -- since
+    | ltl_expr \reserved{T} ltl_expr    -- triggered
+\end{Grammar}
+
+
+\subsubsection{Real Time CTL Specification}
+\begin{Grammar}
+rtctl_specification :: \reserved{SPEC} rtctl_expr [\textbf{;}]
+\end{Grammar}
+
+\begin{Grammar}
+rtctl_expr ::
+        ctl_expr
+      | \reserved{EBF} range rtctl_expr
+      | \reserved{ABF} range rtctl_expr
+      | \reserved{EBG} range rtctl_expr
+      | \reserved{ABG} range rtctl_expr
+      | \reserved{A} \textbf{[} rtctl_expr \reserved{BU} range rtctl_expr \textbf{]}
+      | \reserved{E} \textbf{[} rtctl_expr \reserved{BU} range rtctl_expr \textbf{]}
+range  :: integer_number \textbf{..} integer_number
+\end{Grammar}
+
+It is also possible to compute quantative information for the FSM:
+
+\begin{Grammar}
+compute_specification :: \reserved{COMPUTE} compute_expr [\textbf{;}]
+\end{Grammar}
+
+\begin{Grammar}
+compute_expr :: \reserved{MIN} \textbf{[} rtctl_expr \textbf{,} rtctl_expr \textbf{]}
+              | \reserved{MAX} \textbf{[} rtctl_expr \textbf{,} rtctl_expr \textbf{]}
+\end{Grammar}
+
+
+\subsubsection{PSL Specification}
+%
+\begin{Grammar}
+pslspec_declaration :: "\code{PSLSPEC}" psl_expr ";"
+\end{Grammar}
+%
+\begin{Grammar}
+psl_expr ::
+   psl_primary_expr
+ | psl_unary_expr
+ | psl_binary_expr
+ | psl_conditional_expr
+ | psl_case_expr
+ | psl_property
+\end{Grammar}
+%
+\begin{Grammar}
+psl_primary_expr ::
+   number                              ;; a numeric constant
+ | boolean                             ;; a boolean constant
+ | var_id                              ;; a variable identifier
+ | \textbf{\{} psl_expr \textbf{,} ... \textbf{,} psl_expr \textbf{\}}
+ | \textbf{\{} psl_expr "\{" psl_expr \textbf{,} ... \textbf{,} "psl_expr" \textbf{\}}\textbf{\}}
+ | \textbf{(} psl_expr \textbf{)}
+psl_unary_expr ::
+   \operator{+} psl_primary_expr     
+ | \operator{-} psl_primary_expr  
+ | \operator{!} psl_primary_expr  
+psl_binary_expr ::
+   psl_expr \operator{+} psl_expr    
+ | psl_expr \operator{union} psl_expr 
+ | psl_expr \operator{in} psl_expr 
+ | psl_expr \operator{-} psl_expr   
+ | psl_expr \operator{*}psl_expr   
+ | psl_expr \operator{/} psl_expr   
+ | psl_expr \operator{\%} psl_expr 
+ | psl_expr \operator{==} psl_expr    
+ | psl_expr \operator{!=} psl_expr  
+ | psl_expr \operator{<} psl_expr       
+ | psl_expr \operator{<=} psl_expr       
+ | psl_expr \operator{>} psl_expr       
+ | psl_expr \operator{>=} psl_expr       
+ | psl_expr \operator{&} psl_expr 
+ | psl_expr \operator{|} psl_expr 
+ | psl_expr \operator{xor} psl_expr 
+psl_conditional_expr ::
+ psl_expr \textbf{?} psl_expr \textbf{:} psl_expr 
+psl_case_expr ::
+ \reserved{case}
+     psl_expr \textbf{:} psl_expr \textbf{;}
+     ...
+     psl_expr \textbf{:} psl_expr \textbf{;}
+ \reserved{endcase}
+\end{Grammar}
+%
+Among the subclasses of \code{psl\_expr} we depict the class
+\code{psl\_bexpr} that will be used in the following to identify purely
+boolean, i.e. not temporal, expressions.
+\begin{Grammar}
+psl_property :: 
+   replicator psl_expr ;; a replicated property 
+ | FL_property \reserved{abort} psl_bexpr
+ | psl_expr \operator{<->} psl_expr
+ | psl_expr \operator{->} psl_expr
+ | FL_property       
+ | OBE_property      
+replicator :: 
+   \reserved{forall} var_id [index_range] \reserved{in} value_set \textbf{:} 
+index_range :: 
+   \textbf{[} range \textbf{]} 
+range :: 
+   low_bound \textbf{:} high_bound 
+low_bound :: 
+   number              
+ | identifier         
+high_bound :: 
+   number 
+ | identifier
+ | \reserved{inf}             ;; inifite high bound 
+value_set :: 
+   \textbf{\{} value_range \textbf{,} ... \textbf{,} value_range \textbf{\}}
+ | \reserved{boolean}
+value_range :: 
+   psl_expr
+ | range
+\end{Grammar}
+%
+\begin{Grammar}
+FL_property ::
+ ;; PRIMITIVE LTL OPERATORS
+   \reserved{X} FL_property                      
+ | \reserved{X!} FL_property                     
+ | \reserved{F} FL_property                      
+ | \reserved{G} FL_property                      
+ | \textbf{[} FL_property \reserved{U} FL_property \textbf{]}  
+ | \textbf{[} FL_property \reserved{W} FL_property \textbf{]}  
+ ;; SIMPLE TEMPORAL OPERATORS
+ | \reserved{always} FL_property                 
+ | \reserved{never} FL_property                  
+ | \reserved{next} FL_property                   
+ | \reserved{next!} FL_property                  
+ | \reserved{eventually!} FL_property            
+ | FL_property \reserved{until!} FL_property     
+ | FL_property \reserved{until} FL_property      
+ | FL_property \reserved{until!_} FL_property                                     
+ | FL_property \reserved{until_} FL_property     
+ | FL_property \reserved{before!} FL_property    
+ | FL_property \reserved{before} FL_property     
+ | FL_property \reserved{before!_} FL_property   
+ | FL_property \reserved{before_} FL_property    
+ ;; EXTENDED NEXT OPERATORS
+ | \reserved{X} [number] \textbf{(} FL_property \textbf{)}
+ | \reserved{X!} [number] \textbf{(} FL_property \textbf{)}                     
+ | \reserved{next} [number] \textbf{(} FL_property \textbf{)}                   
+ | \reserved{next!} [number] \textbf{(} FL_property \textbf{)}                  
+ ;;
+ | \reserved{next_a} [range] \textbf{(} FL_property \textbf{)}
+ | \reserved{next_a!} [range] \textbf{(} FL_property \textbf{)}
+ | \reserved{next_e} [range] \textbf{(} FL_property \textbf{)}
+ | \reserved{next_e!} [range] \textbf{(} FL_property \textbf{)}
+ ;;
+ | \reserved{next_event!} \textbf{(} psl_bexpr \textbf{)} \textbf{(} FL_property \textbf{)}
+ | \reserved{next_event} \textbf{(} psl_bexpr \textbf{)} \textbf{(} FL_property \textbf{)}
+ | \reserved{next_event!} \textbf{(} psl_bexpr \textbf{)} \textbf{[} number \textbf{]}  \textbf{(} FL_property \textbf{)}
+ | \reserved{next_event} \textbf{(} psl_bexpr \textbf{)} \textbf{[} number \textbf{]}  \textbf{(} FL_property \textbf{)}
+ ;;
+ | \reserved{next_event_a!} \textbf{(} psl_bexpr \textbf{)} \textbf{[}psl_expr\textbf{]}  \textbf{(} FL_property \textbf{)}
+ | \reserved{next_event_a} \textbf{(} psl_bexpr \textbf{)} \textbf{[}psl_expr\textbf{]}  \textbf{(} FL_property \textbf{)}
+ | \reserved{next_event_e!} \textbf{(} psl_bexpr \textbf{)} \textbf{[}psl_expr\textbf{]}  \textbf{(} FL_property \textbf{)}
+ | \reserved{next_event_e} \textbf{(} psl_bexpr \textbf{)} \textbf{[}psl_expr\textbf{]}  \textbf{(} FL_property \textbf{)}
+ ;; OPERATORS ON SEREs
+ | sequence \textbf{(} FL_property \textbf{)}
+ | sequence \textbf{|->} sequence [\textbf{!}]
+ | sequence \textbf{|=>} sequence [\textbf{!}]
+ ;;
+ | \reserved{always} sequence
+ | \reserved{G} sequence
+ | \reserved{never} sequence
+ | \reserved{eventually!} sequence
+ ;;
+ | \reserved{within!} \textbf{(} sequence_or_psl_bexpr \textbf{,} psl_bexpr \textbf{)} sequence
+ | \reserved{within} \textbf{(} sequence_or_psl_bexpr \textbf{,} psl_bexpr \textbf{)} sequence
+ | \reserved{within!_} \textbf{(} sequence_or_psl_bexpr \textbf{,} psl_bexpr \textbf{)} sequence
+ | \reserved{within_} \textbf{(} sequence_or_psl_bexpr \textbf{,} psl_bexpr \textbf{)} sequence
+ ;;
+ | \reserved{whilenot!} \textbf{(} psl_bexpr \textbf{)} sequence
+ | \reserved{whilenot} \textbf{(} psl_bexpr \textbf{)} sequence
+ | \reserved{whilenot!_} \textbf{(} psl_bexpr \textbf{)} sequence
+ | \reserved{whilenot_} \textbf{(} psl_bexpr \textbf{)} sequence
+sequence_or_psl_bexpr ::
+   sequence
+ | psl_bexpr
+\end{Grammar}
+%
+%
+\begin{Grammar}
+sequence ::
+   \textbf{\{} SERE \textbf{\}}
+SERE ::
+   sequence
+ | psl_bexpr
+ ;; COMPOSITION OPERATORS
+ | SERE \operator{;} SERE
+ | SERE \operator{:} SERE
+ | SERE \operator{&} SERE
+ | SERE \operator{&&} SERE
+ | SERE \operator{|} SERE
+ ;; RegExp QUALIFIERS
+ | SERE \textbf{[*} [count] \textbf{]}
+ | \textbf{[*} [count] \textbf{]}
+ | SERE \textbf{[+]}
+ | \textbf{[+]}
+ ;;
+ | psl_bexpr \textbf{[=} count \textbf{]}
+ | psl_bexpr \textbf{[->} count \textbf{]}
+count ::
+   number
+ | range
+\end{Grammar}
+%
+\begin{Grammar}
+OBE_property ::
+   \reserved{AX} OBE_property
+ | \reserved{AG} OBE_property
+ | \reserved{AF} OBE_property
+ | \reserved{A} \textbf{[} OBE_property \reserved{U} OBE_property \textbf{]}
+ | \reserved{EX} OBE_property
+ | \reserved{EG} OBE_property
+ | \reserved{EF} OBE_property
+ | \reserved{E} \textbf{[} OBE_property \reserved{U} OBE_property \textbf{]}
+\end{Grammar}
+%

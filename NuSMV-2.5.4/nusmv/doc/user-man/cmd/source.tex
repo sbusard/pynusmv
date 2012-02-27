@@ -1,0 +1,67 @@
+% -*-latex-*-
+\begin{nusmvCommand} {source} {Executes a sequence of commands from a file}
+
+\cmdLine{source [-h] [-p] [-s] [-x] <file> [<args>]}
+
+Reads and executes commands from a file.
+
+\begin{cmdOpt}
+\opt{-p}{Prints a prompt before reading each command.}
+
+\opt{-s}{Silently ignores an attempt to execute commands from a
+nonexistent file.}
+
+\opt{-x}{Echoes each command before it is executed.}
+
+\opt{<file>}{ File name.}
+\end{cmdOpt}
+
+Arguments on the command line after the filename are remembered but
+not evaluated.  Commands in the script file can then refer to these
+arguments using the history substitution mechanism.  EXAMPLE: \\
+Contents of \filename{test.scr}:\\
+  
+\code{read\_model -i \%:2\\
+  flatten\_hierarchy\\
+  build\_variables\\
+  build\_model\\
+  compute\_fairness\\
+  }\\
+Typing \command{source test.scr short.smv} on the command line will execute the
+  sequence\\
+ 
+\code{read\_model -i short.smv\\
+  flatten\_hierarchy\\
+  build\_variables\\
+  build\_model\\
+  compute\_fairness\\
+  }\\
+(In this case  \code{\%:0} gets \command{source}, \code{\%:1} gets
+  \filename{test.scr}, and  \code{\%:2} gets \filename{short.smv}.)
+  If you type \command{alias st source test.scr} and then type \texttt{st short.smv bozo},
+  you will execute\\
+ 
+ \code{read\_model -i bozo\\
+  flatten\_hierarchy\\
+  build\_variables\\
+  build\_model\\
+  compute\_fairness\\
+  }\\
+  because \texttt{bozo} was the second argument on the last command line typed.  In
+  other words, command substitution in a script file depends on how the script
+  file was invoked. Switches passed to a command are also counted as
+  positional parameters. Therefore, if you type \texttt{st -x short.smv bozo},
+  you will execute\\
+ 
+ \code{read\_model -i short.smv\\
+  flatten\_hierarchy\\
+  build\_variables\\
+  build\_model\\
+  compute\_fairness\\
+  }\\
+  To pass the \texttt{-x} switch (or any other switch) to \command{source} when the
+  script uses positional parameters, you may define an alias. For
+  instance, \command{alias srcx source -x}.
+
+  See the variable \envvar{on\_failure\_script\_quits} for further information. 
+\end{nusmvCommand}

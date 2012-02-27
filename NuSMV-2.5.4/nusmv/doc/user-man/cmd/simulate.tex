@@ -1,0 +1,83 @@
+% -*-latex-*-
+\begin{nusmvCommand} {simulate} {Performs a simulation from the current selected state}
+
+\cmdLine{simulate [-h] [-p | -v] [-r | -i [-a]] [-c "constraints" | -t "constraints"] [-k steps]}
+
+Generates a sequence of at most  \code{steps} states (representing a
+possible execution of the model), starting from the \command{current
+state}. The current state must be set via the \command{pick\_state} or
+\command{goto\_state} commands.
+
+It is possible to run the simulation in three ways (according to
+different command line policies): deterministic (the default mode),
+random and interactive.
+
+The resulting sequence is stored in a trace indexed with an integer
+number taking into account the total number of traces stored in the
+system. There is a different behavior in the way traces are built,
+according to how \emph{current state} is set: \emph{current state} is
+always put at the beginning of a new trace (so it will contain at most
+steps + 1 states) except when it is the last state of an existent old
+trace.  In this case the old trace is lengthened by at most steps
+states.\\
+\begin{cmdOpt}
+\opt{-p}{ Prints current generated trace (only those variables whose
+value changed from the previous state).}
+
+\opt{-v}{ Verbosely prints current generated trace (changed and
+unchanged state and frozen variables).}
+
+\opt{-r}{ Picks a state from a set of possible future states in a
+random way.}
+
+\opt{-i}{ Enables the user to interactively choose every state of the
+trace, step by step. If the number of possible states is too high,
+then the user has to specify some constraints as simple expression.
+These constraints are used only for a single simulation step and are
+\emph{forgotten} in the following ones. They are to be intended in an
+opposite way with respect to those constraints eventually entered with
+the \command{pick\_state} command, or during an interactive simulation session
+(when the number of future states to be displayed is too high), that
+are \emph{local} only to a single step of the simulation and are
+\emph{forgotten} in the next one.
+
+To improve readability of the list of the states which the user must
+pick one from, each state is presented in terms of difference with
+respect of the previous one.}
+
+\opt{-a}{ Displays all the state and frozen variables (changed and unchanged)
+during every step of an interactive session. This option works only if
+the \commandopt{i} option has been specified.}
+
+\opt{-c \parameter{"constraints"}}{Performs a simulation in which
+  computation is restricted to states satisfying those
+  \code{constraints}. The desired sequence of states could not exist
+  if such constraints were too strong or it may happen that at some
+  point of the simulation a future state satisfying those constraints
+  doesn't exist: in that case a trace with a number of states less
+  than \code{steps} trace is obtained.  Note: \code{constraints} must
+  be enclosed between double quotes \code{" "}.  The expression cannot
+  contain \code{next} operators, and is automatically shifted by one
+  state in order to constraint only the next steps}
+
+\opt{-t \parameter{"constraints"}}{ Performs a simulation in which
+  computation is restricted to states satisfying those
+  \code{constraints}. The desired sequence of states could not exist
+  if such constraints were too strong or it may happen that at some
+  point of the simulation a future state satisfying those constraints
+  doesn't exist: in that case a trace with a number of states less
+  than \code{steps} trace is obtained.  Note: \code{constraints} must
+  be enclosed between double quotes \code{" "}.  The expression can
+  contain \code{next} operators, and is NOT automatically shifted by
+  one state as done with option \code{-c}}
+
+\opt{\natnum{-k steps}}{ Maximum length of the path according to the
+  constraints.  The length of a trace could contain less than
+  \code{steps} states: this is the case in which simulation stops in
+  an intermediate step because it may not exist any future state
+  satisfying those constraints. The default value is determined by the
+  \varName{default\_simulation\_steps} environment variable}
+
+\end{cmdOpt}
+
+\end{nusmvCommand}

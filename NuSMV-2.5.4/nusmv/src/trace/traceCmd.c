@@ -1,0 +1,1408 @@
+/**CFile***********************************************************************
+
+  FileName    [traceCmd.c]
+
+  PackageName [trace]
+
+  Synopsis    [Trace Commands]
+
+  Description [This file contains commands related to traces.]
+
+  SeeAlso     []
+
+  Author      [Ashutosh Trivedi, Marco Pensallorto]
+
+  Copyright   [
+  This file is part of the ``trace'' package of NuSMV version 2.
+  Copyright (C) 2003 by FBK-irst.
+
+  NuSMV version 2 is free software; you can redistribute it and/or
+  modify it under the terms of the GNU Lesser General Public
+  License as published by the Free Software Foundation; either
+  version 2 of the License, or (at your option) any later version.
+
+  NuSMV version 2 is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+  Lesser General Public License for more details.
+
+  You should have received a copy of the GNU Lesser General Public
+  License along with this library; if not, write to the Free Software
+  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307  USA.
+
+  For more information on NuSMV see <http://nusmv.fbk.eu>
+  or email to <nusmv-users@fbk.eu>.
+  Please report bugs to <nusmv-users@fbk.eu>.
+
+  To contact the NuSMV development board, email to <nusmv@fbk.eu>. ]
+
+******************************************************************************/
+#if HAVE_CONFIG_H
+# include "nusmv-config.h"
+#endif
+
+#include "pkg_traceInt.h"
+#include "pkg_trace.h"
+
+#include "prop/propPkg.h"
+#include "TraceManager.h"
+#include "TraceOpt.h"
+#include "Trace.h"
+#include "exec/traceExec.h"
+#include "enc/enc.h"
+#include "cmd/cmd.h"
+
+#include "utils/ucmd.h"
+#include "utils/ustring.h"
+
+#include "bmc/bmcCmd.h"
+
+#include "trace/loaders/TraceLoader.h"
+#include "trace/loaders/TraceXmlLoader.h"
+
+#include "trace/exec/BaseTraceExecutor.h"
+#include "trace/exec/CompleteTraceExecutor.h"
+#include "trace/exec/PartialTraceExecutor.h"
+
+static char rcsid[] UTIL_UNUSED = "$Id: traceCmd.c,v 1.1.2.26.4.6.4.42 2010-03-04 16:58:56 nusmv Exp $";
+
+/*---------------------------------------------------------------------------*/
+/* Static function prototypes                                                */
+/*---------------------------------------------------------------------------*/
+static int UsageShowTraces ARGS((void));
+static int UsageShowPlugins ARGS((void));
+static int UsageReadTrace ARGS((void));
+static int UsageExecuteTraces ARGS((void));
+static int UsageExecutePartialTraces ARGS((void));
+
+static int
+trace_cmd_parse_slice ARGS((const char* s, int* trace, int* from, int* to));
+
+/*---------------------------------------------------------------------------*/
+/* Definition of exported functions                                          */
+/*---------------------------------------------------------------------------*/
+void traceCmd_init(void)
+{
+  Cmd_CommandAdd("show_traces", CommandShowTraces, 0, true);
+  Cmd_CommandAdd("show_plugins", CommandShowPlugins, 0, true);
+
+  Cmd_CommandAdd("read_trace", CommandReadTrace, 0, true);
+  Cmd_CommandAdd("execute_traces", CommandExecuteTraces, 0, true);
+  Cmd_CommandAdd("execute_partial_traces", CommandExecutePartialTraces, 0, true);
+}
+
+
+/**Function********************************************************************
+
+  Synopsis           [Shows the traces generated in a NuSMV session]
+
+  SeeAlso            [pick_state goto_state simulate]
+
+  CommandName        [show_traces]
+
+  CommandSynopsis    [Shows the traces generated in a NuSMV session]
+
+  CommandArguments   [\[ \[-h\] \[-v\] \[-m | -o output-file\] \[-A\]
+  -t | \[-d\] -a | trace_number\[.from_state\[:\[to_state\]\]\] \]]
+
+  CommandDescription [ Shows the traces currently stored in system memory, if
+  any. By default it shows the last generated trace, if any. A trace number
+  can be specified optionally followed by a slice denoting the steps top be
+  shown. Negative numbers can be used to denote steps in a right-to-left fashion.
+  (i.e. -1 denotes last step, -2 is the previous and so forth.)
+
+  <p> Command Options:<p>
+  <dl>
+    <dt> <tt>-v</tt>
+       <dd> Verbosely prints traces content (all state variables, otherwise
+       it prints out only those variables that have changed their value from
+       previous state).
+    <dt> <tt>-t</tt>
+       <dd> Prints only the total number of currently stored traces.
+    <dt> <tt>-a</tt>
+       <dd> Prints all the currently stored traces.
+    <dt> <tt>-A</tt>
+       <dd> Prints traces in an anonimized form.
+    <dt> <tt>-d</tt>
+       <dd> Disables DEFINEs printout in traces
+    <dt> <tt>-p trace plugin</tt>
+       <dd> Uses the specified trace plugin to explain the trace.
+    <dt> <tt>-m</tt>
+       <dd> Pipes the output through the program specified
+       by the <tt>PAGER</tt> shell variable if defined, else through the
+       <tt>UNIX</tt> command "more".
+    <dt> <tt>-o output-file</tt>
+       <dd> Writes the output generated by the command to <tt>output-file</tt>
+    <dt> <tt>trace_number</tt>
+       <dd> The (ordinal) identifier number of the trace to be printed.
+    <dt> <tt>from_state</tt>
+      <dd> Denotes left end of the trace slice to be printed.
+    <dt> <tt>to_state</tt>
+     <dd> Denotes right end of the trace slice to be printed.
+  </dl> ]
+
+  SideEffects        []
+
+******************************************************************************/
+int CommandShowTraces(int argc, char** argv)
+{
+  int c, res = 0; /* success */
+
+  boolean all = false;
+  boolean number = false;
+
+  boolean use_more = false;
+  char* dbgFileName = NIL(char);
+  FILE* output_stream = NIL(FILE);
+
+  int traceno = TraceManager_get_size(global_trace_manager);
+  int trace = traceno;
+  int from_state = 0;
+  int to_state = 0;
+
+  int plugin_index = TraceManager_get_default_plugin(global_trace_manager);
+
+  /* Create a new instance of options, starting from the environment
+     settings */
+  TraceOpt_ptr trace_opt = TraceOpt_create_from_env(OptsHandler_get_instance());
+
+  util_getopt_reset();
+  while ((c = util_getopt(argc, argv, "hvAatmp:o:d")) != EOF) {
+    switch (c) {
+    case 'h':
+      res = UsageShowTraces();
+      goto leave;
+
+    case 'v':
+
+      /* verbose makes sense for explainers only */
+      if (0 == plugin_index) {
+        plugin_index += 1;
+      }
+      else {
+        fprintf(nusmv_stderr, "Warning: -v option ignored.\n");
+      }
+      break;
+
+    case 'a':
+      all = true;
+      break;
+
+    case 't':
+      number = true;
+      break;
+
+    case 'd':
+      TraceOpt_set_show_defines(trace_opt, false);
+      break;
+
+    case 'A':
+      TraceOpt_set_obfuscate(trace_opt, true);
+      break;
+
+    case 'p':
+      {
+        char* err_occ[1];
+        plugin_index = strtol(util_optarg, err_occ, 10);
+        if ((strncmp(err_occ[0], "", 1) != 0) ||
+            (plugin_index < 0) || \
+            (TraceManager_get_plugin_size(global_trace_manager)<=plugin_index)) {
+
+          fprintf(nusmv_stderr,
+                  "Error: \"%s\" is not a valid trace plugin value " \
+                  "for \"show_traces -p\" command line option.\n",
+                  util_optarg);
+
+          res = UsageShowTraces(); goto leave;
+        }
+      }
+      break;
+
+    case 'o':
+      if (use_more == 1) { res = UsageShowTraces(); goto leave; }
+      dbgFileName = util_strsav(util_optarg);
+      break;
+
+    case 'm':
+      if (dbgFileName != NIL(char)) { res = UsageShowTraces(); goto leave; }
+      use_more = 1;
+      break;
+
+    default:
+      res = UsageShowTraces();
+      goto leave;
+    } /* Switch */
+  } /* While */
+
+  if (traceno == 0) {
+    fprintf(nusmv_stderr, "There are no traces currently available.\n");
+    return 0;
+  }
+
+  if ((util_optind == 0) && (argc > 2)) {
+    res = UsageShowTraces();
+    goto leave;
+  }
+
+  /* Parsing of the trace number and state number/slices to be printed */
+  if (all == false) {
+    if (argc != util_optind) {
+      res = trace_cmd_parse_slice(argv[util_optind], &trace,
+                                  &from_state, &to_state);
+      if (trace < 1 || traceno < trace) {
+        fprintf(nusmv_stderr,
+                "Invalid trace number"
+                " (valid values are 1-%d).\n", traceno);
+        res = 1;
+      }
+    }
+    if (0 != res) goto leave;
+  }
+  else if (argc != util_optind) { res = UsageShowTraces(); goto leave; }
+
+  if (use_more) {
+    output_stream = CmdOpenPipe(use_more);
+    TraceOpt_set_output_stream(trace_opt, output_stream);
+    if (NIL(FILE) == output_stream) {
+      res = 1; goto leave;
+    }
+  }
+
+  if (NIL(char) != dbgFileName) {
+    output_stream = CmdOpenFile(dbgFileName);
+    TraceOpt_set_output_stream(trace_opt, output_stream);
+    if (NIL(FILE) == output_stream) {
+      res = 1; goto leave;
+    }
+  }
+
+  if (number == true) {
+    fprintf(nusmv_stderr, (traceno == 1) ?
+            "There is %d trace currently available.\n" :
+            "There are %d traces currently available.\n", traceno);
+  }
+  else {
+    /* A trace header will be not printed when the plugin is the XML
+       dumper or dynamically registered external plugins: */
+
+    boolean print_header =  (plugin_index != 4) &&
+      (TraceManager_is_plugin_internal(global_trace_manager, plugin_index));
+
+    set_indent_size(2);
+
+    if (all == false) { /* state interval selection check */
+
+      Trace_ptr t = TraceManager_get_trace_at_index(global_trace_manager,
+                                                    trace - 1);
+
+      { /* check from_state */
+
+        /*  if backward index, translate it to forward */
+        if (from_state < 0) {
+          from_state = 2 + Trace_get_length(t) + from_state;
+        }
+
+        if (0 < from_state) { /* forward index */
+          if (from_state > 1 + Trace_get_length(t)) {
+            fprintf(nusmv_stderr,
+                    "Invalid starting state specified: %d\n", from_state);
+            res = 1; goto leave;
+          }
+        }
+
+        TraceOpt_set_from_here(trace_opt, from_state);
+      } /* check from state */
+
+
+      { /* check to_state */
+        /*  if backward index, translate it to forward */
+        if (to_state < 0) {
+          to_state = 2 + Trace_get_length(t) + to_state;
+        }
+
+        if (0 < to_state) { /* forward index */
+          if (to_state > 1 + Trace_get_length(t)) {
+            fprintf(nusmv_stderr,
+                    "Invalid end state specified: %d\n", to_state);
+            res = 1; goto leave;
+          }
+        }
+        else { to_state = from_state; }
+
+        TraceOpt_set_to_here(trace_opt, to_state);
+      } /* check to_state */
+
+      if (to_state < from_state) {
+        fprintf(nusmv_stderr, "Invalid state range specified: %d:%d\n",
+                from_state, to_state);
+
+        res = 1; goto leave;
+      }
+
+      if (print_header) {
+        fprintf((NIL(FILE) != output_stream  ? output_stream : nusmv_stdout),
+                "<!-- ################### Trace number: %d #################"
+                "## -->\n", trace);
+      }
+
+      TraceManager_execute_plugin(global_trace_manager,
+                                  trace_opt, plugin_index, trace - 1);
+    }
+    else {
+      int c;
+      for (c=0; c<traceno; c++){
+        if (print_header) {
+          fprintf((NIL(FILE) != output_stream  ? output_stream : nusmv_stdout),
+                  "<!-- ################### Trace number: %d #################"\
+                  "## -->\n", c+1);
+        }
+
+        TraceManager_execute_plugin(global_trace_manager,
+                                    trace_opt, plugin_index, c);
+      }
+    }
+  }
+
+  leave: /* command cleanup */
+
+  reset_indent_size();
+  TraceOpt_destroy(trace_opt);
+
+  /* handle file errors gracefully */
+  if (use_more && (NIL(FILE) != output_stream)) {
+    CmdClosePipe(output_stream);
+  }
+  if (NIL(char) != dbgFileName) {
+    if (NIL(FILE) != output_stream) {
+      CmdCloseFile(output_stream);
+    }
+    FREE(dbgFileName);
+  }
+
+  return res;
+}
+/**Function********************************************************************
+
+  Synopsis    [UsageShowTraces]
+
+  Description []
+
+  SideEffects []
+
+  SeeAlso     []
+
+******************************************************************************/
+static int UsageShowTraces(void)
+{
+  fprintf(nusmv_stderr,
+          "usage: show_traces [-h] [-v] [-t] [-A] [-m | -o file] " \
+          "[-a | trace_number[.from_state[:[to_state]]] [-p plugin] \n");
+
+  fprintf(nusmv_stderr, "  -h \t\tPrints the command usage.\n");
+  fprintf(nusmv_stderr,
+          "  -v \t\tVerbosely prints traces content (unchanged vars also).\n");
+
+  fprintf(nusmv_stderr, "  -a \t\tPrints all the currently stored traces.\n");
+  fprintf(nusmv_stderr,
+          "  -t \t\tPrints only the total number of currently stored traces.\n");
+
+  fprintf(nusmv_stderr,
+          "  -A \t\tPrints the trace in anonimized form.\n");
+
+  fprintf(nusmv_stderr,
+          "  -d \t\tDisables the printing of DEFINEs .\n");
+
+  fprintf(nusmv_stderr,
+       "  -m \t\tPipes output through the program specified by the \"PAGER\"\n");
+
+  fprintf(nusmv_stderr,
+          "     \t\tenvironment variable if defined, else through " \
+          "the UNIX command \"more\".\n");
+
+  fprintf(nusmv_stderr,
+         "  -p plugin\tUses the specified trace plugin to explain the trace.\n");
+
+  fprintf(nusmv_stderr,
+          "  -o file\tWrites the generated output to \"file\".\n");
+
+  fprintf(nusmv_stderr,
+          "  trace_number\tThe number of the trace to be printed.\n");
+
+  fprintf(nusmv_stderr,
+          "  from_state\tLeft end of the trace slice to be printed.\n");
+
+  fprintf(nusmv_stderr,
+          "  to_state\tRight end of the trace slice to printed.\n"
+          "  \t\t(if omitted, last step is assumed by default.)\n");
+
+  return 1;
+}
+
+
+/**Function********************************************************************
+
+  Synopsis           [Lists out all the available plugins inside the system.]
+
+  SeeAlso            []
+
+  CommandName        [show_plugins]
+
+  CommandSynopsis    [Lists out all the available plugins inside the system. In
+  addition, it prints \[D\] in front of the default plugin.]
+
+  CommandArguments   [\[ \[-h\] \[-n plugin_index| -a\]]
+
+  CommandDescription [
+  Sets the default plugin to print traces.
+  <p> Command Options:<p>
+  <dl>
+    <dt> <tt>-h</tt>
+       <dd> Prints the usage of the command.
+    <dt> <tt>-n plugin_index</tt>
+       <dd> Prints the description message of the plugin at specified index
+       only.
+    <dt> <tt>-a</tt>
+       <dd> Prints all the available plugins with their description.
+  </dl> ]
+
+  SideEffects        []
+
+******************************************************************************/
+int CommandShowPlugins(int argc, char** argv)
+{
+  int c;
+  boolean showAll = false;
+  int dp = -1;
+
+  util_getopt_reset();
+  while ((c = util_getopt(argc, argv, "hn:a")) != EOF) {
+    switch (c) {
+    case 'h': return UsageShowPlugins();
+      break;
+
+    case 'n':
+      {
+        char *err_occ[1];
+
+        if (showAll) return UsageShowPlugins();
+        dp = strtol(util_optarg, err_occ, 10);
+        if (strncmp(err_occ[0], "", 1) != 0) {
+          fprintf(nusmv_stderr,
+                  "Error: \"%s\" is not a valid value for" \
+                  "\"-show_plugins\" command line option.\n",
+                  err_occ[0]);
+
+          return UsageShowPlugins();
+        }
+      }
+      break;
+
+    case 'a':
+      if (dp >= 0) return UsageShowPlugins();
+      showAll = true;
+      break;
+
+    default: return UsageShowPlugins();
+    }
+  }
+
+  if (dp < 0) showAll = true;
+  if (showAll) {
+    int i;
+
+
+    if (TraceManager_get_plugin_size(global_trace_manager) <= 0) {
+      fprintf(nusmv_stderr, "There are no registered plugins to be shown\n");
+      return 0;
+    }
+
+    for (i = 0; i < TraceManager_get_plugin_size(global_trace_manager); i++){
+      TracePlugin_ptr p_i = \
+        TraceManager_get_plugin_at_index(global_trace_manager, i);
+
+      if (i == TraceManager_get_default_plugin(global_trace_manager)) {
+        fprintf(nusmv_stdout, "[D]  %d\t %s\n", i, TracePlugin_get_desc(p_i));
+      }
+      else {
+        fprintf(nusmv_stdout, "     %d\t %s\n", i, TracePlugin_get_desc(p_i));
+      }
+    }
+  }
+  else {
+    TracePlugin_ptr p_i;
+
+    if (dp < TraceManager_get_plugin_size(global_trace_manager)) {
+      p_i = TraceManager_get_plugin_at_index(global_trace_manager, dp);
+
+      if (dp == TraceManager_get_default_plugin(global_trace_manager)) {
+        fprintf(nusmv_stdout, "[D]  %d\t %s\n", dp, TracePlugin_get_desc(p_i));
+      }
+      else {
+        fprintf(nusmv_stdout, "     %d\t %s\n", dp, TracePlugin_get_desc(p_i));
+      }
+    }
+    else fprintf(nusmv_stderr, "Error: Plugin %d is not yet registered\n", dp);
+  }
+
+  return 0;
+}
+
+/**Function********************************************************************
+
+  Synopsis    [UsageShowPlugins]
+
+  Description []
+
+  SideEffects []
+
+  SeeAlso     []
+
+******************************************************************************/
+static int UsageShowPlugins(void)
+{
+  fprintf(nusmv_stderr, "usage: show_plugins [-h]  [-n  plugin_index | -a]\n");
+  fprintf(nusmv_stderr, "  -h                Prints the command usage.\n");
+  fprintf(nusmv_stderr, "  -a                Shows all registered plugins.\n");
+  fprintf(nusmv_stderr,
+          "  -n plugin_index   Shows only the description of the specified " \
+          "plugin_index.\n");
+
+  return 1;
+}
+
+
+/**Function********************************************************************
+
+  Synopsis           [read_trace]
+
+  SeeAlso            [show_traces]
+
+  CommandName        [read_trace]
+
+  CommandSynopsis    [Reads the trace from the specified file into the memory]
+
+  CommandArguments   [ \[-h\] | \[-i filename\] | \[-u\] \[-s\] filename]
+
+  CommandDescription [
+  Reads a trace from a specified XML file into the memory.
+  <p>
+  Command Options:<p>
+  <dl>
+    <dt> <tt>-h</tt>
+       <dd> Prints the usage of the command.
+    <dt> <tt>-i filename</tt>
+       <dd> Specifies the name of the xml trace file to read (deprecated).
+    <dt> <tt>-u</tt>
+       <dd> Turns 'undefined symbol' error in a warning.
+    <dt> <tt>-s</tt>
+       <dd> Turns 'wrong section' error in a warning.
+    <dt> <tt>filename</tt>
+       <dd> Specifies the name of the xml trace file to read
+    </dl>
+    ]
+
+  SideEffects        []
+
+******************************************************************************/
+int CommandReadTrace(int argc, char** argv)
+{
+  int res = 0; /* success */
+  int c;
+  char* filename = NIL(char);
+  boolean halt_if_undef = true;
+  boolean halt_if_wrong_section = true;
+
+  util_getopt_reset();
+  while ((c = util_getopt(argc, argv, "husi:")) != EOF) {
+    switch (c) {
+    case 'h':
+      res = UsageReadTrace();
+      goto leave;
+
+    case 'i':
+      filename = util_optarg;
+      fprintf(nusmv_stderr, "Warning: option -i is deprecated feature.\n");
+      break;
+
+    case 'u':
+      halt_if_undef = false;
+      break;
+
+    case 's':
+      halt_if_wrong_section = false;
+      break;
+
+    default:
+      UsageReadTrace();
+      res = 1;
+      goto leave;
+    }
+  }
+
+  /* -i did not provide a file name. the last argument must be a file name */
+  if (NIL(char) == filename) {
+    if (argc == util_optind) {
+      fprintf(nusmv_stderr, "Error: Input XML file has to be provided.\n");
+      res = 1; goto leave;
+    }
+    if (argc != util_optind + 1) {
+      fprintf(nusmv_stderr,
+              "Error: Only one input XML file can be specified.\n");
+      res = 1; goto leave;
+    }
+    filename = argv[util_optind];
+
+    if(strcmp(filename, "") == 0) {
+      fprintf(nusmv_stderr, "Error: Input XML file name is empty.\n");
+      res = 1; goto leave;
+    }
+  }
+  else {
+    /* check that there is no unprocessed options */
+    if (argc > util_optind) {
+      fprintf(nusmv_stderr,
+              "Error: unknown option is provided to command : %s\n",
+              argv[util_optind]);
+      res = 1; goto leave;
+    }
+  }
+
+  /* pre-conditions */
+  if (Compile_check_if_flat_model_was_built(nusmv_stderr, false)) {
+    res = 1; goto leave;
+  }
+
+#if NUSMV_HAVE_LIBEXPAT
+  {
+    /* load trace using TraceXMLLoader */
+    Trace_ptr trace = TRACE(NULL);
+
+    SexpFsm_ptr sexp_fsm = \
+      PropDb_master_get_scalar_sexp_fsm(PropPkg_get_prop_database());
+
+    SEXP_FSM_CHECK_INSTANCE(sexp_fsm);
+
+    /* use TraceXmlLoader to load a trace from xml file */
+    TraceXmlLoader_ptr loader = \
+      TraceXmlLoader_create(filename, halt_if_undef, halt_if_wrong_section);
+
+    trace = TraceLoader_load_trace(TRACE_LOADER(loader),
+                                   SexpFsm_get_symb_table(sexp_fsm),
+                                   SexpFsm_get_symbols_list(sexp_fsm));
+
+    Object_destroy(OBJECT(loader), NULL); /* virtual destructor */
+
+    if (TRACE(NULL) == trace) {
+      fprintf(nusmv_stderr,
+              "Unable to load trace from XML File \"%s\".\n", filename);
+      res = 1;
+    }
+    else {
+      fprintf(nusmv_stderr, "Trace is stored at %d index \n",
+              TraceManager_register_trace(global_trace_manager, trace) + 1);
+      res = 0;
+    }
+  } /* load trace */
+
+#else
+
+  { /* no EXPAT */
+    fprintf(nusmv_stderr, "EXPAT library is not available on this system.\n");
+    fprintf(nusmv_stderr, "Try to recompile %s with the EXPAT library.\n",
+            NuSMVCore_get_tool_name());
+  }
+#endif
+
+ leave: /* command cleanup */
+  return res;
+}
+
+/**Function********************************************************************
+
+  Synopsis    [UsageReadTrace]
+
+  Description []
+
+  SideEffects []
+
+  SeeAlso     []
+
+******************************************************************************/
+static int UsageReadTrace(void)
+{
+  fprintf(nusmv_stderr, "usage: read_trace [-u] [-s] (-h | file_name | -i file_name)\n"
+          "  -h \t Prints the command usage.\n"
+          "  -u \t Output a warning instead of an error for every "
+          "undefined symbol.\n"
+          "  -s \t Output a warning instead of an error for every "
+          "symbol placed in \n \t inappropriate trace section.\n"
+          "  -i file_name  Option -i is deprecated.\n"
+          "  file-name     Trace is read from a given XML file.\n"
+          );
+
+  return 1;
+}
+
+/**Function********************************************************************
+
+  Synopsis           [CommandExecuteTraces]
+
+  SeeAlso            [CommandExecutePartialTraces]
+
+  CommandName        [execute_traces]
+
+  CommandSynopsis    [Executes complete traces on the model FSM]
+
+  CommandArguments   [\[-h\] \[-v\] \[-m | -o output-file\]
+                      -e engine \[-a | trace_number\]]
+
+  CommandDescription [Executes traces stored in the Trace Manager.  If
+                      no trace is specified, last registered trace is
+                      executed. Traces must be complete in order to
+                      perform execution.
+
+  <p> Command Options:<p>
+  <dl>
+    <dt> <tt>-v</tt>
+       <dd> Verbosely prints traces execution steps
+    <dt> <tt>-a</tt>
+       <dd> Prints all the currently stored traces.
+    <dt> <tt>-m</tt>
+       <dd> Pipes the output through the program specified
+       by the <tt>PAGER</tt> shell variable if defined, else through the
+       <tt>UNIX</tt> command "more".
+    <dt> <tt>-o output-file</tt>
+       <dd> Writes the output generated by the command to <tt>output-file</tt>
+    <dt> <tt>-e executor</tt>
+       <dd> Selects an executor for trace re-execution.
+    <dt> <tt>trace_number</tt>
+       <dd> The (ordinal) identifier number of the trace to be printed.
+  </dl> ]
+
+  SideEffects        []
+
+******************************************************************************/
+int CommandExecuteTraces(int argc, char** argv)
+{
+  int c, res = 0; /* success */
+
+  boolean use_more = false;
+  boolean all = false;
+
+  int traceno = TraceManager_get_size(global_trace_manager);
+  int trace = traceno;
+  int first_trace;
+  int last_trace;
+  int trace_iter;
+
+  char* dbgFileName = NIL(char);
+  char* engineName = NIL(char);
+  char* err_occ[2];
+
+  /* executor params */
+  int verbosity = 0;
+  FILE* output_stream = NIL(FILE);
+
+  CompleteTraceExecutor_ptr executor = \
+    TraceManager_get_default_complete_trace_executor(global_trace_manager);
+
+  util_getopt_reset();
+  while ((c = util_getopt(argc, argv, "hvamo:e:")) != EOF) {
+    switch (c) {
+    case 'h':
+      res = UsageExecuteTraces();
+      goto leave;
+
+    case 'v':
+      verbosity ++ ;
+      break;
+
+    case 'a':
+      all = true;
+      break;
+
+    case 'o':
+      if (0 != use_more) {
+        UsageExecuteTraces();
+        res = 1; goto leave;
+      }
+      dbgFileName = util_strsav(util_optarg);
+      break;
+
+    case 'm':
+      if (NIL(char) != dbgFileName) {
+        UsageShowTraces();
+        res = 1; goto leave;
+      }
+      use_more = 1;
+      break;
+
+    case 'e':
+      engineName = util_strsav(util_optarg);
+      executor = TraceManager_get_complete_trace_executor(global_trace_manager,
+                                                          engineName);
+      if (COMPLETE_TRACE_EXECUTOR(NULL) == executor) {
+        fprintf(nusmv_stderr, "Error: \"%s\" is not a valid executor\n",
+                engineName);
+        res = UsageExecuteTraces(); goto leave;
+      }
+      break;
+
+    default:
+        res = UsageExecuteTraces();
+        goto leave;
+    } /* switch */
+  } /* loop */
+
+  if (COMPLETE_TRACE_EXECUTOR(NULL) != executor) {
+    BaseTraceExecutor_set_verbosity(BASE_TRACE_EXECUTOR(executor), verbosity);
+    if (use_more) {
+      output_stream = CmdOpenPipe(use_more);
+      BaseTraceExecutor_set_output_stream(BASE_TRACE_EXECUTOR(executor),
+                                          output_stream);
+      if (NIL(FILE) == output_stream) {
+        res = 1; goto leave;
+      }
+    }
+
+    if (dbgFileName != NIL(char)) {
+      output_stream = CmdOpenFile(dbgFileName);
+      BaseTraceExecutor_set_output_stream(BASE_TRACE_EXECUTOR(executor),
+                                          output_stream);
+      if (NIL(FILE) == output_stream) {
+        res = 1; goto leave;
+      }
+    }
+
+    if (traceno == 0) {
+      fprintf(nusmv_stderr, "There are no traces currently available.\n");
+      goto leave;
+    }
+
+    if ((util_optind == 0) && (argc > 2)) {
+      UsageExecuteTraces();
+      res = 1; goto leave;
+    }
+
+    /* Parsing of the trace number to be executed */
+    if (all == false) {
+      if (argc != util_optind) {
+        err_occ[0] = "";
+        trace = strtol(argv[util_optind], err_occ, 10);
+
+        if  ((strncmp(err_occ[0], "", 1) != 0)) {
+          fprintf(nusmv_stderr,
+                  "Error: \"%s\" is not a valid value (must be a positive " \
+                  "integer).\n",
+                  err_occ[0]);
+          res = 1; goto leave;
+        }
+        if ( (trace > traceno) || (trace == 0) ) {
+          fprintf(nusmv_stderr,
+                  "Error: \"%d\" is not a valid trace number. Acceptable range is"
+                  " 1..%d.\n", trace, traceno);
+          res = 1; goto leave;
+        }
+      }
+    }
+    else if (argc != util_optind) {
+      UsageExecuteTraces();
+      res = 1; goto leave;
+    }
+
+    /* select traces range to be executed */
+    if (all) { first_trace = 1; last_trace = traceno; }
+    else { first_trace = trace;  last_trace = trace; }
+
+    /* execute traces */
+    for (trace_iter = first_trace; trace_iter <= last_trace; ++trace_iter) {
+      Trace_ptr trace;
+      int trace_index = trace_iter - 1;
+
+      trace = TraceManager_get_trace_at_index(global_trace_manager,
+                                              trace_index);
+
+      /* run using executor */
+      if (Trace_execute_trace(trace, executor)) {
+        res = 1; goto leave;
+      }
+    }
+  }
+  else { /*  no valid executor found */
+    fprintf(nusmv_stderr, "No valid executor found. "
+            "Model must be built in order to perform trace re-execution.\n");
+    res = 1; goto leave;
+  }
+
+ leave: /* command cleanup */
+
+  /* restore defaults into the executor instance */
+  if (COMPLETE_TRACE_EXECUTOR(NULL != executor)) {
+    BaseTraceExecutor_set_output_stream(BASE_TRACE_EXECUTOR(executor),
+                                        NIL(FILE));
+    BaseTraceExecutor_set_verbosity(BASE_TRACE_EXECUTOR(executor), 0);
+  }
+
+  /* handle file errors gracefully */
+  if (use_more && (NIL(FILE) != output_stream)) {
+    CmdClosePipe(output_stream);
+  }
+  if (NIL(char) != dbgFileName) {
+    if (NIL(FILE) != output_stream) {
+      CmdCloseFile(output_stream);
+    }
+    FREE(dbgFileName);
+  }
+
+  if (NIL(char) != engineName) {
+    FREE(engineName);
+  }
+
+  return res;
+}
+
+/**Function********************************************************************
+
+  Synopsis           [UsageExecuteTraces]
+
+  Description        []
+
+  SideEffects        []
+
+  SeeAlso            []
+
+******************************************************************************/
+static int UsageExecuteTraces ()
+{
+  fprintf(nusmv_stderr,
+          "usage: execute_traces [-h] [-v] [-m | -o file] " \
+          "[-e engine] [-a | trace_number]\n");
+
+  fprintf(nusmv_stderr, "  -h \t\tPrints the command usage.\n");
+  fprintf(nusmv_stderr,
+          "  -v \t\tVerbosely prints execution steps.\n");
+
+  fprintf(nusmv_stderr, "  -a \t\tExecutes all the currently stored traces.\n");
+  fprintf(nusmv_stderr,
+          "  -m \t\tPipes output through the program specified by the \"PAGER\"\n"
+          "     \t\tenvironment variable if defined, else through the UNIX\n"
+          "     \t\tcommand \"more\".\n");
+  fprintf(nusmv_stderr,
+          "  -o file\tWrites the generated output to \"file\". This option \n"
+          "     \t\tis incompatible with -m.\n");
+
+  fprintf(nusmv_stderr,
+          "  -e executor\tSelects an executor to perform trace re-execution.\n");
+
+  {
+    array_t* registered_executors;
+    string_ptr tmp;
+    int i;
+
+    registered_executors = \
+      TraceManager_get_complete_trace_executor_ids(global_trace_manager);
+
+    if (0 < array_n(registered_executors)) {
+      fprintf(nusmv_stderr,
+              "\t\t(must be one of the following registered executors)\n");
+
+      arrayForEachItem(string_ptr, registered_executors, i, tmp) {
+        char* id = get_text(tmp);
+        fprintf(nusmv_stderr, "\t\t%s - %s\n", id,
+                TraceManager_get_complete_trace_executor_desc(global_trace_manager,
+                                                              id));
+      }
+
+      fprintf(nusmv_stderr, "\n");
+    }
+    else {
+      fprintf(nusmv_stderr,
+              "\t\t(no complete trace executors registered yet.)\n");
+    }
+    array_free(registered_executors);
+  }
+
+
+  fprintf(nusmv_stderr,
+          "  trace_number\tThe number of the trace to be executed.\n");
+
+  return 1;
+}
+
+
+/**Function********************************************************************
+
+  Synopsis           [CommandExecutePartialTraces]
+
+  SeeAlso            [CommandExecuteTraces]
+
+  CommandName        [execute_partial_traces]
+
+  CommandSynopsis    [Executes partial traces on the model FSM]
+
+  CommandArguments   [\[-h\] \[-v\] \[-r\] \[-m | -o output-file\]
+                      -e engine \[-a | trace_number\]]
+
+  CommandDescription [Executes traces stored in the Trace Manager.  If
+                      no trace is specified, last registered trace is
+                      executed. Traces are not required to be
+                      complete.  Upon succesful termination, a new
+                      complete trace is registered in the Trace
+                      Manager.
+
+  <p> Command Options:<p>
+  <dl>
+    <dt> <tt>-v</tt>
+       <dd> Verbosely prints traces execution steps.
+    <dt> <tt>-a</tt>
+       <dd> Executes all the currently stored traces.
+    <dt> <tt>-r</tt>
+       <dd> Performs restart on complete states (deprecated).
+    <dt> <tt>-m</tt>
+       <dd> Pipes the output through the program specified
+       by the <tt>PAGER</tt> shell variable if defined, else through the
+       <tt>UNIX</tt> command "more".
+    <dt> <tt>-o output-file</tt>
+       <dd> Writes the output generated by the command to <tt>output-file</tt>
+    <dt> <tt>-e engine</tt>
+       <dd> Selects an engine for trace re-execution. It must be one of 'bdd',
+       'sat'.
+    <dt> <tt>trace_number</tt>
+       <dd> The (ordinal) identifier number of the trace to be printed.
+  </dl> ]
+
+  SideEffects        []
+
+******************************************************************************/
+int CommandExecutePartialTraces(int argc, char** argv)
+{
+  int c, res = 0; /* success */
+
+
+  int traceno = TraceManager_get_size(global_trace_manager);
+  int trace = traceno;
+  int first_trace;
+  int last_trace;
+  int trace_iter;
+
+  boolean all = false;
+
+  boolean use_more = false;
+  char* dbgFileName = NIL(char);
+  char* engineName = NIL(char);
+
+  /* executor params */
+  boolean restart = false;
+  int verbosity = 0;
+  FILE* output_stream = NIL(FILE);
+
+  PartialTraceExecutor_ptr executor = \
+    TraceManager_get_default_partial_trace_executor(global_trace_manager);
+
+  util_getopt_reset();
+  while ((c = util_getopt(argc, argv, "hvarmo:e:")) != EOF) {
+    switch (c) {
+    case 'h':
+      res = UsageExecutePartialTraces();
+      goto leave;
+
+    case 'v':
+      verbosity ++ ;
+      break;
+
+    case 'a':
+      all = true;
+      break;
+
+    case 'r':
+      restart = true;
+      break;
+
+    case 'o':
+      if (use_more == 1) {
+        UsageExecutePartialTraces();
+        res = 1; goto leave;
+      }
+      dbgFileName = util_strsav(util_optarg);
+      break;
+
+    case 'm':
+      if (dbgFileName != NIL(char)) {
+        UsageExecutePartialTraces();
+        res = 1;
+        goto leave;
+      }
+      use_more = 1;
+      break;
+
+    case 'e':
+      engineName = util_strsav(util_optarg);
+      if (restart) {
+        char* tmp = ALLOC(char, strlen(engineName) + 2);
+        strcpy(tmp, engineName); strcat(tmp, "_r");
+        FREE(engineName); engineName = tmp;
+        fprintf(nusmv_stderr, "Warning: Option -r is deprecated\n");
+      }
+
+      executor = TraceManager_get_partial_trace_executor(global_trace_manager,
+                                                         engineName);
+      if (PARTIAL_TRACE_EXECUTOR(NULL) == executor) {
+        fprintf(nusmv_stderr, "Error: \"%s\" is not a valid executor\n",
+                engineName);
+
+        res = UsageExecutePartialTraces(); goto leave;
+      }
+      break;
+
+    default:
+        res = UsageExecutePartialTraces();
+        goto leave;
+    } /* switch */
+  } /* loop */
+
+
+  if (PARTIAL_TRACE_EXECUTOR(NULL) !=  executor) {
+    BaseTraceExecutor_set_verbosity(BASE_TRACE_EXECUTOR(executor), verbosity);
+    if (use_more) {
+      output_stream = CmdOpenPipe(use_more);
+      BaseTraceExecutor_set_output_stream(BASE_TRACE_EXECUTOR(executor),
+                                          output_stream);
+      if (NIL(FILE) == output_stream) {
+        res = 1; goto leave;
+      }
+    }
+
+    if (dbgFileName != NIL(char)) {
+      output_stream = CmdOpenFile(dbgFileName);
+      BaseTraceExecutor_set_output_stream(BASE_TRACE_EXECUTOR(executor),
+                                          output_stream);
+      if (NIL(FILE) == output_stream) {
+        res = 1; goto leave;
+      }
+    }
+
+    if (traceno == 0) {
+      fprintf(nusmv_stderr, "There are no traces currently available.\n");
+      goto leave;
+    }
+
+    if ((util_optind == 0) && (argc > 2)) {
+      UsageExecutePartialTraces();
+      res = 1;
+      goto leave;
+    }
+
+    /* Parsing of the trace number to be executed */
+    if (all == false) {
+      if (argc != util_optind) {
+        char* err_occ[2];
+
+        err_occ[0] = "";
+        trace = strtol(argv[util_optind], err_occ, 10);
+
+        if  ((strncmp(err_occ[0], "", 1) != 0)) {
+          fprintf(nusmv_stderr,
+                  "Error: \"%s\" is not a valid value "
+                  "(must be a positive integer).\n", err_occ[0]);
+          res = 1; goto leave;
+        }
+        if ( (trace > traceno) || (trace == 0) ) {
+          fprintf(nusmv_stderr,
+                  "Error: \"%d\" is not a valid trace number. "
+                  "Acceptable range is 1..%d.\n", trace, traceno);
+          res = 1; goto leave;
+        }
+      }
+    }
+    else if (argc != util_optind) {
+      UsageExecutePartialTraces();
+      res = 1; goto leave;
+    }
+
+    /* select traces range to be executed */
+    if (all) { first_trace = 1;  last_trace = traceno; }
+    else { first_trace = trace; last_trace = trace; }
+
+    /* execute traces */
+    for (trace_iter = first_trace; trace_iter <= last_trace; ++trace_iter) {
+      Trace_ptr trace;
+      int trace_index = trace_iter - 1;
+
+      trace = TraceManager_get_trace_at_index(global_trace_manager,
+                                              trace_index);
+      {
+        /* determine new trace language */
+        SexpFsm_ptr sexp_fsm =  \
+          PropDb_master_get_scalar_sexp_fsm(PropPkg_get_prop_database());
+        SEXP_FSM_CHECK_INSTANCE(sexp_fsm);
+
+        /* run using executor */
+        if (Trace_execute_partial_trace(trace, executor,
+                                        SexpFsm_get_symbols_list(sexp_fsm))) {
+          res = 1; goto leave;
+        }
+      }
+    }
+  }
+
+  else { /*  no valid executor found */
+    fprintf(nusmv_stderr, "No valid executor found. "
+            "Model must be built in order to perform trace re-execution.\n");
+    res = 1; goto leave;
+  }
+
+ leave:   /* command cleanup */
+
+  /* restore defaults into the executor instance */
+  if (PARTIAL_TRACE_EXECUTOR(NULL) != executor) {
+    BaseTraceExecutor_set_output_stream(BASE_TRACE_EXECUTOR(executor),
+                                        NIL(FILE));
+    BaseTraceExecutor_set_verbosity(BASE_TRACE_EXECUTOR(executor), 0);
+  }
+
+  /* handle file errors gracefully */
+  if (use_more && (NIL(FILE) != output_stream)) {
+    CmdClosePipe(output_stream);
+  }
+  if (NIL(char) != dbgFileName) {
+    if (NIL(FILE) != output_stream) {
+      CmdCloseFile(output_stream);
+    }
+    FREE(dbgFileName);
+  }
+
+  if (NIL(char) != engineName) {
+    FREE(engineName);
+  }
+
+  return res;
+}
+
+
+/**Function********************************************************************
+
+  Synopsis           [UsageExecutePartialTrace]
+
+  Description        []
+
+  SideEffects        []
+
+  SeeAlso            []
+
+******************************************************************************/
+static int UsageExecutePartialTraces ARGS((void))
+{
+  fprintf(nusmv_stderr,
+          "usage: execute_partial_traces [-h] [-v] [-r] [-m | -o file] " \
+          "[-e engine] [-a | trace_number]\n");
+
+  fprintf(nusmv_stderr, "  -h \t\tPrints the command usage.\n");
+  fprintf(nusmv_stderr,
+          "  -v \t\tVerbosely prints execution steps.\n");
+
+  fprintf(nusmv_stderr,
+          "  -a \t\tExecutes all the currently stored traces.\n");
+
+  fprintf(nusmv_stderr,
+          "  -r \t\tPerforms restart on complete states (deprecated).\n");
+
+  fprintf(nusmv_stderr,
+          "  -m \t\tPipes output through the program specified by the \"PAGER\"\n"
+          "     \t\tenvironment variable if defined, else through the UNIX\n"
+          "     \t\tcommand \"more\".\n");
+
+   fprintf(nusmv_stderr,
+          "  -o file\tWrites the generated output to \"file\". This option \n"
+          "     \t\tis incompatible with -m.\n");
+
+  fprintf(nusmv_stderr,
+          "  -e executor\tSelects an executor to perform trace re-execution.\n");
+  {
+    array_t* registered_executors;
+    string_ptr tmp;
+    int i;
+
+    registered_executors = \
+      TraceManager_get_partial_trace_executor_ids(global_trace_manager);
+
+    if (0 < array_n(registered_executors)) {
+      fprintf(nusmv_stderr,
+              "\t\t(must be one of the following registered executors)\n");
+
+      arrayForEachItem(string_ptr, registered_executors, i, tmp) {
+        char* id = get_text(tmp);
+        fprintf(nusmv_stderr, "\t\t%s - %s\n", id,
+                TraceManager_get_partial_trace_executor_desc(global_trace_manager,
+                                                             id));
+      }
+
+      fprintf(nusmv_stderr, "\n");
+    }
+    else {
+      fprintf(nusmv_stderr,
+              "\t\t(no partial trace executors registered yet.)\n");
+    }
+    array_free(registered_executors);
+  }
+
+  fprintf(nusmv_stderr,
+          "  trace_number\tThe number of the trace to be executed.\n");
+
+  return 1;
+}
+
+
+/**Function********************************************************************
+
+  Synopsis           [Private service of top level trace execution functions]
+
+  Description        []
+
+  SideEffects        []
+
+  SeeAlso            []
+
+******************************************************************************/
+static int
+trace_cmd_parse_slice(const char* s, int* trace, int* from, int* to)
+{
+  char* endptr;
+  int parse_res;
+
+  const char TRACE_SEP = '.';
+  const char STATE_SEP= ':';
+
+  const char* trace_no_err_msg = \
+    "Error: \"%s\" is not a valid trace number (must be a positive "    \
+    " integer).\n";
+
+  const char* state_no_err_msg = \
+    "Error: \"%s\" is not a valid state number (must be an integer).\n" ;
+
+  (*from) = 0; (*to) = 0;
+
+  parse_res = util_str2int_incr(s, &endptr, trace);
+  if (0 == parse_res) {
+    if (TRACE_SEP == *endptr) {
+      s = ++ endptr;
+      parse_res = util_str2int_incr(s, &endptr, from);
+      if (0 == parse_res) {
+        if (STATE_SEP == *endptr) {
+          s = ++ endptr;
+          parse_res = util_str2int_incr(s, &endptr, to);
+
+          if (0 == parse_res)  {
+            /* as user-friendly feature if no rhs end is given, pick
+               last state. This is not allowed if junk is found */
+            if ((0 == *to) && (0 == *endptr)) { (*to) = -1; /* last */ }
+
+          } else { fprintf(nusmv_stderr, state_no_err_msg, s); }
+        }
+      } else { fprintf(nusmv_stderr, state_no_err_msg, s); }
+    }
+  } else { fprintf(nusmv_stderr, trace_no_err_msg, s); }
+
+  return parse_res;
+} /* trace_cmd_parse_slice */
+
+

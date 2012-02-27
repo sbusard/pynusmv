@@ -1,0 +1,89 @@
+diff -Naur zchaff64_ORIG/Makefile zchaff64/Makefile
+--- zchaff64_ORIG/Makefile	2009-05-06 13:17:49.000000000 +0200
++++ zchaff64/Makefile	2009-05-06 13:19:21.000000000 +0200
+@@ -1,5 +1,6 @@
+ CC = g++ -Wall
+-CFLAGS = -O3 
++CXX = g++ -Wall
++CFLAGS = -O3
+ 
+ #CFLAGS = -O3 -DNDEBUG
+ #MFLAGS = 
+@@ -18,7 +19,6 @@
+ 
+ SOLVER_SRCS = sat_solver.cpp 
+ SOLVER_OBJS = $(SOLVER_SRCS:.cpp=.o)
+-                  
+ 
+ LIB_SRCS =  zchaff_utils.cpp \
+ 	    zchaff_solver.cpp\
+@@ -31,16 +31,16 @@
+ 
+ 
+ zchaff:   $(SOLVER_OBJS) libsat.a SAT.h
+-	  $(CC) $(LINKFLAGS) $(CFLAGS) $(MFLAGS) $(SOLVER_OBJS) libsat.a -o zchaff 
++	  $(CXX) $(LINKFLAGS) $(CFLAGS) $(MFLAGS) $(SOLVER_OBJS) libsat.a -o zchaff 
+ 
+ zverify_df: zverify_df.cpp
+-	  $(CC) $(LINKFLAGS) $(CFLAGS) $(MFLAGS) zverify_df.cpp -o zverify_df
++	  $(CXX) $(LINKFLAGS) $(CFLAGS) $(MFLAGS) zverify_df.cpp -o zverify_df
+ 
+ zminimal: zminimal.cpp libsat.a
+-	  $(CC) $(LINKFLAGS) $(CFLAGS) $(MFLAGS) zminimal.cpp libsat.a -o zminimal
++	  $(CXX) $(LINKFLAGS) $(CFLAGS) $(MFLAGS) zminimal.cpp libsat.a -o zminimal
+ 
+ cnf_stats: cnf_stats.cpp
+-	  $(CC) $(LINKFLAGS) $(CFLAGS) $(MFLAGS) cnf_stats.cpp -o cnf_stats
++	  $(CXX) $(LINKFLAGS) $(CFLAGS) $(MFLAGS) cnf_stats.cpp -o cnf_stats
+ 
+ $(LIB_OBJS): $(HEADERS) Makefile
+ 
+@@ -60,7 +60,7 @@
+ 	$(RANLIB) libsat.a
+ 
+ .cpp.o:
+-	$(CC) $(CFLAGS) $(MFLAGS) -c $< 
++	$(CXX) $(CFLAGS) $(MFLAGS) -c $< 
+ 
+ clean:	
+ 	rm -f *.o libsat.a zchaff *wrapper.cpp zminimal zverify_df cnf_stats SAT_C.h
+diff -Naur zchaff64_ORIG/zchaff_dbase.cpp zchaff64/zchaff_dbase.cpp
+--- zchaff64_ORIG/zchaff_dbase.cpp	2009-05-06 13:17:49.000000000 +0200
++++ zchaff64/zchaff_dbase.cpp	2009-05-06 13:21:39.000000000 +0200
+@@ -33,6 +33,7 @@
+ // of the possibility of those damages.
+ // ********************************************************************/
+ 
++#include <cstdlib>
+ #include <iostream>
+ #include <vector>
+ #include <set>
+diff -Naur zchaff64_ORIG/zchaff_utils.cpp zchaff64/zchaff_utils.cpp
+--- zchaff64_ORIG/zchaff_utils.cpp	2009-05-06 13:17:49.000000000 +0200
++++ zchaff64/zchaff_utils.cpp	2009-05-06 13:19:21.000000000 +0200
+@@ -38,7 +38,9 @@
+ #include <stdlib.h>
+ #include <unistd.h>
+ #include <sys/time.h>
++#ifndef __MINGW32__
+ #include <sys/resource.h>
++#endif
+ 
+ int _global_debug_leveli = 0;
+ 
+@@ -80,10 +82,14 @@
+ 
+ double get_cpu_time(void) {
+   double res;
++#ifndef __MINGW32__
+   struct rusage usage;
+   getrusage(RUSAGE_SELF, &usage);
+   res = usage.ru_utime.tv_usec + usage.ru_stime.tv_usec;
+   res *= 1e-6;
+-  res += usage.ru_utime.tv_sec + usage.ru_stime.tv_sec;
++  res += usage.ru_utime.tv_sec + usage.ru_stime.tv_sec; 
++#else 
++  res = 0;
++#endif
+   return res;
+ }

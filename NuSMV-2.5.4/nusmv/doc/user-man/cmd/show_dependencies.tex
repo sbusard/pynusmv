@@ -1,0 +1,21 @@
+% -*-latex-*-
+\begin{nusmvCommand}{show\_dependencies} {Shows the dependencies for the given expression}
+
+\cmdLine{show\_dependencies [-h] [-k bound] -e expression}
+
+Prints the set of variables that are in the dependency set of the given expression.
+If the bound is specified using the -k argument, then the computation of the dependencies is 
+done until the bound has been reached.
+If not specified, the computation is performed until no new dependencies are found.
+
+\begin{cmdOpt}
+
+\opt{-h}{Shows the command usage}
+
+\opt{-k bound}{Sets the bound limit for the dependencies computation}
+
+\opt{-e expr}{The expression on which the dependencies are computed}
+
+\end{cmdOpt}
+
+\end{nusmvCommand}

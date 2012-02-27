@@ -1,0 +1,108 @@
+% -*-latex-*-
+\begin{nusmvCommand} {dynamic\_var\_ordering} {Deals with the dynamic variable ordering.}
+
+\cmdLine{dynamic\_var\_ordering [-d] [-e <method>] [-f <method>] [-h]}
+
+Controls the application and the modalities of (dynamic) variable
+ordering. Dynamic ordering is a technique to reorder the BDD variables
+to reduce the size of the existing BDDs. When no options are
+specified, the current status of dynamic ordering is displayed. At
+most one of the options \commandopt{e}, \commandopt{f}, and
+\commandopt{d} should be specified.  Dynamic ordering may be time
+consuming, but can often reduce the size of the BDDs dramatically. A
+good point to invoke dynamic ordering explicitly (using the
+\commandopt{f} option) is after the commands \command{build\_model},
+once the transition relation has been built.  It is possible to save
+the ordering found using \command{write\_order} in order to reuse it
+(using \command{build\_model -i order-file}) in the future.\\
+
+\begin{cmdOpt}
+\opt{-d}{ Disable dynamic ordering from triggering automatically.}
+
+\opt{-e \parameter{\set{<method>}{sift, random, random\_pivot,
+      sift\_converge, symmetry\_sift, symmetry\_sift\_converge,
+      window\{2,3,4\}, window\{2,3,4\}\_converge, group\_sift,
+      group\_sift\_converge, annealing, genetic, exact, linear,
+      linear\_converge}}}{ Enable dynamic ordering to trigger automatically
+whenever a certain threshold on the overall BDD size is reached.
+\code{<method>} must be one of the following:
+ }
+\tabItem{{\varvalue{\bf sift}}: Moves each variable throughout the order to
+                 find an optimal position for that variable (assuming all
+                 other variables are fixed).  This generally achieves
+                 greater size reductions than the window method, but is slower.
+}
+\tabItem{{\varvalue{\bf random}}: Pairs of variables are randomly chosen, and
+                 swapped in the order. The swap is performed by a series of
+                 swaps of adjacent variables. The best order among those
+                 obtained by the series of swaps is retained. The number of
+                 pairs chosen for swapping equals the number of variables
+                 in the diagram.
+}
+\tabItem{{\varvalue{\bf random\_pivot}}: Same as {\varvalue{\bf random}}, but the two
+                 variables are chosen so that the first is above the
+                 variable with the largest number of nodes, and the second
+                 is below that variable.  In case there are several
+                 variables tied for the maximum number of nodes, the one
+                 closest to the root is used.
+}
+\tabItem{{\varvalue{\bf sift\_converge}}: The {\varvalue{\bf sift}} method is iterated
+                 until no further improvement is obtained.
+}
+\tabItem{{\varvalue{\bf symmetry\_sift}}: This method is an implementation of
+                 symmetric sifting. It is similar to sifting, with one
+                 addition: Variables that become adjacent during sifting are
+                 tested for symmetry. If they are symmetric, they are linked
+                 in a group. Sifting then continues with a group being
+                 moved, instead of a single variable.
+}
+\tabItem{{\varvalue{\bf symmetry\_sift\_converge}}: The {\varvalue{\bf symmetry\_sift}}
+                 method is iterated until no further improvement is obtained.
+}
+\tabItem{{\varvalue{\bf window\{2,3,4\}}}: Permutes the variables within windows
+                 of "n" adjacent variables, where "n" can be either 2, 3 or 4,
+                 so as to minimize the overall BDD size.
+}
+\tabItem{{\varvalue{\bf window\{2,3,4\}\_converge}}: The {\varvalue{\bf window\{2,3,4\}}} method
+                 is iterated until no further improvement is obtained.
+}
+\tabItem{{\varvalue{\bf group\_sift}}: This method is similar to
+                 {\varvalue{\bf symmetry\_sift}}, but uses more general criteria to
+                 create groups.
+}
+\tabItem{{\varvalue{\bf group\_sift\_converge}}: The {\varvalue{\bf group\_sift}} method is
+                 iterated until no further improvement is obtained.
+}
+\tabItem{{\varvalue{\bf annealing}}: This method is an implementation of
+                 simulated annealing for variable ordering. This method is
+                 potentially very slow.
+}
+\tabItem{{\varvalue{\bf genetic}}: This method is an implementation of a
+                 genetic algorithm for variable ordering. This method is
+                 potentially very slow.
+}
+\tabItem{{\varvalue{\bf exact}}: This method implements a dynamic programming
+                 approach to exact reordering. It only stores a BDD
+                 at a time. Therefore, it is relatively efficient in
+                 terms of memory. Compared to other reordering
+                 strategies, it is very slow, and is not recommended
+                 for more than 16 boolean variables.
+}
+\tabItem{{\varvalue{\bf linear}}: This method is a combination of
+                 sifting and linear transformations.
+}
+\tabItem{{\varvalue{\bf linear\_converge}}: The {\varvalue{\bf linear}} method is
+                 iterated until no further improvement is obtained.
+}            
+
+\opt{-f \parameter{\set{<method>}{sift, random, random\_pivot,
+      sift\_converge, symmetry\_sift, symmetry\_sift\_converge,
+      window\{2,3,4\}, window\{2,3,4\}\_converge, group\_sift,
+      group\_sift\_converge, annealing, genetic, exact, linear,
+      linear\_converge}}}{Force dynamic ordering to be invoked immediately.
+The values for \code{<method>} are the same as in option
+\commandopt{e}. }
+
+\end{cmdOpt}
+
+\end{nusmvCommand}

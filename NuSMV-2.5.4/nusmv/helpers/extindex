@@ -1,0 +1,268 @@
+#! /usr/local/bin/perl
+
+###PerlFile###########################################################
+#
+#  FileName	[ extindex ]
+#  PackageName	[ ext ]
+#  Synopsis	[ Package and command-line documentation index extractor ]
+#  Description	[ Looks for *Cmd.html files in the given directory
+#		  and writes cmdIndex.html in that directory, which
+#		  contains links to each of the command files.
+#		  Also looks for *ExtAbs.html files and writes pkgIndex.html
+#		  in that directory.
+#
+#		  Also creates packages.html -- a frame for pkgIndex.html
+#		  and the package description files.
+# ]
+#
+#  Author	[ Stephen Edwards <sedwards@eecs.berkeley.edu> ]
+#  Revision	[ $Header: /hardmnt/jbach0/S/NuSMV2/nusmv/helpers/extindex,v 1.1 2002-06-24 11:12:32 nusmv Exp $]
+#
+######################################################################
+
+$extURL = "http://www.eecs.berkeley.edu/~sedwards/ext";
+
+foreach $directory (@ARGV) {
+
+    ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst) = localtime(time);
+    $generationtime = sprintf("%2.2d%2.2d%2.2d %2.2dh%2.2d",
+			      $year,$mon+1,$mday,$hour,$min);
+
+    #
+    # Strip any trailing "/" from the directory name
+    #
+
+    $directory =~ s/\/$//;
+
+    ######################################################################
+    #
+    # Process command files to create cmdIndex.html
+    #
+
+    open( FILE, ">$directory/cmdIndex.html" ) ||
+	die("Couldn't open $directory/cmdIndex.html -- invalid directory?\n");
+
+    select(FILE);
+
+    @commandFiles = <$directory/*Cmd.html>;
+
+    #
+    # Write the header
+    #
+
+    print "<HTML>\n<HEAD><TITLE>Command Documentation</TITLE></HEAD>\n";
+    print "<BODY>\n\n";
+
+    print "<H1>Command Documentation</H1><HR>";
+
+    print "<DL>\n";
+
+    foreach $commandName (sort @commandFiles) {
+
+	#
+	# Read the command documentation file to extract the synopsis
+	#
+
+	open( CMDFILE, "$commandName" ) ||
+	    die("Couldn't open $commandName for reading\n");
+
+	while ( <CMDFILE> ) {
+
+	    if ( /^<h3>/ ) {
+
+		#
+		# Strip all but the synopsis from the line
+		# <h3>commandName - synopsis</h3>
+		#
+
+		s/^[^-]* - //;
+		s/<\/h3>$//;
+		$commandSynopsis = $_;
+		last;
+	    }
+	}
+
+	close( CMDFILE );
+
+	#
+	# Strip any leading header and the trailing Cmd.html from the filename
+	#
+
+	$commandName =~ s/^.*\///;
+	$commandName =~ s/Cmd.html$//;
+
+	#
+	# Print the command name and link it to the associated documentation
+	#
+
+        print "<DT> <a href=\"${commandName}Cmd.html\" TARGET=\"MAIN\"\">";
+	print "<code>$commandName</code></a>\n";
+        print "<DD> $commandSynopsis\n";
+
+    }
+
+    print "</DL>\n<HR>\n";
+
+    print "Last updated on ${generationtime}\n";
+    print "</BODY></HTML>\n";
+
+
+    ######################################################################
+    #
+    # Process package files to create pkgIndex.html
+    #
+
+    open( FILE, ">$directory/pkgIndex.html" ) ||
+	die("Couldn't open $directory/pkgIndex.html -- invalid directory?\n");
+
+    select(FILE);
+
+    @packageFiles = <$directory/*Desc.html>;
+
+    #
+    # Write the header
+    #
+
+    print "<HTML>\n";
+    print "<HEAD><TITLE>Package Documentation</TITLE></HEAD>\n";
+    print "<BODY>\n";
+  
+
+    print "<H1>Package Documentation</H1><HR>";
+
+    print "<TABLE CELLSPACING=0 CELLPADDING=1>\n";
+
+    foreach $packageName (sort @packageFiles) {
+
+	#
+	# Read the external abstract package file to extract the synopsis
+	#
+
+	open( PKGFILE, "$packageName" ) ||
+	    die("Couldn't open $packageName for reading\n");
+
+	while ( <PKGFILE> ) {
+
+	    if ( /^<H2>/ ) {
+
+		#
+		# Strip all but the synopsis from the line
+		# <h2>synopsis</h2>
+		#
+
+		s/^<H2>//;
+		s/<\/H2>$//;
+		$packageSynopsis = $_;
+		last;
+	    }
+	}
+
+	close( PKGFILE );
+
+	#
+	# Strip any leading header and the trailing ExtAbs.html
+	# from the filename
+	#
+
+	$packageName =~ s/^.*\///;
+	$packageName =~ s/Desc\.html$//;
+
+	#
+	# Print the package name and link it to the associated documentation
+	#
+
+	print "<TR>\n";
+        print "  <TD VALIGN=top><A HREF=\"${packageName}Desc.html\" TARGET=\"MAIN\">";
+	print "<CODE>$packageName</CODE></A></TD>\n";
+        print "  <TD VALIGN=top>$packageSynopsis</TD>\n";
+        print "</TR>\n";
+
+    }
+
+    print "</TABLE>\n<HR>\n";
+
+    print "Last updated on ${generationtime}\n";
+    print "</BODY></HTML>\n";
+
+    ######################################################################
+    #
+    # Write packages.html -- a frame for the package index
+    #
+
+    open( FILE, ">$directory/packages.html" ) ||
+	die("Couldn't open $directory/packages.html -- invalid directory?\n");
+    select(FILE);
+
+    print <<EndOfHTML;
+<HTML>
+<HEAD><TITLE>Package Documentation</TITLE></HEAD>
+
+<FRAMESET ROWS="95%,5%">
+  <FRAMESET COLS="40%,60%">
+    <FRAME SRC="pkgIndex.html">
+    <FRAME SRC="credit.html" NAME="MAIN">
+  </FRAMESET>
+  <FRAME SRC="credit.html">
+</FRAMESET>
+
+</HTML>
+EndOfHTML
+
+
+    ######################################################################
+    #
+    # Write commands.html -- a frame for the command index
+    #
+
+    open( FILE, ">$directory/commands.html" ) ||
+	die("Couldn't open $directory/commands.html -- invalid directory?\n");
+    select(FILE);
+
+    print <<EndOfHTML;
+<HTML>
+<HEAD><TITLE>Command Documentation</TITLE></HEAD>
+
+<FRAMESET ROWS="95%,5%">
+  <FRAMESET COLS="40%,60%">
+    <FRAME SRC="cmdIndex.html">
+    <FRAME SRC="credit.html" NAME="MAIN">
+  </FRAMESET>
+  <FRAME SRC="credit.html">
+</FRAMESET>
+
+</HTML>
+EndOfHTML
+
+    ######################################################################
+    #
+    # Write credit.html -- Credits and navigational aids
+    #
+
+    open( FILE, ">$directory/credit.html" ) ||
+	die("Couldn't open $directory/credit.html -- invalid directory?\n");
+    select(FILE);
+
+    print <<EndOfHTML;
+<HTML>
+<HEAD><TITLE>Credit</TITLE></HEAD>
+<BODY>
+<TABLE BORDER WIDTH="100%">
+  <TR>
+    <TD ALIGN=center> <A HREF="commands.html" TARGET="_top">
+        Command Documentation</A> </TD>
+    <TD ALIGN=center> <A HREF="packages.html" TARGET="_top">
+	Package Documentation</A> </TD>
+    <TD ALIGN=center> Generated by <A HREF="${extURL}" TARGET="_top">
+        <B>the Ext system</B></A> </TD>
+  </TD>
+</TABLE>
+</BODY>
+</HTML>
+EndOfHTML
+
+}
+
+# Local Variables:
+# mode: perl
+# End:
+

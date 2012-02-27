@@ -1,0 +1,38 @@
+% -*-latex-*-
+\begin{nusmvCommand} {write\_order} {Writes variable order to file.}
+
+\cmdLine{write\_order [-h] [-b] [(-o | -f) order-file]}
+
+Writes the current order of BDD variables in the file specified via
+the \commandopt{o} option. If no option is specified the environment
+variable \envvar{output\_order\_file} will be considered. If the
+variable \envvar{output\_order\_file} is unset (or set to an empty
+value) then standard output will be used.
+
+By default, the bits constituting the scalar variables encoding are
+not dumped. When a variable bit should be dumped, the scalar variable
+which the bit belongs to is dumped instead if not previously dumped. 
+The result is a variable ordering containing only scalar and
+boolean model variables.
+
+To dump single bits instead of the corresponding scalar variables,
+either the option \commandopt{b} can be specified, or the environment
+variable \envvar{write\_order\_dumps\_bits} must be previously set.
+
+When the boolean variable dumping is enabled, the single bits will occur
+within the resulting ordering file in the same position that they 
+occur at BDD level. 
+
+\begin{cmdOpt}
+\opt{-b} {Dumps bits of scalar variables instead of the single
+scalar variables. See also the variable \envvar{write\_order\_dumps\_bits}.}
+
+\opt{-o \parameter{\filename{order-file}}} {Sets the environment variable
+\envvar{output\_order\_file} to \filename{order-file} and then dumps the
+ordering list into that file.}
+
+\opt{-f \parameter{\filename{order-file}}}{ Alias for the
+\commandopt{o} option. Supplied for backward compatibility.}
+
+\end{cmdOpt}
+\end{nusmvCommand}

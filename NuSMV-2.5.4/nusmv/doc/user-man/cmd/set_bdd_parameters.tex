@@ -1,0 +1,23 @@
+% -*-latex-*-
+\begin{nusmvCommand} {set\_bdd\_parameters} {Creates a table with the value of all currently active \nusmvhead flags and change accordingly the configurable parameters of the BDD package.}
+
+\cmdLine{set\_bdd\_parameters [-h] [-s]}
+
+Applies the variables table of the \nusmv environnement to the BDD
+package, so the user can set specific BDD parameters to the given
+value. This command works in conjunction with the
+\command{print\_bdd\_stats} and \command{set} commands.
+\command{print\_bdd\_stats} first prints a report of the parameters
+and statistics of the current bdd\_manager. By using the command
+\command{set}, the user may modify the value of any of the parameters
+of the underlying BDD package. The way to do it is by setting a value
+in the variable \varName{BDD.parameter name} where \varName{parameter
+name} is the name of the parameter exactly as printed by the
+\command{print\_bdd\_stats} command.
+
+\begin{cmdOpt}
+\opt{-s}{Prints the BDD parameter and statistics after the
+modification.}
+\end{cmdOpt}
+
+\end{nusmvCommand}

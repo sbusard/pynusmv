@@ -1,0 +1,141 @@
+% -*-latex-*-
+%% BMC PICK STATE
+\begin{nusmvCommand}{bmc\_pick\_state} {Picks a state from the set of initial states}
+
+\cmdLine{bmc\_pick\_state [-h] [-v] [-c "constraint" | -s trace.state] [-r | -i [-a]]}
+
+Chooses an element from the set of initial states, and makes it the
+current state (replacing the old one). The chosen state is stored as
+the ﬁrst state of a new trace ready to be lengthened by steps states
+by the \command{bmc\_simulate} command or the \command{bmc\_inc\_simulate} command.
+
+
+\begin{cmdOpt}
+\opt{-v}{Verbosely prints the generated trace}
+\opt{-c \parameter{\it{constraint}}}{Set a constraint to narrow initial states.}
+\opt{-s \parameter{\it{state}}}{Picks state from trace.state label.}
+\opt{-r}{Randomly picks a state from the set of initial states.}
+\opt{-i}{Enters simulation's interactive mode.}
+\opt{-a}{Displays all the state variables (changed and unchanged)
+  in the interactive session}
+\end{cmdOpt}
+
+\end{nusmvCommand}
+
+%% BMC SIMULATE
+\begin{nusmvCommand}{bmc\_simulate} {Generates a trace of the model from 0 (zero) to k}
+
+\cmdLine{bmc\_simulate [-h] [-p | -v] [-r] [[-c "constraints"] | [-t
+      "constraints"] ] [-k steps]}
+
+\command{bmc\_simulate} does not require a specification to build the
+problem, because only the model is used to build it.  The problem
+length is represented by the \commandopt{k} command parameter, or by
+its default value stored in the environment variable
+\envvar{bmc\_length}.
+
+\begin{cmdOpt}
+\opt{-p}{Prints the generated trace (only changed variables).}
+\opt{-v}{Prints the generated trace (all variables).}
+\opt{-r}{Picks a state from a set of possible future states in a random way.}
+\opt{-c \parameter{\it{constraint}}}{Performs a simulation in which
+  computation is restricted to states satisfying those
+  \code{constraints}. The desired sequence of states could not exist
+  if such constraints were too strong or it may happen that at some
+  point of the simulation a future state satisfying those constraints
+  doesn't exist: in that case a trace with a number of states less
+  than \code{steps} trace is obtained.  Note: \code{constraints} must
+  be enclosed between double quotes \code{" "}.  The expression cannot
+  contain \code{next} operators, and is automatically shifted by one
+  state in order to constraint only the next steps}
+
+\opt{-t \parameter{"constraints"}}{ Performs a simulation in which
+  computation is restricted to states satisfying those
+  \code{constraints}. The desired sequence of states could not exist
+  if such constraints were too strong or it may happen that at some
+  point of the simulation a future state satisfying those constraints
+  doesn't exist: in that case a trace with a number of states less
+  than \code{steps} trace is obtained.  Note: \code{constraints} must
+  be enclosed between double quotes \code{" "}.  The expression can
+  contain \code{next} operators, and is NOT automatically shifted by
+  one state as done with option \code{-c}}
+
+\opt{\natnum{-k steps}}{ Maximum length of the path according to the
+  constraints.  The length of a trace could contain less than
+  \code{steps} states: this is the case in which simulation stops in
+  an intermediate step because it may not exist any future state
+  satisfying those constraints. The default value is determined by the
+  \varName{default\_simulation\_steps} environment variable}
+\end{cmdOpt}
+
+\end{nusmvCommand}
+
+%% BMC INC SIMULATE
+\begin{nusmvCommand}{bmc\_inc\_simulate} {Generates a trace of the model from 0 (zero) to k}
+
+\cmdLine{bmc\_inc\_simulate [-h] [-p | -v] [-r | -i [-a]] [[-c "constraints"] |
+    [-t "constraints"] ] [-k steps]}
+
+Performs incremental simulation of the model.
+\command{bmc\_inc\_simulate} does not require a specification to build the
+problem, because only the model is used to build it.  The problem
+length is represented by the \commandopt{k} command parameter, or by
+its default value stored in the environment variable
+\envvar{bmc\_length}.
+
+\begin{cmdOpt}
+\opt{-p}{Prints the generated trace (only changed variables).}
+\opt{-v}{Prints the generated trace (all variables).}
+\opt{-r}{Picks a state from a set of possible future states in a random way.}
+\opt{-i}{Enters simulation's interactive mode.}
+\opt{-a}{Displays all the state variables (changed and unchanged)
+  in the interactive session}
+\opt{-c \parameter{\it{constraint}}}{Performs a simulation in which
+  computation is restricted to states satisfying those
+  \code{constraints}. The desired sequence of states could not exist
+  if such constraints were too strong or it may happen that at some
+  point of the simulation a future state satisfying those constraints
+  doesn't exist: in that case a trace with a number of states less
+  than \code{steps} trace is obtained.  Note: \code{constraints} must
+  be enclosed between double quotes \code{" "}.  The expression cannot
+  contain \code{next} operators, and is automatically shifted by one
+  state in order to constraint only the next steps}
+
+\opt{-t \parameter{"constraints"}}{ Performs a simulation in which
+  computation is restricted to states satisfying those
+  \code{constraints}. The desired sequence of states could not exist
+  if such constraints were too strong or it may happen that at some
+  point of the simulation a future state satisfying those constraints
+  doesn't exist: in that case a trace with a number of states less
+  than \code{steps} trace is obtained.  Note: \code{constraints} must
+  be enclosed between double quotes \code{" "}.  The expression can
+  contain \code{next} operators, and is NOT automatically shifted by
+  one state as done with option \code{-c}}
+
+\opt{\natnum{-k steps}}{ Maximum length of the path according to the
+  constraints.  The length of a trace could contain less than
+  \code{steps} states: this is the case in which simulation stops in
+  an intermediate step because it may not exist any future state
+  satisfying those constraints. The default value is determined by the
+  \varName{default\_simulation\_steps} environment variable}
+\end{cmdOpt}
+
+\end{nusmvCommand}
+
+
+%% BMC SIMULATE CHECK FEASIBLE CONSTRAINTS
+\begin{nusmvCommand}{bmc\_simulate\_check\_feasible\_constraints} {Checks feasability for the given constraints}
+
+\cmdLine{bmc\_simulate\_check\_feasible\_constraints [-h] [-q] [-c "constr"]}
+
+Checks if the given constraints are feasible for BMC simulation.
+
+\begin{cmdOpt}
+\opt{-q}{Prints the output in compact form.}
+\opt{-c \parameter{\it{constr}}}{Specify one constraint whose
+  feasability has to be checked (can be used multiple times, order is
+  important to read the result)}
+\end{cmdOpt}
+
+\end{nusmvCommand}
+

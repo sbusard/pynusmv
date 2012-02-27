@@ -1,0 +1,206 @@
+% -*-latex-*-
+The main purpose of a model checker is to verify that a model satisfies
+a set of desired properties specified by the user.
+In \nusmv, the specifications to be checked can be expressed in
+two different temporal logics: the Computation Tree Logic CTL, and the
+Linear Temporal Logic LTL extended with Past Operators.
+CTL and LTL specifications are evaluated by \nusmv in order to
+determine their truth or falsity in the FSM. When a specification is
+discovered to be false, \nusmv constructs and prints a
+counterexample, i.e. a trace of the FSM that falsifies the property.
+In this section we will describe model checking of specifications
+expressed in CTL, while the next section we consider the case of LTL
+specifications.
+
+
+\section{Computation Tree Logic}
+\label{Computation Tree Logic}
+\index{Computation Tree Logic}
+
+CTL is a \emph{branching-time} logic: its formulas allow for
+specifying properties that take into account the non-deterministic,
+branching evolution of a FSM. More precisely, the evolution of a FSM
+from a given state can be described as an infinite tree, where the nodes
+are the states of the FSM and the branching in due to the
+non-determinism in the transition relation. The paths in the tree that
+start in a given state are the possible alternative evolutions of the
+FSM from that state. In CTL one can express properties that should hold for \emph{all the
+paths} that start in a state, as well as for properties that should hold
+just for \emph{some of the paths}.
+
+\index{CTL Operators}
+Consider for instance CTL formula \code{AF p}. It expresses the
+condition that, for \emph{all} the paths (\code{A}) stating from a
+state, \emph{eventually in the future} (\code{F}) condition \code{p}
+must hold. That is, all the possible evolutions of the system will
+eventually reach a state satisfying condition \code{p}.
+CTL formula \code{EF p}, on the other hand, requires than there
+\emph{exists} some path (\code{E}) that eventually in the future
+satisfies \code{p}.
+
+Similarly, formula \code{AG p} requires that condition \code{p} is
+always, or \emph{globally}, true in all the states of all the possible
+paths, while formula \code{EG p} requires that there is some path along
+which condition \code{p} is continuously true.
+
+Other CTL operators are:
+\begin{itemize}
+\item \code{A [p U q]} and \code{E [p U q]}, 
+  requiring condition \code{p} to be true \emph{until} a state is
+  reached that satisfies condition \code{q};
+\item \code{AX p} and \code{EX p}, 
+  requiring that condition \code{p} is true in all or in some of the
+  next states reachable from the current state.
+\end{itemize}
+CTL operators can be nested in an arbitrary way and can be combined
+using logic operators (\code{!}, \code{\&}, \code{|}, \code{->},
+\code{<->}, \ldots).
+Typical examples of CTL formulas are \code{AG ! p} (``condition \code{p}
+is absent in all the evolutions''), \code{AG EF p} (``it is always
+possible to reach a state where \code{p} holds''), and \code{AG (p -> AF
+q)} (``each occurrence of condition \code{p} is followed by an occurrence
+of condition \code{q}'').
+
+\index{SPEC keyword}
+\index{Specification!CTL}
+In \nusmv a CTL specification is given as CTL formula introduced
+by the keyword ``\code{SPEC}''.
+Whenever a CTL specification is processed, \nusmv checks whether
+the CTL formula is true in all the initial states of the model. If this
+is not a case, then \nusmv generates a counter-example, that is, a
+(finite or infinite) trace that exhibits a valid behavior of the model
+that does not satisfy the specification. 
+Traces are very useful for identifying the error in the specification that
+leads to the wrong behavior.
+We remark that the generation of a counter-example trace is not always
+possible for CTL specifications. Temporal operators corresponding to
+existential path quantifiers cannot be proved false by a showing of a
+single execution path.  Similarly, sub-formulas preceded by universal
+path quantifier cannot be proved true by a showing of a single execution
+path.
+
+
+\section{Semaphore Example}
+\label{CTL Semaphore Example}
+\index{Examples!Semaphore!CTL}
+
+Consider the case of the semaphore program described in 
+\cref{Examples}.
+\index{Safety Property}
+A desired property for this program is that it should never be the case
+that the two processes \code{proc1} and \code{proc2} are at the same time
+in the \code{critical} state (this is an example of a ``safety''
+property). This property can be expressed by the following CTL formula:
+\begin{alltt}
+AG ! (proc1.state = critical & proc2.state = critical)
+\end{alltt}
+\index{Liveness Property}
+Another desired property is that, if \code{proc1} wants to enter its
+critical state, it eventually does (this is an example of a ``liveness''
+property). This property can be expressed by the following CTL formula:
+\begin{alltt}
+AG (proc1.state = entering -> AF proc1.state = critical)
+\end{alltt}
+In order to verify the two formulas on the semaphore model, we add the
+two corresponding CTL specification to the program, as follows:
+\begin{alltt}
+MODULE main
+ VAR
+   semaphore : boolean;
+   proc1     : process user(semaphore);
+   proc2     : process user(semaphore);
+ ASSIGN
+   init(semaphore) := FALSE;
+ SPEC AG ! (proc1.state = critical & proc2.state = critical)
+ SPEC AG (proc1.state = entering -> AF proc1.state = critical)
+MODULE user(semaphore)
+ VAR
+   state : \{idle, entering, critical, exiting\};
+ ASSIGN
+   init(state) := idle;
+   next(state) :=
+     case
+       state = idle                  : \{idle, entering\};
+       state = entering & !semaphore : critical;
+       state = critical              : \{critical, exiting\};
+       state = exiting               : idle;
+       TRUE                          : state;
+     esac;
+   next(semaphore) :=
+     case
+       state = entering : TRUE;
+       state = exiting  : FALSE;
+       TRUE             : semaphore;
+     esac;
+ FAIRNESS
+   running
+\end{alltt}
+By running \nusmv with the command
+\begin{alltt}
+\shellprompt \shelltext{\nusmvtxt semaphore.smv}
+\end{alltt}
+we obtain the following output:
+\begin{alltt}
+-- specification AG (!(proc1.state = critical & proc2.state = critical)) 
+-- is true
+-- specification AG (proc1.state = entering -> AF proc1.state = critical) 
+-- is false
+-- as demonstrated by the following execution sequence
+-> State: 1.1 <-
+    semaphore = FALSE
+    proc1.state = idle
+    proc2.state = idle
+-> Input: 1.2 <-
+    _process_selector_ = proc1
+-- Loop starts here
+-> State: 1.2 <-
+    proc1.state = entering
+-> Input: 1.3 <-
+    _process_selector_ = proc2
+-> State: 1.3 <-
+    proc2.state = entering
+-> Input: 1.4 <-
+    _process_selector_ = proc2
+-> State: 1.4 <-
+    semaphore = FALSE
+    proc2.state = critical
+-> Input: 1.5 <-
+    _process_selector_ = proc1
+-> State: 1.5 <-
+-> Input: 1.6 <-
+    _process_selector_ = proc2
+-> State 1.6 <-
+    proc2.state = exiting
+-> Input: 1.7 <-
+    _process_selector_ = proc2
+-> State 1.7 <-
+    semaphore = FALSE
+    proc2.state = idle
+\end{alltt}
+Note that \texttt{\_process\_selector\_} is a special variable which
+contains the name of the process that will execute to cause a
+transition to the next state. The '\texttt{Input}' section displays
+the values of variables that the model has no control over, that is it
+cannot change their value. Since processes are chosen
+nondeterministically in this model, it has no control over the value
+of \texttt{\_process\_selector\_}.\\
+\nusmv tells us that the first CTL specification is true:
+it is never the case that the two processes will be at the same time in
+the critical region.
+On the other hand, the second specification is false. \nusmv
+produces a counter-example path where initially \code{proc1} goes to
+state \code{entering} (state $1.2$), and then a loop starts in which
+\code{proc2} repeatedly enters its critical region (state $1.4$) and then
+returns to its \code{idle} state (state $1.7$); in the loop, \code{proc1}
+is activated only when \code{proc2} is in the critical region (input $1.5$), and is
+therefore not able to enter its critical region (state $1.5$). This path
+not only shows that the specification is false, it also points out why
+can it happen that \code{proc1} never enters its critical region.
+
+Note that in the printout of a cyclic, infinite counter-example the
+starting point of the loop is marked by \code{-- loop starts here}.
+Moreover, in order to make it easier to follow the action in systems
+with a large number of variables, only the values of variables that have
+changed in the last step are printed in the states of the trace.
+%@node  LTL model checking, Bounded Model Checking, CTL model checking, Tutorial
+%  node-name,  next,  previous,  up

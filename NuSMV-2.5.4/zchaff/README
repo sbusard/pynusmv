@@ -1,0 +1,127 @@
+Before using zChaff with NuSMV, you have to know that: 
+
+    *****************************************************************
+    *** zChaff is for non-commercial purposes only.               ***
+    *** NO COMMERCIAL USE OF ZCHAFF IS ALLOWED WITHOUT WRITTEN    ***
+    *** PERMISSION FROM PRINCETON UNIVERSITY.                     ***
+    *** Please contact Sharad Malik (malik@ee.princeton.edu)      ***
+    *** for details.                                              ***
+    *****************************************************************
+    
+
+******************************************************************************
+*                          (0) NuSMV and zChaff                              *
+******************************************************************************
+
+Since version 2.1, NuSMV is able to use the propositional solver "zChaff" 
+(in addition to the solver "MiniSAT") to deal with the SAT instances generated 
+during a Bounded-Model-Checking session.
+
+However, the NuSMV source distribution *DOES NOT INCLUDE* the zChaff solver.
+Moreover, the default behavior of the "configure/make" facility of NuSMV is 
+to ignore zChaff while linking.
+
+In order to exploit zChaff from within NuSMV, you have to proceed as follows.
+
+
+******************************************************************************
+*                          (1) Obtain zChaff                                 *
+******************************************************************************
+
+This can be done by downloading the source archive:
+
+    zchaff.yyyy.mm.dd.src.tar.gz 
+
+from the home page of zChaff:
+    http://www.princeton.edu/~chaff/zchaff.html    
+
+Tested versions with NuSMV are: 
+  * zchaff.64bit.2007.3.12 (current supported version) 
+  * zchaff-2004.11.15 
+  * zchaff-2003.12.04 
+    
+Remark: Build of older versions of zchaff might fail if gcc-3.x is used. 
+
+In the following, we assume that the archive is saved in the 
+NuSMV/zchaff directory. So, you should have:
+
+    [YOUR_PATH_TO_NUSMV]/nusmv/
+    [YOUR_PATH_TO_NUSMV]/cudd-2.4.1.1/
+    [YOUR_PATH_TO_NUSMV]/zchaff/zchaff.64bit.2007.3.12.zip
+
+
+******************************************************************************
+*                        (2) Compile zChaff                                  *
+******************************************************************************
+Prerequisites: A C++ compiler (like g++) is required. As zchaff is patched
+to be linked to nusmv, the program 'patch' is also required. 
+
+0) From a shell, enter the directory [YOUR_PATH_TO_NUSMV]/zchaff/
+
+1) Adjust file zchaff-default accordingly to the downloaded zchaff version.
+   Currently NuSMV uses version zchaff.64bit.2007.3.12
+
+2) You can download, unpack, patch and build zChaff:  
+   $> ./build.sh
+
+   The build.sh script will try downloading the requested version
+   of MiniSAT if not found. If it fails to download it, you will
+   have to download it manually from the MiniSAT homepage.
+
+   build.sh will unpack the downloaded archive, and patch it to
+   make compilable under mingw (for the Windows platform only). At
+   the end of the process, zchaff should be ready for being
+   included into NuSMV.
+
+If needed, it is be possible to use a different version of ZChaff by
+editing the file [YOUR_PATH_TO_NUSMV]/zchaff/zchaff-default
+accordingly (you may copy it from zchaff-default.in)
+
+        
+******************************************************************************
+*                     (3) Link zChaff within NuSMV                           *
+******************************************************************************
+By default, a call to configure with no options causes zChaff not to be 
+linked.
+
+To get zchaff embedded within NuSMV2, call configure by specifying
+--enable-zchaff option:
+
+    $> cd [YOUR_PATH_TO_NUSMV]/nusmv
+    $> ./configure --enable-zchaff
+    
+The default settings for "configure" work fine in our sample installation.
+If you have zChaff solver somewhere else than in our example, you might have 
+to manually adjust a couple of options for "configure" to work. Just type 
+"configure --help" and take a look at the "--with-zchaff-libdir" and 
+"--with-zchaff-incdir" options. These options instruct the compiler on where 
+to find the zChaff header and object files.
+
+If everything goes fine, at the end of the configuration step you
+should see a message like this:
+
+------------------------------------------------------------------
+The ZCHAFF library will be embedded into the NuSMV executable.
+------------------------------------------------------------------
+ 
+At this point, just execute make to obtain a version of NuSMV statically 
+linked with zChaff (provided the CUDD package has already been compiled).
+
+
+******************************************************************************
+*                        (4) Instruct NuSMV to use zChaff                    *
+******************************************************************************
+To exploit the zChaff solver, you have to enter an interactive 
+NuSMV session:
+
+    NuSMV -int yourModel.smv
+
+issue the command:
+
+    set sat_solver "zchaff"
+    
+and then proceed with your BMC session. zChaff will be used to solve
+the generated instances.
+
+Since version 2.3.1, command line option "-sat_solver" is provided to 
+set the SAT solver in batch mode as well. 

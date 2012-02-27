@@ -1,0 +1,77 @@
+  /* **************************************************************  -*-C-*-  ***/
+
+ /* word constants */
+"0"([us])?[bBoOdDhH][0-9]*"_"[0-9a-fA-F][0-9a-fA-F_]* {
+                 char* errorString;
+                 WordNumber_ptr wordConstant
+                        = WordNumber_from_parsed_string(yytext, &errorString);
+                 /* check for errors */
+                 if (WORD_NUMBER(NULL) == wordConstant) rpterr("%s", errorString);
+                 yylval.node = new_node('s' == yytext[1]
+                                        ? NUMBER_SIGNED_WORD : NUMBER_UNSIGNED_WORD,
+                                        (node_ptr)wordConstant,Nil);
+                 return(TOK_NUMBER_WORD);
+               }
+
+ /* real, fractional and exponential constants */
+[fF]"'"[0-9]+"/"[0-9]+  {
+                  yytext[0] = 'f';
+                  yylval.node = new_node(NUMBER_FRAC,
+                                         (node_ptr)find_string(yytext),Nil);
+                  return(TOK_NUMBER_FRAC);
+                 }
+
+[0-9]+("."[0-9]+)?[eE][+-]?[0-9]+ {
+                  yylval.node = new_node(NUMBER_EXP,
+                                         (node_ptr)find_string(yytext),Nil);
+                  return(TOK_NUMBER_EXP);
+                 }
+
+[0-9]+"."[0-9]+  {
+                  yylval.node = new_node(NUMBER_REAL,
+                                         (node_ptr)find_string(yytext),Nil);
+                  return(TOK_NUMBER_REAL);
+                 }
+
+ /* integer number */
+[0-9]+           {
+                  long tmp;
+                  char* endptr;
+
+                  errno = 0;
+                  tmp = strtol(yytext, &endptr, 10);
+
+                  /* range errors */
+                  if ((errno == ERANGE && (tmp == LONG_MAX || tmp == LONG_MIN))
+                      || (errno != 0 && tmp == 0)
+
+                      /* no digits found */
+                      || (endptr == yytext)
+
+                      /* garbage after digits */
+                      || (*endptr != '\0')
+
+                      /* as an additional check, verify that the value can
+                         fit into an ordinary int. tmp can not be negative */
+                      || (tmp < 0) || (INT_MAX < tmp)) {
+
+                    rpterr("illegal integer: \"%s\"", yytext);
+                  }
+
+                  /* here tmp can be safely cast to int */
+                  yylval.node = new_node(NUMBER, NODE_FROM_INT((int)(tmp)), Nil);
+                  return(TOK_NUMBER);
+                 }
+
+ /* identifier */
+[A-Za-z_][A-Za-z0-9_\$#-]*  {
+                  yylval.node = new_node(ATOM,
+                                         (node_ptr)find_string(yytext),Nil);
+                  return(TOK_ATOM);
+                 }
+\"[^\"]*\"       {
+                  yylval.node = new_node(ATOM,(node_ptr)find_string(yytext),Nil);
+                  return(TOK_ATOM);
+                 } /* Unused token */
+
+.                 rpterr("illegal character : \"%s\"", yytext);

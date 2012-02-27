@@ -1,0 +1,45 @@
+% -*-latex-*-
+\begin{nusmvCommand} {alias} {Provides an alias for a command}
+
+\cmdLine{alias [-h] [<name> [<string>]]}
+
+The \command{alias} command, if given no arguments, will print the definition
+of all current aliases.  Given a single argument, it will print the
+definition of that alias (if any).  Given two arguments, the keyword
+\code{<name>} becomes an alias for the command string
+\code{<string>}, replacing any other alias with the same name.\\
+\begin{cmdOpt}
+\opt{<name>}{ Alias}
+\opt{<string>}{Command string}
+\end{cmdOpt}
+
+It is possible to create aliases that take arguments by using the
+history substitution mechanism. To protect the history substitution
+character ` \code{\%}' from immediate expansion, it must be preceded
+by a ` \code{$\backslash$}' when entering the alias. \\
+
+For example:
+
+\noindent
+\code{\nusmvprompt \command{alias} read "read\_model -i \%:1.smv ; set input\_order\_file \%:1.ord"\\
+   \nusmvprompt read short\\
+}
+  will create an alias `read', execute "read\_model -i short.smv; 
+    set input\_order\_file short.ord".
+  And again:\\
+   \texttt{\nusmvprompt \command{alias} echo2 "echo Hi ; echo \%* !"\\ 
+  \nusmvprompt echo2 happy birthday\\
+  }
+  will print:\\
+   \texttt{Hi\\
+  happy birthday !
+  }\\
+  CAVEAT: Currently there is no check to see if there is a circular
+  dependency in the alias definition. e.g.\\
+   \texttt{\nusmvprompt \command{alias} foo "echo print\_bdd\_stats; foo"
+  }\\
+  creates an alias which refers to itself. Executing the command  \code{foo} 
+  will result an infinite loop during which the command 
+   \command{print\_bdd\_stats} will be executed.
+
+\end{nusmvCommand}

@@ -1,0 +1,320 @@
+% -*-latex-*-
+When the \commandopt{int} option is not specified, \nusmv
+runs as a batch program, in the style of \smv, performing (some
+of) the steps described in previous section in a fixed sequence.
+\begin{alltt}
+\shellprompt \shelltext{\nusmvtxt [command line options] {\it input-file}} \ret
+\end{alltt}
+The program described in {\it input-file} is processed, and the
+corresponding finite state machine is built.  Then, if \emph{input-file}
+contains formulas to verify, their truth in the specified structure is
+evaluated. For each formula which is not true a counterexample is
+printed.\\
+The batch mode can be controlled with
+the following command line options:\\
+\begin{alltt}
+\nusmv [-h | -help] [-v {\it vl}] [-int] [[-source script_file | -load script_file]]
+       [-s] [-old] [-old_div_op] [-smv_old]
+       [-disable_syntactic_checks] [-keep_single_value_vars]
+       [-disable_daggifier] [-dcx] [-cpp] [-pre {\it pps}] [-ofm {\it
+       fm\_file}] [-obm {\it bm\_file}] [-lp] [-n {\it idx}] [-is]
+       [-ic] [-ils] [-ips] [-ii] [-ctt] [[-f] [-r]]|[-df] [-flt] [-AG]
+       [-coi] [-i {\it iv\_file}] [-o {\it ov\_file}] [-t {\it
+       tv\_file}] [-reorder] [-dynamic] [-m {\it method}]
+       [-disable_sexp2bdd_caching] [-bdd_soh heuristics]
+       [[-mono]|[-thresh {\it cp\_t}]|[-cp {\it cp\_t}]|[-iwls95 {\it
+       cp\_t}]] [-noaffinity] [-iwls95preorder] [-bmc] [-bmc\_length
+       {\it k}] [-sat\_solver {\it name}] [-sin on|off] [-rin on|off]
+       [-ojeba {\it algorithm}] [{\it input-file}]
+
+\end{alltt}
+where the meaning of the options is described below. If
+{\it input-file} is not provided in batch mode, then the model is read
+from standard input.\\
+
+\begin{nusmvTable}
+
+\opt{-help}{ }
+
+\opt{-h}{%
+\index{ \code{-help}}%
+\index{ \code{-h}}%
+Prints the command line help.}
+
+\opt{-v {\it verbose-level}}{%
+\index{\code{-v} {\it verbose-level}}%
+Enables printing of additional information on the internal operations of
+\nusmv. Setting {\it verbose-level} to \code{1} gives the basic
+information. Using this option makes you feel better, since otherwise
+the program prints nothing until it finishes, and there is no evidence
+that it is doing anything at all. Setting the {\it verbose-level}
+higher than 1 enables printing of much extra information.}
+\opt{-int} {Enables interactive mode}
+\opt{-source {\it sc\_file}}{Executes NuSMV commands from file \filename{sc\_file}}
+\opt{-load {\it sc\_file}}{same as -source (deprecated)}
+\opt{-s} {%
+Avoids to load the \nusmv commands contained in \code{
+$\sim$/.nusmvrc} or in \code{.nusmvrc}  or in 
+\code{\$\{\stdsyslib\}/master.nusmvrc}.} 
+\vindex{\stdsyslib}
+\index{master.nusmvrc}
+\index{.nusmvrc}
+\index{\~/.nusmvrc}
+
+\opt{-old} {%
+\index{\code{-old}}%
+Keeps backward compatibility with older versions of NuSMV. This option
+disables some new features like type checking and dumping of new
+extension to SMV files. In addition, if enabled, \code{case}
+conditions also accepts ``\code{1}'' which is semantically equivalent
+to the truth value ``\code{TRUE}''. This backward compatibility
+feature has been added in \nusmv 2.5.1 in order to help porting of old
+SMV models. Infact, in versions older than 2.5.1, it was pretty common
+to use \code{1} in \code{case} conditions expressions. For an example
+please see section \ref{ref::caseconditionexample}}
+
+\opt{-old\_div\_op} {%
+\index{\code{-old\_div\_op}}%
+Enables the old semantics of ``\code{/}'' and ``\code{mod}'' operations (from
+\nusmv 2.3.0) instead of ANSI C semantics.}
+
+\opt{-disable\_syntactic\\\_checks} {%
+\index{\code{-disable\_syntactic\_checks}}%
+Disables all syntactic checks that will be performed when flattening
+the input model. Warning: If the model is not well-formed, \nusmv may
+result in unpredictable results, use this option at your own risk.}
+
+\opt{-disable\_daggifier} {%
+\index{\code{-disable\_daggifier}}%
+Disables the daggification feature of model dumping}
+
+\opt{-keep\_single\\\_value\_vars} {%
+\index{\code{-keep\_single\_value\_vars}}%
+Does not convert variables that have only one single possible value
+into constant DEFINEs}
+
+\opt{-dcx}{%
+\index{\code{-dcx}}%
+Disables the generation of counter-examples for properties that
+are proved to be false. See also variable \envvar{counter\_examples}}
+
+\opt{-cpp}{%
+\index{\code{-cpp}}%
+Runs pre-processor on \smv files before any of those specified with the
+-pre option.}
+
+\opt{-pre {\it pps}}{%
+\index{\code{-pre} {\it pps}}%
+Specifies a list of pre-processors to run (in the order given) on the
+input file before it is parsed by \nusmv. Note that if the
+\commandopt{cpp} command is used, then the pre-processors specified by
+this command will be run after the input file has been pre-processed
+by that pre-processor. {\it pps} is either one single pre-processor
+name (with or without double quotes) or it is a space-separated list
+of pre-processor names contained within double quotes.}
+
+\opt{-ofm {\it fm\_file}}{%
+\index{ \code{-ofm} {\it fm\_file}}%
+prints flattened model to file {\it fn\_file}}
+
+\opt{-obm {\it bm\_file}} {%
+\index{ \code{-obm} {\it bm\_file}}%
+Prints boolean model to file {\it bn\_file}}
+
+\opt{-lp}{%
+\index{\code{-lp}}%
+Lists all properties in \smv model}
+
+\opt{-n {\it idx}}{%
+\index{\code{-n} {\it idx}}%
+Specifies which property of \smv model should be checked}
+
+\opt{-is}{%
+\index{\code{-is}}%
+Does not check \code{SPEC} properties. Sets to ``1''
+the \envvar{ignore\_spec} environment variable.}
+
+\opt{-ic}{%
+\index{\code{-ic}}%
+Does not check \code{COMPUTE} properties. Sets to ``1''
+the \envvar{ignore\_compute} environment variable.}
+
+\opt{-ils}{%
+\index{\code{-ils}}%
+Does not check \code{LTLSPEC} properties. Sets to ``1''
+the \envvar{ignore\_ltlspec} environment variable.}
+
+\opt{-ips}{%
+\index{\code{-ils}}%
+Does not check \code{PSLSPEC} properties. Sets to ``1''
+the \envvar{ignore\_pslspec} environment variable.}
+
+\opt{-ii}{%
+\index{\code{-ii}}%
+Does not check \code{INVARSPEC} properties. Sets to ``1''
+the \envvar{ignore\_invariant} environment variable.}
+
+\opt{-ctt}{%
+\index{\code{-ctt}}%    
+Checks whether the transition relation is total.}
+
+\opt{-f}{%
+\index{ \code{-f}}%
+Computes the set of reachable states before evaluating CTL
+expressions.  Since NuSMV-2.4.0 this option is set by default, and it
+is provided for backward compatibility only. See also option -df. }
+
+\opt{-r}{%
+\index{ \code{-r}}%
+Prints the number of reachable states before exiting. If the \commandopt{f}
+option is not used, the set of reachable states is computed.}
+
+\opt{-df}{%
+\index{ \code{-f}}%
+Disable the computation of the set of reachable states. This option is
+provided since NuSMV-2.4.0 to prevent the computation of reachable
+states that are otherwise computed by default. }
+
+
+\opt{-flt}{%
+\index{ \code{-flt}}%
+Forces the computation of the set of reachable states for the tableau
+resulting from BDD-based LTL model checking (command
+\command{check\_ltlspec}). If the option \commandopt{flt} is not specified 
+(default), the resulting tableau will inherit the computation of the
+reachable states from the model, if enabled. If the option
+\commandopt{flt} is specified, the reachable states set will be calculated
+for the model \emph{and} for the tableau resulting from LTL model
+checking. This might improve performances of the command
+\command{check\_ltlspec}, but may also lead to a dramatic slowing
+down. This options has effect only when the calculation of reachable
+states is enabled (see \commandopt{f}).}
+
+\opt{-AG}{%
+\index{ \code{-AG}}%
+Verifies only AG formulas using an ad hoc algorithm (see documentation
+for the \envvar{ag\_only\_search} environment variable).}
+
+\opt{-coi}{%
+\index{ \code{-coi}}%
+%
+Enables cone of influence reduction.
+%
+Sets to ``1'' the \envvar{cone\_of\_influence} environment variable. }
+%
+We remark that, when cone of influence reduction is enabled, a
+counter-example trace for a property that does not hold may not be a
+valid counter-example trace for the original model. We refer the
+reader to the Frequently Asked Questions (FAQ)~\cite{FAQ}.
+
+\opt{-i {\it iv\_file}}{%
+\index{ \code{-i} {\it iv\_file}}%
+Reads the variable ordering from file {\it iv\_file}. }
+
+\opt{-o {\it ov\_file}}{%
+\index{ \code{-o} {\it ov\_file}}%
+Writes the variable ordering to file {\it ov\_file}.}
+
+\opt{-t {\it tv\_file}}{%
+\index{ \code{-t} {\it tv\_file}}%
+Reads a variable list from file {\it tv\_file}. This list defines the
+order for clustering the transition relation. This feature has been
+provided by Wendy Johnston, University of Queensland. The results of
+Johnston's et al. research have been presented at FM 2006 in Hamilton,
+Canada. See \cite{fm06}.}
+
+\opt{-reorder}{%
+\index{ \code{-reorder}}%
+Enables variable reordering after having checked all the specification if
+any.}
+
+\opt{-dynamic}{%
+\index{ \code{-dynamic}}%
+Enables dynamic reordering of variables}
+
+\end{nusmvTable}
+
+\begin{nusmvTable}
+
+\opt{-m  {\it method}}{%
+\index{ \code{-m} {\it method}}%
+Uses {\it method} when variable ordering is enabled. Possible values for
+method are those allowed for the \envvar{reorder\_method} environment
+variable (see \sref{Interface to DD package}).}
+
+\opt{-disable\_sexp2bdd\_caching}{%
+\index{ \code{-disable\_sexp2bdd\_caching}}%
+Sets the default value of environment variable 
+\envvar{enable\_bdd\_cache} to \varvalue{0}, i.e.\@ the evaluation 
+of symbolic expression to ADD and BDD representations are not cached.
+See command \command{clean\_sexp2bdd\_cache} for reasons of why BDD cache
+should be disabled sometimes.}
+
+\opt{-bdd\_soh {\it heuristics}}{%
+\index{ \code{-bdd\_soh}}%
+Sets the default value of environment variable 
+\envvar{bdd\_static\_order\_heuristics} to \varvalue{heuristics},
+i.e.\@ the option sets up the heuristics to be used to compute BDD
+ordering statically by analyzing the input model.  See the
+documentation about variable \command{bdd\_static\_order\_heuristics}
+on page \pageref{bdd_static_order_heuristics} for more details.}
+
+\opt{-mono}{%
+\index{ \code{-mono}}%
+Enables monolithic transition relation}
+
+\opt{-thresh {\it cp\_t}}{%
+\index{ \code{-thresh} {\it cp\_t}}%
+conjunctive partitioning with threshold of each
+partition set to {\it cp\_t} (DEFAULT, with {\it cp\_t}=1000)}
+
+\opt{-cp {\it cp\_t}}{%
+\index{ \code{-cp} {\it cp\_t}}%
+DEPRECATED: use \command{thresh} instead.}
+
+\opt{-iwls95 {\it cp\_t}}{%
+\index{ \code{-iwls95} {\it cp\_t}}%
+Enables Iwls95 conjunctive partitioning and sets
+the threshold of each partition to {\it cp\_t}}
+
+\opt{-noaffinity}{%
+\index{ \code{-noaffinity}}%
+Disables affinity clustering }
+
+\opt{-iwls95preoder}{%
+\index{ \code{-iwls95preorder}}%
+Enables \Iwls preordering}
+
+\opt{-bmc}{%
+\index{ \code{-bmc}}%
+Enables BMC instead of BDD model checking (works only for LTL
+properties and PSL properties that can be translated into LTL)}
+
+\opt{-bmc\_length {\it k}}{%
+\index{ \code{-bmc\_length} {\it k}}%
+Sets \envvar{bmc\_length} variable, used by BMC}
+
+\opt{-sat\_solver {\it name}}{%
+\index{ \code{-sat\_solver} {\it name}}%
+Sets \envvar{sat\_solver} variable, used by BMC so select the sat
+solver to be used.}
+
+\opt{-sin {\it on,off}}{%
+\index{\code{-sin} {\it on,off}}%
+Enables (on) or disables (off) Sexp inlining, by setting system
+variable \varName{sexp\_inlining}. Default value is
+\varvalue{off}.}
+
+\opt{-rin {\it on,off}}{%
+\index{\code{-rin} {\it on,off}}%
+Enables (on) or disables (off) RBC inlining, by setting system
+variable \varName{rbc\_inlining}. Default value is
+\varvalue{on}. The idea about inlining was taken from
+\cite{abdulla00symbolic} by Parosh Aziz Abdulla, Per Bjesse and
+Niklas E\'en.}
+
+\opt{-ojeba {\it algorithm}}{%
+\index{\code{-ojeba} {\it algorithm}}%
+Sets the algorthim used for BDD-based language emptiness of B\"uchi fair transition systems by setting system variable \varName{oreg\_justice\_emptiness\_bdd\_algorithm} (default is \varvalue{EL\_bwd}). The available algorithms are: \varvalue{EL\_bwd} \varvalue{EL\_fwd}}
+
+\end{nusmvTable}

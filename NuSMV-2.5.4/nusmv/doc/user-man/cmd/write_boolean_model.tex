@@ -1,0 +1,40 @@
+% -*-latex-*-
+\begin{nusmvCommand} {write\_boolean\_model} {Writes a flat and boolean model to a file}
+
+\cmdLine{write\_boolean\_model [-h] [-o filename]}
+
+Writes the currently loaded SMV model in the specified file, after
+having flattened and booleanized it. Processes are eliminated and a
+corresponding equivalent model is printed out.
+
+If no file is specified, the file specified via the environment
+variable \envvar{output\_boolean\_model\_file} is used if any, otherwise
+standard output is used.
+
+\begin{cmdOpt}
+\opt{-o \parameter{\filename{filename}}} {Attempts to write the flat
+and boolean SMV model in \filename{filename}}
+\end{cmdOpt}
+
+In \NuSMV scalar variables are dumped as \reserved{DEFINEs} whose body
+is their boolean encoding.
+  
+This allows the user to still express and see parts of the generated
+boolean model in terms of the original model's scalar variables names
+and values, and still keeping the generated model purely boolean.
+
+Also, symbolic constants are dumped within a \reserved{CONSTANTS}
+statement to declare the values of the original scalar variables' for
+future reading of the generated file.
+
+When \nusmv detects that there were triggered one or more dynamic
+reorderings in the BDD engine, the command
+\command{write\_boolean\_model} also dumps the current variables
+ordering, if the option \envvar{output\_order\_file} is set.
+
+The dumped variables ordering will contain single bits or scalar
+variables depending on the current value of the option
+\envvar{write\_order\_dumps\_bits}. See command \command{write\_order}
+for further information about variables ordering.
+
+\end{nusmvCommand}

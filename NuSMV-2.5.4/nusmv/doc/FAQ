@@ -1,0 +1,512 @@
+===========================================================================
+
+ID: #001
+
+Q: I would like to extend NuSMV and implement a new feature but I am lost
+   in the source code repository. Where should I begin from?
+
+A: Currently, there is not a tutorial for developers. We are working
+   on it. However, if you have any question please send an e-mail to
+   nusmv-users@list.fbk.eu we will try to answer your question as soon
+   as possible.
+
+TAGS: tutorial, customization
+
+===========================================================================
+
+ID: #002
+
+Q: NuSMV crashes with an error similar to "bdd_and_abstract: result = NULL",
+   what should I do?
+
+A: It is likely that such an error is thrown by NuSMV because of a lack of
+   memory on your system (i.e. Memory out). You should check if while
+   running NuSMV there is enough memory left. If this is the case then you
+   may have found a bug. Please report it to nusmv-users@list.fbk.eu with
+   the following information: the commands you ran, the SMV model you used,
+   all options passed to NuSMV and the specification of your system.
+
+   You may also try to re-execute NuSMV enabling BDD dynamic variable
+   ordering, i.e. providing "-dynamic" flag at the command line, or
+   "dynamic_var_ordering -e sift" at NuSMV shell prompt.
+
+TAGS: error, out of memory, -dynamic
+
+===========================================================================
+
+ID: #003
+
+Q: I was doing some checks when NuSMV went to segmentation fault. I
+   believe my model is correctly written, have you any idea how to fix
+   the problem?
+
+A: One reason could be a low stack size limit: NuSMV still uses some
+   recursive functions. Under Windows it is not easy to extend the
+   stack limit since it appears to be hard-coded in the
+   executable. However, in Unix/Linux it can be extended with the
+   command "ulimit -s 65536" to enlarge it to 65536 kbytes if you're
+   using the (ba)sh shell. If you're using a (t)csh shell the command
+   is "limit stacksize 65536". 65536 kbytes is usually enough,
+   however, to prevent stack overflow it can be set to "unlimited"
+   (i.e. "ulimit -s unlimited" for (ba)sh, or "limit stacksize
+   unlimited" for (t)csh).
+
+TAGS: crash, stack overflow
+
+===========================================================================
+
+ID: #004
+
+Q: I launched NuSMV this way: "NuSMV filename.smv" and it immediately
+   quit giving me an error message. Then I tried "NuSMV -bmc
+   filename.smv", all worked fine and I got only a warning, with the
+   same text as before. I am puzzled, is this a bug?
+
+A: No. The first way to launch NuSMV performs symbolic model checking using
+   BDD. This technology can detect many errors in the model. Option -bmc
+   runs bounded model checking using SAT. This technology can't detect as
+   many as errors as BDD, so we inserted some warnings about potential
+   errors. For example, consider the model below:
+
+     MODULE main
+       VAR x : word[16];
+       INVAR x / x = 0d16_1
+
+   It makes BDD engine terminate with error "line 3: Division by zero" whereas
+   BMC reports "Warning: at line 2 expression might contain a division by
+   zero" and continue execution. In such case it is the user responsibility
+   to guarantee that division by zero never happens.
+
+   One of the solutions is to add guard, e.g.:
+
+   INVAR x != 0d16_0 ? x/x=0d16_1 : TRUE;
+
+TAGS: error, warning, bmc, bdd
+
+===========================================================================
+
+ID: #005
+
+Q: My macros are not expanded when using the CPP pre-processor. Why?
+
+A: Always remember that the CPP pre-processor is designed for the C/C++
+   languages. It might be that the part of the SMV file where macros are
+   used is not recognized as "expandable" by the CPP pre-processor.
+
+   For example, calling "NuSMV -pre cpp" with the following model:
+
+     #define A_MACRO 5
+     MODULE main
+     VAR myarr: array 1..A_MACRO of boolean;
+
+   will cause the following error:
+
+     "Unexpected value at token 'A_MACRO' file cpp.smv: line 3: A number
+     was expected but not found."
+
+   since the two dots (..) followed by "A_MACRO" is not expanded by the CPP
+   pre-processor. A solution is to add a white-space after the two dots:
+
+     #define A_MACRO 5
+     MODULE main
+     VAR myarr: array 1.. A_MACRO of boolean;
+
+TAGS: macro, pre-processor, smv language
+
+===========================================================================
+
+ID: #006
+
+Q: What is the semantics for CTL model checking implemented by NuSMV?
+
+A: NuSMV provides the "fixed point" semantics. This is the standard
+   set of fixed point characterization of the temporal operators
+   (which differ in case of fairness and no fairness), and it
+   assumes the transition relation to be total and deadlock free.
+
+   Moreover, in NuSMV there is an implicit universal quantifier over
+   all the initial fair states. A consequence of this is that if there
+   are no initial fair states then all formulas pass.
+
+   The (possibly arguable) choice of quantifying over all initial fair
+   states turns out to be different from the "classical" definition of
+   model checking problem that does not restrict to the fair initial
+   states. However, this choice has also been adopted by CadenceSMV.
+
+TAGS: CTL, semantics
+
+===========================================================================
+
+ID: #007
+
+Q: CTL specification with top level existential path quantifier is
+   wrongly reported as being violated. For example, for the model
+   below both specifications are reported to be false though one is
+   just the negation of the other! I know such problems can arise with
+   deadlock states, but running it with -ctt says that everything is
+   fine.
+
+   MODULE main
+     VAR b : boolean;
+     TRANS next(b) = b;
+     CTLSPEC EF b
+     CTLSPEC !(EF b)
+
+A: A CTL formula holds if it holds in ALL initial states. For the provided
+   example, there are 2 initial states, one of which violates one
+   specification and the other initial state violates the other
+   specification.
+
+TAGS: CTL, initial states, wrong results, deadlock, -ctt
+
+===========================================================================
+
+ID: #008
+
+Q: I'm trying to use NuSMV for performing theorem proving / satisfiability
+   for CTL, but, even if using an unconstrained model, I get confusing
+   results. How do I interpret those results?
+
+A: NuSMV is not suitable to check the satisfiability of CTL, whereas
+   for LTL using an unconstrained model does the work.
+
+   In fact, a model with a TRUE transition relation exhibits all LTL
+   behaviors (i.e. sequences of states) but it exhibits only
+   particular CTL behaviors (i.e. trees of states) where every state
+   has exactly 2^n successors (n being the number of propositional
+   variables in the model, since the model is a clique). For instance,
+   such model satisfies "EX p" but not "AX p", although both are
+   satisfiable.
+
+   Finally, from a theoretical point of view, we remark that CTL
+   satisfiability is EXPTIME-complete and thus likely not reducible to
+   CTL model checking which is PSPACE-complete.
+
+TAGS: CTL, satisfiability
+
+===========================================================================
+
+ID: #009
+
+Q: I did some checks with NuSMV, using the -coi option; when I tried to
+   re-execute the traces, I got an error message, even with the command
+   execute_partial_traces. Are the checks correct? Why do the traces seem to
+   be wrong?
+
+A: Of course the checks are correct. The point is that the option -coi
+   (Cone of Influence) forces the construction of a partial model
+   which includes only those variables affected by the property being
+   checked. This way, NuSMV may find a loop that does not exist in the
+   original model. If the model does not contain deadlocks, the it is
+   possible to reconstruct a concrete counterexample by refining the
+   computed counterexample. However, this is not performed by NuSMV.
+
+   Here a small example showing this behavior.
+   MODULE main
+     VAR x : word[3];
+     VAR y : word[4];
+     ASSIGN
+       init(x) := 0ud3_0;
+       next(x) := x + 0ud3_1;
+       init(y) := 0ud4_0;
+       next(y) := y + 0ud4_1;
+     LTLSPEC ! G F (x = 0ud3_7);
+
+   NuSMV -coi file.smv generates a counterexample only with variable x
+   that goes from x=0 to x=7 and then loops back to x=0. If we ask to
+   re-execute the partial trace generated with execute_partial_traces
+   than NuSMV complains that the trace cannot be completed with
+   assignments to variable y. This because, from x=7 & y = 7 we
+   cannot go to x=0 & y=0. The counterexample for the whole system
+   requires a path that goes from x=0 & y=0 to x=7 & y=15 that can
+   loop back to x=0 & y=0 (which is the counterexample generated by
+   when NuSMV called with cone of influence reduction disabled.
+
+   We remark that, the cone of influence reduction, as well as CTL/LTL
+   model checking algorithms implemented in NuSMV assume the concrete
+   model to be deadlock free.
+
+TAGS: -coi, trace execution
+
+===========================================================================
+
+ID: #010
+
+Q: NuSMV gives me a result wrong for sure.  Consider the following
+   simple example.
+
+   MODULE main
+     VAR c: word[16];
+     ASSIGN init(c) := 0d16_0;
+     ASSIGN next(c) := c + 0d16_1;
+     INVAR c < 0d16_100;
+     LTLSPEC G (c = 0d16_0)
+
+     $ ./NuSMV model.smv
+     --specification G c = 0ud16_0 is true
+
+   The result seems totally wrong. How is it possible?
+
+A: The reason is the presence of a deadlock in your model. If you try
+   incrementing the verbosity level this way "./NuSMV -v 1 model.smv"
+   you got this warning:
+
+   ******** WARNING ********
+   Fair states set of the finite state machine is empty.
+   This might make results of model checking not trustable.
+   ******** END WARNING ********
+
+   You can detect the presence of a deadlock with the NuSMV command
+   "check_fsm".
+
+   You can't do this check if you are using cone of influence
+   reduction, because it prevents NuSMV to build the complete
+   model. However, model construction can be forced by "build_model -f".
+
+   Checking for transition relation totality and absence of deadlocks can
+   be performed also in batch mode issuing the "-ctt" command line flag.
+
+TAGS: wrong results, -coi, deadlock
+
+===========================================================================
+
+ID: #011
+
+Q: I got two different results verifying the same LTL property using
+   BDD based and SAT based model checking. Is this a bug?
+
+   I wrote a minimal model where this holds:
+
+     MODULE main
+     VAR s: boolean;
+     TRANS s = TRUE
+     LTLSPEC G (s = TRUE)
+
+   The LTL specification is proved valid by BDD-based model checking
+   but is violated by SAT-based bounded model checking.  Which is the
+   correct result? Why do this behaviour happens?
+
+
+A: BDD based LTL model checking algorithms implemented in NuSMV reason
+   only about infinite paths. Thus, even for a safety property that
+   does not hold, a lasso-shaped counterexample is generated, although a
+   finite path would be enough. While doing the check, it is assumed
+   the totality of the transition relation and the absence of
+   deadlocks, and the search is restricted to consider only infinite
+   paths, disregarding all paths leading to a deadlock. Thus, a finite
+   path leading to a deadlock and falsifying the property will not be
+   detected.
+
+   SAT based bounded model checking algorithms also assume the
+   totality of the transition relation and the absence of deadlocks,
+   but they are looking for a counterexample for the given property
+   that is either finite or infinite. Thus, differently from the BDD
+   based LTL model checking algorithms, a finite path leading to a
+   deadlock and falsifying the property will be detected.
+
+   Both algorithms assume the totality of the transition relation and
+   the absence of deadlocks but they do not specifically check for
+   these conditions being satisfied. It is the user responsibility to
+   perform this check by e.g. issuing the -ctt command line flag in
+   batch mode, or by invoking the check_fsm command in the NuSMV
+   shell.
+
+   Up to now there is no flag to disable the search for a finite path
+   within SAT based bounded model checking. However, by adding within
+   the model the following justice fairness condition
+
+     JUSTICE TRUE;
+
+   the bounded model checking algorithms stop looking for a finite
+   path and restrict the search to only infinite paths:
+
+   Another possible difference in the reported verification results
+   can be happen when the NuSMV model contains more than one initial
+   state. The BDD based approach relies on the reduction of LTL model
+   checking to CTL model checking (via tableau construction). CTL
+   model checking universally quantify over the set of fair initial
+   states. Thus, only initial states that are fair are
+   considered. There can be initial states that are not fair, and they
+   are not considered. This choice can be questionable, but it is also
+   shown by CadenceSMV. Differently, BMC based model checking does not
+   restrict to consider only fair initial states. Thus, if there
+   exists an initial state that is not fair and from which there is a
+   finite path violates the fairness conditions it will find it.
+
+TAGS: difference between BDD and SAT LTL model checking, deadlock, finite
+      paths, wrong results
+
+
+===========================================================================
+
+ID: #012
+
+Q: Since version 2.5.2, when processes are used I get this warning:
+
+   WARNING *** Processes are still supported, but deprecated.
+
+   Still, the NuSMV 2.5 user manual uses process. Why are processes
+   deprecated? What should be used instead of process?
+
+
+A: The main reasons for deprecating processes in NuSMV are:
+
+   1. Correctness
+      At the moment processes work correctly if the model does not
+      contain any TRANS/INIT/INVAR.
+
+      If any of such constructs occurs, than it is not easy to
+      define the frame conditions of the processes which are not
+      running. For this reason, the current implementation does not
+      support correctly processes when relational constructs are
+      used to model the behaviour.
+
+
+   2. Semantics of process hierarchies
+
+      Having a process within another process has the non-intuitive
+      behavior that only one of them can be active, while one may
+      expect the inner one to be running if the father is running
+      as well.
+
+      Furthermore, definition of behaviours in SMV is not local, as
+      it is possible to define the logics of a process from outside
+      that process. The non-locality makes the definition of a
+      clear semantics of processes even more complex.
+
+
+   3. The core of NuSMV is made with synchronism in mind. Adapting
+      it to support asynchronous processes adds complexity which
+      has bad effects on the core structure.
+
+
+   For these reasons, we decided to aim for a direction where the
+   core supports only synchronous systems, and the support for
+   asynchronism is built on top of it, possibly out of NuSMV.
+
+   The idea is to have a semantically clear level (possibly
+   providing an expressive user language) supporting asynchronous
+   processes, with a well-defined mapping between this level and
+   the SMV language supported by the core.
+
+   We are aware that this decision may make some users complain.
+   However, we think that inertia in this case does not help, and
+   we are firmly convinced that at the end of the transition NuSMV
+   will be much more robust and effectively usable than now.
+
+TAGS: process, processes, asynchronous models
+
+===========================================================================
+
+ID: #013
+
+Q: My PSL expression is parsed differently than I thought, or gives me
+   a parsing error even if seems correct to me, what should I do?
+
+A: If you are using PSL operators such as "always", "never", "next",
+   "next!", etc ..., parenthesizing may fix your problem, changing how
+   the expression is parsed. Here there are some examples on how NuSMV
+   parses PSL expressions:
+
+   MODULE main
+   VAR
+     x : boolean;
+     y : boolean;
+
+   PSLSPEC
+     always x -> next(y);
+   -- Parsed as:
+   -- always ((x -> next (y)))
+
+   PSLSPEC
+     always (!x -> next(y <-> x));
+   -- Parsed as:
+   -- always ((!x -> next ((y <-> x))))
+
+   PSLSPEC
+     always (!x -> (next(y) <-> x));
+   -- Parsed as:
+   -- always ((!x -> (next (y) <-> x)))
+
+   PSLSPEC
+     always (!x -> (next y <-> x));
+   -- Parsed as:
+   -- always ((!x -> (next (y) <-> x)))
+
+   PSLSPEC
+     always (!x -> ((next(y)) <-> x));
+   -- Parsed as:
+   -- always ((!x -> (next (y) <-> x)))
+
+TAGS: PSL, parser
+
+===========================================================================
+
+ID: #014
+
+Q: Model checking can be a high time-consuming activity. How is it possible to
+   speed up the execution of NuSMV?
+
+A: NuSMV provides a wide variety of optimization techniques. Here we list the
+   most effective (see the commands documentation for details):
+
+   GENERAL TECHNIQUES
+
+   1. Use cone of influence. Depending on the properties to check,
+      this can be very effective.
+      (option: -coi).
+
+   2. Disable some features:
+      * computation of reachable states
+        (option: -df);
+      * generation of counterexample traces
+        (option: -dcx);
+
+   TECHNIQUES FOR SAT-BASED MODEL CHECKING
+
+   In general, SAT-based bounded model checking (bmc) is usually
+   faster than BDD's one, especially for big models and for finding
+   bugs. However, being able to conclude the property holds might be
+   more complex for SAT-based bmc because of the need to use very
+   large bounds.
+
+   *) Use incremental algorithms (check_ltlspec_bmc_inc,
+      check_ltlspec_sbmc_inc), ;
+
+   TECHNIQUES FOR BDD-BASED MODEL CHECKING
+
+   *) Enable the dynamic variable reordering
+      (option: -dynamic
+       command: dynamic_var_ordering -e sift);
+
+   *) Use an existing variable ordering file
+      (option: -i <fname>);
+
+   *) Disable BDD caching
+      (command: set enable_sexp2bdd_caching 0);
+
+   *) Tune the cache of the BDD package
+      (command: set BDD."Hard limit for cache size" <new_value>);
+      (command: set BDD."Cache hit threshold for resizing" <new_value>);
+      (command: set BDD."Limit for fast unique table growth" <new_value>);
+      (see cudd-2.4.1.1/doc/cudd.ps)
+
+   *) Generate a variable ordering file. Follow this steps:
+
+      a) enable dynamic reordering (option -dynamic);
+         launch the long process for some time (few minutes, one hour,
+         one day, depending on the problem size);
+      b) interrupt computation with ctrl+c (it may not work under windows);
+      c) dump the ordering file (command write_order);
+      d) exit and restart the computation using the generated ordering file
+         (option -i <fname>).
+
+       Notice that a-c steps can be iterated multiple times to try
+       improving the quality of the ordering file, i.e. i-th iteration
+       uses the ordering file generated by (i-1)-th as initial
+       ordering.
+
+TAGS: slow, performance, -coi, -dynamic, -df, -dcx, -i, incremental checking
+      algorithms
+
+===========================================================================

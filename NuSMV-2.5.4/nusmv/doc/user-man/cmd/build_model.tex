@@ -1,0 +1,25 @@
+% -*-latex-*-
+\begin{nusmvCommand} {build\_model} {Compiles the flattened hierarchy
+    into a BDD}
+
+\cmdLine{build\_model [-h] [-f] [-m Method]}
+
+Compiles the flattened hierarchy into a BDD (initial states, invariants,
+  and transition relation) using the method specified in the
+  environment variable \envvar{partition\_method} for building the
+  transition relation.\\
+
+\begin{cmdOpt}
+
+\opt{-m \parameter{\set{Method}{Monolithic, Threshold, Iwls95CP}}}{ Sets the environment variable
+           \envvar{partition\_method} to the value \code{Method}, and
+           then builds the transition relation. Available methods are
+           \varvalue{Monolithic}, \varvalue{Threshold} and
+           \varvalue{Iwls95CP}.}
+ 
+\opt{-f}{ Forces model construction. By default, only one partition
+            method is allowed. This option allows to overcome this
+            default, and to build the transition relation with
+            different partitioning methods.}
+\end{cmdOpt}
+\end{nusmvCommand}

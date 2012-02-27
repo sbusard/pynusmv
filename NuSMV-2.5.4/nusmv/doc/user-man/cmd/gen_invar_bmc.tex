@@ -1,0 +1,40 @@
+% -*-latex-*-
+\begin{nusmvCommand}{gen\_invar\_bmc} {Generates the given invariant, 
+or all invariants if no formula is given}
+
+\cmdLine{gen\_invar\_bmc [-h | -n idx | -p "formula [IN context]" | -P
+    "name"] [-o filename]}
+
+At the moment, the invariants are generated using ``classic'' algorithm only
+(see the description of \code{check\_invar\_bmc} on
+page \pageref{checkInvarBmcCommand}).
+
+\begin{cmdOpt}
+
+\opt{-n \parameter{\natnum{\it index}}}{ {\it index} is the numeric index of a valid
+INVAR specification formula actually located in the property
+database.  The validity of {\it index} value is checked out by the
+system.}
+       
+\opt{-p \parameter{"\anyexpr [IN context]"}}{Checks the \anyexpr
+specified on the command-line. \code{context} is the module instance
+name which the variables in  \anyexpr must be evaluated in.}
+ 
+\opt{-P \parameter{\natnum{name}}}{Checks the INVAR property named \natnum{name} in
+the property database.} 
+
+\opt{-o \parameter{\filename{\it filename}}}{ {\it filename} is the name of the dumped
+dimacs file. If you do not use this option the dimacs file name is
+taken from the environment variable \envvar{bmc\_invar\_dimacs\_filename}. 
+       
+File name may contain special symbols which will be macro-expanded to
+form the real dimacs file name. Possible symbols are: }
+       \tabItem{ @\textbf{F}: model name with path part }
+       \tabItem{ @\textbf{f}: model name without path part} 
+       \tabItem{ @\textbf{n}: index of the currently processed formula in the 
+       properties database }
+       \tabItem{ @@: the '@' character}
+
+\end{cmdOpt}
+
+\end{nusmvCommand}

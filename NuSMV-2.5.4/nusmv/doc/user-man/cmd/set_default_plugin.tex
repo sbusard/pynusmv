@@ -1,0 +1,18 @@
+% -*-latex-*-
+\begin{nusmvCommand} {set\_default\_plugin} {Sets the plugin to be
+    used as the default to display traces}
+
+\cmdLine{set\_default\_plugin [-h] -n plugin-no}
+
+\begin{cmdOpt}
+\opt{-n \parameter{\natnum{plugin-no}}}{ Selects the plugin with the
+  given index number as the default one to use to display traces.}
+\end{cmdOpt}
+
+Selects which of the available plugins are used by default to display
+any of the traces which \nusmv generates, or that have been
+loaded. The parameter \texttt{plugin-no} refers to the index number
+that is associated with the desired plugin, as shown by the command
+``\command{show\_plugins}''.
+
+\end{nusmvCommand}

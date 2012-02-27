@@ -1,0 +1,85 @@
+% -*-latex-*-
+\begin{nusmvCommand} {set} {Sets an environment variable}
+ 
+\cmdLine{set [-h] [<name>] [<value>]}
+
+A variable environment is maintained by the command interpreter.  The
+\command{set} command sets a variable to a particular value, and the
+\command{unset} command removes the definition of a variable.  If
+\command{set} is given no arguments, it prints the current value of
+all variables.\\
+\begin{cmdOpt}
+\opt{<name>}{Variable name}
+
+\opt{<value>} {Value to be assigned to the variable.}
+
+\end{cmdOpt}
+
+Using the \command{set} command to set a variable, without giving any
+explicit value is allowed, and sets the variable to \code{1}:\\
+\code{\nusmvprompt \command{set} foo}\\
+will set the variable foo to \code{1}.\\
+
+Interpolation of variables is allowed when using the \command{set}
+command. The variables are referred to with the prefix of '\$'. So for
+example, what follows can be done to check the value of a set
+variable:\\
+\code{\nusmvprompt \command{set} foo bar\\
+      \nusmvprompt \command{echo} \$foo\\
+             bar\\ }
+
+The last line ``bar" will be the output produced by \nusmv.  Variables
+can be extended by using the character `:' to concatenate values. For
+example: \\
+\code{\nusmvprompt \command{set} foo bar\\
+      \nusmvprompt \command{set} foo \$foo:foobar\\
+      \nusmvprompt \command{echo} \$foo \\
+             bar:foobar\\
+}
+
+The variable  \texttt{foo} is extended with the value \texttt{foobar
+}.  Whitespace characters may be present within quotes. However,
+variable interpolation lays the restriction that the characters ':'
+and '/' may not be used within quotes. This is to allow for recursive
+interpolation.  So for example, the following is allowed\\
+\code{\nusmvprompt \command{set} "foo bar" this\\
+      \nusmvprompt \command{echo} \$"foo bar"\\
+             this \\
+} 
+
+The last line will be the output produced by \nusmv. 
+  
+But in the following, the  value of the variable  \code{foo/bar } will
+not be interpreted correctly:
+\code{\nusmvprompt \command{set} "foo/bar" this\\
+      \nusmvprompt \command{echo} \$"foo/bar"\\
+             foo/bar\\
+}
+
+If a variable is not set by the \command{set} command, then the variable is
+returned unchanged.  Different commands use environment information
+for different purposes.  The command interpreter makes use of the
+following parameters:
+
+\begin{cmdOpt}
+\opt{autoexec}{ Defines a command string to be automatically executed
+after every command processed by the command interpreter.  This is
+useful for things like timing commands, or tracing the progress of
+optimization.}
+
+\opt{open\_path}{ ``open\_path" (in analogy to the shell-variable PATH)
+is a list of colon-separated strings giving directories to be searched
+whenever a file is opened for read.  Typically the current directory
+(.) is the first item in this list. The standard system library
+(typically \stdsyslib) is always implicitly appended to
+the current path.  This provides a convenient short-hand mechanism for
+reaching standard library files.}
+
+\opt{nusmv\_stderr }{ Standard error (normally \code(stderr)) can be
+re-directed to a file by setting the variable \envvar{nusmv\_stderr}.}
+
+\opt{nusmv\_stdout}{ Standard output (normally \code(stdout)) can be
+re-directed to a file by setting the variable \envvar{nusmv\_stdout}.}
+
+\end{cmdOpt}
+\end{nusmvCommand}

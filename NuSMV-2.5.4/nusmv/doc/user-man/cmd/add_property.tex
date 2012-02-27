@@ -1,0 +1,32 @@
+% -*-latex-*-
+\begin{nusmvCommand}{add\_property} {Adds a property to the list of properties}
+
+\cmdLine{add\_property [-h] [(-c | -l | -i | -q | -s) -p "formula
+    \linebreak[4][IN context]"] [-n "name"]}
+
+Adds a property in the list of properties. It is possible to insert
+\code{LTL, CTL, INVAR, PSL} and quantitative (\code{COMPUTE})
+properties. Every newly inserted property is initialized to unchecked.
+A type option must be given to properly execute the command.
+
+\begin{cmdOpt}
+
+\opt{-c}{ Adds a \code{CTL} property.}
+
+\opt{-l}{Adds an \code{LTL} property.}
+
+\opt{-i}{Adds an \code{INVAR} property.}
+
+\opt{-s}{Adds a \code{PSL} property.}
+ 
+\opt{-q}{Adds a quantitative (\code{COMPUTE}) property.}
+
+\opt{-p \parameter{"\anyexpr [IN context]"}}{ Adds the \anyexpr specified on
+the command-line. \code{context} is the module instance name which
+the variables in \anyexpr must be evaluated in.}
+
+\opt{-n \parameter{"name"}}{Sets the name of the property to ``name''}
+
+\end{cmdOpt}
+
+\end{nusmvCommand}

@@ -1,0 +1,411 @@
+% -*-latex-*-
+\index{Input Language}
+In this section we describe the input language of \nusmv by
+presenting some examples of \nusmv models. A complete description
+of the \nusmv language can be found in the \NuSMV User Manual.
+Also, all mentioned example files can be found in the distributed
+archive of \NuSMV, or can be individually downloaded from the \nusmv
+web pages, at the URL 
+\texttt{<http://nusmv.fbk.eu/examples/examples.html>}.
+\\
+
+The input language of \nusmv is designed to allow for the
+description of Finite State Machines (FSMs from now on) which range from
+completely synchronous to completely asynchronous, and from the detailed
+to the abstract.
+One can specify a system as a synchronous Mealy machine, or as
+an asynchronous network of nondeterministic processes. The language
+provides for modular hierarchical descriptions, and for the definition
+of reusable components. Since it is intended to describe finite state
+machines, the only data types in the language are finite ones --
+booleans, scalars and fixed arrays. Static data types can also be
+constructed.
+
+%% Specifications can be expressed in CTL (Computation Tree Logic), or LTL
+%% (Linear Temporal Logic).  These logics allow a rich class of temporal
+%% properties, including safety, liveness, fairness and deadlock freedom,
+%% to be specified in concise a syntax.
+The primary purpose of the \nusmv input is to describe the
+transition relation of the FSM; this relation describes the valid
+evolutions of the state of the FSM.
+In general, any propositional expression in the propositional calculus
+can be used to define the transition relation. This
+provides a great deal of flexibility, and at the same time a certain
+danger of inconsistency. For example, the presence of a logical
+contradiction can result in a deadlock -- a state or states with no
+successor. This can make some specifications vacuously true, and makes
+the description unimplementable.  While the model checking process can
+be used to check for deadlocks, it is best to avoid the problem when
+possible by using a restricted description style. The \nusmv system
+supports this by providing a parallel-assignment syntax. The semantics
+of assignment in \nusmv is similar to that of single assignment data
+flow language. By checking programs for multiple parallel assignments to
+the same variable, circular assignments, and type errors, the
+interpreter insures that a program using only the assignment mechanism
+is implementable. Consequently, this fragment of the language can be
+viewed as a description language, or a programming language.
+
+\section{Synchronous Systems}
+\label{Synchronous Systems}
+\index{Synchronous Systems}
+
+\subsection{Single Process Example}
+\label{Mutual Exclusion Example}
+\index{Examples!Single Process}
+
+Consider the following simple program in the \nusmv language:
+\noindent
+\begin{alltt}
+MODULE main
+VAR
+  request : boolean;
+  state   : \{ready, busy\};
+ASSIGN
+  init(state) := ready;
+  next(state) := case
+                   state = ready & request = TRUE : busy;
+                   TRUE                        : \{ready, busy\};
+                 esac;
+\end{alltt}
+
+The space of states of the
+FSM is determined by the declarations of the state
+variables (in the above example \code{request} and \code{state}). The
+variable \code{request} is declared to be of (predefined) type
+\code{boolean}.  This means that it can assume the (boolean) values
+\code{FALSE} and \code{TRUE}. The variable \code{state} is a scalar variable,
+which can take the symbolic values \code{ready} or \code{busy}.  The
+following assignment sets the initial value of the variable
+\code{state} to \code{ready}. The initial value of \code{request} is
+completely unspecified, i.e. it can be either \code{FALSE}
+or \code{TRUE}.  The transition relation of the FSM is expressed by
+defining the value of variables in the next state (i.e. after each
+transition), given the value of variables in the current states
+(i.e. before the transition). The \code{case} segment sets the next
+value of the variable
+\code{state} to the value \code{busy} (after the colon) if its current
+value is \code{ready} and \code{request} is \code{TRUE}.  Otherwise
+(the \code{TRUE} before the colon) the next value for
+\code{state} can be any in the set \code{\{ready, busy\}}.
+The variable \code{request} is not assigned. This means that there are
+no constraints on its values, and thus it can assume any value.
+\code{request} is thus an unconstrained input to the system.
+
+%% The keyword @samp{SPEC} is followed by a CTL formula, that is intended to
+%% be checked for truth in the FSM defined above. The
+%% intuitive reading of the formula is that every time \code{request}
+%% is true, then in all possible future evolution, eventually \code{state}
+%% must become \code{busy}.
+
+
+\subsection{Binary Counter}
+\label{Binary Counter Example}
+\index{Examples!Binary Counter}
+
+\index{Modules}
+The following program illustrates the definition of reusable modules and
+expressions. It is a model of a three bit binary counter circuit.
+The order of module definitions in the input file is not relevant.
+
+\noindent
+\begin{alltt}
+MODULE counter_cell(carry_in)
+ VAR
+   value : boolean;
+ ASSIGN
+   init(value) := FALSE;
+   next(value) := value xor carry_in;
+ DEFINE
+  carry_out := value & carry_in;
+MODULE main
+ VAR
+   bit0 : counter_cell(TRUE);
+   bit1 : counter_cell(bit0.carry_out);
+   bit2 : counter_cell(bit1.carry_out);
+\end{alltt}
+
+The FSM is defined by instantiating three times the module
+type \code{counter\_cell} in the module \code{main}, with the names
+\code{bit0}, \code{bit1} and \code{bit2} respectively. The \code{counter\_cell} 
+module has one formal parameter \code{carry\_in}. In
+the instance \code{bit0}, this parameter is given the actual value
+\code{TRUE}. In the instance \code{bit1}, \code{carry\_in} is given the
+value of the expression \code{bit0.carry\_out}. This expression is
+evaluated in the context of the \code{main} module. However, an
+expression of the form `$a.b$' denotes component `$b$' of module
+`$a$', just as if the module `$a$' were a data structure in a standard
+programming language. Hence, the \code{carry\_in} of
+module \code{bit1} is the
+\code{carry\_out} of module \code{bit0}.
+
+\index{DEFINE keyword}
+The keyword `DEFINE' is used to assign the expression \code{value \& carry\_in} 
+to the symbol \code{carry\_out}. A definition can be thought of
+as a variable with value (functionally) depending on the current values
+of other variables. The same effect could have been obtained as follows
+(notice that the \emph{current} value of the variable is assigned,
+rather than the \emph{next} value.):\\
+\pagebreak[3]
+\begin{alltt}
+VAR
+  carry_out : boolean;
+ASSIGN
+  carry_out := value & carry_in;
+\end{alltt}
+Defined symbols do not require introducing a new variable, and hence do
+not increase the state space of the FSM. On the other hand, it is not
+possible to assign to a defined symbol a value
+non-deterministically. Another difference between defined symbols and
+variables is that while the type of variables is declared a priori, for
+definitions this is not the case.
+
+
+\section{Asynchronous Systems}
+\label{Asynchronous Systems}
+\index{Asynchronous Systems}
+
+\fbox{\parbox[t]{\textwidth} {
+\emph{Important!} \\
+Since \nusmv version 2.5.0 processes are \emph{deprecated}.
+In future versions of \nusmv processes may be no longer supported,
+and only synchronous systems will be supported by the input language.
+Modeling of asynchronous systems will have to be resolved at
+higher level.
+}}
+%
+%
+\vspace{3mm}
+
+The previous examples describe synchronous systems, where the
+assignments statements are taken into account in parallel and
+simultaneously. \nusmv allows to model asynchronous systems.  It
+is possible to define a collection of parallel processes, whose actions
+are interleaved, following an asynchronous model of concurrency. This
+is useful for describing communication protocols, or asynchronous
+circuits, or other systems whose actions are not synchronized (including
+synchronous circuits with more than one clock region).
+
+
+\subsection{Inverter Ring}
+\label{Inverter Ring}
+\index{Examples!Inverter Ring}
+
+The following program represents a ring of three asynchronous inverting
+gates.\\
+\begin{alltt}
+MODULE inverter(input)
+ VAR
+   output : boolean;
+ ASSIGN
+   init(output) := FALSE;
+   next(output) := !input;
+MODULE main
+ VAR
+   gate1 : process inverter(gate3.output);
+   gate2 : process inverter(gate1.output);
+   gate3 : process inverter(gate2.output);
+\end{alltt}
+\index{process keyword}
+Among all the modules instantiated with the \code{process} keyword, one
+is nondeterministically chosen, and the assignment statements declared
+in that process are executed in parallel. It is implicit that if a given
+variable is not assigned by the process, then its value remains
+unchanged. Because the choice of the next process to execute is
+non-deterministic, this program models the ring of inverters
+independently of the speed of the gates. 
+
+We remark that the system is not forced to eventually choose a given
+process to execute. As a consequence the output of a given gate may remain
+constant, regardless of its input.
+\index{FAIRNESS keyword}
+In order to force a given process to execute infinitely often, we can
+use a fairness constraint. 
+A fairness constraint restricts the attention of the model checker to
+only those execution paths along which a given formula is true
+infinitely often. Each process has a special variable called
+\code{running} which is \code{TRUE} if and only if that process is
+currently executing.\\
+By adding the declaration:\\
+\begin{alltt}
+FAIRNESS
+  running
+\end{alltt}
+to the module \code{inverter}, we can effectively force every
+instance of \code{inverter} to execute infinitely often.\\
+An alternative to using processes to model an asynchronous circuit
+is to allow all gates to execute simultaneously, but to allow each gate
+to choose non-deterministically to re-evaluate its output or to keep the
+same output value. Such a model of the inverter ring would look like the
+following:\\
+\begin{alltt}
+MODULE inverter(input)
+ VAR
+   output : boolean;
+ ASSIGN
+  init(output) := FALSE;
+  next(output) := (!input) union output;
+MODULE main
+ VAR
+   gate1 : inverter(gate3.output);
+   gate2 : inverter(gate1.output);
+   gate3 : inverter(gate2.output);
+\end{alltt}
+\index{union operator}
+The \code{union} operator (set union) coerces its arguments to
+singleton sets as necessary. Thus, the next \code{output} of each gate
+can be either its current \code{output}, or the negation of its
+current \code{input} -- each gate can choose non-deterministically
+whether to delay or not. As a result, the number of possible
+transitions from a given state can be as $2^n$,
+where $n$ is the number of gates. This sometimes (but not always)
+makes it more expensive to represent the transition relation.
+We remark that in this case we cannot force the inverters to be
+effectively active infinitely often using a fairness declaration. In
+fact, a valid scenario for the synchronous model is the one where all
+the inverters are idle and assign to the next \code{output} the current
+value of \code{output}.
+
+%@sp 1
+%In the declaration of the \code{main} module it is possible to mix
+%\code{process} instances and normal instances of modules. Let us
+%consider the following example:
+%\begin{alltt}
+%MODULE main
+%  VAR p0: m;
+%      p1: m;
+%      p2: process m;
+%      p3: process m;
+%MODULE m
+%  VAR x: 0..3;
+%  ASSIGN
+%    init(x) := 0;
+%    next(x) := (x+1) mod 4;
+%\end{alltt}
+%@noindent
+%In the example, four copies of module \code{m} are instantiated. Two of
+%them (\code{p0} and \code{p1}) are asynchronous processes, while the
+%other two (\code{p2} and \code{p3}) are normal, synchronous modules.
+%@c
+%The non-process modules instantiated inside main are considered part of
+%a special "top-level" process that runs asynchronously with respect to
+%the other processes.
+%@c
+%That is, during each transition of the model, either process \code{p0}
+%is active (in which case the value of \code{p0.x} is updated), or
+%process \code{p1} is active (in which case the value of \code{p1.x} is
+%updated), or the top-level process is active (in which case the values
+%of \code{p2.x} and \code{p3.x} are updated).
+%@sp 1
+
+
+\subsection{Mutual Exclusion}
+\label{Semaphore}
+\index{Examples!Semaphore!Asynchronous}
+
+The following program is another example of asynchronous
+model. It uses a variable semaphore to implement mutual exclusion
+between two asynchronous processes.  Each process has four states:
+\code{idle}, \code{entering}, \code{critical} and \code{exiting}. The
+\code{entering} state indicates that the process wants to enter its
+critical region. If the variable \code{semaphore} is \code{FALSE}, it goes
+to the \code{critical} state, and sets \code{semaphore} to \code{TRUE}. On
+exiting its critical region, the process sets \code{semaphore} to
+\code{FALSE} again.\\
+\begin{alltt}
+MODULE main
+ VAR
+   semaphore : boolean;
+   proc1     : process user(semaphore);
+   proc2     : process user(semaphore);
+ ASSIGN
+   init(semaphore) := FALSE;
+MODULE user(semaphore)
+ VAR
+   state : \{idle, entering, critical, exiting\};
+ ASSIGN
+   init(state) := idle;
+   next(state) :=
+     case
+       state = idle                  : \{idle, entering\};
+       state = entering & !semaphore : critical;
+       state = critical              : \{critical, exiting\};
+       state = exiting               : idle;
+       TRUE                          : state;
+     esac;
+   next(semaphore) :=
+     case
+       state = entering : TRUE;
+       state = exiting  : FALSE;
+       TRUE             : semaphore;
+     esac;
+ FAIRNESS
+   running
+\end{alltt}
+
+
+\section{Direct Specification}
+\label{Direct Specification}
+\index{Direct Specification}
+
+\nusmv allows to specify the FSM directly in terms of
+propositional formulas. The set of possible initial states is specified
+as a formula in the current state variables. A state is initial if it
+satisfies the formula. The transition relation is directly specified as
+a propositional formula in terms of the \emph{current} and \emph{next}
+values of the state variables. Any current state/next state pair is in
+the transition relation if and only if it satisfies the formula.
+
+\index{INIT keyword}
+\index{TRANS keyword}
+These two functions are accomplished by the `\code{INIT}' and `\code{TRANS}'
+keywords. As an example, here is a description of the three inverter
+ring using only \code{TRANS} and \code{INIT}:\\
+\begin{alltt}
+MODULE main
+ VAR
+   gate1 : inverter(gate3.output);
+   gate2 : inverter(gate1.output);
+   gate3 : inverter(gate2.output);
+MODULE inverter(input)
+ VAR
+   output : boolean;
+ INIT
+   output = FALSE
+ TRANS
+   next(output) = !input | next(output) = output
+\end{alltt}
+
+According to the \code{TRANS} declaration, for each inverter,
+the next value of the \code{output} is equal either to the negation of
+the \code{input}, or to the current value of the \code{output}. Thus, in
+effect, each gate can choose non-deterministically whether or not to
+delay.
+
+Using \code{TRANS} and \code{INIT} it is possible to specify
+inadmissible FSMs, where the set of initial states is empty
+or the transition relation is not total. This may result in logical
+absurdities.
+% To summarize, the \nusmv language is designed to be flexible in
+% terms of the styles of models it can describe. It is possible to fairly
+% concisely describe synchronous or asynchronous systems, to describe
+% detailed deterministic models or abstract non-deterministic models, and
+% to exploit the modular structure of a system to make the description
+% more concise. It is also possible to write logical absurdities if one
+% desires to, and also sometimes if one does not desire to, using the
+% \code{TRANS} and \code{INIT} declarations. By using only the assignment
+% mechanism, however, this problem can be avoided. The language is
+% designed to exploit the capabilities of the symbolic model checking
+% technique. As a result the available data types are all static and
+% finite. No attempt has been made to support a particular model of
+% communication between concurrent processes. In addition, there is no
+% explicit support for some features of communicating process models such
+% as sequential composition. Since the full generality of the symbolic
+% model checking technique is available through the \nusmv language,
+% it is possible that translators from various languages, process models,
+% and intermediate formats could be created. In particular, existing
+% silicon compilers could be used to translate high level languages with
+% rich feature sets into a low level form (such as a Mealy machine) that
+% could be readily translated into the \nusmv language.
+%TODO: here
+%@node  Simulation, CTL model checking, Examples, Tutorial
+%  node-name,  next,  previous,  up
