@@ -1,10 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
+<xsl:output indent="yes" />
 
 	<xsl:template match="/">
 		<html xmlns="http://www.w3.org/1999/xhtml">
 			<head>
 				<title>Documentation</title>
+				<script src="jquery.js" type="text/javascript">skip;</script> 
+				<script src="htmlDoc.js" type="text/javascript">skip;</script>
 			</head>
 			<body>				
 				<ul id="functionlist">
