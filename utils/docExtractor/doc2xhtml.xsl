@@ -6,9 +6,9 @@
 		<html xmlns="http://www.w3.org/1999/xhtml">
 			<head>
 				<title>Documentation</title>
-				<link rel="stylesheet" type="text/css" href="htmlDoc.css" />
-				<script src="jquery-1.7.1.min.js" type="text/javascript">skip;</script>
-				<script src="htmlDoc.js" type="text/javascript">skip;</script>				
+				<link rel="stylesheet" type="text/css" href="html/htmlDoc.css" />
+				<script src="html/jquery-1.7.1.min.js" type="text/javascript">skip;</script>
+				<script src="html/htmlDoc.js" type="text/javascript">skip;</script>				
 			</head>
 			<body>
 				<xsl:if test="count(functionlist/directory | functionlist/file) > 0">			
