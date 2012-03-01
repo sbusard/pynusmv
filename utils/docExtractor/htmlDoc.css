@@ -1,0 +1,19 @@
+.directory {
+	font-weight: bold;
+}
+.file {
+}
+li {
+	list-style-type: none;
+}
+.function {
+	border-left: 3px solid blue;
+	border-top: 3px solid blue;
+}
+.signature {
+	padding-left: 5px;
+}
+.specs {
+	border-top: 2px solid blue;
+	padding: 5px 5px 0px 0px;
+}

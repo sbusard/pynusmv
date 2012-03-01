@@ -1,5 +1,5 @@
 $().ready(
-	function() {
+	function($) {
 		// Active folding/unfolding
 		$('.expander').click(
 			function(event) {
