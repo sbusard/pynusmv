@@ -1,3 +1,4 @@
+/#.*/				{ next }
 /\/\*\*Function/ 	{ 
 					  if(s == 1) {
 						print "]]></sig></func>" ;
@@ -9,7 +10,8 @@
 					}
 					{ if (s == 1) {
 						if (f == 0) {
-							sub(/[ \t]+$/, "",$0) ;
+							sub(/^[ \t]+/, "", $0) ;
+							sub(/[ \t]+$/, "", $0) ;
 							if(index($0,"\{") > 0) {
 								if(length($0) > 1) {
 									print substr($0, 1, index($0,"\{") - 1)
