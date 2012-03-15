@@ -109,9 +109,7 @@
 #endif
 
 /* Defined to 1 if the system provides malloc.h */
-#ifndef NUSMV_HAVE_MALLOC_H
-#define NUSMV_HAVE_MALLOC_H 1
-#endif
+/* #undef HAVE_MALLOC_H */
 
 /* Define to 1 if you have the `memmove' function. */
 #ifndef NUSMV_HAVE_MEMMOVE
@@ -272,7 +270,9 @@
 #endif
 
 /* Defined to 1 if the system provides sys/malloc.h */
-/* #undef HAVE_SYS_MALLOC_H */
+#ifndef NUSMV_HAVE_SYS_MALLOC_H
+#define NUSMV_HAVE_SYS_MALLOC_H 1
+#endif
 
 /* Define to 1 if you have the <sys/ndir.h> header file, and it defines `DIR'.
    */
@@ -335,7 +335,7 @@
 
 /* Library build date */
 #ifndef NUSMV_LIBRARY_BUILD_DATE
-#define NUSMV_LIBRARY_BUILD_DATE "Fri Oct 28 13:53:51 UTC 2011"
+#define NUSMV_LIBRARY_BUILD_DATE "Mon Mar  5 15:55:46 UTC 2012"
 #endif
 
 /* Library Email */
@@ -365,9 +365,7 @@
 
 /* Define to 1 if `lstat' dereferences a symlink specified with a trailing
    slash. */
-#ifndef NUSMV_LSTAT_FOLLOWS_SLASHED_SYMLINK
-#define NUSMV_LSTAT_FOLLOWS_SLASHED_SYMLINK 1
-#endif
+/* #undef LSTAT_FOLLOWS_SLASHED_SYMLINK */
 
 /* Define to the sub-directory in which libtool stores uninstalled libraries.
    */
@@ -385,7 +383,7 @@
 
 /* Build date */
 #ifndef NUSMV_PACKAGE_BUILD_DATE
-#define NUSMV_PACKAGE_BUILD_DATE "Fri Oct 28 13:53:51 UTC 2011"
+#define NUSMV_PACKAGE_BUILD_DATE "Mon Mar  5 15:55:46 UTC 2012"
 #endif
 
 /* Define to the full name of this package. */
