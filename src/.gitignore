@@ -6,6 +6,7 @@
 .libs/
 .dirstamp
 __pycache__
+pynusmv
 
 MiniSat/minisat-2.2.0.tar.gz
 MiniSat/minisat/
