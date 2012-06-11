@@ -68,7 +68,9 @@ def filter_files(files):
 	Returns the subset of files that must be included.
 	This means .h files, but not Int.h files.
 	"""
-	return [f for f in files if f.endswith('.h') if not f.endswith('Int.h')]
+	return [f for f in files	if f.endswith('.h')
+								if not f.endswith('Int.h')
+								if not f.endswith('_private.h')]
 
 
 def swig_module_from_files(files, path, submodulepath, module):
@@ -86,7 +88,7 @@ def swig_module_from_files(files, path, submodulepath, module):
 
 %{{""".format(	PyNuSMVPackage=PyNuSMVPackage,
 				submodule=submodulepath,
-				module=module)			
+				module=module)	
 	for f in files:
 		content += \
 """
