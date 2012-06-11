@@ -197,7 +197,9 @@ EXTERN Prop_Type Prop_get_type ARGS((const Prop_ptr self));
 EXTERN const char* Prop_get_type_as_string ARGS((Prop_ptr self));
 
 EXTERN node_ptr Prop_get_name ARGS((const Prop_ptr self));
-EXTERN void Prop_set_name ARGS((Prop_ptr self, node_ptr name));
+/* sbusard 11/06/12
+ * This signature is defined twice, with const keyword line 224. */
+/*EXTERN void Prop_set_name ARGS((Prop_ptr self, node_ptr name));*/
 
 EXTERN Prop_Status Prop_get_status ARGS((const Prop_ptr self));
 EXTERN const char* Prop_get_status_as_string ARGS((const Prop_ptr self));

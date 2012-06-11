@@ -175,9 +175,10 @@ typedef struct PslExpr_TAG
 #define PSL_EXPR_MAKE_W_W2W_OP(res, left, op, right) \
   psl_expr_make_binary_op(&res, &left, op, &right, SC_WORD_EXPR, SC_WORD_EXPR)
 
-#define PSL_EXPR_MAKE_W_N2W_OP(res, left, op, right)                    \
+/* sbusard 11/06/12 - This macro is defined twice. */
+/*#define PSL_EXPR_MAKE_W_N2W_OP(res, left, op, right)                    \
   psl_expr_make_binary_mixed_op(&res, &left, op, &right,                \
-                                SC_WORD_EXPR, SC_NUM_EXPR, SC_WORD_EXPR)
+                                SC_WORD_EXPR, SC_NUM_EXPR, SC_WORD_EXPR)*/
 
 #define PSL_EXPR_MAKE_W_NW2W_OP(res, left, op, right)                    \
   psl_expr_make_binary_mixed_op(&res, &left, op, &right,                \
