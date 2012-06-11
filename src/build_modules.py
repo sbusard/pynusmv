@@ -70,7 +70,8 @@ def filter_files(files):
 	"""
 	return [f for f in files	if f.endswith('.h')
 								if not f.endswith('Int.h')
-								if not f.endswith('_private.h')]
+								if not f.endswith('_private.h')
+								if not f.endswith('_int.h')]
 
 
 def swig_module_from_files(files, path, submodulepath, module):
