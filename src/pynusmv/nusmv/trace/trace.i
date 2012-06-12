@@ -1,6 +1,7 @@
 %module(package="pynusmv.nusmv.trace") trace
 
 %{
+#include "../../../nusmv/nusmv-config.h"
 #include "../../../nusmv/src/utils/defs.h"
 #include "../../../nusmv/src/trace/pkg_trace.h" 
 #include "../../../nusmv/src/trace/Trace.h" 

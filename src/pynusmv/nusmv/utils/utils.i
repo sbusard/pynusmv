@@ -1,6 +1,7 @@
 %module(package="pynusmv.nusmv.utils") utils
 
 %{
+#include "../../../nusmv/nusmv-config.h"
 #include "../../../nusmv/src/utils/defs.h"
 #include "../../../nusmv/src/utils/utils.h"
 #include "../../../nusmv/src/utils/array.h" 

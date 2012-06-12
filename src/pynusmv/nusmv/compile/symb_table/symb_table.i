@@ -1,6 +1,7 @@
 %module(package="pynusmv.nusmv.compile.symb_table") symb_table
 
 %{
+#include "../../../../nusmv/nusmv-config.h"
 #include "../../../../nusmv/src/utils/defs.h"
 #include "../../../../nusmv/src/compile/symb_table/NFunction.h" 
 #include "../../../../nusmv/src/compile/symb_table/ResolveSymbol.h" 

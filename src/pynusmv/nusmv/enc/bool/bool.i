@@ -1,8 +1,7 @@
-# This package has been renamed due to reserved "bool" keyword.
-
-%module(package="pynusmv.nusmv.enc.bool_package") bool_package
+%module(package="pynusmv.nusmv.enc.bool") "bool"
 
 %{
+#include "../../../../nusmv/nusmv-config.h"
 #include "../../../../nusmv/src/utils/defs.h"
 #include "../../../../nusmv/src/utils/object.h"
 #include "../../../../nusmv/src/enc/bool/BitValues.h" 

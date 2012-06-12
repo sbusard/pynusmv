@@ -1,6 +1,7 @@
 %module(package="pynusmv.nusmv.rbc") rbc
 
 %{
+#include "../../../nusmv/nusmv-config.h"
 #include "../../../nusmv/src/utils/defs.h"
 #include "../../../nusmv/src/rbc/ConjSet.h" 
 #include "../../../nusmv/src/rbc/InlineResult.h" 

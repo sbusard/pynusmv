@@ -1,6 +1,7 @@
 %module(package="pynusmv.nusmv.bmc") bmc
 
 %{
+#include "../../../nusmv/nusmv-config.h"
 #include "../../../nusmv/src/utils/defs.h"
 #include "../../../nusmv/src/bmc/bmc.h" 
 #include "../../../nusmv/src/bmc/bmcBmc.h" 

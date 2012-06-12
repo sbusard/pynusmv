@@ -1,6 +1,7 @@
 %module(package="pynusmv.nusmv.hrc") hrc
 
 %{
+#include "../../../nusmv/nusmv-config.h"
 #include "../../../nusmv/src/utils/defs.h"
 #include "../../../nusmv/src/hrc/hrc.h" 
 #include "../../../nusmv/src/hrc/hrcCmd.h" 

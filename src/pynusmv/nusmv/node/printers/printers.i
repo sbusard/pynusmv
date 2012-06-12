@@ -1,6 +1,7 @@
 %module(package="pynusmv.nusmv.node.printers") printers
 
 %{
+#include "../../../../nusmv/nusmv-config.h"
 #include "../../../../nusmv/src/utils/defs.h"
 #include "../../../../nusmv/src/utils/object.h"
 #include "../../../../nusmv/src/node/printers/MasterPrinter.h" 

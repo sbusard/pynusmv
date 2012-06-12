@@ -1,6 +1,7 @@
 %module(package="pynusmv.nusmv.trace.exec") exec
 
 %{
+#include "../../../../nusmv/nusmv-config.h"
 #include "../../../../nusmv/src/utils/defs.h"
 #include "../../../../nusmv/src/utils/object.h"
 #include "../../../../nusmv/src/trace/exec/BaseTraceExecutor.h" 

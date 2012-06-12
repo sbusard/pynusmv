@@ -1,6 +1,7 @@
 %module(package="pynusmv.nusmv.compile") compile
 
 %{
+#include "../../../nusmv/nusmv-config.h"
 #include "../../../nusmv/src/utils/defs.h"
 #include "../../../nusmv/src/compile/compile.h" 
 #include "../../../nusmv/src/compile/FlatHierarchy.h" 

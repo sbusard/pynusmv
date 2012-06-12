@@ -1,6 +1,8 @@
 %module(package="pynusmv.nusmv.addons_core.compass.parser.ap") ap
 
 %{
+#include "../../../../../../nusmv/nusmv-config.h"
+#include "../../../../../../nusmv/src/node/node.h"
 #include "../../../../../../nusmv/src/utils/defs.h"
 #include "../../../../../../nusmv/src/addons_core/compass/parser/ap/ap_grammar.h" 
 #include "../../../../../../nusmv/src/addons_core/compass/parser/ap/ParserAp.h" 

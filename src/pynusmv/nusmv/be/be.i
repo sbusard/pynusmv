@@ -1,6 +1,7 @@
 %module(package="pynusmv.nusmv.be") be
 
 %{
+#include "../../../nusmv/nusmv-config.h"
 #include "../../../nusmv/src/utils/defs.h"
 #include "../../../nusmv/src/be/be.h" 
 #include "../../../nusmv/src/be/bePkg.h" 

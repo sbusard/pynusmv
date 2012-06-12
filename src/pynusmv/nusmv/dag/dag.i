@@ -1,6 +1,7 @@
 %module(package="pynusmv.nusmv.dag") dag
 
 %{
+#include "../../../nusmv/nusmv-config.h"
 #include "../../../nusmv/src/utils/defs.h"
 #include "../../../nusmv/src/dag/dag.h" 
 %}

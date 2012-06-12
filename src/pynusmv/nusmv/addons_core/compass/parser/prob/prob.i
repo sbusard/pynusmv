@@ -1,6 +1,7 @@
 %module(package="pynusmv.nusmv.addons_core.compass.parser.prob") prob
 
 %{
+#include "../../../../../../nusmv/nusmv-config.h"
 #include "../../../../../../nusmv/src/utils/defs.h"
 #include "../../../../../../nusmv/src/addons_core/compass/parser/prob/ParserProb.h" 
 #include "../../../../../../nusmv/src/addons_core/compass/parser/prob/prob_grammar.h" 

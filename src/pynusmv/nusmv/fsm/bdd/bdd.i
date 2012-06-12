@@ -1,6 +1,7 @@
 %module(package="pynusmv.nusmv.fsm.bdd") bdd
 
 %{
+#include "../../../../nusmv/nusmv-config.h"
 #include "../../../../nusmv/src/utils/defs.h"
 #include "../../../../nusmv/src/fsm/bdd/bdd.h" 
 #include "../../../../nusmv/src/fsm/bdd/BddFsm.h" 
