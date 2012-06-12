@@ -103,5 +103,8 @@ def swig_module_from_files(files, path, submodulepath, module):
 %include {path}/{file}""".format(path=relpath, file=f)
 	return content
 	
-	
-build_modules()
+
+print("This will override all *.i SWIG modules in " + PyNuSMVdestDir + ".")
+cont = input("Continue? (y/n)").startswith('y') and True or False
+if cont:
+	build_modules()
