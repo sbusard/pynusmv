@@ -1,5 +1,6 @@
 #! /usr/bin/env sh
 
+mkdir -p lib/
 ar rc lib/libnusmv.a nusmv/*.o nusmv/src/*/*.o nusmv/src/*/*/*.o nusmv/src/*/*/*/*.o nusmv/src/*/*/*/*/*.o
 ar d lib/libnusmv.a ltl2smvMain.o
 ar d lib/libnusmv.a SatMinisat.o
