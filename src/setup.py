@@ -372,13 +372,23 @@ extensions.append(
 				library_dirs = library_dirs, include_dirs = include_dirs)
 	)
 	
-# ltl module
+# ltl modules
 extensions.append(
 	Extension(	'pynusmv/nusmv/ltl/_ltl',
 				['pynusmv/nusmv/ltl/ltl.i'],
 				depends = [	'nusmv/nusmv-config.h',
 							'nusmv/src/utils/defs.h',
 							'nusmv/src/ltl/ltl.h',
+							'lib/libnusmv.dylib'],
+				swig_opts = swig_opts, libraries = libraries,
+				library_dirs = library_dirs, include_dirs = include_dirs)
+	)
+extensions.append(
+	Extension(	'pynusmv/nusmv/ltl/ltl2smv/_ltl2smv',
+				['pynusmv/nusmv/ltl/ltl2smv/ltl2smv.i'],
+				depends = [	'nusmv/nusmv-config.h',
+							'nusmv/src/utils/defs.h',
+							'nusmv/src/ltl/ltl2smv/ltl2smv.h',
 							'lib/libnusmv.dylib'],
 				swig_opts = swig_opts, libraries = libraries,
 				library_dirs = library_dirs, include_dirs = include_dirs)
