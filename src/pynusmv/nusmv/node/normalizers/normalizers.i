@@ -10,6 +10,9 @@
 #include "../../../../nusmv/src/node/normalizers/NormalizerPsl.h" 
 %}
 
+# Ignoring unimplemented functions
+%ignore MasterNormalizer_destroy;
+
 %include ../../../../nusmv/src/utils/defs.h
 %include ../../../../nusmv/src/utils/object.h
 %include ../../../../nusmv/src/node/normalizers/MasterNormalizer.h

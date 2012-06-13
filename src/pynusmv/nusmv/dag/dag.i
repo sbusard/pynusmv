@@ -11,5 +11,8 @@
 # And ignoring CPP #error warning
 #pragma SWIG nowarn=205
 
+# Ignoring unimplemented functions
+%ignore Dag_ManagerAllocWithParams;
+
 %include ../../../nusmv/src/utils/defs.h
 %include ../../../nusmv/src/dag/dag.h

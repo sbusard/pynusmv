@@ -1909,7 +1909,8 @@ lsList sbmc_unroll_invariant_propositional(const BeEnc_ptr be_enc,
   SideEffects        [None]
 
 ******************************************************************************/
-static lsList sbmc_unroll_invariant_f(const BeEnc_ptr be_enc,
+/* sbusard 13/06/12 - Removing the static modifier to export the function. */
+/*static*/ lsList sbmc_unroll_invariant_f(const BeEnc_ptr be_enc,
                                       const node_ptr ltlspec,
                                       const unsigned int i_model,
                                       const hash_ptr info_map,
@@ -3102,7 +3103,8 @@ static lsList sbmc_unroll_invariant_f(const BeEnc_ptr be_enc,
   SideEffects        [None]
 
 ******************************************************************************/
-static lsList sbmc_unroll_invariant_p(const BeEnc_ptr be_enc,
+/* sbusard 13/06/12 - Removing the static modifier to export the function. */
+/*static*/ lsList sbmc_unroll_invariant_p(const BeEnc_ptr be_enc,
                                       const node_ptr ltlspec,
                                       const unsigned int i_model,
                                       const hash_ptr info_map,

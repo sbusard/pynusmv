@@ -156,11 +156,10 @@ EXTERN char* NuSMVCore_get_library_website ARGS((void));
 EXTERN char* NuSMVCore_get_library_bug_report_message ARGS((void));
 
 EXTERN void NuSMVCore_set_banner_print_fun ARGS((void (*banner_print_fun)(FILE*)));
-/* sbusard 12/06/12 - Commenting unimplemented signatures */
-/*EXTERN void NuSMVCore_set_init_fun ARGS((void (*init_fun)(void)));
+EXTERN void NuSMVCore_set_init_fun ARGS((void (*init_fun)(void)));
 EXTERN void NuSMVCore_set_quit_fun ARGS((void (*quit_fun)(void)));
 EXTERN void NuSMVCore_set_reset_init_fun ARGS((void (*reset_fun)(void)));
-EXTERN void NuSMVCore_set_reset_quit_fun ARGS((void (*reset_fun)(void)));*/
+EXTERN void NuSMVCore_set_reset_quit_fun ARGS((void (*reset_fun)(void)));
 EXTERN void NuSMVCore_set_batch_fun ARGS((void (*batch_fun)(void)));
 
 EXTERN void NuSMVCore_add_env_command_line_option ARGS((char* name,

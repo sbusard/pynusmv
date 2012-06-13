@@ -8,9 +8,11 @@
 #include "../../../nusmv/src/node/NodeWalker.h" 
 %}
 
-# Renaming necessary to deal with automatic construtor generation
-# for struct node structure.
-%rename(create_new_node) new_node;
+# Renaming new_node to create_node to avoid clash with default construtor
+%rename (create_node) new_node;
+
+# Ignoring unimplemented functions
+%ignore normalize_nonboolean_case;
 
 %include ../../../nusmv/src/utils/defs.h
 %include ../../../nusmv/src/node/MasterNodeWalker.h

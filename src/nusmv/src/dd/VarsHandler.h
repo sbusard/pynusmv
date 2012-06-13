@@ -116,7 +116,7 @@ VarsHandler_release_group ARGS((VarsHandler_ptr self, GroupInfo_ptr bid));
 EXTERN void 
 VarsHandler_dissolve_group ARGS((VarsHandler_ptr self, GroupInfo_ptr bid));
 
-EXTERN void 
+EXTERN void
 VarsHandler_promote_group ARGS((VarsHandler_ptr self, GroupInfo_ptr bid));
 
 EXTERN void VarsHandler_update_levels ARGS((VarsHandler_ptr self));

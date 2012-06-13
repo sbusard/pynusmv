@@ -291,7 +291,7 @@ Dag_Dfs(Dag_Vertex_t* dfsRoot, Dag_DfsFunctions_t* dfsFun, char* dfsData);
 
 EXTERN Dag_Manager_t* Dag_ManagerAlloc();
 
-EXTERN Dag_Manager_t* 
+EXTERN Dag_Manager_t*
 Dag_ManagerAllocWithParams(int dagInitVerticesNo, int maxDensity, 
                            int growthFactor);
 

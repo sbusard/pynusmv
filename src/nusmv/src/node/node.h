@@ -240,10 +240,9 @@ EXTERN int print_sexp ARGS((FILE *, node_ptr));
 
 EXTERN void print_array_type ARGS((FILE* output_stream, const node_ptr body));
 
-/* sbusard 11/06/12 - Commenting non implemented signature. */
-/*EXTERN void normalize_nonboolean_case
+EXTERN void normalize_nonboolean_case
 ARGS((FILE *file, node_ptr node, custom_print_sexp_t cps_fun,
-      int pred, node_ptr lhs));*/
+      int pred, node_ptr lhs));
 
 EXTERN int print_node ARGS((FILE *, node_ptr));
 EXTERN char* sprint_node ARGS((node_ptr));

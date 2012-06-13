@@ -268,6 +268,7 @@ EXTERN void Compile_CompileModel ARGS((node_ptr, node_ptr, node_ptr, add_ptr));
 
 EXTERN void insert_module_hash ARGS((node_ptr x, node_ptr y));
 EXTERN node_ptr lookup_module_hash ARGS((node_ptr x));
+
 EXTERN node_ptr lookup_param_hash ARGS((node_ptr));
 
 EXTERN void compileCheckForInputVars ARGS((SymbTable_ptr, node_ptr, node_ptr,

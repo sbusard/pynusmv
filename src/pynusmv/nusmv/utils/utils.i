@@ -31,6 +31,14 @@
 /*#include "../../../nusmv/src/utils/lsort.h"*/
 %}
 
+# Ignoring unimplemented functions
+%ignore Siter_set_element;
+%ignore Utils_get_temp_filename;
+%ignore Utils_strtoint;
+%ignore error_id_appears_twice_in_idlist_file;
+%ignore error_not_word_sizeof;
+%ignore util_str2int_inc;
+
 %include ../../../nusmv/src/utils/defs.h
 %include ../../../nusmv/src/utils/utils.h
 %include ../../../nusmv/src/utils/array.h

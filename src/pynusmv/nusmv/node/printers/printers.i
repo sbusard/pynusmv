@@ -12,6 +12,9 @@
 #include "../../../../nusmv/src/node/printers/PrinterWffCore.h" 
 %}
 
+# Ignoring unimplemented functions
+%ignore MasterPrinter_reset_string_stream;
+
 %include ../../../../nusmv/src/utils/defs.h
 %include ../../../../nusmv/src/utils/object.h
 %include ../../../../nusmv/src/node/printers/MasterPrinter.h

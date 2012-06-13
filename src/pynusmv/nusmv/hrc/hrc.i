@@ -15,6 +15,9 @@
 # Global variables must be cautiously used.
 #pragma SWIG nowarn=454
 
+# Ignoring unimplemented functions
+%ignore HrcPopulateSymbTable;
+
 %include ../../../nusmv/src/utils/defs.h
 %include ../../../nusmv/src/hrc/hrc.h
 %include ../../../nusmv/src/hrc/hrcCmd.h

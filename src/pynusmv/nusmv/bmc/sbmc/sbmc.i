@@ -18,6 +18,9 @@
 #include "../../../../nusmv/src/bmc/sbmc/sbmcUtils.h" 
 %}
 
+# Ignoring unimplemented function
+%ignore sbmc_unroll_invariant_propositional;
+
 %include ../../../../nusmv/src/utils/defs.h
 %include ../../../../nusmv/src/bmc/sbmc/sbmcBmc.h
 %include ../../../../nusmv/src/bmc/sbmc/sbmcBmcInc.h

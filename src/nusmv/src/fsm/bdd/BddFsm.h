@@ -239,7 +239,7 @@ EXTERN BddStatesInputs
 BddFsm_get_states_inputs_constraints ARGS((const BddFsm_ptr self,
                                            BddFsm_dir dir));
 
-EXTERN BddStates 
+EXTERN BddStates
 BddFsm_get_fair_states_subset ARGS((const BddFsm_ptr self,
                                     BddStates subspace));
 
