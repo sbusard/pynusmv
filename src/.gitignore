@@ -125,6 +125,7 @@ pynusmv/nusmv/dd/dd.py
 pynusmv/nusmv/enc/base/base.py
 pynusmv/nusmv/enc/bdd/bdd.py
 pynusmv/nusmv/enc/be/be.py
+pynusmv/nusmv/enc/bool/bool.py
 pynusmv/nusmv/enc/enc.py
 pynusmv/nusmv/enc/utils/utils.py
 pynusmv/nusmv/fsm/bdd/bdd.py
@@ -134,6 +135,7 @@ pynusmv/nusmv/fsm/sexp/sexp.py
 pynusmv/nusmv/hrc/dumpers/dumpers.py
 pynusmv/nusmv/hrc/hrc.py
 pynusmv/nusmv/ltl/ltl.py
+pynusmv/nusmv/ltl/ltl2smv/ltl2smv.py
 pynusmv/nusmv/mc/mc.py
 pynusmv/nusmv/node/node.py
 pynusmv/nusmv/node/normalizers/normalizers.py
