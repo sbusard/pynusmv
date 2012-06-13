@@ -554,7 +554,7 @@ extensions.append(
 				library_dirs = library_dirs, include_dirs = include_dirs)
 	)
 	
-# sat modules
+# sat module
 extensions.append(
 	Extension(	'pynusmv/nusmv/sat/_sat',
 				['pynusmv/nusmv/sat/sat.i'],
@@ -564,18 +564,6 @@ extensions.append(
 							'nusmv/src/sat/sat.h',
 							'nusmv/src/sat/SatIncSolver.h',
 							'nusmv/src/sat/SatSolver.h',
-							'lib/libnusmv.dylib'],
-				swig_opts = swig_opts, libraries = libraries,
-				library_dirs = library_dirs, include_dirs = include_dirs)
-	)
-extensions.append(
-	Extension(	'pynusmv/nusmv/sat/solvers/_solvers',
-				['pynusmv/nusmv/sat/solvers/solvers.i'],
-				depends = [	'nusmv/nusmv-config.h',
-							'nusmv/src/utils/defs.h',
-							'nusmv/src/sat/solvers/SatMinisat.h',
-							'nusmv/src/sat/solvers/satMiniSatIfc.h',
-							'nusmv/src/sat/solvers/SatZchaff.h',
 							'lib/libnusmv.dylib'],
 				swig_opts = swig_opts, libraries = libraries,
 				library_dirs = library_dirs, include_dirs = include_dirs)
