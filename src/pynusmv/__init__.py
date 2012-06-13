@@ -1,1 +1,1 @@
-__all__ = ['nusmv']
+__all__ = ['nusmv','tests']
