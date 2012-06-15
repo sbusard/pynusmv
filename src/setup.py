@@ -11,8 +11,7 @@ extensions = []
 
 # addons_core modules
 extensions.append(
-	Extension(os.path.join(abspath,
-				'pynusmv/nusmv/addons_core/_addons_core'),
+	Extension('pynusmv.nusmv.addons_core._addons_core',
 				['pynusmv/nusmv/addons_core/addons_core.i'],
 				depends = [	'nusmv/nusmv-config.h',
 							'nusmv/src/utils/defs.h',
@@ -22,8 +21,7 @@ extensions.append(
 				library_dirs = library_dirs, include_dirs = include_dirs)
 	)
 extensions.append(
-	 Extension(os.path.join(abspath,
-				'pynusmv/nusmv/addons_core/compass/_compass'),
+	 Extension('pynusmv.nusmv.addons_core.compass._compass',
 				['pynusmv/nusmv/addons_core/compass/compass.i'],
 				depends = [	'nusmv/nusmv-config.h',
 							'nusmv/src/utils/defs.h',
@@ -33,8 +31,7 @@ extensions.append(
 				library_dirs = library_dirs, include_dirs = include_dirs)
 	)
 extensions.append(
-	 Extension(os.path.join(abspath,
-				'pynusmv/nusmv/addons_core/compass/compile/_compile'),
+	 Extension('pynusmv.nusmv.addons_core.compass.compile._compile',
 				['pynusmv/nusmv/addons_core/compass/compile/compile.i'],
 				depends = [	'nusmv/nusmv-config.h',
 							'nusmv/src/utils/defs.h',
@@ -44,8 +41,7 @@ extensions.append(
 				library_dirs = library_dirs, include_dirs = include_dirs)
 	)
 extensions.append(
-	 Extension(os.path.join(abspath,
-				'pynusmv/nusmv/addons_core/compass/parser/ap/_ap'),
+	 Extension('pynusmv.nusmv.addons_core.compass.parser.ap._ap',
 				['pynusmv/nusmv/addons_core/compass/parser/ap/ap.i'],
 				depends = [	'nusmv/nusmv-config.h',
 							'nusmv/src/utils/defs.h',
@@ -56,8 +52,7 @@ extensions.append(
 				library_dirs = library_dirs, include_dirs = include_dirs)
 	)
 extensions.append(
-	 Extension(os.path.join(abspath,
-				'pynusmv/nusmv/addons_core/compass/parser/prob/_prob'),
+	 Extension('pynusmv.nusmv.addons_core.compass.parser.prob._prob',
 				['pynusmv/nusmv/addons_core/compass/parser/prob/prob.i'],
 				depends = [	'nusmv/nusmv-config.h',
 							'nusmv/src/utils/defs.h',
@@ -70,7 +65,7 @@ extensions.append(
 	
 # be module
 extensions.append(
-	 Extension(os.path.join(abspath,'pynusmv/nusmv/be/_be'),
+	 Extension('pynusmv.nusmv.be._be',
 				['pynusmv/nusmv/be/be.i'],
 				depends = [	'nusmv/nusmv-config.h',
 							'nusmv/src/utils/defs.h',
@@ -84,7 +79,7 @@ extensions.append(
 
 # bmc modules
 extensions.append(
-	 Extension(os.path.join(abspath,'pynusmv/nusmv/bmc/_bmc'),
+	 Extension('pynusmv.nusmv.bmc._bmc',
 				['pynusmv/nusmv/bmc/bmc.i'],
 				depends = [	'nusmv/src/utils/defs.h',
 							'nusmv/src/bmc/bmc.h',
@@ -104,7 +99,7 @@ extensions.append(
 				library_dirs = library_dirs, include_dirs = include_dirs)
 	)
 extensions.append(
-	 Extension(os.path.join(abspath,'pynusmv/nusmv/bmc/sbmc/_sbmc'),
+	 Extension('pynusmv.nusmv.bmc.sbmc._sbmc',
 				['pynusmv/nusmv/bmc/sbmc/sbmc.i'],
 				depends = [	'nusmv/src/utils/defs.h',
 							'nusmv/src/bmc/sbmc/sbmcBmc.h',
@@ -127,7 +122,7 @@ extensions.append(
 	
 # cinit module
 extensions.append(
-	 Extension(os.path.join(abspath,'pynusmv/nusmv/cinit/_cinit'),
+	 Extension('pynusmv.nusmv.cinit._cinit',
 				['pynusmv/nusmv/cinit/cinit.i'],
 				depends = [	'nusmv/nusmv-config.h',
 							'nusmv/src/utils/defs.h',
@@ -139,7 +134,7 @@ extensions.append(
 	
 # cmd module
 extensions.append(
-	 Extension(os.path.join(abspath,'pynusmv/nusmv/cmd/_cmd'),
+	 Extension('pynusmv.nusmv.cmd._cmd',
 				['pynusmv/nusmv/cmd/cmd.i'],
 				depends = [	'nusmv/nusmv-config.h',
 							'nusmv/src/utils/defs.h',
@@ -151,7 +146,7 @@ extensions.append(
 	
 # compile modules
 extensions.append(
-	 Extension(os.path.join(abspath,'pynusmv/nusmv/compile/_compile'),
+	 Extension('pynusmv.nusmv.compile._compile',
 				['pynusmv/nusmv/compile/compile.i'],
 				depends = [	'nusmv/nusmv-config.h',
 							'nusmv/src/utils/defs.h',
@@ -164,7 +159,7 @@ extensions.append(
 				library_dirs = library_dirs, include_dirs = include_dirs)
 	)
 extensions.append(
-	 Extension(os.path.join(abspath,'pynusmv/nusmv/compile/symb_table/_symb_table'),
+	 Extension('pynusmv.nusmv.compile.symb_table._symb_table',
 				['pynusmv/nusmv/compile/symb_table/symb_table.i'],
 				depends = [	'nusmv/nusmv-config.h',
 							'nusmv/src/utils/defs.h',
@@ -180,8 +175,7 @@ extensions.append(
 				library_dirs = library_dirs, include_dirs = include_dirs)
 	)
 extensions.append(
-	 Extension(os.path.join(abspath,
-				'pynusmv/nusmv/compile/type_checking/_type_checking'),
+	 Extension('pynusmv.nusmv.compile.type_checking._type_checking',
 				['pynusmv/nusmv/compile/type_checking/type_checking.i'],
 				depends = [	'nusmv/nusmv-config.h',
 							'nusmv/src/utils/defs.h',
@@ -191,8 +185,7 @@ extensions.append(
 				library_dirs = library_dirs, include_dirs = include_dirs)
 	)
 extensions.append(
-	 Extension(os.path.join(abspath,
-				'pynusmv/nusmv/compile/type_checking/checkers/_checkers'),
+	 Extension('pynusmv.nusmv.compile.type_checking.checkers._checkers',
 				['pynusmv/nusmv/compile/type_checking/checkers/checkers.i'],
 				depends = [	'nusmv/nusmv-config.h',
 							'nusmv/src/utils/object.h',
@@ -206,7 +199,7 @@ extensions.append(
 	
 # dag module
 extensions.append(
-	 Extension(os.path.join(abspath,'pynusmv/nusmv/dag/_dag'),
+	 Extension('pynusmv.nusmv.dag._dag',
 				['pynusmv/nusmv/dag/dag.i'],
 				depends = [	'nusmv/nusmv-config.h',
 							'nusmv/src/utils/defs.h',
@@ -218,7 +211,7 @@ extensions.append(
 	
 # dd module
 extensions.append(
-	 Extension(os.path.join(abspath,'pynusmv/nusmv/dd/_dd'),
+	 Extension('pynusmv.nusmv.dd._dd',
 				['pynusmv/nusmv/dd/dd.i'],
 				depends = [	'nusmv/nusmv-config.h',
 							'nusmv/src/utils/defs.h',
@@ -231,7 +224,7 @@ extensions.append(
 	
 # enc modules
 extensions.append(
-	 Extension(os.path.join(abspath,'pynusmv/nusmv/enc/_enc'),
+	 Extension('pynusmv.nusmv.enc._enc',
 				['pynusmv/nusmv/enc/enc.i'],
 				depends = [	'nusmv/nusmv-config.h',
 							'nusmv/src/utils/defs.h',
@@ -242,7 +235,7 @@ extensions.append(
 				library_dirs = library_dirs, include_dirs = include_dirs)
 	)
 extensions.append(
-	 Extension(os.path.join(abspath,'pynusmv/nusmv/enc/base/_base'),
+	 Extension('pynusmv.nusmv.enc.base._base',
 				['pynusmv/nusmv/enc/base/base.i'],
 				depends = [	'nusmv/nusmv-config.h',
 							'nusmv/src/utils/defs.h',
@@ -254,7 +247,7 @@ extensions.append(
 				library_dirs = library_dirs, include_dirs = include_dirs)
 	)
 extensions.append(
-	 Extension(os.path.join(abspath,'pynusmv/nusmv/enc/bdd/_bdd'),
+	 Extension('pynusmv.nusmv.enc.bdd._bdd',
 				['pynusmv/nusmv/enc/bdd/bdd.i'],
 				depends = [	'nusmv/nusmv-config.h',
 							'nusmv/src/utils/defs.h',
@@ -267,7 +260,7 @@ extensions.append(
 				library_dirs = library_dirs, include_dirs = include_dirs)
 	)
 extensions.append(
-	 Extension(os.path.join(abspath,'pynusmv/nusmv/enc/be/_be'),
+	 Extension('pynusmv.nusmv.enc.be._be',
 				['pynusmv/nusmv/enc/be/be.i'],
 				depends = [	'nusmv/nusmv-config.h',
 							'nusmv/src/utils/defs.h',
@@ -278,7 +271,7 @@ extensions.append(
 				library_dirs = library_dirs, include_dirs = include_dirs)
 	)
 extensions.append(
-	 Extension(os.path.join(abspath,'pynusmv/nusmv/enc/bool/_bool'),
+	 Extension('pynusmv.nusmv.enc.bool._bool',
 				['pynusmv/nusmv/enc/bool/bool.i'],
 				depends = [	'nusmv/nusmv-config.h',
 							'nusmv/src/utils/defs.h',
@@ -290,7 +283,7 @@ extensions.append(
 				library_dirs = library_dirs, include_dirs = include_dirs)
 	)
 extensions.append(
-	 Extension(os.path.join(abspath,'pynusmv/nusmv/enc/utils/_utils'),
+	 Extension('pynusmv.nusmv.enc.utils._utils',
 				['pynusmv/nusmv/enc/utils/utils.i'],
 				depends = [	'nusmv/nusmv-config.h',
 							'nusmv/src/utils/defs.h',
@@ -303,7 +296,7 @@ extensions.append(
 	
 # fsm modules
 extensions.append(
-	 Extension(os.path.join(abspath,'pynusmv/nusmv/fsm/_fsm'),
+	 Extension('pynusmv.nusmv.fsm._fsm',
 				['pynusmv/nusmv/fsm/fsm.i'],
 				depends = [	'nusmv/nusmv-config.h',
 							'nusmv/src/utils/defs.h',
@@ -314,7 +307,7 @@ extensions.append(
 				library_dirs = library_dirs, include_dirs = include_dirs)
 	)
 extensions.append(
-	 Extension(os.path.join(abspath,'pynusmv/nusmv/fsm/bdd/_bdd'),
+	 Extension('pynusmv.nusmv.fsm.bdd._bdd',
 				['pynusmv/nusmv/fsm/bdd/bdd.i'],
 				depends = [	'nusmv/nusmv-config.h',
 							'nusmv/src/utils/defs.h',
@@ -326,7 +319,7 @@ extensions.append(
 				library_dirs = library_dirs, include_dirs = include_dirs)
 	)
 extensions.append(
-	 Extension(os.path.join(abspath,'pynusmv/nusmv/fsm/be/_be'),
+	 Extension('pynusmv.nusmv.fsm.be._be',
 				['pynusmv/nusmv/fsm/be/be.i'],
 				depends = [	'nusmv/nusmv-config.h',
 							'nusmv/src/utils/defs.h',
@@ -336,7 +329,7 @@ extensions.append(
 				library_dirs = library_dirs, include_dirs = include_dirs)
 	)
 extensions.append(
-	 Extension(os.path.join(abspath,'pynusmv/nusmv/fsm/sexp/_sexp'),
+	 Extension('pynusmv.nusmv.fsm.sexp._sexp',
 				['pynusmv/nusmv/fsm/sexp/sexp.i'],
 				depends = [	'nusmv/nusmv-config.h',
 							'nusmv/src/utils/defs.h',
@@ -352,7 +345,7 @@ extensions.append(
 	
 # hrc modules
 extensions.append(
-	 Extension(os.path.join(abspath,'pynusmv/nusmv/hrc/_hrc'),
+	 Extension('pynusmv.nusmv.hrc._hrc',
 				['pynusmv/nusmv/hrc/hrc.i'],
 				depends = [	'nusmv/nusmv-config.h',
 							'nusmv/src/utils/defs.h',
@@ -367,7 +360,7 @@ extensions.append(
 				library_dirs = library_dirs, include_dirs = include_dirs)
 	)
 extensions.append(
-	 Extension(os.path.join(abspath,'pynusmv/nusmv/hrc/dumpers/_dumpers'),
+	 Extension('pynusmv.nusmv.hrc.dumpers._dumpers',
 				['pynusmv/nusmv/hrc/dumpers/dumpers.i'],
 				depends = [	'nusmv/nusmv-config.h',
 							'nusmv/src/utils/defs.h',
@@ -383,7 +376,7 @@ extensions.append(
 	
 # ltl modules
 extensions.append(
-	 Extension(os.path.join(abspath,'pynusmv/nusmv/ltl/_ltl'),
+	 Extension('pynusmv.nusmv.ltl._ltl',
 				['pynusmv/nusmv/ltl/ltl.i'],
 				depends = [	'nusmv/nusmv-config.h',
 							'nusmv/src/utils/defs.h',
@@ -393,7 +386,7 @@ extensions.append(
 				library_dirs = library_dirs, include_dirs = include_dirs)
 	)
 extensions.append(
-	 Extension(os.path.join(abspath,'pynusmv/nusmv/ltl/ltl2smv/_ltl2smv'),
+	 Extension('pynusmv.nusmv.ltl.ltl2smv._ltl2smv',
 				['pynusmv/nusmv/ltl/ltl2smv/ltl2smv.i'],
 				depends = [	'nusmv/nusmv-config.h',
 							'nusmv/src/utils/defs.h',
@@ -405,7 +398,7 @@ extensions.append(
 	
 # mc module
 extensions.append(
-	 Extension(os.path.join(abspath,'pynusmv/nusmv/mc/_mc'),
+	 Extension('pynusmv.nusmv.mc._mc',
 				['pynusmv/nusmv/mc/mc.i'],
 				depends = [	'nusmv/nusmv-config.h',
 							'nusmv/src/utils/defs.h',
@@ -417,7 +410,7 @@ extensions.append(
 	
 # node modules
 extensions.append(
-	 Extension(os.path.join(abspath,'pynusmv/nusmv/node/_node'),
+	 Extension('pynusmv.nusmv.node._node',
 				['pynusmv/nusmv/node/node.i'],
 				depends = [	'nusmv/nusmv-config.h',
 							'nusmv/src/utils/defs.h',
@@ -429,7 +422,7 @@ extensions.append(
 				library_dirs = library_dirs, include_dirs = include_dirs)
 	)
 extensions.append(
-	 Extension(os.path.join(abspath,'pynusmv/nusmv/node/normalizers/_normalizers'),
+	 Extension('pynusmv.nusmv.node.normalizers._normalizers',
 				['pynusmv/nusmv/node/normalizers/normalizers.i'],
 				depends = [	'nusmv/nusmv-config.h',
 							'nusmv/src/utils/defs.h',
@@ -443,7 +436,7 @@ extensions.append(
 				library_dirs = library_dirs, include_dirs = include_dirs)
 	)
 extensions.append(
-	 Extension(os.path.join(abspath,'pynusmv/nusmv/node/printers/_printers'),
+	 Extension('pynusmv.nusmv.node.printers._printers',
 				['pynusmv/nusmv/node/printers/printers.i'],
 				depends = [	'nusmv/nusmv-config.h',
 							'nusmv/src/utils/defs.h',
@@ -461,7 +454,7 @@ extensions.append(
 	
 # opt module
 extensions.append(
-	 Extension(os.path.join(abspath,'pynusmv/nusmv/opt/_opt'),
+	 Extension('pynusmv.nusmv.opt._opt',
 				['pynusmv/nusmv/opt/opt.i'],
 				depends = [	'nusmv/nusmv-config.h',
 							'nusmv/src/utils/defs.h',
@@ -474,7 +467,7 @@ extensions.append(
 	
 # parser modules
 extensions.append(
-	 Extension(os.path.join(abspath,'pynusmv/nusmv/parser/_parser'),
+	 Extension('pynusmv.nusmv.parser._parser',
 				['pynusmv/nusmv/parser/parser.i'],
 				depends = [	'nusmv/nusmv-config.h',
 							'nusmv/src/node/node.h',
@@ -487,7 +480,7 @@ extensions.append(
 				library_dirs = library_dirs, include_dirs = include_dirs)
 	)
 extensions.append(
-	 Extension(os.path.join(abspath,'pynusmv/nusmv/parser/idlist/_idlist'),
+	 Extension('pynusmv.nusmv.parser.idlist._idlist',
 				['pynusmv/nusmv/parser/idlist/idlist.i'],
 				depends = [	'nusmv/nusmv-config.h',
 							'nusmv/src/node/node.h',
@@ -499,7 +492,7 @@ extensions.append(
 				library_dirs = library_dirs, include_dirs = include_dirs)
 	)
 extensions.append(
-	 Extension(os.path.join(abspath,'pynusmv/nusmv/parser/ord/_ord'),
+	 Extension('pynusmv.nusmv.parser.ord._ord',
 				['pynusmv/nusmv/parser/ord/ord.i'],
 				depends = [	'nusmv/nusmv-config.h',
 							'nusmv/src/node/node.h',
@@ -511,7 +504,7 @@ extensions.append(
 				library_dirs = library_dirs, include_dirs = include_dirs)
 	)
 extensions.append(
-	 Extension(os.path.join(abspath,'pynusmv/nusmv/parser/psl/_psl'),
+	 Extension('pynusmv.nusmv.parser.psl._psl',
 				['pynusmv/nusmv/parser/psl/psl.i'],
 				depends = [	'nusmv/nusmv-config.h',
 							'nusmv/src/node/node.h',
@@ -527,7 +520,7 @@ extensions.append(
 	
 # prop module
 extensions.append(
-	 Extension(os.path.join(abspath,'pynusmv/nusmv/prop/_prop'),
+	 Extension('pynusmv.nusmv.prop._prop',
 				['pynusmv/nusmv/prop/prop.i'],
 				depends = [	'nusmv/nusmv-config.h',
 							'nusmv/src/utils/defs.h',
@@ -541,7 +534,7 @@ extensions.append(
 
 # rbc modules
 extensions.append(
-	 Extension(os.path.join(abspath,'pynusmv/nusmv/rbc/_rbc'),
+	 Extension('pynusmv.nusmv.rbc._rbc',
 				['pynusmv/nusmv/rbc/rbc.i'],
 				depends = [	'nusmv/nusmv-config.h',
 							'nusmv/src/utils/defs.h',
@@ -553,7 +546,7 @@ extensions.append(
 				library_dirs = library_dirs, include_dirs = include_dirs)
 	)
 extensions.append(
-	 Extension(os.path.join(abspath,'pynusmv/nusmv/rbc/clg/_clg'),
+	 Extension('pynusmv.nusmv.rbc.clg._clg',
 				['pynusmv/nusmv/rbc/clg/clg.i'],
 				depends = [	'nusmv/nusmv-config.h',
 							'nusmv/src/utils/defs.h',
@@ -565,7 +558,7 @@ extensions.append(
 	
 # sat module
 extensions.append(
-	 Extension(os.path.join(abspath,'pynusmv/nusmv/sat/_sat'),
+	 Extension('pynusmv.nusmv.sat._sat',
 				['pynusmv/nusmv/sat/sat.i'],
 				depends = [	'nusmv/nusmv-config.h',
 							'nusmv/src/utils/defs.h',
@@ -580,7 +573,7 @@ extensions.append(
 	
 # set module
 extensions.append(
-	 Extension(os.path.join(abspath,'pynusmv/nusmv/set/_set'),
+	 Extension('pynusmv.nusmv.set._set',
 				['pynusmv/nusmv/set/set.i'],
 				depends = [	'nusmv/nusmv-config.h',
 							'nusmv/src/utils/defs.h',
@@ -592,7 +585,7 @@ extensions.append(
 	
 # sexp module
 extensions.append(
-	 Extension(os.path.join(abspath,'pynusmv/nusmv/sexp/_sexp'),
+	 Extension('pynusmv.nusmv.sexp._sexp',
 				['pynusmv/nusmv/sexp/sexp.i'],
 				depends = [	'nusmv/nusmv-config.h',
 							'nusmv/src/utils/defs.h',
@@ -604,7 +597,7 @@ extensions.append(
 	
 # simulate module
 extensions.append(
-	 Extension(os.path.join(abspath,'pynusmv/nusmv/simulate/_simulate'),
+	 Extension('pynusmv.nusmv.simulate._simulate',
 				['pynusmv/nusmv/simulate/simulate.i'],
 				depends = [	'nusmv/nusmv-config.h',
 							'nusmv/src/utils/defs.h',
@@ -617,7 +610,7 @@ extensions.append(
 
 # trace modules
 extensions.append(
-	 Extension(os.path.join(abspath,'pynusmv/nusmv/trace/_trace'),
+	 Extension('pynusmv.nusmv.trace._trace',
 				['pynusmv/nusmv/trace/trace.i'],
 				depends = [	'nusmv/nusmv-config.h',
 							'nusmv/src/utils/defs.h',
@@ -632,7 +625,7 @@ extensions.append(
 				library_dirs = library_dirs, include_dirs = include_dirs)
 	)
 extensions.append(
-	 Extension(os.path.join(abspath,'pynusmv/nusmv/trace/eval/_eval'),
+	 Extension('pynusmv.nusmv.trace.eval._eval',
 				['pynusmv/nusmv/trace/eval/eval.i'],
 				depends = [	'nusmv/nusmv-config.h',
 							'nusmv/src/utils/defs.h',
@@ -642,7 +635,7 @@ extensions.append(
 				library_dirs = library_dirs, include_dirs = include_dirs)
 	)
 extensions.append(
-	 Extension(os.path.join(abspath,'pynusmv/nusmv/trace/exec/_exec'),
+	 Extension('pynusmv.nusmv.trace.exec._exec',
 				['pynusmv/nusmv/trace/exec/exec.i'],
 				depends = [	'nusmv/nusmv-config.h',
 							'nusmv/src/utils/defs.h',
@@ -660,7 +653,7 @@ extensions.append(
 				library_dirs = library_dirs, include_dirs = include_dirs)
 	)
 extensions.append(
-	 Extension(os.path.join(abspath,'pynusmv/nusmv/trace/loaders/_loaders'),
+	 Extension('pynusmv.nusmv.trace.loaders._loaders',
 				['pynusmv/nusmv/trace/loaders/loaders.i'],
 				depends = [	'nusmv/nusmv-config.h',
 							'nusmv/src/utils/defs.h',
@@ -672,7 +665,7 @@ extensions.append(
 				library_dirs = library_dirs, include_dirs = include_dirs)
 	)
 extensions.append(
-	 Extension(os.path.join(abspath,'pynusmv/nusmv/trace/plugins/_plugins'),
+	 Extension('pynusmv.nusmv.trace.plugins._plugins',
 				['pynusmv/nusmv/trace/plugins/plugins.i'],
 				depends = [	'nusmv/nusmv-config.h',
 							'nusmv/src/utils/defs.h',
@@ -689,7 +682,7 @@ extensions.append(
 
 # trans modules
 extensions.append(
-	 Extension(os.path.join(abspath,'pynusmv/nusmv/trans/_trans'),
+	 Extension('pynusmv.nusmv.trans._trans',
 				['pynusmv/nusmv/trans/trans.i'],
 				depends = [	'nusmv/nusmv-config.h',
 							'nusmv/src/utils/defs.h',
@@ -699,7 +692,7 @@ extensions.append(
 				library_dirs = library_dirs, include_dirs = include_dirs)
 	)
 extensions.append(
-	 Extension(os.path.join(abspath,'pynusmv/nusmv/trans/bdd/_bdd'),
+	 Extension('pynusmv.nusmv.trans.bdd._bdd',
 				['pynusmv/nusmv/trans/bdd/bdd.i'],
 				depends = [	'nusmv/nusmv-config.h',
 							'nusmv/src/utils/defs.h',
@@ -713,7 +706,7 @@ extensions.append(
 				library_dirs = library_dirs, include_dirs = include_dirs)
 	)
 extensions.append(
-	 Extension(os.path.join(abspath,'pynusmv/nusmv/trans/generic/_generic'),
+	 Extension('pynusmv.nusmv.trans.generic._generic',
 				['pynusmv/nusmv/trans/generic/generic.i'],
 				depends = [	'nusmv/nusmv-config.h',
 							'nusmv/src/utils/defs.h',
@@ -725,7 +718,7 @@ extensions.append(
 	
 # utils module
 extensions.append(
-	 Extension(os.path.join(abspath,'pynusmv/nusmv/utils/_utils'),
+	 Extension('pynusmv.nusmv.utils._utils',
 				['pynusmv/nusmv/utils/utils.i'],
 				depends = [	'nusmv/nusmv-config.h',
 							'nusmv/src/utils/defs.h',
@@ -759,7 +752,7 @@ extensions.append(
 	
 # wff modules
 extensions.append(
-	 Extension(os.path.join(abspath,'pynusmv/nusmv/wff/_wff'),
+	 Extension('pynusmv.nusmv.wff._wff',
 				['pynusmv/nusmv/wff/wff.i'],
 				depends = [	'nusmv/nusmv-config.h',
 							'nusmv/src/utils/defs.h',
@@ -769,7 +762,7 @@ extensions.append(
 				library_dirs = library_dirs, include_dirs = include_dirs)
 	)
 extensions.append(
-	 Extension(os.path.join(abspath,'pynusmv/nusmv/wff/w2w/_w2w'),
+	 Extension('pynusmv.nusmv.wff.w2w._w2w',
 				['pynusmv/nusmv/wff/w2w/w2w.i'],
 				depends = [	'nusmv/nusmv-config.h',
 							'nusmv/src/utils/defs.h',
