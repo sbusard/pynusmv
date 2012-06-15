@@ -39,6 +39,8 @@
 %ignore error_not_word_sizeof;
 %ignore util_str2int_inc;
 
+%feature("autodoc", 1);
+
 %include ../../../nusmv/src/utils/defs.h
 %include ../../../nusmv/src/utils/utils.h
 %include ../../../nusmv/src/utils/array.h

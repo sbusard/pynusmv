@@ -14,5 +14,7 @@
 # Ignoring unimplemented functions
 %ignore Dag_ManagerAllocWithParams;
 
+%feature("autodoc", 1);
+
 %include ../../../nusmv/src/utils/defs.h
 %include ../../../nusmv/src/dag/dag.h

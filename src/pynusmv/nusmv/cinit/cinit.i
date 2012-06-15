@@ -16,5 +16,7 @@
 %ignore NuSMVCore_set_reset_init_fun;
 %ignore NuSMVCore_set_reset_quit_fun;
 
+%feature("autodoc", 1);
+
 %include ../../../nusmv/src/utils/defs.h
 %include ../../../nusmv/src/cinit/cinit.h

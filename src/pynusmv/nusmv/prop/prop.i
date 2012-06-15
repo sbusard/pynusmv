@@ -8,6 +8,8 @@
 #include "../../../nusmv/src/prop/propPkg.h" 
 %}
 
+%feature("autodoc", 1);
+
 %include ../../../nusmv/src/utils/defs.h
 %include ../../../nusmv/src/prop/Prop.h
 %include ../../../nusmv/src/prop/PropDb.h

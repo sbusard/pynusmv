@@ -10,6 +10,8 @@
 # Ignoring unimplemented functions
 %ignore VarsHandler_promote_group;
 
+%feature("autodoc", 1);
+
 %include ../../../nusmv/src/utils/defs.h
 %include ../../../nusmv/src/dd/dd.h
 %include ../../../nusmv/src/dd/VarsHandler.h

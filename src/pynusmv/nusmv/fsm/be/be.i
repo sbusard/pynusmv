@@ -6,5 +6,7 @@
 #include "../../../../nusmv/src/fsm/be/BeFsm.h" 
 %}
 
+%feature("autodoc", 1);
+
 %include ../../../../nusmv/src/utils/defs.h
 %include ../../../../nusmv/src/fsm/be/BeFsm.h

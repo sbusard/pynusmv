@@ -18,6 +18,8 @@
 # Ignoring unimplemented functions
 %ignore HrcPopulateSymbTable;
 
+%feature("autodoc", 1);
+
 %include ../../../nusmv/src/utils/defs.h
 %include ../../../nusmv/src/hrc/hrc.h
 %include ../../../nusmv/src/hrc/hrcCmd.h

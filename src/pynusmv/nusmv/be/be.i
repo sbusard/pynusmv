@@ -8,6 +8,8 @@
 #include "../../../nusmv/src/be/beRbcManager.h" 
 %}
 
+%feature("autodoc", 1);
+
 %include ../../../nusmv/src/utils/defs.h
 %include ../../../nusmv/src/be/be.h
 %include ../../../nusmv/src/be/bePkg.h

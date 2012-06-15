@@ -12,6 +12,8 @@
 #include "../../../../nusmv/src/compile/symb_table/SymbType.h" 
 %}
 
+%feature("autodoc", 1);
+
 %include ../../../../nusmv/src/utils/defs.h
 %include ../../../../nusmv/src/compile/symb_table/NFunction.h
 %include ../../../../nusmv/src/compile/symb_table/ResolveSymbol.h

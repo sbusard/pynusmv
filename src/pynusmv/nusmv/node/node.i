@@ -14,6 +14,8 @@
 # Ignoring unimplemented functions
 %ignore normalize_nonboolean_case;
 
+%feature("autodoc", 1);
+
 %include ../../../nusmv/src/utils/defs.h
 %include ../../../nusmv/src/node/MasterNodeWalker.h
 %include ../../../nusmv/src/node/node.h

@@ -10,6 +10,8 @@
 #include "../../../../../nusmv/src/compile/type_checking/checkers/CheckerStatement.h" 
 %}
 
+%feature("autodoc", 1);
+
 %include ../../../../../nusmv/src/utils/defs.h
 %include ../../../../../nusmv/src/utils/object.h
 %include ../../../../../nusmv/src/compile/type_checking/checkers/CheckerBase.h

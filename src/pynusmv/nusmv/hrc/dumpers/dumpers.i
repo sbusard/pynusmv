@@ -14,6 +14,8 @@
 # Global variables have to be cautiously used.
 #pragma SWIG nowarn=451
 
+%feature("autodoc", 1);
+
 %include ../../../../nusmv/src/utils/defs.h
 %include ../../../../nusmv/src/utils/object.h
 %include ../../../../nusmv/src/hrc/dumpers/HrcDumper.h

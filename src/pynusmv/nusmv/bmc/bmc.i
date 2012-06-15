@@ -23,6 +23,8 @@
 %ignore Bmc_GenSolveInvarDual;
 %ignore Bmc_GenSolveInvarFalsification;
 
+%feature("autodoc", 1);
+
 %include ../../../nusmv/src/utils/defs.h
 %include ../../../nusmv/src/bmc/bmc.h
 %include ../../../nusmv/src/bmc/bmcBmc.h

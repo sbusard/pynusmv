@@ -6,5 +6,7 @@
 #include "../../../nusmv/src/trans/trans.h" 
 %}
 
+%feature("autodoc", 1);
+
 %include ../../../nusmv/src/utils/defs.h
 %include ../../../nusmv/src/trans/trans.h

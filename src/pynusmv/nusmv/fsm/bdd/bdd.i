@@ -11,6 +11,8 @@
 # Ignoring unimplemented functions
 %ignore BddFsm_get_fair_states_subset;
 
+%feature("autodoc", 1);
+
 %include ../../../../nusmv/src/utils/defs.h
 %include ../../../../nusmv/src/fsm/bdd/bdd.h
 %include ../../../../nusmv/src/fsm/bdd/BddFsm.h

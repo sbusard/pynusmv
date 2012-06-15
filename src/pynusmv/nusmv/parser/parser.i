@@ -12,6 +12,8 @@
 # Removing duplicate macros definition (TOK_X macros).
 #pragma SWIG nowarn=302
 
+%feature("autodoc", 1);
+
 %include ../../../nusmv/src/utils/defs.h
 %include ../../../nusmv/src/parser/grammar.h
 %include ../../../nusmv/src/parser/parser.h

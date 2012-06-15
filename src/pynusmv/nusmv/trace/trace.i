@@ -25,6 +25,8 @@
 %ignore Trace_symbol_get_category;
 %ignore Trace_symbol_is_assigned;
 
+%feature("autodoc", 1);
+
 %include ../../../nusmv/src/utils/defs.h
 %include ../../../nusmv/src/trace/pkg_trace.h
 %include ../../../nusmv/src/trace/Trace.h

@@ -21,6 +21,8 @@
 # Ignoring unimplemented function
 %ignore sbmc_unroll_invariant_propositional;
 
+%feature("autodoc", 1);
+
 %include ../../../../nusmv/src/utils/defs.h
 %include ../../../../nusmv/src/bmc/sbmc/sbmcBmc.h
 %include ../../../../nusmv/src/bmc/sbmc/sbmcBmcInc.h

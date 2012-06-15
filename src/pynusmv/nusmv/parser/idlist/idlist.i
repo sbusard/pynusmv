@@ -11,6 +11,8 @@
 # Removing duplicate macros definition (token macros).
 #pragma SWIG nowarn=302
 
+%feature("autodoc", 1);
+
 %include ../../../../nusmv/src/utils/defs.h
 %include ../../../../nusmv/src/parser/idlist/idlist_grammar.h
 %include ../../../../nusmv/src/parser/idlist/ParserIdList.h

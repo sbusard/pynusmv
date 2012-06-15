@@ -8,6 +8,8 @@
 #include "../../../../nusmv/src/enc/base/BoolEncClient.h" 
 %}
 
+%feature("autodoc", 1);
+
 %include ../../../../nusmv/src/utils/defs.h
 %include ../../../../nusmv/src/utils/object.h
 %include ../../../../nusmv/src/enc/base/BaseEnc.h

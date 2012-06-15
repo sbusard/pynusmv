@@ -6,5 +6,7 @@
 #include "../../../../../nusmv/src/addons_core/compass/compile/ProbAssign.h" 
 %}
 
+%feature("autodoc", 1);
+
 %include ../../../../../nusmv/src/utils/defs.h
 %include ../../../../../nusmv/src/addons_core/compass/compile/ProbAssign.h
