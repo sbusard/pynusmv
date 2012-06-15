@@ -167,7 +167,8 @@ void Cmd_Init()
   rl_attempted_completion_function = command_completion;
 #endif
 
-  nusmv_assert(start_time == -1);
+  /* sbusard 15/06/12 - Commenting to allow init-quit cycles of NuSMV */
+  /*nusmv_assert(start_time == -1);*/
   start_time = util_cpu_time();
 }
 
