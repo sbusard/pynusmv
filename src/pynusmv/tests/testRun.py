@@ -6,8 +6,6 @@ class TestRun(unittest.TestCase):
 	def test_run_checkctlspec(self):
 		from ..nusmv.cinit import cinit
 		from ..nusmv.cmd import cmd
-		from ..nusmv.mc import mc
-		from ..nusmv.prop import prop
 		
 		cinit.NuSMVCore_init_data()
 		cinit.NuSMVCore_init(None, 0)
