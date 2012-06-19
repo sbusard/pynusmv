@@ -1,0 +1,2 @@
+- Is it a problem to comment src/cmd/cmdMisc.c:170, an assert on start_time == -1?
+- Is it a problem to comment duplicated (defined twice) macros? (Defined the same way)
