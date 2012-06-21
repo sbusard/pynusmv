@@ -1,3 +1,5 @@
+from ...nusmv.dd import dd
+
 class Tlacenode:
 	"""
 	A Tlacenode is a TLACE node.
@@ -13,7 +15,7 @@ class Tlacenode:
 		branches a list of TLACE branches;
 		universals a list of universal formulas.
 		"""
-		self._state = state
+		self._state = dd.bdd_dup(state)
 		self._atomics = atomics or []
 		self._branches = branches or []
 		self._universals = universals or []
