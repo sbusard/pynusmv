@@ -16,15 +16,6 @@ class Node:
         """
         self.__ptr = ptr
         
-    def __eq__(self, other):
-        if isinstance(other, Node):
-            return self.__ptr == other.__ptr
-        else:
-            return False
-            
-    def eq(self, other):
-        return self.__ptr == other.__ptr
-        
     @property
     def type(self):
         """The type of this node."""
