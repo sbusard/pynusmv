@@ -32,29 +32,32 @@ class Node:
         Node(nsnode.cdr(self.__ptr))
         
         
-        
-    @classmethod
-    def find_node(type, left, right):
+    
+    def find_node(nodetype, left=None, right=None):
         """
         Create a node and store it in the hash table of NuSMV.
         
-        type -- an int for the type of the new node.
+        nodetype -- an int for the type of the new node.
         left -- a Node being the left child of the new node.
         right -- a Node being the right child of the new node.
         
-        Returns the new node.
+        Returns the Node-typed new node.
         """
-        return Node(nsnode.find_node(type, left.__ptr, right.__ptr))
-        
-    @classmethod
-    def new_node(type, left, right):
+        return Node(nsnode.find_node(nodetype,
+                                     left and left.__ptr or None,
+                                     right and right.__ptr or None))
+    
+    
+    def new_node(nodetype, left, right):
         """
         Create a node but do not store it in the hash table of NuSMV.
         
-        type -- an int for the type of the new node.
+        nodetype -- an int for the type of the new node.
         left -- a Node being the left child of the new node.
         right -- a Node being the right child of the new node.
         
-        Returns the new node.
+        Returns the Node-typed new node.
         """
-        return Node(nsnode.new_node(type, left.__ptr, right.__ptr))
+        return Node(nsnode.new_node(nodetype,
+                                    left and left.__ptr or None,
+                                    right and right.__ptr or None))
