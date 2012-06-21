@@ -1,38 +1,38 @@
 from ..nusmv.node import node as nsnode
 
 class Node:
-	"""
-	Python class for node structure.
-	
-	The Node class contains a pointer to a node in NuSMV and provides a set
-	of operations on this node.
-	"""
-	
-	def __init__(ptr):
-		"""
-		Create a new node with ptr.
-		
-		ptr -- the pointer to the NuSMV node.
-		"""
-		self.__ptr = ptr	
-		
-	@property
-	def type(self):
-	    """The type of this node."""
-		nsnode.node_get_type(self.__ptr)
-		
-	@property
-	def car(self):
-	    """The left Node-typed child of this node."""
-	    Node(nsnode.car(self.__ptr))
-	    
-	@property
-	def cdr(self):
-	    """The right Node-typed child of this node."""
-	    Node(nsnode.cdr(self.__ptr))
-	    
-	    
-	    
+    """
+    Python class for node structure.
+    
+    The Node class contains a pointer to a node in NuSMV and provides a set
+    of operations on this node.
+    """
+    
+    def __init__(ptr):
+        """
+        Create a new node with ptr.
+        
+        ptr -- the pointer to the NuSMV node.
+        """
+        self.__ptr = ptr
+        
+    @property
+    def type(self):
+        """The type of this node."""
+        nsnode.node_get_type(self.__ptr)
+        
+    @property
+    def car(self):
+        """The left Node-typed child of this node."""
+        Node(nsnode.car(self.__ptr))
+        
+    @property
+    def cdr(self):
+        """The right Node-typed child of this node."""
+        Node(nsnode.cdr(self.__ptr))
+        
+        
+        
     @classmethod
     def find_node(type, left, right):
         """
