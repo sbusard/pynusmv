@@ -3,6 +3,7 @@ from tlacebranch import Tlacebranch
 
 from ...nusmv.parser import parser
 from ...nusmv.mc import mc
+from ...nusmv.fsm.bdd import bdd as FsmBdd
 
 from ...node.node import Node
 
@@ -14,7 +15,7 @@ def explain(fsm, state, spec):
     state -- a BDD representing a state of fsm.
     spec -- a pynusmv.node.node.Node node representing the specification.
     
-    Returns a tlacenode.Tlacenode explaining why state of fsm violates spec.
+    Return a tlacenode.Tlacenode explaining why state of fsm violates spec.
     """
     return countex(fsm, state, spec, None)
     
@@ -28,7 +29,7 @@ def countex(fsm, state, spec, context):
     spec -- a pynusmv.node.node.Node node representing the specification.
     context -- a pynusmv.node.node.Node representing the context of spec in fsm.
     
-    Returns a tlacenode.Tlacenode explaining why state of fsm violates spec.
+    Return a tlacenode.Tlacenode explaining why state of fsm violates spec.
     """
     
     if spec.type == parser.CONTEXT:
@@ -145,7 +146,7 @@ def witness(fsm, state, spec, context):
     spec -- a pynusmv.node.node.Node node representing the specification.
     context -- a pynusmv.node.node.Node representing the context of spec in fsm.
     
-    Returns a tlacenode.Tlacenode explaining why state of fsm satisfies spec.
+    Return a tlacenode.Tlacenode explaining why state of fsm satisfies spec.
     """
 
     if spec.type == parser.CONTEXT:
@@ -158,7 +159,13 @@ def witness(fsm, state, spec, context):
         return countex(fsm, state, spec.car, context)
         
     elif spec.type == parser.OR:
-        pass # TODO
+        # TODO Encaplusate these
+        enc = BddFsm.BddFsm_get_bdd_encoding(fsm)
+        specbdd = BDD(mc.eval_ctl_spec(fsm, enc, spec.car.__ptr, context.__ptr))
+        if state.entailed(state.entailed(specbdd)):
+            return witness(fsm, state, spec.car, context)
+        else:
+            return witness(fsm, state, spec.cdr, context)
     
     elif spec.type == parser.AND:
         n1 = witness(fsm, state, spec.car, context)
@@ -192,7 +199,9 @@ def witness(fsm, state, spec, context):
          spec.type == parser.EG or
          spec.type == parser.EU or
          spec.type == parser.EW:
-        pass # TODO
+        return Tlacenode(state, None,
+                         {spec:witness_branch(fsm, state, spec, context)},
+                         None)
                     
     elif spec.type == parser.AX or
          spec.type == parser.AF or
@@ -206,3 +215,45 @@ def witness(fsm, state, spec, context):
     	# TLACE node. This includes the case of atomic propositions.
     	# All unrecognized operators are considered as atomics
     	return Tlacenode(state, [spec], None, None)
+    	
+    	
+def witness_branch(fsm, state, spec, context):
+    """
+    Return a TLACE branch explaining why state of fsm satisfies spec.
+
+    fsm -- the system.
+    state -- a BDD representing a state of fsm.
+    spec -- a pynusmv.node.node.Node node representing the specification.
+    context -- a pynusmv.node.node.Node representing the context of spec in fsm.
+
+    Return a tlacebranch.Tlacebranch explaining why state of fsm satisfies spec.
+    
+    Throw a NonExistentialSpecError if spec is not existential.
+    """
+    
+    if spec.type == parser.EX:
+        pass # TODO
+        
+	elif spec.type == parser.EF:
+        pass # TODO
+        
+	elif spec.type == parser.EG:
+        pass # TODO
+        
+	elif spec.type == parser.EU:
+        pass # TODO
+        
+	elif spec.type == parser.EW:
+	    pass # TODO
+	    
+	else:
+	    # Default case, throw an exception because spec is not existential
+	    raise NonExistentialSpecError()
+	    
+        
+        
+class NonExistentialSpecError(Exception):
+    """
+    Exception for given non existential temporal formula.
+    """
+    pass
