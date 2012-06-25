@@ -39,7 +39,11 @@ class Node:
         else:
             return None
             
-        
+            
+            
+    # ==========================================================================
+    # ===== Class methods ======================================================
+    # ==========================================================================    
     
     def find_node(nodetype, left=None, right=None):
         """
@@ -73,3 +77,38 @@ class Node:
         return Node(nsnode.new_node(nodetype,
                                     left and left.__ptr or None,
                                     right and right.__ptr or None))
+                                    
+    
+    def cons(left=None, right=None):
+        """
+        Create a new node of type CONS with left and right as car and cdr
+        children.
+        
+        left -- a Node, the left child of the new node.
+        right -- a Node, the right child of the new node.
+        
+        Return the Node corresponding to the newly created node.
+        
+        Note: the new node is not stored in the NuSMV node hash table.
+        """
+        return Node(nsnode.cons(left and left.__ptr or None,
+                                right and right.__ptr or None))
+                                    
+    
+    def node_from_list(l):
+        """
+        Create a LISP-like list from the Python-like list l.
+        
+        l -- a Python list.
+        
+        Return a Node n representing the given list,
+        i.e. n.car is l[0], n.cdr.car is l[1], etc.
+        The nodes are created using new_node, so no node is stored
+        in the corresponding NuSMV hash table.
+        """
+        
+        l = l[::-1]
+        n = None
+        for elem in l:
+            n = cons(elem, n)
+        return n

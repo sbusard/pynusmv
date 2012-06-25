@@ -4,6 +4,7 @@ from tlacebranch import Tlacebranch
 from ...nusmv.parser import parser
 from ...nusmv.mc import mc
 from ...nusmv.fsm.bdd import bdd as FsmBdd
+from ...nusmv.node import node as nsnode
 
 from ...node.node import Node
 
@@ -11,8 +12,8 @@ def explain(fsm, state, spec):
     """
     Return a TLACE node explaining why state of fsm violates spec.
     
-    fsm -- the system.
-    state -- a BDD representing a state of fsm.
+    fsm -- a pynusmv.fsm.BddFsm representing the system.
+    state -- a pynusmv.dd.BDD representing a state of fsm.
     spec -- a pynusmv.node.node.Node node representing the specification.
     
     Return a tlacenode.Tlacenode explaining why state of fsm violates spec.
@@ -24,8 +25,8 @@ def countex(fsm, state, spec, context):
     """
     Return a TLACE node explaining why state of fsm violates spec.
     
-    fsm -- the system.
-    state -- a BDD representing a state of fsm.
+    fsm -- a pynusmv.fsm.BddFsm representing the system.
+    state -- a pynusmv.dd.BDD representing a state of fsm.
     spec -- a pynusmv.node.node.Node node representing the specification.
     context -- a pynusmv.node.node.Node representing the context of spec in fsm.
     
@@ -141,8 +142,8 @@ def witness(fsm, state, spec, context):
     """
     Return a TLACE node explaining why state of fsm satisfies spec.
     
-    fsm -- the system.
-    state -- a BDD representing a state of fsm.
+    fsm -- a pynusmv.fsm.BddFsm representing the system.
+    state -- a pynusmv.dd.BDD representing a state of fsm.
     spec -- a pynusmv.node.node.Node node representing the specification.
     context -- a pynusmv.node.node.Node representing the context of spec in fsm.
     
@@ -160,9 +161,11 @@ def witness(fsm, state, spec, context):
         
     elif spec.type == parser.OR:
         # TODO Encaplusate these
-        enc = BddFsm.BddFsm_get_bdd_encoding(fsm)
-        specbdd = BDD(mc.eval_ctl_spec(fsm, enc, spec.car.__ptr, context.__ptr))
-        if state.entailed(state.entailed(specbdd)):
+        enc = fsm.BddEnc
+        specbdd = BDD(mc.eval_ctl_spec(fsm.__ptr, enc.__ptr,
+                                       spec.car.__ptr,
+                                       context.__ptr))
+        if state.entailed(specbdd):
             return witness(fsm, state, spec.car, context)
         else:
             return witness(fsm, state, spec.cdr, context)
@@ -221,8 +224,8 @@ def witness_branch(fsm, state, spec, context):
     """
     Return a TLACE branch explaining why state of fsm satisfies spec.
 
-    fsm -- the system.
-    state -- a BDD representing a state of fsm.
+    fsm -- a pynusmv.fsm.BddFsm representing the system.
+    state -- a pynusmv.dd.BDD representing a state of fsm.
     spec -- a pynusmv.node.node.Node node representing the specification.
     context -- a pynusmv.node.node.Node representing the context of spec in fsm.
 
@@ -249,6 +252,74 @@ def witness_branch(fsm, state, spec, context):
 	else:
 	    # Default case, throw an exception because spec is not existential
 	    raise NonExistentialSpecError()
+	    
+	    
+
+def explainEx(fsm, state, a):
+    """
+    Explain why state of fsm satisfies EX a.
+    
+    Explain why state of fsm satisfies EX phi, where a is a BDD representing
+    the set of states of fsm satisfying phi.
+    
+    fsm -- a pynusmv.fsm.BddFsm representing the system.
+    state -- a pynusmv.dd.BDD representing a state of fsm.
+    a -- a pynusmv.dd.BDD representing the set of states of fsm satisfying phi.
+    
+    Return (state, inputs, state') where state is the given state,
+    state' is a successor of state belonging to a and inputs is a BDD
+    representing the inputs to go from state to state' in fsm.
+    """
+    
+    enc = fsm.BddEnc
+    path = Node.node_from_list([state])
+    nodelist = mc.ex_explain(fsm.__ptr, enc.__ptr, path.__ptr, a.__ptr)
+    state = nodelist.car
+    nodelist = nodelist.cdr
+    inputs = nodelist.car
+    statep = nodelist.cdr.car
+    return (state, inputs, statep)
+    
+    
+def explainEU(fsm, state, a, b):
+    """
+    Explain why state of fsm satisfies E[a U b].
+    
+    Explain why state of fsm satisfies E[phi U psi],
+    where a is a BDD representing the set of states of fsm satisfying phi
+    and b is a BDD representing the set of states of fsm satisfying psi.
+    
+    fsm -- a pynusmv.fsm.BddFsm representing the system.
+    state -- a pynusmv.dd.BDD representing a state of fsm.
+    a -- a pynusmv.dd.BDD representing the set of states of fsm satisfying phi.
+    b -- a pynusmv.dd.BDD representing the set of states of fsm satisfying psi.
+    
+    Return a tuple t composed of states and inputs, all represented by BDDs,
+    such that t[0] is state, t[-1] belongs to b, and every other state of t
+    belongs to a. Furthermore, t represents a path in fsm.
+    """
+    pass # TODO
+    
+
+def explainEG(fsm, state, a):
+    """
+    Explain why state of fsm satisfies EG a.
+    
+    Explain why state of fsm satisfies EG phi,
+    where a is a BDD representing the set of states of fsm satisfying phi.
+    
+    fsm -- a pynusmv.fsm.BddFsm representing the system.
+    state -- a pynusmv.dd.BDD representing a state of fsm.
+    a -- a pynusmv.dd.BDD representing the set of states of fsm satisfying phi.
+    
+    Return a (t, (inputs, loop))
+    where t is a tuple composed of states and inputs, all represented by BDDs,
+    such that t[0] is stateand every other state of t
+    belongs to a. Furthermore, t represents a path in fsm.
+    loop represents the sstart of the loop contained in t,
+    i.e. t[-1] can lead to loop through inputs, and loop is a state of t.
+    """
+    pass # TODO
 	    
         
         

@@ -3,7 +3,8 @@
 %{
 #include "../../../nusmv/nusmv-config.h"
 #include "../../../nusmv/src/utils/defs.h"
-#include "../../../nusmv/src/mc/mc.h" 
+#include "../../../nusmv/src/mc/mc.h"
+#include "../../../nusmv/src/mc/mcInt.h"
 %}
 
 # Ignoring unimplemented functions
@@ -13,3 +14,4 @@
 
 %include ../../../nusmv/src/utils/defs.h
 %include ../../../nusmv/src/mc/mc.h
+%include ../../../nusmv/src/mc/mcInt.h

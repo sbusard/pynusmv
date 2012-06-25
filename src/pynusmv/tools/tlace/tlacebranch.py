@@ -11,7 +11,8 @@ class Tlacebranch:
         Creates a new TLACE branch.
         formula is an existential temporal formula;
         path is a list of TLACE nodes;
-        loop is None or a node of path indicating the start of a loop.
+        loop is None or a (inputs, node) pair where node is a node of path
+        indicating the start of a loop.
         """
         self._formula = formula
         self._path = (path, loop)
