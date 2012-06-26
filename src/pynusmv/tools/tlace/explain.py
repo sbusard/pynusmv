@@ -211,11 +211,11 @@ def witness(fsm, state, spec, context):
                         
     else:
         # deal with unmanaged formulas by returning a single
-    	# TLACE node. This includes the case of atomic propositions.
-    	# All unrecognized operators are considered as atomics
-    	return Tlacenode(state, [spec], None, None)
-    	
-    	
+        # TLACE node. This includes the case of atomic propositions.
+        # All unrecognized operators are considered as atomics
+        return Tlacenode(state, [spec], None, None)
+        
+        
 def witness_branch(fsm, state, spec, context):
     """
     Return a TLACE branch explaining why state of fsm satisfies spec.
@@ -233,23 +233,23 @@ def witness_branch(fsm, state, spec, context):
     if spec.type == parser.EX:
         pass # TODO
         
-	elif spec.type == parser.EF:
+    elif spec.type == parser.EF:
         pass # TODO
         
-	elif spec.type == parser.EG:
+    elif spec.type == parser.EG:
         pass # TODO
         
-	elif spec.type == parser.EU:
+    elif spec.type == parser.EU:
         pass # TODO
         
-	elif spec.type == parser.EW:
-	    pass # TODO
-	    
-	else:
-	    # Default case, throw an exception because spec is not existential
-	    raise NonExistentialSpecError()
-	    
-	    
+    elif spec.type == parser.EW:
+        pass # TODO
+        
+    else:
+        # Default case, throw an exception because spec is not existential
+        raise NonExistentialSpecError()
+        
+        
 
 def explainEx(fsm, state, a):
     """
@@ -270,13 +270,16 @@ def explainEx(fsm, state, a):
     enc = fsm.BddEnc
     path = Node.node_from_list([state])
     nodelist = mc.ex_explain(fsm.__ptr, enc.__ptr, path.__ptr, a.__ptr)
-    state = nodelist.car
+    
+    # nodelist is reversed!
+    statep = BDD(nodelist.car.__ptr)
     nodelist = nodelist.cdr
-    inputs = nodelist.car
-    statep = nodelist.cdr.car
+    inputs = BDD(nodelist.car.__ptr)
+    state = BDD(nodelist.cdr.car.__ptr)
+    
     return (state, inputs, statep)
-    
-    
+
+
 def explainEU(fsm, state, a, b):
     """
     Explain why state of fsm satisfies E[a U b].
@@ -294,7 +297,17 @@ def explainEU(fsm, state, a, b):
     such that t[0] is state, t[-1] belongs to b, and every other state of t
     belongs to a. Furthermore, t represents a path in fsm.
     """
-    pass # TODO
+    
+    enc = fsm.BddEnc
+    path = Node.node_from_list([state])
+    nodelist = mc.eu_explain(fsm.__ptr, enc.__ptr, path.__ptr, a.__ptr, b.__ptr)
+    
+    path = []
+    while nodelist is not None:
+        path.prepend(BDD(nodelist.car.__ptr))
+        nodelist = nodelist.cdr    
+    
+    return tuple(path)
     
 
 def explainEG(fsm, state, a):
@@ -315,10 +328,27 @@ def explainEG(fsm, state, a):
     loop represents the sstart of the loop contained in t,
     i.e. t[-1] can lead to loop through inputs, and loop is a state of t.
     """
-    pass # TODO
-	    
-        
-        
+    
+    enc = fsm.BddEnc
+    path = Node.node_from_list([state])
+    nodelist = mc.eg_explain(fsm.__ptr, enc.__ptr, path.__ptr, a.__ptr)
+    
+    path = []
+    loopstate = BDD(nodelist.car.__ptr)
+    nodelist = nodelist.cdr
+    loopinputs = BDD(nodelist.car.__ptr)
+    nodelist = nodelist.cdr
+    while nodelist is not None:
+        curstate = BDD(nodelist.car.__ptr)
+        path.prepend(curstate)
+        if curstate.__ptr == loopstate.__ptr:
+            loopstate = curstate
+        nodelist = nodelist.cdr    
+    
+    return (tuple(path), (loopinputs, loopstate))
+
+
+
 class NonExistentialSpecError(Exception):
     """
     Exception for given non existential temporal formula.

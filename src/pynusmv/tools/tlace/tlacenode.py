@@ -1,5 +1,3 @@
-from ...nusmv.dd import dd
-
 class Tlacenode:
     """
     A Tlacenode is a TLACE node.
