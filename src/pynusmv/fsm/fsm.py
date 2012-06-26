@@ -20,4 +20,4 @@ class BddFsm:
     @property
     def BddEnc(self):
         """The BDD encoding of this FSM."""
-        return BddEnc(bddFsm.get_bdd_enconding(self.__ptr))            
+        return BddEnc(bddFsm.BddFsm_get_bdd_encoding(self.__ptr))            

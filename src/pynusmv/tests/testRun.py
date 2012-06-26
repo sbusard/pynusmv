@@ -12,9 +12,9 @@ class TestRun(unittest.TestCase):
 		
 		ret = cmd.Cmd_CommandExecute("read_model -i pynusmv/tests/admin.smv")
 		self.assertEqual(ret, 0)
-		cmd.Cmd_CommandExecute("go")
+		ret = cmd.Cmd_CommandExecute("go")
 		self.assertEqual(ret, 0)
-		cmd.Cmd_CommandExecute("check_ctlspec")
+		ret = cmd.Cmd_CommandExecute("check_ctlspec")
 		self.assertEqual(ret, 0)
 		
 		cinit.NuSMVCore_quit()

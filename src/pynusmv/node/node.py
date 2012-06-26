@@ -74,7 +74,7 @@ class Node:
         
         Returns the Node-typed new node.
         """
-        return Node(nsnode.new_node(nodetype,
+        return Node(nsnode.create_node(nodetype,
                                     left and left.__ptr or None,
                                     right and right.__ptr or None))
                                     
