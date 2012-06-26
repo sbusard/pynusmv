@@ -34,3 +34,5 @@ class TestBuildModel(unittest.TestCase):
         fsm = BddFsm(fsm_ptr)
         enc = fsm.BddEnc
         self.assertIsNotNone(enc)
+        init = fsm.init
+        self.assertIsNotNone(init)
