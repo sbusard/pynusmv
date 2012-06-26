@@ -6,11 +6,12 @@ from ..nusmv.node import node as nsnode
 from ..nusmv.parser import parser
 from ..nusmv.prop import prop
 from ..nusmv.fsm.bdd import bdd as nsfsm
+from ..nusmv.mc import mc
 
 from ..fsm.fsm import BddFsm
 from ..node.node import Node
 
-class TestBuildModel(unittest.TestCase):
+class TestMC(unittest.TestCase):
     
     def setUp(self):
         cinit.NuSMVCore_init_data()
@@ -21,18 +22,16 @@ class TestBuildModel(unittest.TestCase):
         cinit.NuSMVCore_quit()
     
     
-    def test_build_model(self):
+    def test_mc(self):
         # Initialize the model
         ret = cmd.Cmd_CommandExecute("read_model -i pynusmv/tests/admin.smv")
         self.assertEqual(ret, 0)
         cmd.Cmd_CommandExecute("go")
         self.assertEqual(ret, 0)
         
+        # Check CTL specs
         propDb = prop.PropPkg_get_prop_database()
-        fsm_ptr = prop.PropDb_master_get_bdd_fsm(propDb)
-        self.assertIsNotNone(fsm_ptr)
-        fsm = BddFsm(fsm_ptr)
-        enc = fsm.BddEnc
-        self.assertIsNotNone(enc)
-        init = fsm.init
-        self.assertIsNotNone(init)
+        for i in range(prop.PropDb_get_size(propDb)):
+            p = prop.PropDb_get_prop_at_index(propDb, i)
+            if prop.Prop_get_type(p) == prop.Prop_Ctl:
+                mc.Mc_CheckCTLSpec(p)

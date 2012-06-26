@@ -2,9 +2,10 @@ import unittest
 
 from ..nusmv.cinit import cinit
 from ..nusmv.cmd import cmd
-from ..node.node import Node
 from ..nusmv.node import node as nsnode
 from ..nusmv.parser import parser
+
+from ..node.node import Node
 
 class TestRun(unittest.TestCase):
     
