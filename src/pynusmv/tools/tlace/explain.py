@@ -231,7 +231,12 @@ def witness_branch(fsm, state, spec, context):
     """
     
     if spec.type == parser.EX:
-        pass # TODO
+        f = eval_ctl_spec(fsm, spec.car, context)
+        path = explainEX(fsm, state, f)
+        branch = (Tlacenode(path[0]),
+                  path[1],
+                  witness(fsm, spec.car, path[2], context))
+        return Tlacebranch(spec, branch)
         
     elif spec.type == parser.EF:
         newspec = Node.find_node(parser.EU,
@@ -240,10 +245,37 @@ def witness_branch(fsm, state, spec, context):
         return witness_branch(fsm, state, newspec, context)
         
     elif spec.type == parser.EG:
-        pass # TODO
+        f = eval_ctl_spec(fsm, spec.car, context)
+        (path, inloop, loop) = explainEG(fsm, state, f)
+        
+        branch = []
+        # intermediate states
+        for s, i in list(zip(path[::2], path[1::2])):
+            wit = witness(fsm, spec.car, s, context)
+            branch.append(wit)
+            branch.append(i)
+            # manage the loop
+            if s == loop:
+                loop = wit
+        # last state
+        branch.append(witness(fsm, spec.car, path[-1], context))
+        
+        return Tlacebranch(spec, tuple(branch), (inloop, loop))
         
     elif spec.type == parser.EU:
-        pass # TODO
+        f = eval_ctl_spec(fsm, spec.car, context)
+        g = eval_ctl_spec(fsm, spec.cdr, context)
+        path = explainEU(fsm, state, f, g)
+        
+        branch = []
+        # intermediate states
+        for s, i in list(zip(path[::2], path[1::2])):
+            branch.append(witness(fsm, spec.car, s, context))
+            branch.append(i)
+        # last state
+        branch.append(witness(fsm, spec.cdr, path[-1], context))
+        
+        return Tlacebranch(spec, tuple(branch))
         
     elif spec.type == parser.EW:
         euspec = Node.find_node(EU, spec.car, spec.cdr)
@@ -342,6 +374,7 @@ def explainEG(fsm, state, a):
     nodelist = mc.eg_explain(fsm.__ptr, enc.__ptr, path.__ptr, a.__ptr)
     
     path = []
+    # Discard last state and input, store them as loop indicators
     loopstate = BDD(nodelist.car.__ptr)
     nodelist = nodelist.cdr
     loopinputs = BDD(nodelist.car.__ptr)
