@@ -234,7 +234,10 @@ def witness_branch(fsm, state, spec, context):
         pass # TODO
         
     elif spec.type == parser.EF:
-        pass # TODO
+        newspec = Node.find_node(parser.EU,
+                                 Node.find_node(TRUEEXP),
+                                 spec.car)
+        return witness_branch(fsm, state, newspec, context)
         
     elif spec.type == parser.EG:
         pass # TODO
@@ -243,7 +246,12 @@ def witness_branch(fsm, state, spec, context):
         pass # TODO
         
     elif spec.type == parser.EW:
-        pass # TODO
+        euspec = Node.find_node(EU, spec.car, spec.cdr)
+        egspec = Node.find_node(EG, spec.car)
+        if state.entailed(eval_ctl_spec(fsm, euspec, context)):
+            return witness_branch(fsm, state, euspec, context)
+        else:
+            return witness_branch(fsm, state, egspec, context)
         
     else:
         # Default case, throw an exception because spec is not existential
