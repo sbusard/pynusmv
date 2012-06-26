@@ -7,6 +7,7 @@ from ...nusmv.fsm.bdd import bdd as FsmBdd
 from ...nusmv.node import node as nsnode
 
 from ...node.node import Node
+from ...mc.mc import eval_ctl_spec
 
 def explain(fsm, state, spec):
     """
@@ -160,12 +161,7 @@ def witness(fsm, state, spec, context):
         return countex(fsm, state, spec.car, context)
         
     elif spec.type == parser.OR:
-        # TODO Encaplusate these
-        enc = fsm.BddEnc
-        specbdd = BDD(mc.eval_ctl_spec(fsm.__ptr, enc.__ptr,
-                                       spec.car.__ptr,
-                                       context.__ptr))
-        if state.entailed(specbdd):
+        if state.entailed(eval_ctl_spec(fsm, spec.car, context)):
             return witness(fsm, state, spec.car, context)
         else:
             return witness(fsm, state, spec.cdr, context)
