@@ -13,6 +13,8 @@
 
 %feature("autodoc", 1);
 
+%include ../../typedefs.tpl
+
 %include ../../../../nusmv/src/utils/defs.h
 %include ../../../../nusmv/src/parser/idlist/idlist_grammar.h
 %include ../../../../nusmv/src/parser/idlist/ParserIdList.h

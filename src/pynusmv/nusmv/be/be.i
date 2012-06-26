@@ -10,6 +10,8 @@
 
 %feature("autodoc", 1);
 
+%include ../typedefs.tpl
+
 %include ../../../nusmv/src/utils/defs.h
 %include ../../../nusmv/src/be/be.h
 %include ../../../nusmv/src/be/bePkg.h

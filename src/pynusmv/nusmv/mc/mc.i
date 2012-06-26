@@ -12,6 +12,8 @@
 
 %feature("autodoc", 1);
 
+%include ../typedefs.tpl
+
 %include ../../../nusmv/src/utils/defs.h
 %include ../../../nusmv/src/mc/mc.h
 %include ../../../nusmv/src/mc/mcInt.h

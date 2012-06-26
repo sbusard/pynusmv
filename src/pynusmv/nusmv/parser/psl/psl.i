@@ -15,6 +15,8 @@
 
 %feature("autodoc", 1);
 
+%include ../../typedefs.tpl
+
 %include ../../../../nusmv/src/utils/defs.h
 %include ../../../../nusmv/src/parser/psl/pslExpr.h
 %include ../../../../nusmv/src/parser/psl/pslNode.h

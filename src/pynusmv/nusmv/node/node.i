@@ -16,6 +16,8 @@
 
 %feature("autodoc", 1);
 
+%include ../typedefs.tpl
+
 %include ../../../nusmv/src/utils/defs.h
 %include ../../../nusmv/src/node/MasterNodeWalker.h
 %include ../../../nusmv/src/node/node.h

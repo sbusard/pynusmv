@@ -10,6 +10,8 @@
 
 %feature("autodoc", 1);
 
+%include ../typedefs.tpl
+
 %include ../../../nusmv/src/utils/defs.h
 %include ../../../nusmv/src/prop/Prop.h
 %include ../../../nusmv/src/prop/PropDb.h

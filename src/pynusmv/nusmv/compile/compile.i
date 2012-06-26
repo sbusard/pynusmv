@@ -27,6 +27,8 @@
 
 %feature("autodoc", 1);
 
+%include ../typedefs.tpl
+
 %include ../../../nusmv/src/utils/defs.h
 %include ../../../nusmv/src/compile/compile.h
 %include ../../../nusmv/src/compile/FlatHierarchy.h

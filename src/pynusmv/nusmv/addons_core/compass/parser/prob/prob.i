@@ -12,6 +12,8 @@
 
 %feature("autodoc", 1);
 
+%include ../../../../typedefs.tpl
+
 %include ../../../../../../nusmv/src/utils/defs.h
 %include ../../../../../../nusmv/src/addons_core/compass/parser/prob/ParserProb.h
 %include ../../../../../../nusmv/src/addons_core/compass/parser/prob/prob_grammar.h

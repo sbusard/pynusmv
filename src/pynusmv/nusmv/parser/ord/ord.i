@@ -13,6 +13,8 @@
 
 %feature("autodoc", 1);
 
+%include ../../typedefs.tpl
+
 %include ../../../../nusmv/src/utils/defs.h
 %include ../../../../nusmv/src/parser/ord/ord_grammar.h
 %include ../../../../nusmv/src/parser/ord/ParserOrd.h
