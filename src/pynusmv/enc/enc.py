@@ -23,7 +23,12 @@ class BddEnc:
         return bddEnc.BddEnc_get_dd_manager(self.__ptr)
         
         
+    @property
+    def ptr(self):
+        return self.__ptr
+        
+        
     def pick_one_state(self, bdd):
         """Return a BDD representing a state of bdd."""
-        state = bddEnc.BddEnc_pick_one_state(self.__ptr, bdd.__ptr)
+        state = bddEnc.BddEnc_pick_one_state(self.__ptr, bdd.ptr)
         return BDD(state, self.DDmanager)

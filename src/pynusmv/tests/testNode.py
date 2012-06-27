@@ -7,7 +7,7 @@ from ..nusmv.parser import parser
 
 from ..node.node import Node
 
-class TestRun(unittest.TestCase):
+class TestNode(unittest.TestCase):
     
     def setUp(self):
         cinit.NuSMVCore_init_data()

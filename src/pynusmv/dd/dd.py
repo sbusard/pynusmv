@@ -1,4 +1,7 @@
 from ..nusmv.dd import dd
+from ..nusmv.node import node as nsnode
+
+from ..node.node import Node
 
 class MissingManagerError(Exception):
     """
@@ -24,6 +27,11 @@ class BDD:
         """
         self.__ptr = ptr
         self.__manager = dd_manager
+        
+        
+    @property
+    def ptr(self):
+        return self.__ptr
         
         
     def entailed(self, bdd):
@@ -52,14 +60,15 @@ class BDD:
         """Return the BDD representing the intersection of self and other."""
         if self.__manager is None:
             raise MissingManagerError()
-        return BDD(dd.bdd_and(self.__manager, self.__ptr, other.__ptr))
+        return BDD(dd.bdd_and(self.__manager, self.__ptr, other.__ptr),
+                   self.__manager)
         
             
     def compute_not(self):
         """Return the complement of self."""
         if self.__manager is None:
             raise MissingManagerError()
-        return BDD(dd.bdd_not(self.__manager, self.__ptr))
+        return BDD(dd.bdd_not(self.__manager, self.__ptr), self.__manager)
           
             
     def is_not_false(self):
@@ -71,3 +80,8 @@ class BDD:
             return True
         else:
             return False
+            
+    
+    def to_node(self):
+        """Cast this BDD to a node."""
+        return Node(nsnode.bdd2node(self.__ptr))

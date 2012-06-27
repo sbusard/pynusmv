@@ -1,5 +1,5 @@
-from ..mc.mc import eval_ctl_spec
-from explain import explain
+from ...mc.mc import eval_ctl_spec
+from .explain import explain
 
 def check(fsm, spec):
     """
@@ -25,7 +25,7 @@ def check(fsm, spec):
     # Otherwise, it is satisfied
     else:
         return (True, None)    
-   
+
             
 class NuSMVCommandError(Exception):
     """An error occured during NuSMV command execution."""

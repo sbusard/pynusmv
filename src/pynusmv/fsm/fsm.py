@@ -28,4 +28,9 @@ class BddFsm:
     @property
     def init(self):
         """The BDD of initial states of this FSM."""
-        return BDD(bddFsm.BddFsm_get_init(self.__ptr))            
+        return BDD(bddFsm.BddFsm_get_init(self.__ptr), self.BddEnc.DDmanager)
+        
+    
+    @property
+    def ptr(self):
+        return self.__ptr

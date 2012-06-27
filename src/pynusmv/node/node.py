@@ -16,6 +16,11 @@ class Node:
         """
         self.__ptr = ptr
         
+    
+    @property
+    def ptr(self):
+        return self.__ptr
+        
     @property
     def type(self):
         """The type of this node."""
@@ -91,8 +96,8 @@ class Node:
         
         Note: the new node is not stored in the NuSMV node hash table.
         """
-        return Node(nsnode.cons(left and left.__ptr or None,
-                                right and right.__ptr or None))
+        return Node(nsnode.cons(left and left.ptr or None,
+                                right and right.ptr or None))
                                     
     
     def node_from_list(l):
@@ -110,5 +115,5 @@ class Node:
         l = l[::-1]
         n = None
         for elem in l:
-            n = cons(elem, n)
+            n = Node.cons(elem, n)
         return n

@@ -1,5 +1,5 @@
-from tlacenode import Tlacenode
-from tlacebranch import Tlacebranch
+from .tlacenode import Tlacenode
+from .tlacebranch import Tlacebranch
 
 from ...nusmv.parser import parser
 from ...nusmv.mc import mc
@@ -8,6 +8,7 @@ from ...nusmv.node import node as nsnode
 
 from ...node.node import Node
 from ...mc.mc import eval_ctl_spec
+from ...dd.dd import BDD
 
 def explain(fsm, state, spec):
     """
@@ -40,7 +41,7 @@ def countex(fsm, state, spec, context):
     elif spec.type == parser.FALSEEXP:
         newspec = Node.find_node(parser.TRUEEXP)
         
-    elif spec.type == parser.parser.NOT:
+    elif spec.type == parser.NOT:
         newspec = spec.car
         
     elif spec.type == parser.OR:
@@ -157,7 +158,7 @@ def witness(fsm, state, spec, context):
     elif spec.type == parser.TRUEEXP:
         return Tlacenode(state, None, None, None)
         
-    elif spec.type == parser.parser.NOT:
+    elif spec.type == parser.NOT:
         return countex(fsm, state, spec.car, context)
         
     elif spec.type == parser.OR:
@@ -193,20 +194,20 @@ def witness(fsm, state, spec, context):
                         Node.find_node(parser.NOT, spec.cdr)))
         return witness(fsm, state, newspec, context)
                     
-    elif spec.type == parser.EX or
-         spec.type == parser.EF or
-         spec.type == parser.EG or
-         spec.type == parser.EU or
-         spec.type == parser.EW:
+    elif (spec.type == parser.EX or
+          spec.type == parser.EF or
+          spec.type == parser.EG or
+          spec.type == parser.EU or
+          spec.type == parser.EW):
         return Tlacenode(state, None,
                          {spec:witness_branch(fsm, state, spec, context)},
                          None)
                     
-    elif spec.type == parser.AX or
-         spec.type == parser.AF or
-         spec.type == parser.AG or
-         spec.type == parser.AU or
-         spec.type == parser.AW:
+    elif (spec.type == parser.AX or
+          spec.type == parser.AF or
+          spec.type == parser.AG or
+          spec.type == parser.AU or
+          spec.type == parser.AW):
         return Tlacenode(state, None, None, [spec])
                         
     else:
@@ -240,7 +241,7 @@ def witness_branch(fsm, state, spec, context):
         
     elif spec.type == parser.EF:
         newspec = Node.find_node(parser.EU,
-                                 Node.find_node(TRUEEXP),
+                                 Node.find_node(parser.TRUEEXP),
                                  spec.car)
         return witness_branch(fsm, state, newspec, context)
         
@@ -270,10 +271,10 @@ def witness_branch(fsm, state, spec, context):
         branch = []
         # intermediate states
         for s, i in list(zip(path[::2], path[1::2])):
-            branch.append(witness(fsm, spec.car, s, context))
+            branch.append(witness(fsm, s, spec.car, context))
             branch.append(i)
         # last state
-        branch.append(witness(fsm, spec.cdr, path[-1], context))
+        branch.append(witness(fsm, path[-1], spec.cdr, context))
         
         return Tlacebranch(spec, tuple(branch))
         
@@ -341,12 +342,12 @@ def explainEU(fsm, state, a, b):
     
     enc = fsm.BddEnc
     manager = enc.DDmanager
-    path = Node.node_from_list([state])
-    nodelist = mc.eu_explain(fsm.__ptr, enc.__ptr, path.__ptr, a.__ptr, b.__ptr)
+    path = Node.node_from_list([state.to_node()])
+    nodelist = Node(mc.eu_explain(fsm.ptr, enc.ptr, path.ptr, a.ptr, b.ptr))
     
     path = []
     while nodelist is not None:
-        path.prepend(BDD(nodelist.car.__ptr, manager))
+        path.insert(0, BDD(nodelist.car.ptr, manager))
         nodelist = nodelist.cdr    
     
     return tuple(path)

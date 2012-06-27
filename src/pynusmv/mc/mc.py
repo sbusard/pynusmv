@@ -5,7 +5,9 @@ model checking.
 
 from ..nusmv.mc import mc
 
+from ..fsm.fsm import BddFsm
 from ..dd.dd import BDD
+from ..node.node import Node
 
 def eval_ctl_spec(fsm, spec, context=None):
     """
@@ -17,7 +19,8 @@ def eval_ctl_spec(fsm, spec, context=None):
     context -- a pynusmv.node.node.Node representing the context of spec.
     """
     enc = fsm.BddEnc
-    specbdd = BDD(mc.eval_ctl_spec(fsm.__ptr, enc.__ptr,
-                                   spec.car.__ptr,
-                                   context.__ptr))
+    specbdd = BDD(mc.eval_ctl_spec(fsm.ptr, enc.ptr,
+                                   spec.ptr,
+                                   context and context.ptr or None),
+                  enc.DDmanager)
     return specbdd
