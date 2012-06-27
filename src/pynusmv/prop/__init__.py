@@ -1,1 +1,1 @@
-__all__ = ['prop']
+__all__ = ['prop', 'propDb']

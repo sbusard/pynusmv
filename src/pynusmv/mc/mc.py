@@ -7,12 +7,14 @@ from ..nusmv.mc import mc
 
 from ..dd.dd import BDD
 
-def eval_ctl_spec(fsm, spec, context):
+def eval_ctl_spec(fsm, spec, context=None):
     """
     Return the BDD representing the set of states of fsm satisfying spec
     in context.
     
-    
+    fsm -- a pynusmv.fsm.fsm.BddFsm representing the system.
+    spec -- a pynusmv.node.node.Node representing the formula.
+    context -- a pynusmv.node.node.Node representing the context of spec.
     """
     enc = fsm.BddEnc
     specbdd = BDD(mc.eval_ctl_spec(fsm.__ptr, enc.__ptr,

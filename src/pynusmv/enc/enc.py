@@ -1,4 +1,5 @@
 from ..nusmv.enc.bdd import bdd as bddEnc
+from ..dd.dd import BDD
 
 class BddEnc:
     """
@@ -20,3 +21,9 @@ class BddEnc:
     def DDmanager(self):
         """The DD manager of this encoding."""
         return bddEnc.BddEnc_get_dd_manager(self.__ptr)
+        
+        
+    def pick_one_state(self, bdd):
+        """Return a BDD representing a state of bdd."""
+        state = bddEnc.BddEnc_pick_one_state(self.__ptr, bdd.__ptr)
+        return BDD(state, self.DDmanager)

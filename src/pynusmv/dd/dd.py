@@ -44,3 +44,30 @@ class BDD:
             return True
         else:
             return False
+    
+    
+    # TODO Change this to allow shorter syntax
+    #      like not(b and c)
+    def compute_and(self, other):
+        """Return the BDD representing the intersection of self and other."""
+        if self.__manager is None:
+            raise MissingManagerError()
+        return BDD(dd.bdd_and(self.__manager, self.__ptr, other.__ptr))
+        
+            
+    def compute_not(self):
+        """Return the complement of self."""
+        if self.__manager is None:
+            raise MissingManagerError()
+        return BDD(dd.bdd_not(self.__manager, self.__ptr))
+          
+            
+    def is_not_false(self):
+        """Return whether self is not false"""
+        if self.__manager is None:
+            raise MissingManagerError()
+            
+        if dd.bdd_isnot_false(self.__manager, self.__ptr):
+            return True
+        else:
+            return False
