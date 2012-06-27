@@ -308,14 +308,15 @@ def explainEx(fsm, state, a):
     """
     
     enc = fsm.BddEnc
+    manager = enc.DDmanager
     path = Node.node_from_list([state])
     nodelist = mc.ex_explain(fsm.__ptr, enc.__ptr, path.__ptr, a.__ptr)
     
     # nodelist is reversed!
-    statep = BDD(nodelist.car.__ptr)
+    statep = BDD(nodelist.car.__ptr, manager)
     nodelist = nodelist.cdr
-    inputs = BDD(nodelist.car.__ptr)
-    state = BDD(nodelist.cdr.car.__ptr)
+    inputs = BDD(nodelist.car.__ptr, manager)
+    state = BDD(nodelist.cdr.car.__ptr, manager)
     
     return (state, inputs, statep)
 
@@ -339,12 +340,13 @@ def explainEU(fsm, state, a, b):
     """
     
     enc = fsm.BddEnc
+    manager = enc.DDmanager
     path = Node.node_from_list([state])
     nodelist = mc.eu_explain(fsm.__ptr, enc.__ptr, path.__ptr, a.__ptr, b.__ptr)
     
     path = []
     while nodelist is not None:
-        path.prepend(BDD(nodelist.car.__ptr))
+        path.prepend(BDD(nodelist.car.__ptr, manager))
         nodelist = nodelist.cdr    
     
     return tuple(path)
@@ -370,17 +372,18 @@ def explainEG(fsm, state, a):
     """
     
     enc = fsm.BddEnc
+    manager = enc.DDmanager
     path = Node.node_from_list([state])
     nodelist = mc.eg_explain(fsm.__ptr, enc.__ptr, path.__ptr, a.__ptr)
     
     path = []
     # Discard last state and input, store them as loop indicators
-    loopstate = BDD(nodelist.car.__ptr)
+    loopstate = BDD(nodelist.car.__ptr, manager)
     nodelist = nodelist.cdr
-    loopinputs = BDD(nodelist.car.__ptr)
+    loopinputs = BDD(nodelist.car.__ptr, manager)
     nodelist = nodelist.cdr
     while nodelist is not None:
-        curstate = BDD(nodelist.car.__ptr)
+        curstate = BDD(nodelist.car.__ptr, manager)
         path.prepend(curstate)
         if curstate.__ptr == loopstate.__ptr:
             loopstate = curstate
