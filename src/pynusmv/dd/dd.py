@@ -1,8 +1,6 @@
 from ..nusmv.dd import dd
 from ..nusmv.node import node as nsnode
 
-from ..node.node import Node
-
 class MissingManagerError(Exception):
     """
     Exception for missing BDD manager.
@@ -84,4 +82,7 @@ class BDD:
     
     def to_node(self):
         """Cast this BDD to a node."""
+        
+        from ..node.node import Node
+        
         return Node(nsnode.bdd2node(self.__ptr))

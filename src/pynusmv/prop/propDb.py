@@ -29,6 +29,10 @@ class PropDb:
         """Return the prop stored at index."""
         return Prop(nsprop.PropDb_get_prop_at_index(self.__ptr, index))
         
+    def get_size(self):
+        """Return the size of this database."""
+        return nsprop.PropDb_get_size(self.__ptr)
+        
     
         
     # ==========================================================================

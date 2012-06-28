@@ -135,7 +135,7 @@ def countex(fsm, state, spec, context):
             newspec = spec.car
         else:
             newspec = Node.find_node(parser.NOT, spec)
-        return Tlacenode(state, [newspec], None, None)
+        return Tlacenode(state, (newspec,), None, None)
         
     return witness(fsm, state, newspec, context)
     
@@ -200,7 +200,7 @@ def witness(fsm, state, spec, context):
           spec.type == parser.EU or
           spec.type == parser.EW):
         return Tlacenode(state, None,
-                         {spec:witness_branch(fsm, state, spec, context)},
+                         (witness_branch(fsm, state, spec, context),),
                          None)
                     
     elif (spec.type == parser.AX or
@@ -208,13 +208,13 @@ def witness(fsm, state, spec, context):
           spec.type == parser.AG or
           spec.type == parser.AU or
           spec.type == parser.AW):
-        return Tlacenode(state, None, None, [spec])
+        return Tlacenode(state, None, None, (spec,))
                         
     else:
         # deal with unmanaged formulas by returning a single
         # TLACE node. This includes the case of atomic propositions.
         # All unrecognized operators are considered as atomics
-        return Tlacenode(state, [spec], None, None)
+        return Tlacenode(state, (spec,), None, None)
         
         
 def witness_branch(fsm, state, spec, context):
@@ -247,19 +247,19 @@ def witness_branch(fsm, state, spec, context):
         
     elif spec.type == parser.EG:
         f = eval_ctl_spec(fsm, spec.car, context)
-        (path, inloop, loop) = explainEG(fsm, state, f)
+        (path, (inloop, loop)) = explainEG(fsm, state, f)
         
         branch = []
         # intermediate states
         for s, i in list(zip(path[::2], path[1::2])):
-            wit = witness(fsm, spec.car, s, context)
+            wit = witness(fsm, s, spec.car, context)
             branch.append(wit)
             branch.append(i)
             # manage the loop
             if s == loop:
                 loop = wit
         # last state
-        branch.append(witness(fsm, spec.car, path[-1], context))
+        branch.append(witness(fsm, path[-1], spec.car, context))
         
         return Tlacebranch(spec, tuple(branch), (inloop, loop))
         
@@ -347,7 +347,7 @@ def explainEU(fsm, state, a, b):
     
     path = []
     while nodelist is not None:
-        path.insert(0, BDD(nodelist.car.ptr, manager))
+        path.insert(0, nodelist.car.to_bdd(manager))
         nodelist = nodelist.cdr    
     
     return tuple(path)
@@ -374,19 +374,19 @@ def explainEG(fsm, state, a):
     
     enc = fsm.BddEnc
     manager = enc.DDmanager
-    path = Node.node_from_list([state])
-    nodelist = mc.eg_explain(fsm.__ptr, enc.__ptr, path.__ptr, a.__ptr)
+    path = Node.node_from_list([state.to_node()])
+    nodelist = Node(mc.eg_explain(fsm.ptr, enc.ptr, path.ptr, a.ptr))
     
     path = []
     # Discard last state and input, store them as loop indicators
-    loopstate = BDD(nodelist.car.__ptr, manager)
+    loopstate = nodelist.car.to_bdd(manager)
     nodelist = nodelist.cdr
-    loopinputs = BDD(nodelist.car.__ptr, manager)
+    loopinputs = nodelist.car.to_bdd(manager)
     nodelist = nodelist.cdr
     while nodelist is not None:
-        curstate = BDD(nodelist.car.__ptr, manager)
-        path.prepend(curstate)
-        if curstate.__ptr == loopstate.__ptr:
+        curstate = nodelist.car.to_bdd(manager)
+        path.insert(0, curstate)
+        if curstate.ptr == loopstate.ptr:
             loopstate = curstate
         nodelist = nodelist.cdr    
     

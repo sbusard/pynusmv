@@ -26,3 +26,7 @@ MODULE main
 						
 						
 SPEC EF(admin = alice) -> AG(admin != none -> admin = alice)
+SPEC AF AG(state = processing)
+SPEC AF AG(state in {processing, waiting})
+
+SPEC EG EX state = processing

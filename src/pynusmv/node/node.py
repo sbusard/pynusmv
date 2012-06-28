@@ -45,6 +45,14 @@ class Node:
             return None
             
             
+    def to_bdd(self, manager = None):
+        """Cast this node to a BDD, with manager as DD manager."""
+        
+        from ..dd.dd import BDD
+        
+        return BDD(nsnode.node2bdd(self.__ptr), manager)
+            
+            
             
     # ==========================================================================
     # ===== Class methods ======================================================

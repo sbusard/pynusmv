@@ -15,11 +15,31 @@ class Tlacenode:
         branches -- a list of TLACE branches represented by Tlacebranches
         universals -- a list of universal formulas, represented by Nodes
         """
-        self._state = state
-        self._atomics = atomics or []
-        self._branches = branches or []
-        self._universals = universals or []
+        self.__state = state
+        self.__atomics = atomics or tuple()
+        self.__branches = branches or tuple()
+        self.__universals = universals or tuple()
     
+    
+    @property
+    def state(self):
+        """state node"""
+        return self.__state
+        
+    @property
+    def atomics(self):
+        """atomic annotations of this node"""
+        return self.__atomics
+        
+    @property
+    def branches(self):
+        """branches of this node"""
+        return self.__branches
+        
+    @property
+    def universals(self):
+        """universal annotations of this node"""
+        return self.__universals
         
     def __str__(self):
         pass # TODO

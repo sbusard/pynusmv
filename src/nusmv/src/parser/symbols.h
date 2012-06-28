@@ -89,6 +89,10 @@ enum NUSMV_CORE_SYMBOLS {
   CONTEXT,
   EU,
   AU,
+  /* sbusard 27/06/12 - adding EW and AW operators support */
+  EW,
+  AW,
+
   EBU,
   ABU,
   MINU,
