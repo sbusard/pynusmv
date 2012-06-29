@@ -24,9 +24,4 @@ def check(fsm, spec):
         
     # Otherwise, it is satisfied
     else:
-        return (True, None)    
-
-            
-class NuSMVCommandError(Exception):
-    """An error occured during NuSMV command execution."""
-    pass
+        return (True, None)
