@@ -14,9 +14,20 @@ class Tlacebranch:
         loop is None or a (inputs, node) pair where node is a node of path
         indicating the start of a loop.
         """
-        self._formula = formula
-        self._path = (path, loop)
+        self.__formula = formula
+        self.__path = (path, loop)
         
         
     def __str__(self):
         pass # TODO
+        
+    
+    @property
+    def specification(self):
+        """The spec of this branch."""
+        return self.__formula
+        
+    @property
+    def path(self):
+        """The path of this branch. A (path, (inputs, loop)) tuple."""
+        return self.__path

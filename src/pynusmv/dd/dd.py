@@ -86,3 +86,8 @@ class BDD:
         from ..node.node import Node
         
         return Node(nsnode.bdd2node(self.__ptr))
+        
+        
+    def to_add(self):
+        """Cast self pointer to add pointer. Return the pointer."""
+        return dd.bdd_to_add(self.__manager, self.__ptr)

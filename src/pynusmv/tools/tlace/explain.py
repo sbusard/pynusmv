@@ -251,7 +251,7 @@ def witness_branch(fsm, state, spec, context):
         
         branch = []
         # intermediate states
-        for s, i in list(zip(path[::2], path[1::2])):
+        for s, i in zip(path[::2], path[1::2]):
             wit = witness(fsm, s, spec.car, context)
             branch.append(wit)
             branch.append(i)
@@ -270,7 +270,7 @@ def witness_branch(fsm, state, spec, context):
         
         branch = []
         # intermediate states
-        for s, i in list(zip(path[::2], path[1::2])):
+        for s, i in zip(path[::2], path[1::2]):
             branch.append(witness(fsm, s, spec.car, context))
             branch.append(i)
         # last state

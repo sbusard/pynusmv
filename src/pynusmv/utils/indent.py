@@ -2,19 +2,24 @@
 Indent module allows to indent a given string.
 """
 
+import sys
+
 __value = "   "
 __count = 0
 
 def reset():
     """Reset the indentation to 0"""
+    global __count
     __count = 0
     
 def inc():
     """Increase the indentation"""
+    global __count
     __count += 1
     
 def dec():
     """Decrease the indentation"""
+    global __count
     __count -= 1
     
 def indent(s):
@@ -23,4 +28,5 @@ def indent(s):
     
 def prt(*args, **kwargs):
     """Print indented args. Bind to print."""
-    print(__value * __count, *args, **kwargs)
+    print(__value * __count, *args, sep='', **kwargs)
+    sys.stdout.flush()

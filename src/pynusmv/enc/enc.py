@@ -1,4 +1,5 @@
 from ..nusmv.enc.bdd import bdd as bddEnc
+from ..nusmv.enc.base import base as baseEnc
 from ..dd.dd import BDD
 
 class BddEnc:
@@ -26,6 +27,13 @@ class BddEnc:
     @property
     def ptr(self):
         return self.__ptr
+        
+    
+    @property
+    def symbTable(self):
+        """Return a pointer to the NuSMV symb table of this enc."""
+        base_enc = bddEnc.bddenc2baseenc(self.__ptr)
+        return baseEnc.BaseEnc_get_symb_table(base_enc)
         
         
     def pick_one_state(self, bdd):
