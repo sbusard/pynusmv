@@ -51,6 +51,15 @@ class Node:
         from ..dd.dd import BDD
         
         return BDD(nsnode.node2bdd(self.__ptr), manager)
+        
+    
+    def __str__(self):
+        """
+        Return the string representation of this node.
+        
+        Call nsnode.sprint_node() to get the string representation.
+        """
+        return nsnode.sprint_node(self.__ptr)
             
             
             

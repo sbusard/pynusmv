@@ -48,3 +48,10 @@ class TestNode(unittest.TestCase):
         self.assertEqual(n.type, parser.OR)
         self.assertEqual(n.car.type, parser.TRUEEXP)
         self.assertEqual(n.cdr.type, parser.FALSEEXP)
+        
+    def test_print_node(self):
+        n1 = Node.find_node(parser.TRUEEXP)
+        n2 = Node.find_node(parser.FALSEEXP)
+        n = Node.find_node(parser.OR, n1, n2)
+        self.assertEqual(str(n), "(TRUE | FALSE)")
+        
