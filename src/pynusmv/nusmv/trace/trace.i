@@ -27,6 +27,8 @@
 
 %feature("autodoc", 1);
 
+%include ../typedefs.tpl
+
 %include ../../../nusmv/src/utils/defs.h
 %include ../../../nusmv/src/trace/pkg_trace.h
 %include ../../../nusmv/src/trace/Trace.h

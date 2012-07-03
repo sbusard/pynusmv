@@ -9,6 +9,8 @@
 
 %feature("autodoc", 1);
 
+%include ../../typedefs.tpl
+
 %include ../../../../nusmv/src/utils/defs.h
 %include ../../../../nusmv/src/utils/object.h
 %include ../../../../nusmv/src/enc/be/BeEnc.h

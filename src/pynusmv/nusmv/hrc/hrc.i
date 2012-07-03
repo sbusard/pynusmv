@@ -20,6 +20,8 @@
 
 %feature("autodoc", 1);
 
+%include ../typedefs.tpl
+
 %include ../../../nusmv/src/utils/defs.h
 %include ../../../nusmv/src/hrc/hrc.h
 %include ../../../nusmv/src/hrc/hrcCmd.h

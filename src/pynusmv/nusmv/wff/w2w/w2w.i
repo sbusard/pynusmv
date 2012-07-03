@@ -8,5 +8,7 @@
 
 %feature("autodoc", 1);
 
+%include ../../typedefs.tpl
+
 %include ../../../../nusmv/src/utils/defs.h
 %include ../../../../nusmv/src/wff/w2w/w2w.h

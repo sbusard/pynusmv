@@ -25,6 +25,8 @@
 
 %feature("autodoc", 1);
 
+%include ../typedefs.tpl
+
 %include ../../../nusmv/src/utils/defs.h
 %include ../../../nusmv/src/bmc/bmc.h
 %include ../../../nusmv/src/bmc/bmcBmc.h
