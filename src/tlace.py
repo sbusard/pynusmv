@@ -7,7 +7,7 @@ from pynusmv.nusmv.cmd import cmd
 from pynusmv.prop.propDb import PropDb
 
 from pynusmv.tools.tlace.check import check as check_ctl_spec
-from pynusmv.tools.tlace.xml import print_xml_representation
+from pynusmv.tools.tlace.xml import xml_representation
 
 
 class NuSMVCommandError(Exception):
@@ -37,7 +37,7 @@ def check_and_explain(allargs):
     cinit.NuSMVCore_init(None, 0)
     
     
-    # TODO Initialize the model
+    # Initialize the model
     status = cmd.Cmd_SecureCommandExecute("read_model -i " + args.model)
     if status is not 0:
         raise NuSMVCommandError('Cannot read model ' + args.model)
@@ -57,13 +57,12 @@ def check_and_explain(allargs):
     
         (satisfied, cntex) = check_ctl_spec(fsm, spec)
         # Print the result and the TLACE if any
-        print('Specification ', end='')
-        sys.stdout.flush()
-        nsnode.print_node(cinit.get_nusmv_stdout(), spec.ptr)
-        print(' is', str(satisfied))
+        print('Specification',
+              nsnode.sprint_node(spec.ptr),
+              'is', str(satisfied))
         
         if not satisfied:
-            print_xml_representation(fsm, cntex, spec)
+            print(xml_representation(fsm, cntex, spec))
             
         print()
             

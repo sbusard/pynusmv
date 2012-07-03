@@ -10,7 +10,7 @@ from ...node.node import Node
 from ...prop.propDb import PropDb
 
 from ...tools.tlace.check import check
-from ...tools.tlace.xml import print_xml_representation
+from ...tools.tlace.xml import xml_representation
 
 class TestTlacePrinting(unittest.TestCase):
     
@@ -42,7 +42,7 @@ class TestTlacePrinting(unittest.TestCase):
         self.assertFalse(res[0], "spec should be violated")
         self.assertIsNotNone(res[1], "TLACE should be given")
         
-        print_xml_representation(fsm, res[1], spec)
+        print(xml_representation(fsm, res[1], spec))
         
         
     def test_print_violated_spec_egmod(self):
@@ -64,7 +64,7 @@ class TestTlacePrinting(unittest.TestCase):
         self.assertFalse(res[0], "spec should be violated")
         self.assertIsNotNone(res[1], "TLACE should be given")
 
-        print_xml_representation(fsm, res[1], spec)
+        print(xml_representation(fsm, res[1], spec))
         
     
     def test_print_violated_spec_egmod2(self):
@@ -86,4 +86,4 @@ class TestTlacePrinting(unittest.TestCase):
         self.assertFalse(res[0], "spec should be violated")
         self.assertIsNotNone(res[1], "TLACE should be given")
 
-        print_xml_representation(fsm, res[1], spec)
+        print(xml_representation(fsm, res[1], spec))
