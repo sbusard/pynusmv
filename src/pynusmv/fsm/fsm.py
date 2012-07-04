@@ -1,6 +1,6 @@
 from ..nusmv.fsm.bdd import bdd as bddFsm
 from ..enc.enc import BddEnc
-from ..dd.dd import BDD
+from ..dd.bdd import BDD
 
 class BddFsm:
     """

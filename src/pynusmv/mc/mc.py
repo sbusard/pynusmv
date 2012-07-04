@@ -6,7 +6,7 @@ model checking.
 from ..nusmv.mc import mc
 
 from ..fsm.fsm import BddFsm
-from ..dd.dd import BDD
+from ..dd.bdd import BDD
 from ..node.node import Node
 
 def eval_ctl_spec(fsm, spec, context=None):

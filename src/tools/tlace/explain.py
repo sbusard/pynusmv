@@ -8,7 +8,7 @@ from pynusmv.nusmv.node import node as nsnode
 
 from pynusmv.node.node import Node
 from pynusmv.mc.mc import eval_ctl_spec
-from pynusmv.dd.dd import BDD
+from pynusmv.dd.bdd import BDD
 
 def explain(fsm, state, spec):
     """

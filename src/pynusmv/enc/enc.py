@@ -1,6 +1,6 @@
 from ..nusmv.enc.bdd import bdd as bddEnc
 from ..nusmv.enc.base import base as baseEnc
-from ..dd.dd import BDD
+from ..dd.bdd import BDD
 
 class BddEnc:
     """

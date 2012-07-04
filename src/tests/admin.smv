@@ -4,25 +4,25 @@
 
 MODULE main
 
-	VAR
-		state : {starting, choosing, waiting, processing};
-		admin : {none, alice, bob};
-		
-	INIT state = starting & admin = none
-	
-	TRANS
-		next(state) =	case
-							state = starting :		choosing;
-							state = choosing :		waiting;
-							state = waiting :		processing;
-							state = processing :	waiting;
-						esac
-	
-	TRANS
-		next(admin) in	case
-							state = choosing :	{alice, bob};
-							TRUE :				admin;
-						esac
-						
-						
+    VAR
+        state : {starting, choosing, waiting, processing};
+        admin : {none, alice, bob};
+        
+    INIT state = starting & admin = none
+    
+    TRANS
+        next(state) =   case
+                            state = starting :      choosing;
+                            state = choosing :      waiting;
+                            state = waiting :       processing;
+                            state = processing :    waiting;
+                        esac
+    
+    TRANS
+        next(admin) in  case
+                            state = choosing :  {alice, bob};
+                            TRUE :              admin;
+                        esac
+                        
+                        
 SPEC EF(admin = alice) -> AG(admin != none -> admin = alice)
