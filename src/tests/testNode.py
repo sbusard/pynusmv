@@ -1,11 +1,11 @@
 import unittest
 
-from ..nusmv.cinit import cinit
-from ..nusmv.cmd import cmd
-from ..nusmv.node import node as nsnode
-from ..nusmv.parser import parser
+from pynusmv.nusmv.cinit import cinit
+from pynusmv.nusmv.cmd import cmd
+from pynusmv.nusmv.node import node as nsnode
+from pynusmv.nusmv.parser import parser
 
-from ..node.node import Node
+from pynusmv.node.node import Node
 
 class TestNode(unittest.TestCase):
     

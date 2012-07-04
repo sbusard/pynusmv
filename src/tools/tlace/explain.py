@@ -1,14 +1,14 @@
 from .tlacenode import Tlacenode
 from .tlacebranch import Tlacebranch
 
-from ...nusmv.parser import parser
-from ...nusmv.mc import mc
-from ...nusmv.fsm.bdd import bdd as FsmBdd
-from ...nusmv.node import node as nsnode
+from pynusmv.nusmv.parser import parser
+from pynusmv.nusmv.mc import mc
+from pynusmv.nusmv.fsm.bdd import bdd as FsmBdd
+from pynusmv.nusmv.node import node as nsnode
 
-from ...node.node import Node
-from ...mc.mc import eval_ctl_spec
-from ...dd.dd import BDD
+from pynusmv.node.node import Node
+from pynusmv.mc.mc import eval_ctl_spec
+from pynusmv.dd.dd import BDD
 
 def explain(fsm, state, spec):
     """

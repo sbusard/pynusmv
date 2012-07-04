@@ -1,13 +1,13 @@
 import sys
 
-from ...utils import indent
+from pynusmv.utils import indent
 
-from ...nusmv.node import node as nsnode
-from ...nusmv.cinit import cinit
-from ...nusmv.compile.symb_table import symb_table
-from ...nusmv.enc.bdd import bdd as bddEnc
+from pynusmv.nusmv.node import node as nsnode
+from pynusmv.nusmv.cinit import cinit
+from pynusmv.nusmv.compile.symb_table import symb_table
+from pynusmv.nusmv.enc.bdd import bdd as bddEnc
 
-from ...node.node import Node
+from pynusmv.node.node import Node
 
 __id_node = 0
 def xml_representation(fsm, tlacenode, spec):

@@ -1,15 +1,15 @@
 import unittest
 
-from ..nusmv.cinit import cinit
-from ..nusmv.cmd import cmd
-from ..nusmv.node import node as nsnode
-from ..nusmv.parser import parser
-from ..nusmv.prop import prop
-from ..nusmv.fsm.bdd import bdd as nsfsm
-from ..nusmv.mc import mc
+from pynusmv.nusmv.cinit import cinit
+from pynusmv.nusmv.cmd import cmd
+from pynusmv.nusmv.node import node as nsnode
+from pynusmv.nusmv.parser import parser
+from pynusmv.nusmv.prop import prop
+from pynusmv.nusmv.fsm.bdd import bdd as nsfsm
+from pynusmv.nusmv.mc import mc
 
-from ..fsm.fsm import BddFsm
-from ..node.node import Node
+from pynusmv.fsm.fsm import BddFsm
+from pynusmv.node.node import Node
 
 class TestMC(unittest.TestCase):
     
@@ -24,7 +24,7 @@ class TestMC(unittest.TestCase):
     
     def test_mc(self):
         # Initialize the model
-        ret = cmd.Cmd_SecureCommandExecute("read_model -i pynusmv/tests/admin.smv")
+        ret = cmd.Cmd_SecureCommandExecute("read_model -i tests/admin.smv")
         self.assertEqual(ret, 0)
         ret = cmd.Cmd_SecureCommandExecute("go")
         self.assertEqual(ret, 0)

@@ -6,8 +6,8 @@ from pynusmv.nusmv.cinit import cinit
 from pynusmv.nusmv.cmd import cmd
 from pynusmv.prop.propDb import PropDb
 
-from pynusmv.tools.tlace.check import check as check_ctl_spec
-from pynusmv.tools.tlace.xml import xml_representation
+from tools.tlace.check import check as check_ctl_spec
+from tools.tlace.xml import xml_representation
 
 
 class NuSMVCommandError(Exception):

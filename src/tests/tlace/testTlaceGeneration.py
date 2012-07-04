@@ -1,13 +1,13 @@
 import unittest
 
-from ...nusmv.cinit import cinit
-from ...nusmv.cmd import cmd
+from pynusmv.nusmv.cinit import cinit
+from pynusmv.nusmv.cmd import cmd
 
-from ...fsm.fsm import BddFsm
-from ...node.node import Node
-from ...prop.propDb import PropDb
+from pynusmv.fsm.fsm import BddFsm
+from pynusmv.node.node import Node
+from pynusmv.prop.propDb import PropDb
 
-from ...tools.tlace.check import check
+from tools.tlace.check import check
 
 class TestTlaceGeneration(unittest.TestCase):
     
@@ -23,7 +23,7 @@ class TestTlaceGeneration(unittest.TestCase):
     def test_check_violated_spec(self):
         # Initialize the model
         ret = cmd.Cmd_SecureCommandExecute("read_model -i " 
-                                     "pynusmv/tests/tlace/admin.smv")
+                                     "tests/tlace/admin.smv")
         self.assertEqual(ret, 0, "cannot read the model")
         ret = cmd.Cmd_SecureCommandExecute("go")
         self.assertEqual(ret, 0, "cannot build the model")
@@ -43,7 +43,7 @@ class TestTlaceGeneration(unittest.TestCase):
     def test_check_violated_spec2(self):
         # Initialize the model
         ret = cmd.Cmd_SecureCommandExecute("read_model -i"
-                                     "pynusmv/tests/tlace/admin.smv")
+                                     "tests/tlace/admin.smv")
         self.assertEqual(ret, 0, "cannot read the model")
         ret = cmd.Cmd_SecureCommandExecute("go")
         self.assertEqual(ret, 0, "cannot build the model")
@@ -64,7 +64,7 @@ class TestTlaceGeneration(unittest.TestCase):
     def test_check_satisfied_spec(self):
         # Initialize the model
         ret = cmd.Cmd_SecureCommandExecute("read_model -i"
-                                     "pynusmv/tests/tlace/admin.smv")
+                                     "tests/tlace/admin.smv")
         self.assertEqual(ret, 0, "cannot read the model")
         ret = cmd.Cmd_SecureCommandExecute("go")
         self.assertEqual(ret, 0, "cannot build the model")
@@ -85,7 +85,7 @@ class TestTlaceGeneration(unittest.TestCase):
     def test_check_ex_spec(self):
         # Initialize the model
         ret = cmd.Cmd_SecureCommandExecute("read_model -i"
-                                     "pynusmv/tests/tlace/admin.smv")
+                                     "tests/tlace/admin.smv")
         self.assertEqual(ret, 0, "cannot read the model")
         ret = cmd.Cmd_SecureCommandExecute("go")
         self.assertEqual(ret, 0, "cannot build the model")
