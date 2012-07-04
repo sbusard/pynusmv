@@ -29,3 +29,6 @@ class TestPropDb(unittest.TestCase):
         self.assertEqual(len(propDb), propDb.get_size())
         self.assertEqual(propDb[0].ptr, propDb.get_prop_at_index(0).ptr)
         
+        for prop in propDb:
+            self.assertIsNotNone(prop, "prop should not be None")
+        

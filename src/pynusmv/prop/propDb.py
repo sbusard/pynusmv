@@ -51,6 +51,12 @@ class PropDb:
         return self.get_prop_at_index(index)
         
     
+    def __iter__(self):
+        """Return an iterator on this propDb."""
+        for i in range(len(self)):
+            yield self[i]
+        
+    
         
     # ==========================================================================
     # ===== Class methods ======================================================
