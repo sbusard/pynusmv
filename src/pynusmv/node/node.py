@@ -1,6 +1,7 @@
 from ..nusmv.node import node as nsnode
+from ..utils.wrap import PointerWrapper
 
-class Node:
+class Node(PointerWrapper):
     """
     Python class for node structure.
     
@@ -14,22 +15,18 @@ class Node:
         
         ptr -- the pointer to the NuSMV node.
         """
-        self.__ptr = ptr
+        super().__init__(ptr)
         
-    
-    @property
-    def ptr(self):
-        return self.__ptr
         
     @property
     def type(self):
         """The type of this node."""
-        return self.__ptr.type
+        return self._ptr.type
         
     @property
     def car(self):
         """The left Node-typed child of this node."""
-        left = nsnode.car(self.__ptr)
+        left = nsnode.car(self._ptr)
         if left:
             return Node(left)
         else:
@@ -38,7 +35,7 @@ class Node:
     @property
     def cdr(self):
         """The right Node-typed child of this node."""
-        right = nsnode.cdr(self.__ptr)
+        right = nsnode.cdr(self._ptr)
         if right:
             return Node(right)
         else:
@@ -50,7 +47,7 @@ class Node:
         
         from ..dd.bdd import BDD
         
-        return BDD(nsnode.node2bdd(self.__ptr), manager)
+        return BDD(nsnode.node2bdd(self._ptr), manager)
         
     
     def __str__(self):
@@ -59,7 +56,7 @@ class Node:
         
         Call nsnode.sprint_node() to get the string representation.
         """
-        return nsnode.sprint_node(self.__ptr)
+        return nsnode.sprint_node(self._ptr)
             
             
             
@@ -80,8 +77,8 @@ class Node:
         Returns the Node-typed new node.
         """
         return Node(nsnode.find_node(nodetype,
-                                     left and left.__ptr or None,
-                                     right and right.__ptr or None))
+                                     left and left._ptr or None,
+                                     right and right._ptr or None))
     
     
     def new_node(nodetype, left=None, right=None):
@@ -97,40 +94,5 @@ class Node:
         Returns the Node-typed new node.
         """
         return Node(nsnode.create_node(nodetype,
-                                    left and left.__ptr or None,
-                                    right and right.__ptr or None))
-                                    
-    
-    def cons(left=None, right=None):
-        """
-        Create a new node of type CONS with left and right as car and cdr
-        children.
-        
-        left -- a Node, the left child of the new node.
-        right -- a Node, the right child of the new node.
-        
-        Return the Node corresponding to the newly created node.
-        
-        Note: the new node is not stored in the NuSMV node hash table.
-        """
-        return Node(nsnode.cons(left and left.ptr or None,
-                                right and right.ptr or None))
-                                    
-    
-    def node_from_list(l):
-        """
-        Create a LISP-like list from the Python-like list l.
-        
-        l -- a Python list.
-        
-        Return a Node n representing the given list,
-        i.e. n.car is l[0], n.cdr.car is l[1], etc.
-        The nodes are created using new_node, so no node is stored
-        in the corresponding NuSMV hash table.
-        """
-        
-        l = l[::-1]
-        n = None
-        for elem in l:
-            n = Node.cons(elem, n)
-        return n
+                                    left and left._ptr or None,
+                                    right and right._ptr or None))

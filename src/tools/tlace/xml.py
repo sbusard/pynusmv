@@ -32,7 +32,7 @@ def xml_representation(fsm, tlacenode, spec):
     xmlrepr = (
     """<?xml version="1.0" encoding="UTF-8"?>
 <counterexample specification="{spec}">
-""".format(spec=nsnode.sprint_node(spec.ptr)))
+""".format(spec=nsnode.sprint_node(spec._ptr)))
     
     indent.inc()
     
@@ -70,7 +70,7 @@ def xml_node(fsm, node):
     for atomic in node.atomics:
         xmlrepr += indent.indent(
         """<atomic specification="{0}" />
-""".format(nsnode.sprint_node(atomic.ptr)))
+""".format(nsnode.sprint_node(atomic._ptr)))
     
     # branches
     for branch in node.branches:
@@ -80,7 +80,7 @@ def xml_node(fsm, node):
     for universal in node.universals:
         xmlrepr += indent.indent(
         """<universal specification="{0}" />
-""".format(nsnode.sprint_node(universal.ptr)))
+""".format(nsnode.sprint_node(universal._ptr)))
     
     indent.dec()
     
@@ -102,7 +102,7 @@ def xml_branch(fsm, branch):
     
     xmlrepr = indent.indent(
     """<existential specification="{0}">
-""".format(nsnode.sprint_node(branch.specification.ptr)))
+""".format(nsnode.sprint_node(branch.specification._ptr)))
     
     indent.inc()
     
@@ -151,8 +151,8 @@ def xml_state(fsm, state):
     symbols = symb_table.SymbTable_get_layers_sf_symbols(table, layers)
     
     # Get assign symbols (BddEnc)
-    assignList = Node(bddEnc.BddEnc_assign_symbols(enc.ptr,
-                    state.ptr, symbols, 0, None))
+    assignList = Node(bddEnc.BddEnc_assign_symbols(enc._ptr,
+                    state._ptr, symbols, 0, None))
                     
     # Traverse the symbols to print variables of the state
     while assignList is not None:
@@ -162,7 +162,7 @@ def xml_state(fsm, state):
         
         xmlrepr += indent.indent(
         """<value variable="{0}">{1}</value>
-""".format(nsnode.sprint_node(var.ptr), nsnode.sprint_node(val.ptr)))
+""".format(nsnode.sprint_node(var._ptr), nsnode.sprint_node(val._ptr)))
         
         assignList = assignList.cdr
     

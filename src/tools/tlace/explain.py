@@ -7,6 +7,7 @@ from pynusmv.nusmv.fsm.bdd import bdd as FsmBdd
 from pynusmv.nusmv.node import node as nsnode
 
 from pynusmv.node.node import Node
+from pynusmv.node.listnode import ListNode
 from pynusmv.mc.mc import eval_ctl_spec
 from pynusmv.dd.bdd import BDD
 
@@ -310,8 +311,8 @@ def explainEX(fsm, state, a):
     
     enc = fsm.BddEnc
     manager = enc.DDmanager
-    path = Node.node_from_list([state.to_node()])
-    nodelist = Node(mc.ex_explain(fsm.ptr, enc.ptr, path.ptr, a.ptr))
+    path = ListNode.from_list([state.to_node()])
+    nodelist = Node(mc.ex_explain(fsm._ptr, enc._ptr, path._ptr, a._ptr))
     
     # nodelist is reversed!
     statep = nodelist.car.to_bdd(manager)
@@ -342,8 +343,8 @@ def explainEU(fsm, state, a, b):
     
     enc = fsm.BddEnc
     manager = enc.DDmanager
-    path = Node.node_from_list([state.to_node()])
-    nodelist = Node(mc.eu_explain(fsm.ptr, enc.ptr, path.ptr, a.ptr, b.ptr))
+    path = ListNode.from_list([state.to_node()])
+    nodelist = Node(mc.eu_explain(fsm._ptr, enc._ptr, path._ptr, a._ptr, b._ptr))
     
     path = []
     while nodelist is not None:
@@ -374,8 +375,8 @@ def explainEG(fsm, state, a):
     
     enc = fsm.BddEnc
     manager = enc.DDmanager
-    path = Node.node_from_list([state.to_node()])
-    nodelist = Node(mc.eg_explain(fsm.ptr, enc.ptr, path.ptr, a.ptr))
+    path = ListNode.from_list([state.to_node()])
+    nodelist = Node(mc.eg_explain(fsm._ptr, enc._ptr, path._ptr, a._ptr))
     
     path = []
     # Discard last state and input, store them as loop indicators
@@ -386,7 +387,7 @@ def explainEG(fsm, state, a):
     while nodelist is not None:
         curstate = nodelist.car.to_bdd(manager)
         path.insert(0, curstate)
-        if curstate.ptr == loopstate.ptr:
+        if curstate._ptr == loopstate._ptr:
             loopstate = curstate
         nodelist = nodelist.cdr    
     

@@ -19,8 +19,8 @@ def eval_ctl_spec(fsm, spec, context=None):
     context -- a pynusmv.node.node.Node representing the context of spec.
     """
     enc = fsm.BddEnc
-    specbdd = BDD(mc.eval_ctl_spec(fsm.ptr, enc.ptr,
-                                   spec.ptr,
-                                   context and context.ptr or None),
+    specbdd = BDD(mc.eval_ctl_spec(fsm._ptr, enc._ptr,
+                                   spec._ptr,
+                                   context and context._ptr or None),
                   enc.DDmanager)
     return specbdd

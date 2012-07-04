@@ -1,8 +1,9 @@
 from ..nusmv.fsm.bdd import bdd as bddFsm
 from ..enc.enc import BddEnc
 from ..dd.bdd import BDD
+from ..utils.wrap import PointerWrapper
 
-class BddFsm:
+class BddFsm(PointerWrapper):
     """
     Python class for BddFsm structure.
     
@@ -16,21 +17,16 @@ class BddFsm:
         
         ptr -- the pointer to the NuSMV BddFsm.
         """
-        self.__ptr = ptr
+        super().__init__(ptr)
        
         
     @property
     def BddEnc(self):
         """The BDD encoding of this FSM."""
-        return BddEnc(bddFsm.BddFsm_get_bdd_encoding(self.__ptr))
+        return BddEnc(bddFsm.BddFsm_get_bdd_encoding(self._ptr))
         
     
     @property
     def init(self):
         """The BDD of initial states of this FSM."""
-        return BDD(bddFsm.BddFsm_get_init(self.__ptr), self.BddEnc.DDmanager)
-        
-    
-    @property
-    def ptr(self):
-        return self.__ptr
+        return BDD(bddFsm.BddFsm_get_init(self._ptr), self.BddEnc.DDmanager)

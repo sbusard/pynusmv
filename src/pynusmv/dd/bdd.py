@@ -1,5 +1,6 @@
 from ..nusmv.dd import dd
 from ..nusmv.node import node as nsnode
+from ..utils.wrap import PointerWrapper
 
 class MissingManagerError(Exception):
     """
@@ -8,7 +9,7 @@ class MissingManagerError(Exception):
     pass
     
 
-class BDD:
+class BDD(PointerWrapper):
     """
     Python class for BDD structure.
     
@@ -23,13 +24,8 @@ class BDD:
         ptr -- the pointer to the NuSMV BDD.
         dd_manager -- the DD manager for this BDD.
         """
-        self.__ptr = ptr
-        self.__manager = dd_manager
-        
-        
-    @property
-    def ptr(self):
-        return self.__ptr
+        super().__init__(ptr)
+        self._manager = dd_manager
         
         
     def entailed(self, bdd):
@@ -43,10 +39,10 @@ class BDD:
         Raise a MissingManagerError if no manager is present in this BDD.
         """
         
-        if self.__manager is None:
+        if self._manager is None:
             raise MissingManagerError()
             
-        if dd.bdd_entailed(self.__manager, self.__ptr, bdd.__ptr):
+        if dd.bdd_entailed(self._manager, self._ptr, bdd._ptr):
             return True
         else:
             return False
@@ -56,25 +52,25 @@ class BDD:
     #      like not(b and c)
     def compute_and(self, other):
         """Return the BDD representing the intersection of self and other."""
-        if self.__manager is None:
+        if self._manager is None:
             raise MissingManagerError()
-        return BDD(dd.bdd_and(self.__manager, self.__ptr, other.__ptr),
-                   self.__manager)
+        return BDD(dd.bdd_and(self._manager, self._ptr, other._ptr),
+                   self._manager)
         
             
     def compute_not(self):
         """Return the complement of self."""
-        if self.__manager is None:
+        if self._manager is None:
             raise MissingManagerError()
-        return BDD(dd.bdd_not(self.__manager, self.__ptr), self.__manager)
+        return BDD(dd.bdd_not(self._manager, self._ptr), self._manager)
           
             
     def is_not_false(self):
         """Return whether self is not false"""
-        if self.__manager is None:
+        if self._manager is None:
             raise MissingManagerError()
             
-        if dd.bdd_isnot_false(self.__manager, self.__ptr):
+        if dd.bdd_isnot_false(self._manager, self._ptr):
             return True
         else:
             return False
@@ -85,9 +81,9 @@ class BDD:
         
         from ..node.node import Node
         
-        return Node(nsnode.bdd2node(self.__ptr))
+        return Node(nsnode.bdd2node(self._ptr))
         
         
     def to_add(self):
         """Cast self pointer to add pointer. Return the pointer."""
-        return dd.bdd_to_add(self.__manager, self.__ptr)
+        return dd.bdd_to_add(self._manager, self._ptr)
