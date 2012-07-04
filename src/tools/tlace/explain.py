@@ -236,7 +236,7 @@ def witness_branch(fsm, state, spec, context):
         path = explainEX(fsm, state, f)
         branch = (Tlacenode(path[0]),
                   path[1],
-                  witness(fsm, spec.car, path[2], context))
+                  witness(fsm, path[2], spec.car, context))
         return Tlacebranch(spec, branch)
         
     elif spec.type == parser.EF:
@@ -292,7 +292,7 @@ def witness_branch(fsm, state, spec, context):
         
         
 
-def explainEx(fsm, state, a):
+def explainEX(fsm, state, a):
     """
     Explain why state of fsm satisfies EX a.
     
@@ -310,14 +310,14 @@ def explainEx(fsm, state, a):
     
     enc = fsm.BddEnc
     manager = enc.DDmanager
-    path = Node.node_from_list([state])
-    nodelist = mc.ex_explain(fsm.__ptr, enc.__ptr, path.__ptr, a.__ptr)
+    path = Node.node_from_list([state.to_node()])
+    nodelist = Node(mc.ex_explain(fsm.ptr, enc.ptr, path.ptr, a.ptr))
     
     # nodelist is reversed!
-    statep = BDD(nodelist.car.__ptr, manager)
+    statep = nodelist.car.to_bdd(manager)
     nodelist = nodelist.cdr
-    inputs = BDD(nodelist.car.__ptr, manager)
-    state = BDD(nodelist.cdr.car.__ptr, manager)
+    inputs = nodelist.car.to_bdd(manager)
+    state = nodelist.cdr.car.to_bdd(manager)
     
     return (state, inputs, statep)
 

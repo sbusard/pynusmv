@@ -110,7 +110,7 @@ def xml_branch(fsm, branch):
         xmlrepr += xml_node(fsm, n)
         xmlrepr += xml_inputs(fsm, i)
         if branch.path[1] is not None and n == branch.path[1][1]:
-            loop_id = __id_node
+            loop_id = __id_node - 1
         
     xmlrepr += xml_node(fsm, branch.path[0][-1])
     

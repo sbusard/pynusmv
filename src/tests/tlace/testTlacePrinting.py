@@ -87,3 +87,47 @@ class TestTlacePrinting(unittest.TestCase):
         self.assertIsNotNone(res[1], "TLACE should be given")
 
         print(xml_representation(fsm, res[1], spec))
+        
+    
+    def test_print_violated_spec_admin_af(self):
+        # Initialize the model
+        ret = cmd.Cmd_SecureCommandExecute("read_model -i " 
+                                     "tests/tlace/admin.smv")
+        self.assertEqual(ret, 0, "cannot read the model")
+        ret = cmd.Cmd_SecureCommandExecute("go")
+        self.assertEqual(ret, 0, "cannot build the model")
+        
+        propDb = PropDb.get_global_database()
+        master = propDb.master
+        fsm = propDb.master.bddfsm
+        self.assertTrue(propDb.get_size() >= 5, "propDb has no properties")
+        prop = propDb.get_prop_at_index(4)
+        spec = prop.exprcore
+        
+        res = check(fsm, spec)
+        self.assertFalse(res[0], "spec should be violated")
+        self.assertIsNotNone(res[1], "TLACE should be given")
+
+        print(xml_representation(fsm, res[1], spec))
+        
+        
+    def test_print_violated_spec_admin_ax(self):
+        # Initialize the model
+        ret = cmd.Cmd_SecureCommandExecute("read_model -i " 
+                                     "tests/tlace/admin.smv")
+        self.assertEqual(ret, 0, "cannot read the model")
+        ret = cmd.Cmd_SecureCommandExecute("go")
+        self.assertEqual(ret, 0, "cannot build the model")
+        
+        propDb = PropDb.get_global_database()
+        master = propDb.master
+        fsm = propDb.master.bddfsm
+        self.assertTrue(len(propDb) >= 6, "propDb has no properties")
+        prop = propDb[5]
+        spec = prop.exprcore
+        
+        res = check(fsm, spec)
+        self.assertFalse(res[0], "spec should be violated")
+        self.assertIsNotNone(res[1], "TLACE should be given")
+
+        print(xml_representation(fsm, res[1], spec))
