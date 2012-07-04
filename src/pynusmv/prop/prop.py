@@ -48,3 +48,8 @@ class Prop:
     def bddfsm(self):
         """The fsm of this prop, into BddFsm format."""
         return BddFsm(nsprop.Prop_get_bdd_fsm(self.__ptr))
+        
+    @property
+    def ptr(self):
+        """The pointer of this prop."""
+        return self.__ptr

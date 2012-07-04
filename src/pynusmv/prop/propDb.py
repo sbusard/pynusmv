@@ -28,10 +28,27 @@ class PropDb:
     def get_prop_at_index(self, index):
         """Return the prop stored at index."""
         return Prop(nsprop.PropDb_get_prop_at_index(self.__ptr, index))
+
         
     def get_size(self):
         """Return the size of this database."""
         return nsprop.PropDb_get_size(self.__ptr)
+        
+    
+    def __len__(self):
+        """Return the length of this propDb."""
+        return self.get_size()
+        
+    
+    def __getitem__(self, index):
+        """
+        Return the indexth property.
+        
+        Throw a IndexError if index < 0 or index >= len(self) 
+        """
+        if index < 0 or index >= len(self):
+            raise IndexError("PropDb index out of range")
+        return self.get_prop_at_index(index)
         
     
         
