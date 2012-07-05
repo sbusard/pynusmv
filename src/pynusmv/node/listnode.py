@@ -46,7 +46,7 @@ class ListNode(Node):
             return Node(nsnode.car(ptr))
         
         elif type(val) is slice:
-            # TODO
+            # TODO Implement slicing
             raise NotImplementedError("ListNode slice not implemented")
             
         else:
