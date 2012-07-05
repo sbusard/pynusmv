@@ -4,6 +4,17 @@ from ..fsm.fsm import BddFsm
 from ..node.node import Node
 from ..utils.wrap import PointerWrapper
 
+propTypes = {
+             'NoType' :      nsprop.Prop_NoType,
+             'CTL' :         nsprop.Prop_Ctl,
+             'LTL' :         nsprop.Prop_Ltl,
+             'PSL' :         nsprop.Prop_Psl,
+             'Invariant' :   nsprop.Prop_Invar,
+             'Compute' :     nsprop.Prop_Compute,
+             'Comparison' :  nsprop.Prop_CompId
+            }
+            
+
 class Prop(PointerWrapper):
     """
     Python class for prop structure.
@@ -22,12 +33,17 @@ class Prop(PointerWrapper):
         
     @property
     def type(self):
-        """The type of this prop."""
+        """
+        The type of this prop.
+        
+        To compare with pynusmv.nusmv.prop.prop.Prop_X for type X.
+        Types are NoType, Ctl, Ltl, Psl, Invar, Compute, CompId
+        """
         return nsprop.Prop_get_type(self._ptr)
         
     @property
     def name(self):
-        """The name of this prop."""
+        """The name of this prop, as a Node."""
         return Node(nsprop.Prop_get_name(self._ptr))
         
     @property
@@ -37,12 +53,12 @@ class Prop(PointerWrapper):
         
     @property
     def expr(self):
-        """The expression of this prop."""
+        """The expression of this prop, as a Node."""
         return Node(nsprop.Prop_get_expr(self._ptr))
         
     @property
     def exprcore(self):
-        """The core expression of this prop."""
+        """The core expression of this prop, as a Node."""
         return Node(nsprop.Prop_get_expr_core(self._ptr))
         
     @property

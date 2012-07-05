@@ -1,10 +1,11 @@
 import sys
 import argparse
 
-from pynusmv.nusmv.node import node as nsnode
 from pynusmv.nusmv.cinit import cinit
 from pynusmv.nusmv.cmd import cmd
+
 from pynusmv.prop.propDb import PropDb
+from pynusmv.prop.prop import propTypes
 
 from tools.tlace.check import check as check_ctl_spec
 from tools.tlace.xml import xml_representation
@@ -51,20 +52,19 @@ def check_and_explain(allargs):
     fsm = propDb.master.bddfsm
     
     # Check all CTL properties
-    for i in range(propDb.get_size()):
-        prop = propDb.get_prop_at_index(i)
-        spec = prop.exprcore
+    for prop in propDb:
+        # TODO Check type
+        if prop.type == propTypes['CTL']:
+            spec = prop.exprcore
     
-        (satisfied, cntex) = check_ctl_spec(fsm, spec)
-        # Print the result and the TLACE if any
-        print('Specification',
-              nsnode.sprint_node(spec.ptr),
-              'is', str(satisfied))
+            (satisfied, cntex) = check_ctl_spec(fsm, spec)
+            # Print the result and the TLACE if any
+            print('Specification',str(spec), 'is', str(satisfied))
         
-        if not satisfied:
-            print(xml_representation(fsm, cntex, spec))
+            if not satisfied:
+                print(xml_representation(fsm, cntex, spec))
             
-        print()
+            print()
             
         
     

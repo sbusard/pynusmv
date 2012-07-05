@@ -2,8 +2,6 @@ import sys
 
 from pynusmv.utils import indent
 
-from pynusmv.nusmv.node import node as nsnode
-from pynusmv.nusmv.cinit import cinit
 from pynusmv.nusmv.compile.symb_table import symb_table
 from pynusmv.nusmv.enc.bdd import bdd as bddEnc
 
@@ -32,7 +30,7 @@ def xml_representation(fsm, tlacenode, spec):
     xmlrepr = (
     """<?xml version="1.0" encoding="UTF-8"?>
 <counterexample specification="{spec}">
-""".format(spec=nsnode.sprint_node(spec._ptr)))
+""".format(spec=str(spec)))
     
     indent.inc()
     
@@ -70,7 +68,7 @@ def xml_node(fsm, node):
     for atomic in node.atomics:
         xmlrepr += indent.indent(
         """<atomic specification="{0}" />
-""".format(nsnode.sprint_node(atomic._ptr)))
+""".format(str(atomic)))
     
     # branches
     for branch in node.branches:
@@ -80,7 +78,7 @@ def xml_node(fsm, node):
     for universal in node.universals:
         xmlrepr += indent.indent(
         """<universal specification="{0}" />
-""".format(nsnode.sprint_node(universal._ptr)))
+""".format(str(universal)))
     
     indent.dec()
     
@@ -102,7 +100,7 @@ def xml_branch(fsm, branch):
     
     xmlrepr = indent.indent(
     """<existential specification="{0}">
-""".format(nsnode.sprint_node(branch.specification._ptr)))
+""".format(str(branch.specification)))
     
     indent.inc()
     
@@ -162,7 +160,7 @@ def xml_state(fsm, state):
         
         xmlrepr += indent.indent(
         """<value variable="{0}">{1}</value>
-""".format(nsnode.sprint_node(var._ptr), nsnode.sprint_node(val._ptr)))
+""".format(str(var), str(val)))
         
         assignList = assignList.cdr
     

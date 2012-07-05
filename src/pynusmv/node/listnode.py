@@ -26,19 +26,31 @@ class ListNode(Node):
         return l
         
     
-    def __getitem__(self, index):
-        """Return the Node stored at index."""
-        if index < 0:
-            raise IndexError("ListNode index out of range")
-        ptr = self._ptr
-        while index > 0:
+    def __getitem__(self, val):
+        """
+        Return the Node stored at val.
+        
+        val -- the index requested OR a slice.
+        """
+        if type(val) is int:
+            if val < 0:
+                raise IndexError("ListNode index out of range")
+            ptr = self._ptr
+            while val > 0:
+                if ptr is None:
+                    raise IndexError("ListNode index out of range")
+                val -= 1
+                ptr = nsnode.cdr(ptr)
             if ptr is None:
-                raise IndexError("ListNode index out of range")
-            index -= 1
-            ptr = nsnode.cdr(ptr)
-        if ptr is None:
-                raise IndexError("ListNode index out of range")
-        return Node(nsnode.car(ptr))
+                    raise IndexError("ListNode index out of range")
+            return Node(nsnode.car(ptr))
+        
+        elif type(val) is slice:
+            # TODO
+            raise NotImplementedError("ListNode slice not implemented")
+            
+        else:
+            raise IndexError("ListNode index wrong type")
         
         
     def __iter__(self):
@@ -59,13 +71,13 @@ class ListNode(Node):
     # ===== Class methods ======================================================
     # ==========================================================================                                        
     
-    def from_list(l):
+    def from_tuple(l):
         """
-        Create a LISP-like list from the Python-like list l.
+        Create a LISP-like list from the Python-like tuple l.
         
-        l -- a Python list of Nodes.
+        l -- a Python tuple of Nodes.
         
-        Return a ListNode n representing the given list, using NuSMV nodes.
+        Return a ListNode n representing the given tuple, using NuSMV nodes.
         The nodes are created using new_node, so no node is stored
         in the corresponding NuSMV hash table.
         """

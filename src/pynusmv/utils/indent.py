@@ -25,8 +25,3 @@ def dec():
 def indent(s):
     """Indent s with the current indentation"""
     return __value * __count + s
-    
-def prt(*args, **kwargs):
-    """Print indented args. Bind to print."""
-    print(__value * __count, *args, sep='', **kwargs)
-    sys.stdout.flush()
