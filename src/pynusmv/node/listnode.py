@@ -7,14 +7,6 @@ class ListNode(Node):
     
     The ListNode class implements a NuSMV nodes-based list.
     """
-    
-    def __init__(self, ptr):
-        """
-        Create a new node with ptr.
-        
-        ptr -- the pointer to the NuSMV node.
-        """
-        super().__init__(ptr)
         
     
     def __len__(self):

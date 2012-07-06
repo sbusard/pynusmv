@@ -8,14 +8,6 @@ class Node(PointerWrapper):
     The Node class contains a pointer to a node in NuSMV and provides a set
     of operations on this node.
     """
-    
-    def __init__(self, ptr):
-        """
-        Create a new node with ptr.
-        
-        ptr -- the pointer to the NuSMV node.
-        """
-        super().__init__(ptr)
         
         
     @property
@@ -61,7 +53,7 @@ class Node(PointerWrapper):
             
             
     # ==========================================================================
-    # ===== Class methods ======================================================
+    # ===== Static methods =====================================================
     # ==========================================================================    
     
     def find_node(nodetype, left=None, right=None):

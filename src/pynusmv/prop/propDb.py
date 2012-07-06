@@ -9,14 +9,6 @@ class PropDb(PointerWrapper):
     The PropDb class contains a pointer to a propDb in NuSMV and provides a set
     of operations on this prop database.
     """
-    
-    def __init__(self, ptr):
-        """
-        Create a new prop with ptr.
-        
-        ptr -- the pointer to the NuSMV propDb.
-        """
-        super().__init__(ptr)
         
     
     @property

@@ -10,14 +10,6 @@ class BddFsm(PointerWrapper):
     The BddFsm class contains a pointer to a BddFsm in NuSMV and provides a set
     of operations on this FSM.
     """
-    
-    def __init__(self, ptr):
-        """
-        Create a new FSM with ptr.
-        
-        ptr -- the pointer to the NuSMV BddFsm.
-        """
-        super().__init__(ptr)
        
         
     @property

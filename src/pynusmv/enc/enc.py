@@ -11,14 +11,6 @@ class BddEnc(PointerWrapper):
     The BddEnc class contains a pointer to a BddEnc in NuSMV and provides a set
     of operations on this BDD encoding.
     """
-    
-    def __init__(self, ptr):
-        """
-        Create a new encoding with ptr.
-        
-        ptr -- the pointer to the NuSMV BddEnc.
-        """
-        super().__init__(ptr)
         
     @property
     def DDmanager(self):

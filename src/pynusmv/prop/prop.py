@@ -22,14 +22,6 @@ class Prop(PointerWrapper):
     The Prop class contains a pointer to a prop in NuSMV and provides a set
     of operations on this prop.
     """
-    
-    def __init__(self, ptr):
-        """
-        Create a new prop with ptr.
-        
-        ptr -- the pointer to the NuSMV prop.
-        """
-        super().__init__(ptr)
         
     @property
     def type(self):
