@@ -115,7 +115,10 @@ def explainEG(fsm, state, a):
     # Discard last state and input, store them as loop indicators
     loopstate = nodelist[0].to_bdd(manager)
     loopinputs = nodelist[1].to_bdd(manager)
+    
+    # TODO Use slicing (but first implement it)
     nodelist = ListNode(nodelist.cdr.cdr._ptr) # Skip two first elements
+    
     for node in nodelist:
         curstate = node.to_bdd(manager)
         path.insert(0, curstate)
