@@ -19,7 +19,7 @@ def eval_ctl_spec(fsm, spec, context=None):
     spec -- a pynusmv.node.node.Node representing the formula.
     context -- a pynusmv.node.node.Node representing the context of spec.
     """
-    enc = fsm.BddEnc
+    enc = fsm.bddEnc
     specbdd = BDD(mc.eval_ctl_spec(fsm._ptr, enc._ptr,
                                    spec._ptr,
                                    context and context._ptr or None),
@@ -43,7 +43,7 @@ def explainEX(fsm, state, a):
     representing the inputs to go from state to state' in fsm.
     """
     
-    enc = fsm.BddEnc
+    enc = fsm.bddEnc
     manager = enc.DDmanager
     path = ListNode.from_tuple((state.to_node(),))
     nodelist = ListNode(mc.ex_explain(fsm._ptr, enc._ptr, path._ptr, a._ptr))
@@ -75,7 +75,7 @@ def explainEU(fsm, state, a, b):
     belongs to a. Furthermore, t represents a path in fsm.
     """
     
-    enc = fsm.BddEnc
+    enc = fsm.bddEnc
     manager = enc.DDmanager
     path = ListNode.from_tuple((state.to_node(),))
     nodelist = ListNode(mc.eu_explain(fsm._ptr, enc._ptr, path._ptr, a._ptr, b._ptr))
@@ -106,7 +106,7 @@ def explainEG(fsm, state, a):
     i.e. t[-1] can lead to loop through inputs, and loop is a state of t.
     """
     
-    enc = fsm.BddEnc
+    enc = fsm.bddEnc
     manager = enc.DDmanager
     path = ListNode.from_tuple((state.to_node(),))
     nodelist = ListNode(mc.eg_explain(fsm._ptr, enc._ptr, path._ptr, a._ptr))

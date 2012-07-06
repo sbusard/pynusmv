@@ -54,6 +54,6 @@ class Prop(PointerWrapper):
         return Node(nsprop.Prop_get_expr_core(self._ptr))
         
     @property
-    def bddfsm(self):
+    def bddFsm(self):
         """The fsm of this prop, into BddFsm format."""
         return BddFsm(nsprop.Prop_get_bdd_fsm(self._ptr))

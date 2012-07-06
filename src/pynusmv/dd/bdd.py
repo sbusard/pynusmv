@@ -29,23 +29,11 @@ class BDD(PointerWrapper):
         """
         super().__init__(ptr)
         self._manager = dd_manager
-        
-        
-    def entailed(self, bdd):
-        """
-        Determine whether this BDD is less than or equal to bdd.
-        
-        bdd -- a BDD.
-        
-        Return True if this BDD is less than or equal to bdd.
-        
-        Raise a MissingManagerError if no manager is present in this BDD.
-        """
-        
-        if self._manager is None:
-            raise MissingManagerError()
-            
-        if dd.bdd_entailed(self._manager._ptr, self._ptr, bdd._ptr):
+
+
+    def equal(self, other):
+        """Return whether self and other are the same BDD."""
+        if dd.bdd_equal(self._ptr, other._ptr):
             return True
         else:
             return False
@@ -302,9 +290,83 @@ class BDD(PointerWrapper):
         """
         pass # TODO Find a way to give the pointer and implement this
         
+
+
+    # ==========================================================================
+    # ===== Built-in BDD operations ============================================
+    # ==========================================================================
+    
+    
+    def __lt__(self, other):
+        return (self <= other) and not (self == other)
         
+    def __le__(self, other):
+        return self.leq(other)
         
-    def get_true(manager):
+    def __eq__(self, other):
+        return self.equal(other)
+        
+    def __ne__(self, other):
+        return not self.equal(other)
+        
+    def __gt__(self, other):
+        return not (self <= other)
+        
+    def __ge__(self, other):
+        return not (self < other)
+    
+    
+    
+    def __add__(self, other):
+        return self.orr(other)
+        
+    def __iadd__(self, other):
+        return NotImplemented # TODO Implement or_accumulate
+    
+    def __or__(self, other):
+        return self.orr(other)
+        
+    def __ior__(self, other):
+        return NotImplemented # TODO Implement or_accumulate
+    
+    
+    
+    def __mul__(self, other):
+        return self.andd(other)
+        
+    def __imul__(self, other):
+        return NotImplemented # TODO Implement or_accumulate
+    
+    def __and__(self, other):
+        return self.andd(other)
+        
+    def __iand__(self, other):
+        return NotImplemented # TODO Implement or_accumulate
+    
+    
+    
+    def __sub__(self, other):
+        return self and not(other)
+    
+    
+    
+    def __xor__(self, other):
+        return self.xor(other)
+    
+    
+    
+    def __neg__(self):
+        return self.nott()
+    
+    def __invert__(self):
+        return self.nott()
+    
+    
+    # ==========================================================================
+    # ===== Static methods =====================================================
+    # ==========================================================================
+    
+    def true(manager):
         """
         Return the TRUE BDD.
         
@@ -312,16 +374,14 @@ class BDD(PointerWrapper):
         
         bdd_ptr bdd_true (DdManager *);
         """
-        return BDD(dd.bdd_true(manager._ptr), manager._ptr)
+        return BDD(dd.bdd_true(manager._ptr), manager)
         
         
-    def get_false():
+    def false(manager):
         """
         Return the FALSE BDD.
         
         bdd_ptr bdd_false (DdManager *);
         """
-        return BDD(dd.bdd_false(manager._ptr), manager._ptr)
+        return BDD(dd.bdd_false(manager._ptr), manager)
     
-    
-    # TODO Implement Python-like syntax for BDDs operations

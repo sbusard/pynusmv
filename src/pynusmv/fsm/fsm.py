@@ -13,7 +13,7 @@ class BddFsm(PointerWrapper):
        
         
     @property
-    def BddEnc(self):
+    def bddEnc(self):
         """The BDD encoding of this FSM."""
         return BddEnc(bddFsm.BddFsm_get_bdd_encoding(self._ptr))
         
@@ -21,4 +21,4 @@ class BddFsm(PointerWrapper):
     @property
     def init(self):
         """The BDD of initial states of this FSM."""
-        return BDD(bddFsm.BddFsm_get_init(self._ptr), self.BddEnc.DDmanager)
+        return BDD(bddFsm.BddFsm_get_init(self._ptr), self.bddEnc.DDmanager)

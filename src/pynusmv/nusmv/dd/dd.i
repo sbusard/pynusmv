@@ -14,6 +14,12 @@
 
 %include ../typedefs.tpl
 
+%inline %{
+int bdd_equal (bdd_ptr a, bdd_ptr b) {
+    return a == b;
+}
+%}
+
 %include ../../../nusmv/src/utils/defs.h
 %include ../../../nusmv/src/dd/dd.h
 %include ../../../nusmv/src/dd/VarsHandler.h
