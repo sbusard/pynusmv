@@ -1,6 +1,7 @@
 from ..nusmv.enc.bdd import bdd as bddEnc
 from ..nusmv.enc.base import base as baseEnc
 from ..dd.bdd import BDD
+from ..dd.manager import DDManager
 from ..utils.wrap import PointerWrapper
 
 class BddEnc(PointerWrapper):
@@ -22,7 +23,7 @@ class BddEnc(PointerWrapper):
     @property
     def DDmanager(self):
         """The DD manager of this encoding."""
-        return bddEnc.BddEnc_get_dd_manager(self._ptr)
+        return DDManager(bddEnc.BddEnc_get_dd_manager(self._ptr))
         
     
     @property
