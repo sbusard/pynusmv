@@ -18,7 +18,7 @@ def check(fsm, spec):
     # If some initial states are not in specbdd, the spec if violated
     if violating.isnot_false():
         # Compute a counter-example
-        enc = fsm.BddEnc
+        enc = fsm.bddEnc
         state = enc.pick_one_state(violating)
         return (False, explain(fsm, state, spec))
         

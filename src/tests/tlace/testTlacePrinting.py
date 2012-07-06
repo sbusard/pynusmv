@@ -33,7 +33,7 @@ class TestTlacePrinting(unittest.TestCase):
         
         propDb = PropDb.get_global_database()
         master = propDb.master
-        fsm = propDb.master.bddfsm
+        fsm = propDb.master.bddFsm
         self.assertTrue(propDb.get_size() >= 1, "propDb has no properties")
         prop = propDb.get_prop_at_index(0)
         spec = prop.exprcore
@@ -55,7 +55,7 @@ class TestTlacePrinting(unittest.TestCase):
         
         propDb = PropDb.get_global_database()
         master = propDb.master
-        fsm = propDb.master.bddfsm
+        fsm = propDb.master.bddFsm
         self.assertTrue(propDb.get_size() >= 1, "propDb has no properties")
         prop = propDb.get_prop_at_index(0)
         spec = prop.exprcore
@@ -77,7 +77,7 @@ class TestTlacePrinting(unittest.TestCase):
         
         propDb = PropDb.get_global_database()
         master = propDb.master
-        fsm = propDb.master.bddfsm
+        fsm = propDb.master.bddFsm
         self.assertTrue(propDb.get_size() >= 2, "propDb has no properties")
         prop = propDb.get_prop_at_index(1)
         spec = prop.exprcore
@@ -99,7 +99,7 @@ class TestTlacePrinting(unittest.TestCase):
         
         propDb = PropDb.get_global_database()
         master = propDb.master
-        fsm = propDb.master.bddfsm
+        fsm = propDb.master.bddFsm
         self.assertTrue(propDb.get_size() >= 5, "propDb has no properties")
         prop = propDb.get_prop_at_index(4)
         spec = prop.exprcore
@@ -121,7 +121,7 @@ class TestTlacePrinting(unittest.TestCase):
         
         propDb = PropDb.get_global_database()
         master = propDb.master
-        fsm = propDb.master.bddfsm
+        fsm = propDb.master.bddFsm
         self.assertTrue(len(propDb) >= 6, "propDb has no properties")
         prop = propDb[5]
         spec = prop.exprcore

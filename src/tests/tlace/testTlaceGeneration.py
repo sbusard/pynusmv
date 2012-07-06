@@ -30,7 +30,7 @@ class TestTlaceGeneration(unittest.TestCase):
         
         propDb = PropDb.get_global_database()
         master = propDb.master
-        fsm = propDb.master.bddfsm
+        fsm = propDb.master.bddFsm
         self.assertTrue(propDb.get_size() >= 1, "propDb has no properties")
         prop = propDb.get_prop_at_index(0)
         spec = prop.exprcore
@@ -50,7 +50,7 @@ class TestTlaceGeneration(unittest.TestCase):
         
         propDb = PropDb.get_global_database()
         master = propDb.master
-        fsm = propDb.master.bddfsm
+        fsm = propDb.master.bddFsm
         self.assertTrue(propDb.get_size() >= 2, "propDb misses some props")
         prop = propDb.get_prop_at_index(1)
         self.assertIsNotNone(prop, "prop should not be None")
@@ -71,7 +71,7 @@ class TestTlaceGeneration(unittest.TestCase):
         
         propDb = PropDb.get_global_database()
         master = propDb.master
-        fsm = propDb.master.bddfsm
+        fsm = propDb.master.bddFsm
         self.assertTrue(propDb.get_size() >= 3, "propDb misses some props")
         prop = propDb.get_prop_at_index(2)
         self.assertIsNotNone(prop, "prop should not be None")
@@ -92,7 +92,7 @@ class TestTlaceGeneration(unittest.TestCase):
         
         propDb = PropDb.get_global_database()
         master = propDb.master
-        fsm = propDb.master.bddfsm
+        fsm = propDb.master.bddFsm
         self.assertTrue(propDb.get_size() >= 4, "propDb misses some props")
         prop = propDb.get_prop_at_index(3)
         self.assertIsNotNone(prop, "prop should not be None")

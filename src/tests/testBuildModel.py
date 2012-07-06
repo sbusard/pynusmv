@@ -32,7 +32,7 @@ class TestBuildModel(unittest.TestCase):
         fsm_ptr = prop.PropDb_master_get_bdd_fsm(propDb)
         self.assertIsNotNone(fsm_ptr)
         fsm = BddFsm(fsm_ptr)
-        enc = fsm.BddEnc
+        enc = fsm.bddEnc
         self.assertIsNotNone(enc)
         init = fsm.init
         self.assertIsNotNone(init)

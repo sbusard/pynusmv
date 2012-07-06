@@ -246,7 +246,7 @@ def witness_branch(fsm, state, spec, context):
         
     elif spec.type == parser.EG:
         f = eval_ctl_spec(fsm, spec.car, context)
-        (path, (inloop, loop)) = explainEG(fsm, state, f)
+        (path, (inloop, loopstate)) = explainEG(fsm, state, f)
         
         branch = []
         # intermediate states
@@ -255,7 +255,7 @@ def witness_branch(fsm, state, spec, context):
             branch.append(wit)
             branch.append(i)
             # manage the loop
-            if s == loop:
+            if s == loopstate:
                 loop = wit
         # last state
         branch.append(witness(fsm, path[-1], spec.car, context))

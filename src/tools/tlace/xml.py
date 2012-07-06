@@ -140,7 +140,7 @@ def xml_state(fsm, state):
     
     indent.inc()
     
-    enc = fsm.BddEnc
+    enc = fsm.bddEnc
     # Get symb table from enc (BaseEnc)
     table = enc.symbTable
 
