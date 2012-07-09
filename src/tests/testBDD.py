@@ -50,7 +50,7 @@ class TestBDD(unittest.TestCase):
         self.assertTrue(false.isnot_true())
         
         
-    def test_true_false_comparisons(self):
+    def test_true_false_equalities(self):
         (fsm, enc, manager) = self.init_model()
         
         true = BDD.true(manager)
@@ -61,6 +61,13 @@ class TestBDD(unittest.TestCase):
         self.assertTrue(false == false)
         self.assertTrue(true == true)
         self.assertTrue((false != true) == (not false == true))
+        
+
+    def test_true_false_comparisons(self):
+        (fsm, enc, manager) = self.init_model()
+        
+        true = BDD.true(manager)
+        false = BDD.false(manager)
         
         self.assertTrue(false <= true)
         self.assertTrue(false < true)
@@ -73,7 +80,7 @@ class TestBDD(unittest.TestCase):
         self.assertTrue(true >= false)
         
     
-    def test_init_comparisons(self):
+    def test_init_equalities(self):
         (fsm, enc, manager) = self.init_model()
         
         true = BDD.true(manager)
@@ -87,6 +94,16 @@ class TestBDD(unittest.TestCase):
         self.assertFalse(init == true)
         self.assertFalse(init == false)
         
+
+    def test_init_comparisons(self):
+        (fsm, enc, manager) = self.init_model()
+        
+        true = BDD.true(manager)
+        false = BDD.false(manager)
+        init = fsm.init
+        
+        self.assertIsNotNone(init)
+        
         self.assertTrue(false < init < true)
         self.assertTrue(false <= init < true)
         self.assertTrue(false < init <= true)
@@ -96,7 +113,7 @@ class TestBDD(unittest.TestCase):
         self.assertFalse(true <= init)
         
     
-    def test_true_false_logic(self):
+    def test_true_false_and(self):
         (fsm, enc, manager) = self.init_model()
         
         true = BDD.true(manager)
@@ -111,10 +128,62 @@ class TestBDD(unittest.TestCase):
         self.assertTrue(init & false == false)
         
         
+    def test_true_false_or(self):
+        (fsm, enc, manager) = self.init_model()
+        
+        true = BDD.true(manager)
+        false = BDD.false(manager)
+        init = fsm.init        
+        
         self.assertTrue((true | false) == (true + false))
         self.assertTrue(true | false == true)
         self.assertTrue(true | true == true)
         self.assertTrue(false | false == false)
         self.assertTrue(init | true == true)
         self.assertTrue(init | false == init)
+        
+        
+    def test_true_false_xor(self):
+        (fsm, enc, manager) = self.init_model()
+        
+        true = BDD.true(manager)
+        false = BDD.false(manager)
+        init = fsm.init
+        
+        self.assertTrue(true ^ false == true)
+        self.assertTrue(true ^ true == false)
+        self.assertTrue(false ^ false == false)
+        self.assertTrue(init ^ true == ~init)
+        self.assertTrue(init ^ false == init)
+        
+        
+    def test_true_false_not(self):
+        (fsm, enc, manager) = self.init_model()
+        
+        true = BDD.true(manager)
+        false = BDD.false(manager)
+        init = fsm.init
+        
+        self.assertTrue(~true == -true)
+        self.assertTrue(~false == -false)
+        self.assertTrue(~true == false)
+        self.assertTrue(~false == true)
+        self.assertTrue(false < ~init < true)
+        
+        
+    def test_true_false_sub(self):
+        (fsm, enc, manager) = self.init_model()
+        
+        true = BDD.true(manager)
+        false = BDD.false(manager)
+        init = fsm.init
+        
+        self.assertTrue(true - false == true)
+        self.assertTrue(true - true == false)
+        self.assertTrue(false - true == false)
+        self.assertTrue(false - false == false)
+        self.assertTrue(init - true == false)
+        self.assertTrue(init - false == init)
+        self.assertTrue(true - init == ~init)
+        self.assertTrue(false - init == false)
         

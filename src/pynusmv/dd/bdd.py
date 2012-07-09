@@ -346,7 +346,7 @@ class BDD(PointerWrapper):
     
     
     def __sub__(self, other):
-        return self and not(other)
+        return self & ~(other)
     
     
     
