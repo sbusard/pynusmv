@@ -48,15 +48,6 @@ class ListNode(Node):
     def __iter__(self):
         for i in range(len(self)):
             yield self[i]
-        
-    
-    def __str__(self):
-        """
-        Return the string representation of this node.
-        
-        Call nsnode.sprint_node() to get the string representation.
-        """
-        return nsnode.sprint_node(self._ptr)
             
             
     # ==========================================================================

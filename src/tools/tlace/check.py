@@ -13,7 +13,7 @@ def check(fsm, spec):
     specbdd = eval_ctl_spec(fsm, spec)
     
     # Get violating states
-    violating = initbdd.andd(specbdd.nott())
+    violating = initbdd & ~specbdd
     
     # If some initial states are not in specbdd, the spec if violated
     if violating.isnot_false():

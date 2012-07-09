@@ -2,10 +2,11 @@ from .tlacenode import Tlacenode
 from .tlacebranch import Tlacebranch
 
 from pynusmv.nusmv.parser import parser
-from pynusmv.nusmv.mc import mc
 
 from pynusmv.node.node import Node
 from pynusmv.node.listnode import ListNode
+from pynusmv.node.specnode import (true as sptrue, false as spfalse, imply, iff,
+                                   ex, eg, ef, eu, ew, ax, ag, af, au, aw)
 from pynusmv.mc.mc import eval_ctl_spec, explainEX, explainEG, explainEU
 from pynusmv.dd.bdd import BDD
 
@@ -38,102 +39,58 @@ def countex(fsm, state, spec, context):
         return countex(fsm, state, spec.cdr, spec.car)
         
     elif spec.type == parser.FALSEEXP:
-        newspec = Node.find_node(parser.TRUEEXP)
+        newspec = sptrue()
         
     elif spec.type == parser.NOT:
         newspec = spec.car
         
     elif spec.type == parser.OR:
-        newspec = Node.find_node(parser.AND,
-                                 Node.find_node(parser.NOT, spec.car),
-                                 Node.find_node(parser.NOT, spec.cdr))
+        newspec = (~spec.car) & (~spec.cdr)
     
     elif spec.type == parser.AND:
-        newspec = Node.find_node(parser.OR,
-                                 Node.find_node(parser.NOT, spec.car),
-                                 Node.find_node(parser.NOT, spec.cdr))
+        newspec = (~spec.car) | (~spec.cdr)
     
     elif spec.type == parser.IMPLIES:
-        newspec = Node.find_node(parser.AND,
-                                 spec.car,
-                                 Node.find_node(parser.NOT, spec.cdr))
+        newspec = spec.car & (~spec.cdr)
                             
     elif spec.type == parser.IFF:
-        newspec = Node.find_node(
-                    parser.OR,
-                    Node.find_node(
-                        parser.AND,
-                        spec.car,
-                        Node.find_node(parser.NOT, spec.cdr)),
-                    Node.find_node(
-                        parser.AND,
-                        Node.find_node(parser.NOT, spec.car),
-                        spec.cdr))
+        newspec = (spec.car & (~spec.cdr)) | ((~spec.car) & spec.cdr)
                     
     elif spec.type == parser.EX:
-        newspec = Node.find_node(parser.AX,
-                                 Node.find_node(parser.NOT, spec.car))
+        newspec = ax(~spec.car)
                                  
     elif spec.type == parser.EF:
-        newspec = Node.find_node(parser.AG,
-                                 Node.find_node(parser.NOT, spec.car))
+        newspec = ag(~spec.car)
                                  
     elif spec.type == parser.EG:
-        newspec = Node.find_node(parser.AF,
-                                 Node.find_node(parser.NOT, spec.car))
+        newspec = af(~spec.car)
                                  
     elif spec.type == parser.EU:
-        newspec = Node.find_node(
-                    parser.AW,
-                    Node.find_node(parser.NOT, spec.cdr),
-                    Node.find_node(
-                        parser.AND,
-                        Node.find_node(parser.NOT, spec.car),
-                        Node.find_node(parser.NOT, spec.cdr)))
+        newspec = aw(~spec.cdr, (~spec.car) & (~spec.cdr))
                     
     elif spec.type == parser.EW:
-        newspec = Node.find_node(
-                    parser.AU,
-                    Node.find_node(parser.NOT, spec.cdr),
-                    Node.find_node(
-                        parser.AND,
-                        Node.find_node(parser.NOT, spec.car),
-                        Node.find_node(parser.NOT, spec.cdr)))
+        newspec = au(~spec.cdr, (~spec.car) & (~spec.cdr))
                     
     elif spec.type == parser.AX:
-        newspec = Node.find_node(parser.EX,
-                                 Node.find_node(parser.NOT, spec.car))
-                                 
+        newspec = ex(~spec.car)
+        
     elif spec.type == parser.AF:
-        newspec = Node.find_node(parser.EG,
-                                 Node.find_node(parser.NOT, spec.car))
+        newspec = eg(~spec.car)
                                  
     elif spec.type == parser.AG:
-        newspec = Node.find_node(parser.EF,
-                                 Node.find_node(parser.NOT, spec.car))
+        newspec = ef(~spec.car)
                                  
     elif spec.type == parser.AU:
-        newspec = Node.find_node(
-                    parser.EW,
-                    Node.find_node(parser.NOT, spec.cdr),
-                    Node.find_node(
-                        parser.AND,
-                        Node.find_node(parser.NOT, spec.car),
-                        Node.find_node(parser.NOT, spec.cdr)))
+        newspec = ew(~spec.cdr, (~spec.car) & (~spec.cdr))
                         
     elif spec.type == parser.AW:
-        newspec = Node.find_node(parser.EU,
-                    Node.find_node(parser.NOT, spec.cdr),
-                    Node.find_node(
-                        parser.AND,
-                        Node.find_node(parser.NOT, spec.car),
-                        Node.find_node(parser.NOT, spec.cdr)))
+        newspec = eu(~spec.cdr, (~spec.car) & (~spec.cdr))
                         
     else:
         if spec.type == parser.NOT:
             newspec = spec.car
         else:
-            newspec = Node.find_node(parser.NOT, spec)
+            newspec = ~spec
         return Tlacenode(state, (newspec,), None, None)
         
     return witness(fsm, state, newspec, context)
@@ -175,22 +132,11 @@ def witness(fsm, state, spec, context):
                          n1.universals + n2.universals)
     
     elif spec.type == parser.IMPLIES:
-        newspec = Node.find_node(parser.OR,
-                                 Node.find_node(parser.NOT, spec.car),
-                                 spec.cdr)
+        newspec = (~spec.car) | spec.cdr
         return witness(fsm, state, newspec, context)
                             
     elif spec.type == parser.IFF:
-        newspec = Node.find_node(
-                    parser.OR,
-                    Node.find_node(
-                        parser.AND,
-                        spec.car,
-                        spec.cdr),
-                    Node.find_node(
-                        parser.AND,
-                        Node.find_node(parser.NOT, spec.car),
-                        Node.find_node(parser.NOT, spec.cdr)))
+        newspec = (spec.car & spec.cdr) | ((~spec.car) & (~spec.cdr))
         return witness(fsm, state, newspec, context)
                     
     elif (spec.type == parser.EX or
@@ -239,9 +185,7 @@ def witness_branch(fsm, state, spec, context):
         return Tlacebranch(spec, branch)
         
     elif spec.type == parser.EF:
-        newspec = Node.find_node(parser.EU,
-                                 Node.find_node(parser.TRUEEXP),
-                                 spec.car)
+        newspec = eu(sptrue(), spec.car)
         return witness_branch(fsm, state, newspec, context)
         
     elif spec.type == parser.EG:
@@ -278,8 +222,8 @@ def witness_branch(fsm, state, spec, context):
         return Tlacebranch(spec, tuple(branch))
         
     elif spec.type == parser.EW:
-        euspec = Node.find_node(EU, spec.car, spec.cdr)
-        egspec = Node.find_node(EG, spec.car)
+        euspec = eu(spec.car, spec.cdr)
+        egspec = eg(spec.car)
         if state.entailed(eval_ctl_spec(fsm, euspec, context)):
             return witness_branch(fsm, state, euspec, context)
         else:

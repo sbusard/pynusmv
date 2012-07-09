@@ -1,7 +1,7 @@
 from ..nusmv.prop import prop as nsprop
 
 from ..fsm.fsm import BddFsm
-from ..node.node import Node
+from ..node.specnode import SpecNode
 from ..utils.wrap import PointerWrapper
 
 propTypes = {
@@ -45,13 +45,13 @@ class Prop(PointerWrapper):
         
     @property
     def expr(self):
-        """The expression of this prop, as a Node."""
-        return Node(nsprop.Prop_get_expr(self._ptr))
+        """The expression of this prop, as a SpecNode."""
+        return SpecNode(nsprop.Prop_get_expr(self._ptr))
         
     @property
     def exprcore(self):
-        """The core expression of this prop, as a Node."""
-        return Node(nsprop.Prop_get_expr_core(self._ptr))
+        """The core expression of this prop, as a SpecNode."""
+        return SpecNode(nsprop.Prop_get_expr_core(self._ptr))
         
     @property
     def bddFsm(self):
