@@ -272,24 +272,6 @@ class BDD(PointerWrapper):
         return BDD(dd.bdd_forall(self._manager._ptr, self._ptr, cube._ptr),
                    self._manager)
         
-    
-    def and_accumulate(self, other):
-        """
-        Applies AND to self and other and stores the result in self.
-        
-        void bdd_and_accumulate (DdManager *, bdd_ptr *, bdd_ptr);
-        """
-        pass # TODO Find a way to give the pointer and implement this
-        
-        
-    def or_accumulate(self, other):
-        """
-        Applies OR to self and other and stores the result in self.
-        
-        void bdd_or_accumulate (DdManager *, bdd_ptr *, bdd_ptr);
-        """
-        pass # TODO Find a way to give the pointer and implement this
-        
 
 
     # ==========================================================================
@@ -320,29 +302,15 @@ class BDD(PointerWrapper):
     def __add__(self, other):
         return self.orr(other)
         
-    def __iadd__(self, other):
-        return NotImplemented # TODO Implement or_accumulate
-    
     def __or__(self, other):
         return self.orr(other)
-        
-    def __ior__(self, other):
-        return NotImplemented # TODO Implement or_accumulate
-    
     
     
     def __mul__(self, other):
         return self.andd(other)
-        
-    def __imul__(self, other):
-        return NotImplemented # TODO Implement or_accumulate
-    
+
     def __and__(self, other):
-        return self.andd(other)
-        
-    def __iand__(self, other):
-        return NotImplemented # TODO Implement or_accumulate
-    
+        return self.andd(other)    
     
     
     def __sub__(self, other):

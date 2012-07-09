@@ -3,12 +3,9 @@ from .tlacebranch import Tlacebranch
 
 from pynusmv.nusmv.parser import parser
 
-from pynusmv.node.node import Node
-from pynusmv.node.listnode import ListNode
 from pynusmv.node.specnode import (true as sptrue, false as spfalse, imply, iff,
                                    ex, eg, ef, eu, ew, ax, ag, af, au, aw)
 from pynusmv.mc.mc import eval_ctl_spec, explainEX, explainEG, explainEU
-from pynusmv.dd.bdd import BDD
 
 def explain(fsm, state, spec):
     """

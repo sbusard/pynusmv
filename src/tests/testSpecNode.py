@@ -6,7 +6,7 @@ from pynusmv.nusmv.parser import parser
 
 from pynusmv.node.specnode import SpecNode
 from pynusmv.node.specnode import (true as sptrue, false as spfalse, imply, iff,
-                                   ex, eg, ef, eu, ew, ax, ag, af, au, aw)
+                                   ex, eg, ef, eu, ew, ax, ag, af, au, aw, atom)
 
 class TestSpecNode(unittest.TestCase):
     
@@ -155,3 +155,8 @@ class TestSpecNode(unittest.TestCase):
         self.assertEqual(awspec.type, parser.AW)
         self.assertIsNotNone(awspec.car)
         self.assertIsNotNone(awspec.cdr)
+        
+    
+    def test_atom(self):
+        atomspec = atom("test")
+        self.assertIsNotNone(atomspec)

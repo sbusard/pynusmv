@@ -1,8 +1,7 @@
 from ..nusmv.parser import parser
-
 from ..nusmv.node import node as nsnode
-from .node import Node
 
+from .node import Node
 
 class SpecNode(Node):
     """
@@ -165,6 +164,17 @@ def atom(strrep):
     """
     Return a new SpecNode corresponding to the given atom.
     
-    Parser strrep and provide a new SpecNode representing this atom.
+    Parse strrep and provide a new SpecNode representing this atom.
+    
+    Throw a NuSMVParserError if strrep is not a valid atomic proposition.
     """
-    pass # TODO
+    # FIXME NuSMV abruptly exits when strrep is not an atomic proposition
+    node, err = parser.ReadSimpExprFromString(strrep)
+    if err:
+        raise NuSMVParserError(strrep + " is not a valid atomic proposition.")
+    return SpecNode(nsnode.car(node))
+    
+    
+
+class NuSMVParserError(Exception):
+    """An error occured while parsing a string with NUSMV."""

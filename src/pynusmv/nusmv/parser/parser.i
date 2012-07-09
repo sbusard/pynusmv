@@ -16,6 +16,18 @@
 
 %include ../typedefs.tpl
 
+%include "typemaps.i"
+%apply int *OUTPUT {int* error};
+%inline %{
+node_ptr ReadSimpExprFromString(const char* str_expr, int* error)
+{
+    node_ptr ptr;
+    *error = Parser_ReadSimpExprFromString(str_expr, &ptr);
+    return ptr;
+}
+%}
+%clear int* error;
+
 %include ../../../nusmv/src/utils/defs.h
 %include ../../../nusmv/src/parser/grammar.h
 %include ../../../nusmv/src/parser/parser.h
