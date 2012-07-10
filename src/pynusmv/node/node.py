@@ -41,6 +41,14 @@ class Node(PointerWrapper):
         
         return BDD(nsnode.node2bdd(self._ptr), manager)
         
+        
+    def to_state(self, fsm):
+        """Cast this node to a State, with fsm as FSM."""
+        
+        from ..dd.state import State
+        
+        return State(nsnode.node2bdd(self._ptr), fsm)
+        
     
     def __str__(self):
         """

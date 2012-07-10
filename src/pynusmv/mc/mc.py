@@ -49,10 +49,10 @@ def explainEX(fsm, state, a):
     nodelist = ListNode(mc.ex_explain(fsm._ptr, enc._ptr, path._ptr, a._ptr))
     
     # nodelist is reversed!
-    statep = nodelist.car.to_bdd(manager)
+    statep = nodelist.car.to_state(fsm)
     nodelist = nodelist.cdr
     inputs = nodelist.car.to_bdd(manager)
-    state = nodelist.cdr.car.to_bdd(manager)
+    state = nodelist.cdr.car.to_state(fsm)
     
     return (state, inputs, statep)
 
@@ -81,8 +81,16 @@ def explainEU(fsm, state, a, b):
     nodelist = ListNode(mc.eu_explain(fsm._ptr, enc._ptr, path._ptr, a._ptr, b._ptr))
     
     path = []
-    for node in nodelist:
-        path.insert(0, node.to_bdd(manager))
+    path.insert(0, nodelist.car.to_state(fsm))
+    nodelist = nodelist.cdr
+    while nodelist is not None:
+        inputs = nodelist.to_bdd(manager)
+        nodelist = nodelist.cdr
+        state = nodelist.car.to_state(fsm)
+        nodelist = nodelist.cdr
+        
+        path.insert(0, inputs)
+        path.insert(0, state)
     
     return tuple(path)
     
@@ -113,16 +121,28 @@ def explainEG(fsm, state, a):
     
     path = []
     # Discard last state and input, store them as loop indicators
-    loopstate = nodelist[0].to_bdd(manager)
-    loopinputs = nodelist[1].to_bdd(manager)
+    loopstate = nodelist.car.to_state(fsm)
+    nodelist = nodelist.cdr
+    loopinputs = nodelist.car.to_bdd(manager)
+    nodelist = nodelist.cdr
     
-    # TODO Use slicing (but first implement it)
-    nodelist = ListNode(nodelist.cdr.cdr._ptr) # Skip two first elements
+    # Consume first state
+    curstate = nodelist.car.to_state(fsm)
+    if curstate._ptr == loopstate._ptr:
+        loopstate = curstate
+    nodelist = nodelist.cdr
     
-    for node in nodelist:
-        curstate = node.to_bdd(manager)
-        path.insert(0, curstate)
+    path.insert(0, curstate)
+    
+    while nodelist is not None:
+        inputs = nodelist.car.to_bdd(manager)
+        nodelist = nodelist.cdr
+        curstate = nodelist.car.to_state(fsm)
         if curstate._ptr == loopstate._ptr:
-            loopstate = curstate  
+            loopstate = curstate
+        nodelist = nodelist.cdr
+        
+        path.insert(0, inputs)
+        path.insert(0, curstate)
     
     return (tuple(path), (loopinputs, loopstate))

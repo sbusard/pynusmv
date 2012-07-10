@@ -1,10 +1,6 @@
 import sys
 
 from pynusmv.utils import indent
-
-from pynusmv.nusmv.compile.symb_table import symb_table
-from pynusmv.nusmv.enc.bdd import bdd as bddEnc
-
 from pynusmv.node.node import Node
 
 __id_node = 0
@@ -140,29 +136,11 @@ def xml_state(fsm, state):
     
     indent.inc()
     
-    enc = fsm.bddEnc
-    # Get symb table from enc (BaseEnc)
-    table = enc.symbTable
-
-    # Get symbols (SymbTable) for states
-    layers = symb_table.SymbTable_get_class_layer_names(table, None)
-    symbols = symb_table.SymbTable_get_layers_sf_symbols(table, layers)
-    
-    # Get assign symbols (BddEnc)
-    assignList = Node(bddEnc.BddEnc_assign_symbols(enc._ptr,
-                    state._ptr, symbols, 0, None))
-                    
-    # Traverse the symbols to print variables of the state
-    while assignList is not None:
-        assignment = assignList.car
-        var = assignment.car
-        val = assignment.cdr
-        
+    values = state.get_str_values()
+    for var in values:
         xmlrepr += indent.indent(
         """<value variable="{0}">{1}</value>
-""".format(str(var), str(val)))
-        
-        assignList = assignList.cdr
+""".format(var, values[var]))
     
     indent.dec()
     xmlrepr += indent.indent("""</state>

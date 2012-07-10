@@ -1,6 +1,5 @@
 from ..nusmv.enc.bdd import bdd as bddEnc
 from ..nusmv.enc.base import base as baseEnc
-from ..dd.bdd import BDD
 from ..dd.manager import DDManager
 from ..utils.wrap import PointerWrapper
 
@@ -23,9 +22,3 @@ class BddEnc(PointerWrapper):
         """Return a pointer to the NuSMV symb table of this enc."""
         base_enc = bddEnc.bddenc2baseenc(self._ptr)
         return baseEnc.BaseEnc_get_symb_table(base_enc)
-        
-        
-    def pick_one_state(self, bdd):
-        """Return a BDD representing a state of bdd."""
-        state = bddEnc.BddEnc_pick_one_state(self._ptr, bdd._ptr)
-        return BDD(state, self.DDmanager)
