@@ -49,6 +49,14 @@ class Node(PointerWrapper):
         
         return State(nsnode.node2bdd(self._ptr), fsm)
         
+        
+    def to_inputs(self, fsm):
+        """Cast this node to Inputs, with fsm as FSM."""
+        
+        from ..dd.inputs import Inputs
+        
+        return Inputs(nsnode.node2bdd(self._ptr), fsm)
+        
     
     def __str__(self):
         """

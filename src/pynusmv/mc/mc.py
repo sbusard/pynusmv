@@ -51,7 +51,7 @@ def explainEX(fsm, state, a):
     # nodelist is reversed!
     statep = nodelist.car.to_state(fsm)
     nodelist = nodelist.cdr
-    inputs = nodelist.car.to_bdd(manager)
+    inputs = nodelist.car.to_inputs(fsm)
     state = nodelist.cdr.car.to_state(fsm)
     
     return (state, inputs, statep)
@@ -84,7 +84,7 @@ def explainEU(fsm, state, a, b):
     path.insert(0, nodelist.car.to_state(fsm))
     nodelist = nodelist.cdr
     while nodelist is not None:
-        inputs = nodelist.to_bdd(manager)
+        inputs = nodelist.to_inputs(fsm)
         nodelist = nodelist.cdr
         state = nodelist.car.to_state(fsm)
         nodelist = nodelist.cdr
@@ -123,7 +123,7 @@ def explainEG(fsm, state, a):
     # Discard last state and input, store them as loop indicators
     loopstate = nodelist.car.to_state(fsm)
     nodelist = nodelist.cdr
-    loopinputs = nodelist.car.to_bdd(manager)
+    loopinputs = nodelist.car.to_inputs(fsm)
     nodelist = nodelist.cdr
     
     # Consume first state
@@ -135,7 +135,7 @@ def explainEG(fsm, state, a):
     path.insert(0, curstate)
     
     while nodelist is not None:
-        inputs = nodelist.car.to_bdd(manager)
+        inputs = nodelist.car.to_inputs(fsm)
         nodelist = nodelist.cdr
         curstate = nodelist.car.to_state(fsm)
         if curstate._ptr == loopstate._ptr:

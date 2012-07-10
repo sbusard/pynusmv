@@ -157,4 +157,20 @@ def xml_inputs(fsm, inputs):
     state -- a BDD representing inputs in fsm.
     """
         
-    return '' # TODO
+    xmlrepr = indent.indent(
+    """<inputs>
+""")
+    
+    indent.inc()
+    
+    values = inputs.get_str_values()
+    for var in values:
+        xmlrepr += indent.indent(
+        """<value variable="{0}">{1}</value>
+""".format(var, values[var]))
+    
+    indent.dec()
+    xmlrepr += indent.indent("""</inputs>
+""")
+    
+    return xmlrepr
