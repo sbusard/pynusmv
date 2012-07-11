@@ -1,5 +1,5 @@
 from ..nusmv.node import node as nsnode
-from ..utils.wrap import PointerWrapper
+from ..utils.pointerwrapper import PointerWrapper
 
 class Node(PointerWrapper):
     """

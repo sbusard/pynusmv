@@ -1,6 +1,6 @@
 from ..nusmv.prop import prop as nsprop
 from .prop import Prop
-from ..utils.wrap import PointerWrapper
+from ..utils.pointerwrapper import PointerWrapper
 
 class PropDb(PointerWrapper):
     """

@@ -3,7 +3,7 @@ from ..nusmv.enc.bdd import bdd as bddEnc
 from ..enc.enc import BddEnc
 from ..dd.bdd import BDD
 from ..dd.state import State
-from ..utils.wrap import PointerWrapper
+from ..utils.pointerwrapper import PointerWrapper
 
 class BddFsm(PointerWrapper):
     """

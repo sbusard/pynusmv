@@ -2,7 +2,7 @@ from ..nusmv.prop import prop as nsprop
 
 from ..fsm.fsm import BddFsm
 from ..node.specnode import SpecNode
-from ..utils.wrap import PointerWrapper
+from ..utils.pointerwrapper import PointerWrapper
 
 propTypes = {
              'NoType' :      nsprop.Prop_NoType,
