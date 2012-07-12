@@ -23,10 +23,11 @@ class BddFsm(PointerWrapper):
     @property
     def init(self):
         """The BDD of initial states of this FSM."""
-        return BDD(bddFsm.BddFsm_get_init(self._ptr), self.bddEnc.DDmanager)
+        return BDD(bddFsm.BddFsm_get_init(self._ptr), self.bddEnc.DDmanager,
+                   freeit = True)
         
         
     def pick_one_state(self, bdd):
         """Return a BDD representing a state of bdd."""
         state = bddEnc.BddEnc_pick_one_state(self.bddEnc._ptr, bdd._ptr)
-        return State(state, self)
+        return State(state, self, freeit = True)

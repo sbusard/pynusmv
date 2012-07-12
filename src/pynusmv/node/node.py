@@ -1,4 +1,5 @@
 from ..nusmv.node import node as nsnode
+from ..nusmv.dd import dd as nsdd
 from ..utils.pointerwrapper import PointerWrapper
 
 class Node(PointerWrapper):
@@ -35,27 +36,42 @@ class Node(PointerWrapper):
             
             
     def to_bdd(self, manager = None):
-        """Cast this node to a BDD, with manager as DD manager."""
+        """
+        Cast this node to a BDD, with manager as DD manager.
+        
+        The returned BDD is copied, such that it is the responsibility of
+        the creator of the node to free its content.
+        """
         
         from ..dd.bdd import BDD
         
-        return BDD(nsnode.node2bdd(self._ptr), manager)
+        return BDD(nsdd.bdd_dup(nsnode.node2bdd(self._ptr)), manager)
         
         
     def to_state(self, fsm):
-        """Cast this node to a State, with fsm as FSM."""
+        """
+        Cast this node to a State, with fsm as FSM.
+        
+        The returned BDD is copied, such that it is the responsibility of
+        the creator of the node to free its content.
+        """
         
         from ..dd.state import State
         
-        return State(nsnode.node2bdd(self._ptr), fsm)
+        return State(nsdd.bdd_dup(nsnode.node2bdd(self._ptr)), fsm)
         
         
     def to_inputs(self, fsm):
-        """Cast this node to Inputs, with fsm as FSM."""
+        """
+        Cast this node to Inputs, with fsm as FSM.
+        
+        The returned BDD is copied, such that it is the responsibility of
+        the creator of the node to free its content.
+        """
         
         from ..dd.inputs import Inputs
         
-        return Inputs(nsnode.node2bdd(self._ptr), fsm)
+        return Inputs(nsdd.bdd_dup(nsnode.node2bdd(self._ptr)), fsm)
         
     
     def __str__(self):

@@ -36,10 +36,12 @@ class PropDb(PointerWrapper):
         """
         Return the indexth property.
         
-        Throw a IndexError if index < 0 or index >= len(self) 
+        Throw a IndexError if index < -len(self) or index >= len(self) 
         """
-        if index < 0 or index >= len(self):
+        if index < -len(self) or index >= len(self):
             raise IndexError("PropDb index out of range")
+        if index < 0:
+            index = index + len(self)
         return self.get_prop_at_index(index)
         
     

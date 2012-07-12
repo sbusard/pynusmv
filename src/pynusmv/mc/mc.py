@@ -3,6 +3,9 @@ mc provides some functions of NuSMV dealing with model checking, like CTL
 model checking.
 """
 
+from ..nusmv.node import node as nsnode
+from ..nusmv.dd import dd as nsdd
+
 from ..nusmv.mc import mc
 
 from ..fsm.fsm import BddFsm
@@ -23,7 +26,8 @@ def eval_ctl_spec(fsm, spec, context=None):
     specbdd = BDD(mc.eval_ctl_spec(fsm._ptr, enc._ptr,
                                    spec._ptr,
                                    context and context._ptr or None),
-                  enc.DDmanager)
+                  enc.DDmanager,
+                  freeit = True)
     return specbdd
     
     
@@ -48,11 +52,20 @@ def explainEX(fsm, state, a):
     path = ListNode.from_tuple((state.to_node(),))
     nodelist = ListNode(mc.ex_explain(fsm._ptr, enc._ptr, path._ptr, a._ptr))
     
+    nodelist_iter = nodelist
     # nodelist is reversed!
-    statep = nodelist.car.to_state(fsm)
-    nodelist = nodelist.cdr
-    inputs = nodelist.car.to_inputs(fsm)
-    state = nodelist.cdr.car.to_state(fsm)
+    statep = nodelist_iter.car.to_state(fsm)
+    nodelist_iter = nodelist_iter.cdr
+    inputs = nodelist_iter.car.to_inputs(fsm)
+    state = nodelist_iter.cdr.car.to_state(fsm)
+    
+    list_ptr = nodelist._ptr
+    # Free bdds
+    while list_ptr is not None:
+        nsdd.bdd_free(manager._ptr, nsnode.node2bdd(nsnode.car(list_ptr)))
+        list_ptr = nsnode.cdr(list_ptr)
+    
+    # TODO Free the list
     
     return (state, inputs, statep)
 
@@ -80,17 +93,27 @@ def explainEU(fsm, state, a, b):
     path = ListNode.from_tuple((state.to_node(),))
     nodelist = ListNode(mc.eu_explain(fsm._ptr, enc._ptr, path._ptr, a._ptr, b._ptr))
     
+    nodelist_iter = nodelist
     path = []
-    path.insert(0, nodelist.car.to_state(fsm))
-    nodelist = nodelist.cdr
-    while nodelist is not None:
-        inputs = nodelist.to_inputs(fsm)
-        nodelist = nodelist.cdr
-        state = nodelist.car.to_state(fsm)
-        nodelist = nodelist.cdr
+    path.insert(0, nodelist_iter.car.to_state(fsm))
+    nodelist_iter = nodelist_iter.cdr
+    while nodelist_iter is not None:
+        inputs = nodelist_iter.to_inputs(fsm)
+        nodelist_iter = nodelist_iter.cdr
+        state = nodelist_iter.car.to_state(fsm)
+        nodelist_iter = nodelist_iter.cdr
         
         path.insert(0, inputs)
         path.insert(0, state)
+        
+        
+    list_ptr = nodelist._ptr
+    # Free bdds
+    while list_ptr is not None:
+        nsdd.bdd_free(manager._ptr, nsnode.node2bdd(nsnode.car(list_ptr)))
+        list_ptr = nsnode.cdr(list_ptr)
+    
+    # TODO Free the list
     
     return tuple(path)
     
@@ -121,28 +144,37 @@ def explainEG(fsm, state, a):
     
     path = []
     # Discard last state and input, store them as loop indicators
-    loopstate = nodelist.car.to_state(fsm)
-    nodelist = nodelist.cdr
-    loopinputs = nodelist.car.to_inputs(fsm)
-    nodelist = nodelist.cdr
+    nodelist_iter = nodelist
+    loopstate = nodelist_iter.car.to_state(fsm)
+    nodelist_iter = nodelist_iter.cdr
+    loopinputs = nodelist_iter.car.to_inputs(fsm)
+    nodelist_iter = nodelist_iter.cdr
     
     # Consume first state
-    curstate = nodelist.car.to_state(fsm)
+    curstate = nodelist_iter.car.to_state(fsm)
     if curstate._ptr == loopstate._ptr:
         loopstate = curstate
-    nodelist = nodelist.cdr
+    nodelist_iter = nodelist_iter.cdr
     
     path.insert(0, curstate)
     
-    while nodelist is not None:
-        inputs = nodelist.car.to_inputs(fsm)
-        nodelist = nodelist.cdr
-        curstate = nodelist.car.to_state(fsm)
+    while nodelist_iter is not None:
+        inputs = nodelist_iter.car.to_inputs(fsm)
+        nodelist_iter = nodelist_iter.cdr
+        curstate = nodelist_iter.car.to_state(fsm)
         if curstate._ptr == loopstate._ptr:
             loopstate = curstate
-        nodelist = nodelist.cdr
+        nodelist_iter = nodelist_iter.cdr
         
         path.insert(0, inputs)
         path.insert(0, curstate)
+        
+    # Free bdds
+    list_ptr = nodelist._ptr
+    while list_ptr is not None:
+        nsdd.bdd_free(manager._ptr, nsnode.node2bdd(nsnode.car(list_ptr)))
+        list_ptr = nsnode.cdr(list_ptr)
+    
+    # TODO Free the list
     
     return (tuple(path), (loopinputs, loopstate))

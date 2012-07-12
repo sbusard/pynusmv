@@ -13,8 +13,8 @@ class Inputs(BDD):
     representing inputs and combinatorials of an FSM.
     """
     
-    def __init__(self, ptr, fsm):
-        super().__init__(ptr, fsm.bddEnc.DDmanager)
+    def __init__(self, ptr, fsm, freeit = True):
+        super().__init__(ptr, fsm.bddEnc.DDmanager, freeit)
         self._fsm = fsm
 
     
