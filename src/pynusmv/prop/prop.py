@@ -21,6 +21,8 @@ class Prop(PointerWrapper):
     
     The Prop class contains a pointer to a prop in NuSMV and provides a set
     of operations on this prop.
+    
+    Prop do not have to be freed since they come from PropDb.
     """
         
     @property

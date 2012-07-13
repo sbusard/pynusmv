@@ -11,6 +11,8 @@ class BddFsm(PointerWrapper):
     
     The BddFsm class contains a pointer to a BddFsm in NuSMV and provides a set
     of operations on this FSM.
+    
+    BddFsm do not have to be freed.
     """
        
         

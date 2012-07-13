@@ -8,6 +8,8 @@ class PropDb(PointerWrapper):
     
     The PropDb class contains a pointer to a propDb in NuSMV and provides a set
     of operations on this prop database.
+    
+    PropDb do not have to be freed.
     """
         
     
