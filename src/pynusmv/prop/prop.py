@@ -36,7 +36,7 @@ class Prop(PointerWrapper):
     @property
     def name(self):
         """The name of this prop, as a Node."""
-        return Node(nsprop.Prop_get_name(self._ptr))
+        return Node(nsprop.Prop_get_name(self._ptr), freeit = False)
         
     @property
     def strname(self):
@@ -46,12 +46,12 @@ class Prop(PointerWrapper):
     @property
     def expr(self):
         """The expression of this prop, as a SpecNode."""
-        return SpecNode(nsprop.Prop_get_expr(self._ptr))
+        return SpecNode(nsprop.Prop_get_expr(self._ptr), freeit = False)
         
     @property
     def exprcore(self):
         """The core expression of this prop, as a SpecNode."""
-        return SpecNode(nsprop.Prop_get_expr_core(self._ptr))
+        return SpecNode(nsprop.Prop_get_expr_core(self._ptr), freeit = False)
         
     @property
     def bddFsm(self):

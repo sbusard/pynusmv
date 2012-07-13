@@ -60,7 +60,7 @@ class BDD(PointerWrapper):
         
         from ..node.node import Node
         
-        return Node(nsnode.bdd2node(self._ptr))
+        return Node(nsnode.bdd2node(self._ptr), freeit = False)
         
         
     # ==========================================================================

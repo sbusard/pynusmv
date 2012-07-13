@@ -8,8 +8,16 @@ class Node(PointerWrapper):
     
     The Node class contains a pointer to a node in NuSMV and provides a set
     of operations on this node.
+    
+    Nodes created with find_node do not have to be freed.
+    Nodes created with new_node do have to be freed.
+    We disallow nodes with mixed freeit/not freeit flags.
     """
-        
+    
+    def __del__(self):
+        if self._freeit:
+            nsnode.free_node(self._ptr)
+            
         
     @property
     def type(self):
@@ -21,7 +29,7 @@ class Node(PointerWrapper):
         """The left Node-typed child of this node."""
         left = nsnode.car(self._ptr)
         if left:
-            return Node(left)
+            return Node(left, freeit = self._freeit)
         else:
             return None
         
@@ -30,7 +38,7 @@ class Node(PointerWrapper):
         """The right Node-typed child of this node."""
         right = nsnode.cdr(self._ptr)
         if right:
-            return Node(right)
+            return Node(right, freeit = self._freeit)
         else:
             return None
             
@@ -45,7 +53,8 @@ class Node(PointerWrapper):
         
         from ..dd.bdd import BDD
         
-        return BDD(nsdd.bdd_dup(nsnode.node2bdd(self._ptr)), manager)
+        return BDD(nsdd.bdd_dup(nsnode.node2bdd(self._ptr)), manager,
+                   freeit = True)
         
         
     def to_state(self, fsm):
@@ -58,7 +67,8 @@ class Node(PointerWrapper):
         
         from ..dd.state import State
         
-        return State(nsdd.bdd_dup(nsnode.node2bdd(self._ptr)), fsm)
+        return State(nsdd.bdd_dup(nsnode.node2bdd(self._ptr)), fsm,
+                     freeit = True)
         
         
     def to_inputs(self, fsm):
@@ -71,7 +81,8 @@ class Node(PointerWrapper):
         
         from ..dd.inputs import Inputs
         
-        return Inputs(nsdd.bdd_dup(nsnode.node2bdd(self._ptr)), fsm)
+        return Inputs(nsdd.bdd_dup(nsnode.node2bdd(self._ptr)), fsm,
+                      freeit = True)
         
     
     def __str__(self):
@@ -99,10 +110,15 @@ class Node(PointerWrapper):
                  or None if it has no right child.
         
         Returns the Node-typed new node.
+        
+        Throw a MixingFreeingError if left or right do have to be freeed.
         """
+        if (left and left._freeit) or (right and right._freeit):
+            raise MixingFreeingError()
         return Node(nsnode.find_node(nodetype,
                                      left and left._ptr or None,
-                                     right and right._ptr or None))
+                                     right and right._ptr or None),
+                    freeit = False)
     
     
     def new_node(nodetype, left=None, right=None):
@@ -116,7 +132,16 @@ class Node(PointerWrapper):
                  or None if it has no right child.
         
         Returns the Node-typed new node.
+
+        Throw a MixingFreeingError if left or right do not have to be freeed.
         """
+        if (left and not left._freeit) or (right and not right._freeit):
+            raise MixingFreeingError()
         return Node(nsnode.create_node(nodetype,
                                     left and left._ptr or None,
-                                    right and right._ptr or None))
+                                    right and right._ptr or None),
+                    freeit = True)
+                    
+                    
+class MixingFreeingError(Exception):
+    """Cannot create a node from mixed freeing flag nodes."""

@@ -50,9 +50,10 @@ def explainEX(fsm, state, a):
     enc = fsm.bddEnc
     manager = enc.DDmanager
     path = ListNode.from_tuple((state.to_node(),))
-    nodelist = ListNode(mc.ex_explain(fsm._ptr, enc._ptr, path._ptr, a._ptr))
+    nodelist = ListNode(mc.ex_explain(fsm._ptr, enc._ptr, path._ptr, a._ptr),
+                        freeit = True)
     
-    nodelist_iter = nodelist
+    nodelist_iter = nodelist.dup()
     # nodelist is reversed!
     statep = nodelist_iter.car.to_state(fsm)
     nodelist_iter = nodelist_iter.cdr
@@ -91,9 +92,10 @@ def explainEU(fsm, state, a, b):
     enc = fsm.bddEnc
     manager = enc.DDmanager
     path = ListNode.from_tuple((state.to_node(),))
-    nodelist = ListNode(mc.eu_explain(fsm._ptr, enc._ptr, path._ptr, a._ptr, b._ptr))
+    nodelist = ListNode(mc.eu_explain(fsm._ptr, enc._ptr, path._ptr, a._ptr,
+                                      b._ptr), freeit = True)
     
-    nodelist_iter = nodelist
+    nodelist_iter = nodelist.dup()
     path = []
     path.insert(0, nodelist_iter.car.to_state(fsm))
     nodelist_iter = nodelist_iter.cdr
@@ -140,11 +142,12 @@ def explainEG(fsm, state, a):
     enc = fsm.bddEnc
     manager = enc.DDmanager
     path = ListNode.from_tuple((state.to_node(),))
-    nodelist = ListNode(mc.eg_explain(fsm._ptr, enc._ptr, path._ptr, a._ptr))
+    nodelist = ListNode(mc.eg_explain(fsm._ptr, enc._ptr, path._ptr, a._ptr),
+                        freeit = True)
     
     path = []
     # Discard last state and input, store them as loop indicators
-    nodelist_iter = nodelist
+    nodelist_iter = nodelist.dup()
     loopstate = nodelist_iter.car.to_state(fsm)
     nodelist_iter = nodelist_iter.cdr
     loopinputs = nodelist_iter.car.to_inputs(fsm)
@@ -174,7 +177,5 @@ def explainEG(fsm, state, a):
     while list_ptr is not None:
         nsdd.bdd_free(manager._ptr, nsnode.node2bdd(nsnode.car(list_ptr)))
         list_ptr = nsnode.cdr(list_ptr)
-    
-    # TODO Free the list
     
     return (tuple(path), (loopinputs, loopstate))

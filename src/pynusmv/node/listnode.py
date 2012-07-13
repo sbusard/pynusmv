@@ -6,8 +6,19 @@ class ListNode(Node):
     A list stored as NuSMV nodes.
     
     The ListNode class implements a NuSMV nodes-based list.
+    
+    ListNodes are created with new_node (cons). They have to be freed.
+    Content of the list is not freed. It is the responsibility of the user
+    to free content.
     """
-        
+    
+    def free(self):
+        nsnode.free_list(self._ptr)
+    
+    def __del__(self):
+        if self._freeit:
+            nsnode.free_list(self._ptr)
+    
     
     def __len__(self):
         ptr = self._ptr
@@ -23,6 +34,8 @@ class ListNode(Node):
         Return the Node stored at val.
         
         val -- the index requested OR a slice.
+        
+        Returned node is set to not be freed.
         """
         if type(val) is int:
             if val < 0:
@@ -35,7 +48,7 @@ class ListNode(Node):
                 ptr = nsnode.cdr(ptr)
             if ptr is None:
                     raise IndexError("ListNode index out of range")
-            return Node(nsnode.car(ptr))
+            return Node(nsnode.car(ptr), freeit = False)
         
         elif type(val) is slice:
             # TODO Implement slicing
@@ -48,6 +61,20 @@ class ListNode(Node):
     def __iter__(self):
         for i in range(len(self)):
             yield self[i]
+            
+            
+    def dup(self):
+        return ListNode(nsnode.copy_list(self._ptr), freeit = self._freeit)
+        
+    
+    @property
+    def cdr(self):
+        """The right ListNode-typed child of this listnode."""
+        right = nsnode.cdr(self._ptr)
+        if right:
+            return ListNode(right, freeit = self._freeit)
+        else:
+            return None
             
             
     # ==========================================================================
@@ -69,4 +96,4 @@ class ListNode(Node):
         n = None
         for elem in l:
             n = nsnode.cons(elem and elem._ptr or None, n)
-        return ListNode(n)
+        return ListNode(n, freeit = True)
