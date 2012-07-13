@@ -18,17 +18,24 @@ class BDD(PointerWrapper):
     
     A BDD operation raises a MissingManagerError whenever the manager
     of the BDD is None and a manager is needed to perform the operation.
+    
+    All BDDs are freed by default.
     """
     
-    def __init__(self, ptr, dd_manager=None):
+    def __init__(self, ptr, dd_manager=None, freeit = True):
         """
         Create a new BDD with ptr.
         
         ptr -- the pointer to the NuSMV BDD.
         dd_manager -- the DD manager for this BDD.
         """
-        super().__init__(ptr)
+        super().__init__(ptr, freeit)
         self._manager = dd_manager
+        
+    
+    def __del__(self):
+        if self._freeit:
+            dd.bdd_free(self._manager._ptr, self._ptr)
 
 
     def equal(self, other):
@@ -59,19 +66,8 @@ class BDD(PointerWrapper):
     
         bdd_ptr bdd_dup (bdd_ptr);
         """
-        return BDD(dd.bdd_dup(self._ptr), self._manager)
+        return BDD(dd.bdd_dup(self._ptr), self._manager, freeit = True)
         
-        
-    def free(self):
-        """
-        Dereference a BDD node.
-        
-        If it dies, recursively decreases the reference count of its children.
-    
-        void bdd_free (DdManager *, bdd_ptr);
-        """
-        pass # TODO Investigate Python garbage collection then implement and use
-    
 
     def is_true(self):
         """
@@ -186,7 +182,8 @@ class BDD(PointerWrapper):
         """
         if self._manager is None:
             raise MissingManagerError()
-        return BDD(dd.bdd_not(self._manager._ptr, self._ptr), self._manager)
+        return BDD(dd.bdd_not(self._manager._ptr, self._ptr), self._manager,
+                   freeit = True)
         
     
     def andd(self, other):
@@ -198,7 +195,7 @@ class BDD(PointerWrapper):
         if self._manager is None:
             raise MissingManagerError()
         return BDD(dd.bdd_and(self._manager._ptr, self._ptr, other._ptr),
-                   self._manager)
+                   self._manager, freeit = True)
         
 
     def orr(self, other):
@@ -210,7 +207,7 @@ class BDD(PointerWrapper):
         if self._manager is None:
             raise MissingManagerError()
         return BDD(dd.bdd_or(self._manager._ptr, self._ptr, other._ptr),
-                   self._manager)
+                   self._manager, freeit = True)
         
 
     def xor(self, other):
@@ -222,7 +219,7 @@ class BDD(PointerWrapper):
         if self._manager is None:
             raise MissingManagerError()
         return BDD(dd.bdd_xor(self._manager._ptr, self._ptr, other._ptr),
-                   self._manager)
+                   self._manager, freeit = True)
         
         
     def iff(self, other):
@@ -234,7 +231,7 @@ class BDD(PointerWrapper):
         if self._manager is None:
             raise MissingManagerError()
         return BDD(dd.bdd_iff(self._manager._ptr, self._ptr, other._ptr),
-                   self._manager)
+                   self._manager, freeit = True)
         
 
     def imply(self, other):
@@ -246,7 +243,7 @@ class BDD(PointerWrapper):
         if self._manager is None:
             raise MissingManagerError()
         return BDD(dd.bdd_imply(self._manager._ptr, self._ptr, other._ptr),
-                   self._manager)
+                   self._manager, freeit = True)
         
         
     def forsome(self, cube):
@@ -258,7 +255,7 @@ class BDD(PointerWrapper):
         if self._manager is None:
             raise MissingManagerError()
         return BDD(dd.bdd_forsome(self._manager._ptr, self._ptr, cube._ptr),
-                   self._manager)
+                   self._manager, freeit = True)
         
         
     def forall(self, cube):
@@ -270,7 +267,7 @@ class BDD(PointerWrapper):
         if self._manager is None:
             raise MissingManagerError()
         return BDD(dd.bdd_forall(self._manager._ptr, self._ptr, cube._ptr),
-                   self._manager)
+                   self._manager, freeit = True)
         
 
 

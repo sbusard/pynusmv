@@ -1,4 +1,5 @@
 from ..nusmv.node import node as nsnode
+from ..nusmv.dd import dd as nsdd
 from ..utils.pointerwrapper import PointerWrapper
 
 class Node(PointerWrapper):
@@ -39,7 +40,8 @@ class Node(PointerWrapper):
         
         from ..dd.bdd import BDD
         
-        return BDD(nsnode.node2bdd(self._ptr), manager)
+        return BDD(nsdd.bdd_dup(nsnode.node2bdd(self._ptr)), manager,
+                   freeit = True)
         
         
     def to_state(self, fsm):
@@ -47,7 +49,8 @@ class Node(PointerWrapper):
         
         from ..dd.state import State
         
-        return State(nsnode.node2bdd(self._ptr), fsm)
+        return State(nsdd.bdd_dup(nsnode.node2bdd(self._ptr)), fsm,
+                     freeit = True)
         
         
     def to_inputs(self, fsm):
@@ -55,7 +58,8 @@ class Node(PointerWrapper):
         
         from ..dd.inputs import Inputs
         
-        return Inputs(nsnode.node2bdd(self._ptr), fsm)
+        return Inputs(nsdd.bdd_dup(nsnode.node2bdd(self._ptr)), fsm,
+                      freeit = True)
         
     
     def __str__(self):

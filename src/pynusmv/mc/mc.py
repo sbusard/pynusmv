@@ -23,7 +23,7 @@ def eval_ctl_spec(fsm, spec, context=None):
     specbdd = BDD(mc.eval_ctl_spec(fsm._ptr, enc._ptr,
                                    spec._ptr,
                                    context and context._ptr or None),
-                  enc.DDmanager)
+                  enc.DDmanager, freeit = True)
     return specbdd
     
     
