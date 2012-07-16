@@ -4,7 +4,6 @@ from pynusmv.nusmv.cinit import cinit
 from pynusmv.nusmv.cmd import cmd
 
 from pynusmv.fsm.fsm import BddFsm
-from pynusmv.node.node import Node
 from pynusmv.prop.propDb import PropDb
 
 from tools.tlace.check import check
@@ -60,7 +59,7 @@ class TestTlaceGeneration(unittest.TestCase):
         self.assertFalse(res[0], "spec should be violated")
         self.assertIsNotNone(res[1], "TLACE should be given")
         
-        
+    
     def test_check_satisfied_spec(self):
         # Initialize the model
         ret = cmd.Cmd_SecureCommandExecute("read_model -i"

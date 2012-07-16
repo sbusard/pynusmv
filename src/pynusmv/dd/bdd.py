@@ -1,5 +1,4 @@
 from ..nusmv.dd import dd
-from ..nusmv.node import node as nsnode
 from ..utils.pointerwrapper import PointerWrapper
 
 class MissingManagerError(Exception):
@@ -34,9 +33,9 @@ class BDD(PointerWrapper):
         
     
     def __del__(self):
-        if self._freeit:
+        if self._freeit and self._ptr is not None:
             dd.bdd_free(self._manager._ptr, self._ptr)
-
+        
 
     def equal(self, other):
         """Return whether self and other are the same BDD."""
@@ -44,14 +43,6 @@ class BDD(PointerWrapper):
             return True
         else:
             return False
-            
-    
-    def to_node(self):
-        """Cast this BDD to a node."""
-        
-        from ..node.node import Node
-        
-        return Node(nsnode.bdd2node(self._ptr))
         
         
     # ==========================================================================

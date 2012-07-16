@@ -7,7 +7,7 @@ from pynusmv.nusmv.compile.symb_table import symb_table
 from pynusmv.nusmv.compile.type_checking import type_checking
 
 from pynusmv.mc.mc import eval_ctl_spec
-from pynusmv.node.specnode import atom
+from pynusmv.spec.spec import atom
 from pynusmv.prop.propDb import PropDb
 
 class TestAtom(unittest.TestCase):

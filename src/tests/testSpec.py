@@ -4,11 +4,11 @@ from pynusmv.nusmv.cinit import cinit
 from pynusmv.nusmv.cmd import cmd
 from pynusmv.nusmv.parser import parser
 
-from pynusmv.node.specnode import SpecNode
-from pynusmv.node.specnode import (true as sptrue, false as spfalse, imply, iff,
-                                   ex, eg, ef, eu, ew, ax, ag, af, au, aw, atom)
+from pynusmv.spec.spec import Spec
+from pynusmv.spec.spec import (true as sptrue, false as spfalse, imply, iff,
+                               ex, eg, ef, eu, ew, ax, ag, af, au, aw, atom)
 
-class TestSpecNode(unittest.TestCase):
+class TestSpec(unittest.TestCase):
     
     def setUp(self):
         cinit.NuSMVCore_init_data()

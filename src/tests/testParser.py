@@ -6,7 +6,7 @@ from pynusmv.nusmv.cmd import cmd
 from pynusmv.nusmv.parser import parser
 from pynusmv.nusmv.node import node as nsnode
 
-from pynusmv.node.node import Node
+from pynusmv.spec.spec import Spec
 
 class TestParser(unittest.TestCase):
     
@@ -28,6 +28,6 @@ class TestParser(unittest.TestCase):
         self.assertIsNotNone(node)
         node = nsnode.car(node)
         self.assertIsNotNone(node)
-        node = Node(node)
+        node = Spec(node)
         self.assertIsNotNone(node)
         

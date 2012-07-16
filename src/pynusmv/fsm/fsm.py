@@ -1,5 +1,6 @@
 from ..nusmv.fsm.bdd import bdd as bddFsm
 from ..nusmv.enc.bdd import bdd as bddEnc
+
 from ..enc.enc import BddEnc
 from ..dd.bdd import BDD
 from ..dd.state import State

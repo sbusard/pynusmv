@@ -1,7 +1,6 @@
 import sys
 
 from pynusmv.utils import indent
-from pynusmv.node.node import Node
 
 __id_node = 0
 def xml_representation(fsm, tlacenode, spec):
