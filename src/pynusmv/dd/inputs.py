@@ -1,6 +1,8 @@
 from ..nusmv.compile.symb_table import symb_table
 from ..nusmv.enc.bdd import bdd as bddEnc
 from ..nusmv.dd import dd as nsdd
+from ..nusmv.node import node as nsnode
+from ..nusmv.utils import utils as nsutils
 
 from .bdd import BDD
     
@@ -38,12 +40,17 @@ class Inputs(BDD):
 
         values = {}
         # Traverse the symbols to print variables of the state
-        while assignList:
-            assignment = nsnode.car(assignList)
+        asList_ptr = assignList
+        while asList_ptr:
+            assignment = nsnode.car(asList_ptr)
             var = nsnode.car(assignment)
             val = nsnode.cdr(assignment)
             values[nsnode.sprint_node(var)] = nsnode.sprint_node(val)
-            assignList = nsnode.cdr(assignList)
+            asList_ptr = nsnode.cdr(asList_ptr)
+            
+        nsnode.free_list(assignList)
+        
+        nsutils.NodeList_destroy(symbols)
             
         return values
         

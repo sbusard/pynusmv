@@ -2,6 +2,7 @@ from ..nusmv.compile.symb_table import symb_table
 from ..nusmv.enc.bdd import bdd as bddEnc
 from ..nusmv.dd import dd as nsdd
 from ..nusmv.node import node as nsnode
+from ..nusmv.utils import utils as nsutils
 
 from .bdd import BDD
     
@@ -45,10 +46,11 @@ class State(BDD):
             var = nsnode.car(assignment)
             val = nsnode.cdr(assignment)
             values[nsnode.sprint_node(var)] = nsnode.sprint_node(val)
-            print(nsnode.sprint_node(var), "=", nsnode.sprint_node(val))
             asList_ptr = nsnode.cdr(asList_ptr)
             
         nsnode.free_list(assignList)
+        
+        nsutils.NodeList_destroy(symbols)
             
         return values
         

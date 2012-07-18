@@ -5,6 +5,8 @@ MODULE main
 	VAR
 		c : boolean;
 		i : boolean;
+		
+    DEFINE t := c & i;
 	
 	INIT c & i
 	

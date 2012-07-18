@@ -102,6 +102,7 @@ def xml_branch(fsm, branch):
     for n, i in zip(branch.path[0][::2], branch.path[0][1::2]):
         xmlrepr += xml_node(fsm, n)
         xmlrepr += xml_inputs(fsm, i)
+        xmlrepr += xml_combinatorial(fsm, i)
         if branch.path[1] is not None and n == branch.path[1][1]:
             loop_id = __id_node - 1
         
@@ -157,7 +158,7 @@ def xml_inputs(fsm, inputs):
     """
         
     xmlrepr = indent.indent(
-    """<inputs>
+    """<input>
 """)
     
     indent.inc()
@@ -169,7 +170,30 @@ def xml_inputs(fsm, inputs):
 """.format(var, values[var]))
     
     indent.dec()
-    xmlrepr += indent.indent("""</inputs>
+    xmlrepr += indent.indent("""</input>
+""")
+    
+    return xmlrepr
+    
+    
+def xml_combinatorial(fsm, combinatorial):
+    """
+    Return the XML representation of the given combinatorial.
+    
+    fsm -- the FSM.
+    state -- a BDD representing inputs in fsm.
+    """
+        
+    xmlrepr = indent.indent(
+    """<combinatorial>
+""")
+    
+    indent.inc()
+    
+    # TODO Find a way to get combinatorial
+    
+    indent.dec()
+    xmlrepr += indent.indent("""</combinatorial>
 """)
     
     return xmlrepr
