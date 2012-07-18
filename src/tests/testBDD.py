@@ -6,6 +6,7 @@ from pynusmv.nusmv.cmd import cmd
 
 from pynusmv.prop.propDb import PropDb
 from pynusmv.dd.bdd import BDD
+from pynusmv.fsm.fsm import BddFsm
 
 class TestBDD(unittest.TestCase):
     
@@ -17,15 +18,8 @@ class TestBDD(unittest.TestCase):
         cinit.NuSMVCore_quit()
         
     def init_model(self):
-        ret = cmd.Cmd_SecureCommandExecute("read_model -i tests/admin.smv")
-        self.assertEqual(ret, 0)
-        ret = cmd.Cmd_SecureCommandExecute("go")
-        self.assertEqual(ret, 0)
-        
-        propDb = PropDb.get_global_database()
-        fsm = propDb.master.bddFsm
-        enc = fsm.bddEnc
-        return (fsm, enc, enc.DDmanager)
+        fsm = BddFsm.from_filename("tests/admin.smv")
+        return (fsm, fsm.bddEnc, fsm.bddEnc.DDmanager)
     
     
     def test_get_true(self):

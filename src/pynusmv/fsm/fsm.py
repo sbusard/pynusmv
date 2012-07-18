@@ -1,5 +1,6 @@
 from ..nusmv.fsm.bdd import bdd as bddFsm
 from ..nusmv.enc.bdd import bdd as bddEnc
+from ..nusmv.cmd import cmd as nscmd
 
 from ..enc.enc import BddEnc
 from ..dd.bdd import BDD
@@ -34,3 +35,17 @@ class BddFsm(PointerWrapper):
         """Return a BDD representing a state of bdd."""
         state = bddEnc.BddEnc_pick_one_state(self.bddEnc._ptr, bdd._ptr)
         return State(state, self, freeit = True)
+        
+        
+    # ==========================================================================
+    # ===== Static methods =====================================================
+    # ==========================================================================
+    
+    def from_filename(filename):
+        """Return the FSM corresponding to the model in filename."""
+        from ..prop.propDb import PropDb
+        nscmd.Cmd_SecureCommandExecute("read_model -i " + filename)
+        nscmd.Cmd_SecureCommandExecute("go")
+        
+        propDb = PropDb.get_global_database()
+        return propDb.master.bddFsm
