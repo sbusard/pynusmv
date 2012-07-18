@@ -1,19 +1,13 @@
 import sys
 import argparse
 
-from pynusmv.nusmv.cinit import cinit
-from pynusmv.nusmv.cmd import cmd
-
 from pynusmv.prop.propDb import PropDb
 from pynusmv.prop.prop import propTypes
+from pynusmv.init.init import init_nusmv, deinit_nusmv
+from pynusmv.fsm.fsm import BddFsm
 
 from tools.tlace.check import check as check_ctl_spec
 from tools.tlace.xml import xml_representation
-
-
-class NuSMVCommandError(Exception):
-    """A NuSMV command ended with an error."""
-    pass
     
     
 def check_and_explain(allargs):
@@ -33,27 +27,13 @@ def check_and_explain(allargs):
     parser.add_argument('model', help='the NuSMV model with specifications')
     args = parser.parse_args(allargs)
     
-    # Initialize NuSMV
-    cinit.NuSMVCore_init_data()
-    cinit.NuSMVCore_init(None, 0)
-    
-    
     # Initialize the model
-    status = cmd.Cmd_SecureCommandExecute("read_model -i " + args.model)
-    if status is not 0:
-        raise NuSMVCommandError('Cannot read model ' + args.model)
-    status = cmd.Cmd_SecureCommandExecute("go")
-    if status is not 0:
-        raise NuSMVCommandError('Cannot build the model.')
-    
-    # Get the FSM
+    fsm = BddFsm.from_filename(args.model)
     propDb = PropDb.get_global_database()
-    master = propDb.master
-    fsm = propDb.master.bddfsm
     
     # Check all CTL properties
     for prop in propDb:
-        # TODO Check type
+        #  Check type
         if prop.type == propTypes['CTL']:
             spec = prop.exprcore
     
@@ -65,14 +45,11 @@ def check_and_explain(allargs):
                 print(xml_representation(fsm, cntex, spec))
             
             print()
-            
-        
-    
-    # Quit NuSMV
-    status = cinit.NuSMVCore_quit()
-    if status != 0:
-        sys.exit(1)
-    
 
-if __name__ == '__main__':    
+
+if __name__ == '__main__': 
+    # Initialize NuSMV
+    init_nusmv()   
     check_and_explain(sys.argv[1:])
+    # Quit NuSMV
+    deinit_nusmv()

@@ -42,10 +42,24 @@ class BddFsm(PointerWrapper):
     # ==========================================================================
     
     def from_filename(filename):
-        """Return the FSM corresponding to the model in filename."""
+        """
+        Return the FSM corresponding to the model in filename.
+        
+        Raise a NuSMVCommandError if something is wrong.
+        """
         from ..prop.propDb import PropDb
-        nscmd.Cmd_SecureCommandExecute("read_model -i " + filename)
-        nscmd.Cmd_SecureCommandExecute("go")
+        ret = nscmd.Cmd_SecureCommandExecute("read_model -i " + filename)
+        if ret:
+            raise NuSMVCommandError("Cannot read the model " + filename)
+        ret = nscmd.Cmd_SecureCommandExecute("go")
+        if ret:
+            raise NuSMVCommandError("Cannot build the model")
+        
         
         propDb = PropDb.get_global_database()
         return propDb.master.bddFsm
+        
+        
+class NuSMVCommandError(Exception):
+    """A NuSMV command ended with an error."""
+    pass
