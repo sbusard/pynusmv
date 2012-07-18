@@ -1,7 +1,7 @@
 from ..nusmv.prop import prop as nsprop
 
 from ..fsm.fsm import BddFsm
-from ..node.specnode import SpecNode
+from ..spec.spec import Spec
 from ..utils.pointerwrapper import PointerWrapper
 
 propTypes = {
@@ -21,6 +21,8 @@ class Prop(PointerWrapper):
     
     The Prop class contains a pointer to a prop in NuSMV and provides a set
     of operations on this prop.
+    
+    Prop do not have to be freed since they come from PropDb.
     """
         
     @property
@@ -35,23 +37,18 @@ class Prop(PointerWrapper):
         
     @property
     def name(self):
-        """The name of this prop, as a Node."""
-        return Node(nsprop.Prop_get_name(self._ptr), freeit = False)
-        
-    @property
-    def strname(self):
         """The name of this prop, as a string."""
         return nsprop.Prop_get_name_as_string(self._ptr)
         
     @property
     def expr(self):
-        """The expression of this prop, as a SpecNode."""
-        return SpecNode(nsprop.Prop_get_expr(self._ptr), freeit = False)
+        """The expression of this prop, as a Spec."""
+        return Spec(nsprop.Prop_get_expr(self._ptr))
         
     @property
     def exprcore(self):
-        """The core expression of this prop, as a SpecNode."""
-        return SpecNode(nsprop.Prop_get_expr_core(self._ptr), freeit = False)
+        """The core expression of this prop, as a Spec."""
+        return Spec(nsprop.Prop_get_expr_core(self._ptr))
         
     @property
     def bddFsm(self):

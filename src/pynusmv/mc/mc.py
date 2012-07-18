@@ -7,11 +7,14 @@ from ..nusmv.node import node as nsnode
 from ..nusmv.dd import dd as nsdd
 
 from ..nusmv.mc import mc
+from ..nusmv.node import node as nsnode
+from ..nusmv.dd import dd as nsdd
 
 from ..fsm.fsm import BddFsm
 from ..dd.bdd import BDD
-from ..node.node import Node
-from ..node.listnode import ListNode
+from ..dd.state import State
+from ..dd.inputs import Inputs
+from ..dd.bddlist import BDDList
 
 def eval_ctl_spec(fsm, spec, context=None):
     """
@@ -26,8 +29,7 @@ def eval_ctl_spec(fsm, spec, context=None):
     specbdd = BDD(mc.eval_ctl_spec(fsm._ptr, enc._ptr,
                                    spec._ptr,
                                    context and context._ptr or None),
-                  enc.DDmanager,
-                  freeit = True)
+                  enc.DDmanager, freeit = True)
     return specbdd
     
     
@@ -49,24 +51,14 @@ def explainEX(fsm, state, a):
     
     enc = fsm.bddEnc
     manager = enc.DDmanager
-    path = ListNode.from_tuple((state.to_node(),))
-    nodelist = ListNode(mc.ex_explain(fsm._ptr, enc._ptr, path._ptr, a._ptr),
-                        freeit = True)
+    path = nsnode.cons(nsnode.bdd2node(nsdd.bdd_dup(state._ptr)), None)
+    bddlist = BDDList(mc.ex_explain(fsm._ptr, enc._ptr, path, a._ptr),
+                       manager)
     
-    nodelist_iter = nodelist.dup()
-    # nodelist is reversed!
-    statep = nodelist_iter.car.to_state(fsm)
-    nodelist_iter = nodelist_iter.cdr
-    inputs = nodelist_iter.car.to_inputs(fsm)
-    state = nodelist_iter.cdr.car.to_state(fsm)
-    
-    list_ptr = nodelist._ptr
-    # Free bdds
-    while list_ptr is not None:
-        nsdd.bdd_free(manager._ptr, nsnode.node2bdd(nsnode.car(list_ptr)))
-        list_ptr = nsnode.cdr(list_ptr)
-    
-    # TODO Free the list
+    # bddlist is reversed!
+    statep = State.from_bdd(bddlist[0], fsm)
+    inputs = Inputs.from_bdd(bddlist[1], fsm)
+    state = State.from_bdd(bddlist[2], fsm)
     
     return (state, inputs, statep)
 
@@ -91,31 +83,19 @@ def explainEU(fsm, state, a, b):
     
     enc = fsm.bddEnc
     manager = enc.DDmanager
-    path = ListNode.from_tuple((state.to_node(),))
-    nodelist = ListNode(mc.eu_explain(fsm._ptr, enc._ptr, path._ptr, a._ptr,
-                                      b._ptr), freeit = True)
+    path = nsnode.cons(nsnode.bdd2node(nsdd.bdd_dup(state._ptr)), None)
+    bddlist = BDDList(mc.eu_explain(fsm._ptr, enc._ptr,
+                                    path, a._ptr, b._ptr), manager)
+    bddlist = bddlist.to_tuple()
     
-    nodelist_iter = nodelist.dup()
     path = []
-    path.insert(0, nodelist_iter.car.to_state(fsm))
-    nodelist_iter = nodelist_iter.cdr
-    while nodelist_iter is not None:
-        inputs = nodelist_iter.to_inputs(fsm)
-        nodelist_iter = nodelist_iter.cdr
-        state = nodelist_iter.car.to_state(fsm)
-        nodelist_iter = nodelist_iter.cdr
+    path.insert(0, State.from_bdd(bddlist[0], fsm))
+    for i in range(1, len(bddlist), 2):
+        inputs = Inputs.from_bdd(bddlist[i], fsm)
+        state = State.from_bdd(bddlist[i + 1], fsm)
         
         path.insert(0, inputs)
         path.insert(0, state)
-        
-        
-    list_ptr = nodelist._ptr
-    # Free bdds
-    while list_ptr is not None:
-        nsdd.bdd_free(manager._ptr, nsnode.node2bdd(nsnode.car(list_ptr)))
-        list_ptr = nsnode.cdr(list_ptr)
-    
-    # TODO Free the list
     
     return tuple(path)
     
@@ -141,41 +121,29 @@ def explainEG(fsm, state, a):
     
     enc = fsm.bddEnc
     manager = enc.DDmanager
-    path = ListNode.from_tuple((state.to_node(),))
-    nodelist = ListNode(mc.eg_explain(fsm._ptr, enc._ptr, path._ptr, a._ptr),
-                        freeit = True)
+    path = nsnode.cons(nsnode.bdd2node(nsdd.bdd_dup(state._ptr)), None)
+    bddlist = BDDList(mc.eg_explain(fsm._ptr, enc._ptr, path, a._ptr),
+                      manager)
+    bddlist = bddlist.to_tuple()
     
     path = []
     # Discard last state and input, store them as loop indicators
-    nodelist_iter = nodelist.dup()
-    loopstate = nodelist_iter.car.to_state(fsm)
-    nodelist_iter = nodelist_iter.cdr
-    loopinputs = nodelist_iter.car.to_inputs(fsm)
-    nodelist_iter = nodelist_iter.cdr
+    loopstate = State.from_bdd(bddlist[0], fsm)
+    loopinputs = Inputs.from_bdd(bddlist[1], fsm)
     
     # Consume first state
-    curstate = nodelist_iter.car.to_state(fsm)
+    curstate = State.from_bdd(bddlist[2], fsm)
     if curstate._ptr == loopstate._ptr:
         loopstate = curstate
-    nodelist_iter = nodelist_iter.cdr
     
     path.insert(0, curstate)
     
-    while nodelist_iter is not None:
-        inputs = nodelist_iter.car.to_inputs(fsm)
-        nodelist_iter = nodelist_iter.cdr
-        curstate = nodelist_iter.car.to_state(fsm)
+    for i in range(3, len(bddlist), 2):
+        inputs = Inputs.from_bdd(bddlist[i], fsm)
+        curstate = State.from_bdd(bddlist[i + 1], fsm)
         if curstate._ptr == loopstate._ptr:
             loopstate = curstate
-        nodelist_iter = nodelist_iter.cdr
         
         path.insert(0, inputs)
         path.insert(0, curstate)
-        
-    # Free bdds
-    list_ptr = nodelist._ptr
-    while list_ptr is not None:
-        nsdd.bdd_free(manager._ptr, nsnode.node2bdd(nsnode.car(list_ptr)))
-        list_ptr = nsnode.cdr(list_ptr)
-    
     return (tuple(path), (loopinputs, loopstate))

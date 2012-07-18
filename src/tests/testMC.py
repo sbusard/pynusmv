@@ -9,7 +9,6 @@ from pynusmv.nusmv.fsm.bdd import bdd as nsfsm
 from pynusmv.nusmv.mc import mc
 
 from pynusmv.fsm.fsm import BddFsm
-from pynusmv.node.node import Node
 
 class TestMC(unittest.TestCase):
     

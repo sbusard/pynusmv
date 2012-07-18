@@ -1,5 +1,4 @@
 from ..nusmv.dd import dd
-from ..nusmv.node import node as nsnode
 from ..utils.pointerwrapper import PointerWrapper
 
 class MissingManagerError(Exception):
@@ -18,6 +17,8 @@ class BDD(PointerWrapper):
     
     A BDD operation raises a MissingManagerError whenever the manager
     of the BDD is None and a manager is needed to perform the operation.
+    
+    All BDDs are freed by default.
     """
     
     def __init__(self, ptr, dd_manager=None, freeit = True):
@@ -29,23 +30,12 @@ class BDD(PointerWrapper):
         """
         super().__init__(ptr, freeit)
         self._manager = dd_manager
-        
+    
         
     def __del__(self):
-        if self._freeit and self._manager:
+        if self._freeit and self._ptr is not None:
             dd.bdd_free(self._manager._ptr, self._ptr)
             
-            
-    def free(self):
-        """
-        Explicitely free self pointer, whatever is self._freeit.
-        
-        Set self._freeit to False to avoid double freeing 
-        when garbage collecting this BDD.
-        """
-        dd.bdd_free(self._ptr)
-        self._freeit = False
-
 
     def equal(self, other):
         """Return whether self and other are the same BDD."""
@@ -53,14 +43,6 @@ class BDD(PointerWrapper):
             return True
         else:
             return False
-            
-    
-    def to_node(self):
-        """Cast this BDD to a node."""
-        
-        from ..node.node import Node
-        
-        return Node(nsnode.bdd2node(self._ptr), freeit = False)
         
         
     # ==========================================================================
@@ -76,7 +58,7 @@ class BDD(PointerWrapper):
         bdd_ptr bdd_dup (bdd_ptr);
         """
         return BDD(dd.bdd_dup(self._ptr), self._manager, freeit = True)
-    
+
 
     def is_true(self):
         """

@@ -9,6 +9,8 @@ class BddEnc(PointerWrapper):
     
     The BddEnc class contains a pointer to a BddEnc in NuSMV and provides a set
     of operations on this BDD encoding.
+    
+    BddEnc do not have to be freed.
     """
         
     @property

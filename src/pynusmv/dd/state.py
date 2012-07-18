@@ -1,8 +1,10 @@
 from ..nusmv.compile.symb_table import symb_table
 from ..nusmv.enc.bdd import bdd as bddEnc
+from ..nusmv.dd import dd as nsdd
+from ..nusmv.node import node as nsnode
+from ..nusmv.utils import utils as nsutils
 
 from .bdd import BDD
-from ..node.listnode import ListNode
     
 
 class State(BDD):
@@ -31,16 +33,32 @@ class State(BDD):
         # Get symbols (SymbTable) for states
         layers = symb_table.SymbTable_get_class_layer_names(table, None)
         symbols = symb_table.SymbTable_get_layers_sf_symbols(table, layers)
-
+        
         # Get assign symbols (BddEnc)
-        assignList = ListNode(bddEnc.BddEnc_assign_symbols(enc._ptr,
-                              self._ptr, symbols, 0, None))
+        assignList = bddEnc.BddEnc_assign_symbols(enc._ptr,self._ptr,
+                                                  symbols, 0, None)
 
         values = {}
         # Traverse the symbols to print variables of the state
-        for assignment in assignList:
-            var = assignment.car
-            val = assignment.cdr
-            values[str(var)] = str(val)
+        asList_ptr = assignList
+        while asList_ptr:
+            assignment = nsnode.car(asList_ptr)
+            var = nsnode.car(assignment)
+            val = nsnode.cdr(assignment)
+            values[nsnode.sprint_node(var)] = nsnode.sprint_node(val)
+            asList_ptr = nsnode.cdr(asList_ptr)
+            
+        nsnode.free_list(assignList)
+        
+        nsutils.NodeList_destroy(symbols)
             
         return values
+        
+        
+    # ==========================================================================
+    # ===== Static methods =====================================================
+    # ==========================================================================
+    
+    def from_bdd(bdd, fsm):
+        """Return a new State of fsm from bdd."""
+        return State(nsdd.bdd_dup(bdd._ptr), fsm)

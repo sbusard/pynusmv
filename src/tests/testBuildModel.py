@@ -8,7 +8,6 @@ from pynusmv.nusmv.prop import prop
 from pynusmv.nusmv.fsm.bdd import bdd as nsfsm
 
 from pynusmv.fsm.fsm import BddFsm
-from pynusmv.node.node import Node
 
 class TestBuildModel(unittest.TestCase):
     
