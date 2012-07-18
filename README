@@ -1,0 +1,69 @@
+PyNuSMV is a Python binding for NuSMV. It is intended to provide a Python interface to NuSMV, allowing to use NuSMV as a library.
+
+
+-----
+BUILD
+-----
+
+To build PyNuSMV, you have to compile NuSMV first:
+
+# Compile CUDD
+cd src/cudd-2.4.1.1
+make # use platform-dependent makefile if needed
+
+# Compile NuSMV
+cd ../nusmv
+./configure
+make
+cd ..
+
+Then, you can build PyNuSMV by running:
+./build_libnusmv.sh
+python setup.py build_ext --inplace
+
+PyNuSMV is located into src/pynusmv directory.
+
+
+-------------
+DOCUMENTATION
+-------------
+
+No documentation of PyNuSMV is currently provided. To get more insight, read the (documented) Python code.
+
+
+-------
+CONTENT
+-------
+
+This package contains
+- this README file;
+- LGPL-2.1 : a copy of the LGPLv2 License;
+- src/ : PyNuSMV sources
+
+    - build_libnusmv.sh : NuSMV shared library building script;
+    - setup.py : PyNuSMV compilation file;
+
+    - cudd-2.4.1.1/ : CUDD sources, needed by NuSMV;
+    - nusmv/ : NuSMV sources;
+    - MiniSat/ : MiniSat directory for NuSMV;
+    - zchaff/ : zChaff directory for NuSMV;
+    
+    - pynusmv/ : PyNuSMV sources;
+    - tools/ : PyNuSMV-based tools;
+    - tests/ : PyNuSMV and PyNuSMV-based tools unit tests.
+	
+	
+---------
+COPYRIGHT
+---------
+
+PyNuSMV is licensed under the GNU Lesser General Public License (LGPL in short). File LGPL-2.1 contains a copy of the License.
+
+
+-------
+CREDITS
+-------
+
+PyNuSMV is maintained and distributed by the LVL Group at Université catholique de Louvain.  Please contact <lvl at listes dot uclouvain dot be> for any question regarding this software distribution.
+
+NuSMV is a symbolic model checker developed as a joint project between several partners and distributed under the GNU LGPL license. Please contact <nusmv at fbk dot eu> for getting in touch with the NuSMV development staff.
