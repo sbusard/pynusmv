@@ -1,0 +1,10 @@
+Compiling NuSMV on OX Snow Leopard
+----------------------------------
+
+An error occurs when compiling NuSMV sources when embedding no SAT solver.
+To avoid this error, modify
+    src/nusmv/src/sat/Makefile:
+        line 85: libsat_la_DEPENDENCIES = 
+        line 345: libsat_la_LIBADD = 
+    src/nusmv/src/sat/solvers/Makefile:
+        line 322: noinst_LTLIBRARIES = 
