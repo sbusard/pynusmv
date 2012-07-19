@@ -12,7 +12,7 @@ class Inputs(BDD):
     Python class for inputs and combinatorial structure.
     
     The Inputs class contains a pointer to a BDD in NuSMV (a bdd_ptr)
-    representing inputs and combinatorials of an FSM.
+    representing inputs of an FSM.
     """
     
     def __init__(self, ptr, fsm, freeit = True):

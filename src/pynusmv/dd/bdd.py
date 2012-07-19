@@ -14,11 +14,22 @@ class BDD(PointerWrapper):
     
     The BDD class contains a pointer to a BDD in NuSMV (a bdd_ptr)
     and provides a set of operations on this BDD.
+    Thanks to operator overloading, it is possible to write compact expressions
+    on BDDs. Available operations:
+        a + b, a | b compute bdd_or(a,b)
+        a * b, a & b compute bdd_and(a,b)
+        ~a, -a, compute bdd_not(a)
+        a - b computes (a and not b)
+        a ^ b computes bdd_xor(a,b)
+        a <= b computes bdd_entailed(a,b)
+        a < b, a > b, a >= b derive from a <= b
+        a == b compares pointers.
     
     A BDD operation raises a MissingManagerError whenever the manager
     of the BDD is None and a manager is needed to perform the operation.
     
-    All BDDs are freed by default.
+    All BDDs are freed by default. Every operation on BDDs that return a new
+    BDD uses bdd_dup to ensure that the new BDD wraps a pointer to free.
     """
     
     def __init__(self, ptr, dd_manager=None, freeit = True):
