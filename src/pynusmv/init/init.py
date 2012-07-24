@@ -14,7 +14,8 @@ from ..nusmv.cinit import cinit
 def init_nusmv():
     """Initialize NuSMV."""
     cinit.NuSMVCore_init_data()
-    cinit.NuSMVCore_init(None, 0)
+    cinit.NuSMVCore_init(None, 0) # No addons specified
+    cinit.NuSMVCore_init_cmd_options()
     
 
 def deinit_nusmv():
