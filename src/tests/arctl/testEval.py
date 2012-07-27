@@ -18,7 +18,7 @@ class TestEval(unittest.TestCase):
     
         
     # FIXME There is a segfault when deinit_nusmv is called
-    @unittest.skip 
+    #@unittest.skip 
     def test_atom(self):
         fsm = BddFsm.from_filename("tests/arctl/model.smv")
         self.assertIsNotNone(fsm)
@@ -29,6 +29,7 @@ class TestEval(unittest.TestCase):
         self.assertEqual(type(spec), Atom)
         self.assertEqual(spec.value, "c & i")
         
-        candi = evalArctl(fsm, spec)
-        self.assertIsNotNone(candi)
-        self.assertEqual(fsm.init, candi)
+        bdd = evalArctl(fsm, spec)
+        self.assertIsNotNone(bdd)
+        self.assertEqual(fsm.init, bdd)
+        del bdd
