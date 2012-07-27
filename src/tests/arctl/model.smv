@@ -1,0 +1,26 @@
+MODULE main
+
+	IVAR
+		a : boolean;
+	VAR
+		c : boolean;
+		i : boolean;
+	
+	INIT c & i
+	
+	TRANS
+		next(i) = FALSE
+		
+	TRANS
+		next(c) =	case
+						c & i :	case
+									a : FALSE;
+									!a : TRUE;
+								esac;
+						!c & !i : FALSE;
+						c & !i : TRUE;
+						!c & i : TRUE; -- unreachable
+					esac
+	
+	TRANS
+		a in {TRUE, FALSE}
