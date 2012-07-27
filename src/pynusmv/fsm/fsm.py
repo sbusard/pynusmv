@@ -16,7 +16,7 @@ class BddFsm(PointerWrapper):
     
     BddFsm do not have to be freed.
     """
-       
+    
         
     @property
     def bddEnc(self):
@@ -29,6 +29,38 @@ class BddFsm(PointerWrapper):
         """The BDD of initial states of this FSM."""
         return BDD(bddFsm.BddFsm_get_init(self._ptr), self.bddEnc.DDmanager,
                    freeit = True)
+                   
+                   
+    def pre(self, states, inputs = None):
+        """
+        Return the pre-image of states in this FSM.
+        
+        If inputs is not None, it is used as constraints to get pre-states
+        that are reachable through these inputs.
+        """
+        if inputs is None:
+            return BDD(bddFsm.BddFsm_get_backward_image(self._ptr, states._ptr),
+                       self.bddEnc.DDmanager, freeit = True)
+        else:
+            return BDD(bddFsm.BddFsm_get_constrained_backward_image(
+                            self._ptr, states._ptr, inputs._ptr),
+                       self.bddEnc.DDmanager, freeit = True)
+        
+        
+    def post(self, states, inputs = None):
+        """
+        Return the post-image of states in this FSM.
+        
+        If inputs is not None, it is used as constraints to get post-states
+        that are reachable through these inputs.
+        """
+        if inputs is None:
+            return BDD(bddFsm.BddFsm_get_forward_image(self._ptr, states._ptr),
+                       self.bddEnc.DDmanager, freeit = True)
+        else:
+            return BDD(bddFsm.BddFsm_get_constrained_forward_image(
+                            self._ptr, states._ptr, inputs._ptr),
+                       self.bddEnc.DDmanager, freeit = True)
         
         
     def pick_one_state(self, bdd):
