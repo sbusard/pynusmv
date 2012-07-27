@@ -2,9 +2,10 @@ import unittest
 
 from pyparsing import ParseException
 
-from tools.arctl.parsing.arctl import (arctl, Atom, A, G, And, E, U, W)
+from tools.arctl.parsing import arctl
+from tools.arctl.ast import Atom, A, G, And, E, U, W
 
-class TestArctl(unittest.TestCase):
+class TestParsing(unittest.TestCase):
     
     def test_atom(self):
         s = "'c <= 3'"

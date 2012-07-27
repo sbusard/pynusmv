@@ -1,5 +1,6 @@
 from pyparsing import Suppress, SkipTo, Forward
-from collections import namedtuple
+
+from .ast import (Atom, Not, And, Or, Implies, Iff, A, E, F, G, X, U, W)
 
 """
 ARCTL parsing tool.
@@ -18,47 +19,6 @@ atom is defined by any string surrounded by single quotes.
 
 The parser returns a special structure embedding the structure of the parsed
 expression, represented using special classes defined in this module.
-"""
-
-# ------------------------------------------------------------------------------
-# ----- AST classes ------------------------------------------------------------
-# ------------------------------------------------------------------------------
-
-# Atom
-Atom = namedtuple('Atom', ['value'])
-
-# logical : Not, And, Or, Implies, Iff
-Not = namedtuple('Not', ['child'])
-And = namedtuple('And', ['left', 'right'])
-Or = namedtuple('Or', ['left', 'right'])
-Implies = namedtuple('Implies', ['left', 'right'])
-Iff = namedtuple('Iff', ['left', 'right'])
-
-# temporal : A, E
-A = namedtuple('A', ['action', 'path'])
-E = namedtuple('E', ['action', 'path'])
-
-# path : F, G, X, U, W
-F = namedtuple('F', ['child'])
-G = namedtuple('G', ['child'])
-X = namedtuple('X', ['child'])
-U = namedtuple('U', ['left', 'right'])
-W = namedtuple('W', ['left', 'right'])
-
-
-# ------------------------------------------------------------------------------
-# ----- Parser elements --------------------------------------------------------
-# ------------------------------------------------------------------------------
-
-"""
-arctl     := atom | logical | temporal
-logical     := '~' arctl | '(' arctl '&' arctl ')' |
-               '(' arctl '|' arctl ')' | '(' arctl '->' arctl ')' |
-               '(' arctl '<->' arctl ')'
-temporal    := 'A' action path | 'E' action path
-action      := '<' atom '>'
-path        := 'F' arctl | 'G' arctl | 'X' arctl |
-               '[' arctl 'U' arctl ']' | '[' arctl 'W' arctl']'
 """
 
 arctl = Forward()
