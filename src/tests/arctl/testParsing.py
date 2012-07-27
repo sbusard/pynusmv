@@ -44,6 +44,19 @@ class TestParsing(unittest.TestCase):
         self.assertEqual(type(ast.right.right), Atom)
         self.assertEqual(ast.right.right.value, "c")
         
+        
+    def test_implies(self):
+        s = "('a' -> 'b')"
+        asts = parseArctl(s)
+        self.assertEqual(len(asts), 1)
+        
+        ast = asts[0]
+        self.assertEqual(type(ast), Implies)
+        self.assertEqual(type(ast.left), Atom)
+        self.assertEqual(ast.left.value, "a")
+        self.assertEqual(type(ast.right), Atom)
+        self.assertEqual(ast.right.value, "b")
+        
     
     def test_eauw(self):
         s = "E<'ac'>[A<'ac'>[E<'ac'>['b' W 'c'] W 'd'] U A<'ac'>['e' U 'f']]"

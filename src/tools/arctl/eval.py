@@ -2,12 +2,30 @@
 ARCTL evaluation functions.
 """
 
+from pyparsing import ParseException
+
 from pynusmv.dd.bdd import BDD
 from pynusmv.mc.mc import eval_simple_expression
+
+from .parsing import parseArctl
 
 from .ast import (Atom, Not, And, Or, Implies, Iff, 
                   AaF, AaG, AaX, AaU, AaW,
                   EaF, EaG, EaX, EaU, EaW)
+                  
+                  
+def evalArctl_from_string(fsm, spec):
+    """
+    Parse spec and return a BDD representing the set of states of fsm
+    satisfying spec.
+    
+    Throws a ParseException if spec does not represent an ARCTL formula.
+    """
+    specs = parseArctl(spec)
+    if len(specs) != 1:
+        raise ParseException()
+    return evalArctl(fsm, specs[0])
+    
 
 def evalArctl(fsm, spec):
     """Return a BDD representing the set of states of fsm satisfying spec."""
