@@ -14,13 +14,14 @@ Or = namedtuple('Or', ['left', 'right'])
 Implies = namedtuple('Implies', ['left', 'right'])
 Iff = namedtuple('Iff', ['left', 'right'])
 
-# temporal : A, E
-A = namedtuple('A', ['action', 'path'])
-E = namedtuple('E', ['action', 'path'])
-
-# path : F, G, X, U, W
-F = namedtuple('F', ['child'])
-G = namedtuple('G', ['child'])
-X = namedtuple('X', ['child'])
-U = namedtuple('U', ['left', 'right'])
-W = namedtuple('W', ['left', 'right'])
+# temporal : AaF, AaG, AaX, AaU, AaW, EaF, EaG, EaX, EaU, EaW
+AaF = namedtuple('AaF', ['action', 'child'])
+AaG = namedtuple('AaG', ['action', 'child'])
+AaX = namedtuple('AaX', ['action', 'child'])
+AaU = namedtuple('AaU', ['action', 'left', 'right'])
+AaW = namedtuple('AaW', ['action', 'left', 'right'])
+EaF = namedtuple('EaF', ['action', 'child'])
+EaG = namedtuple('EaG', ['action', 'child'])
+EaX = namedtuple('EaX', ['action', 'child'])
+EaU = namedtuple('EaU', ['action', 'left', 'right'])
+EaW = namedtuple('EaW', ['action', 'left', 'right'])

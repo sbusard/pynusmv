@@ -3,7 +3,9 @@ import unittest
 from pyparsing import ParseException
 
 from tools.arctl.parsing import arctl
-from tools.arctl.ast import Atom, A, G, And, E, U, W
+from tools.arctl.ast import (Atom, Not, And, Or, Implies, Iff, 
+                             AaF, AaG, AaX, AaU, AaW,
+                             EaF, EaG, EaX, EaU, EaW)
 
 class TestParsing(unittest.TestCase):
     
@@ -49,16 +51,14 @@ class TestParsing(unittest.TestCase):
         self.assertEqual(len(asts), 1)
         
         ast = asts[0]
-        self.assertEqual(type(ast), E)
+        self.assertEqual(type(ast), EaU)
         self.assertEqual(type(ast.action), Atom)
         self.assertEqual(ast.action.value, "ac")
-        self.assertEqual(type(ast.path), U)
-        self.assertEqual(type(ast.path.left), A)
-        self.assertEqual(type(ast.path.left.action), Atom)
-        self.assertEqual(ast.path.left.action.value, "ac")
-        self.assertEqual(type(ast.path.left.path), W)
-        self.assertEqual(type(ast.path.left.path.right), Atom)
-        self.assertEqual(ast.path.left.path.right.value, "d")
+        self.assertEqual(type(ast.left), AaW)
+        self.assertEqual(type(ast.left.action), Atom)
+        self.assertEqual(ast.left.action.value, "ac")
+        self.assertEqual(type(ast.left.right), Atom)
+        self.assertEqual(ast.left.right.value, "d")
     
     
     def test_full(self):
@@ -68,7 +68,13 @@ class TestParsing(unittest.TestCase):
         self.assertEqual(len(asts), 1)
         
         ast = asts[0]
-        self.assertEqual(type(ast), A)
+        self.assertEqual(type(ast), AaG)
         self.assertEqual(type(ast.action), Atom)
         self.assertEqual(ast.action.value, "past")
-        self.assertEqual(type(ast.path), G)
+        self.assertEqual(type(ast.child), Iff)
+        self.assertEqual(type(ast.child.left), EaF)
+        self.assertEqual(type(ast.child.left.action), Atom)
+        self.assertEqual(ast.child.left.action.value, "true")
+        self.assertEqual(type(ast.child.left.child), Atom)
+        self.assertEqual(ast.child.left.child.value, "future is now")
+        self.assertEqual(type(ast.child.right), AaU)

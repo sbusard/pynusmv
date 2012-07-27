@@ -1,18 +1,23 @@
 from pyparsing import Suppress, SkipTo, Forward
 
-from .ast import (Atom, Not, And, Or, Implies, Iff, A, E, F, G, X, U, W)
+from .ast import (Atom, Not, And, Or, Implies, Iff, 
+                  AaF, AaG, AaX, AaU, AaW,
+                  EaF, EaG, EaX, EaU, EaW)
 
 """
 ARCTL parsing tool.
 
-arctl     := atom | logical | temporal
+arctl       := atom | logical | temporal
 logical     := '~' arctl | '(' arctl '&' arctl ')' |
                '(' arctl '|' arctl ')' | '(' arctl '->' arctl ')' |
                '(' arctl '<->' arctl ')'
-temporal    := 'A' action path | 'E' action path
+temporal    := 'A' action 'F' arctl | 'A' action 'G' arctl |
+               'A' action 'X' arctl | 'A' action '[' arctl 'U' arctl ']' |
+               'A' action '[' arctl 'W' arctl']' |
+               'E' action 'F' arctl | 'E' action 'G' arctl |
+               'E' action 'X' arctl | 'E' action '[' arctl 'U' arctl ']' |
+               'E' action '[' arctl 'W' arctl']'
 action      := '<' atom '>'
-path        := 'F' arctl | 'G' arctl | 'X' arctl |
-               '[' arctl 'U' arctl ']' | '[' arctl 'W' arctl']'
                
 atom is defined by any string surrounded by single quotes.
 
@@ -47,31 +52,37 @@ iff.setParseAction(lambda tokens: Iff(tokens[1], tokens[3]))
 logical = not_ | and_ | or_ | implies | iff
 
 
-f = "F" + arctl
-f.setParseAction(lambda tokens: F(tokens[1]))
+eaf = "E" + action + "F" + arctl
+eaf.setParseAction(lambda tokens: EaF(tokens[1], tokens[3]))
 
-g = "G" + arctl
-g.setParseAction(lambda tokens: G(tokens[1]))
+eag = "E" + action + "G" + arctl
+eag.setParseAction(lambda tokens: EaG(tokens[1], tokens[3]))
 
-x = "X" + arctl
-x.setParseAction(lambda tokens: X(tokens[1]))
+eax = "E" + action + "X" + arctl
+eax.setParseAction(lambda tokens: EaX(tokens[1], tokens[3]))
 
-u = "[" + arctl + "U" + arctl + "]"
-u.setParseAction(lambda tokens: U(tokens[1], tokens[3]))
+eau = "E" + action + "[" + arctl + "U" + arctl + "]"
+eau.setParseAction(lambda tokens: EaU(tokens[1], tokens[3], tokens[5]))
 
-w = "[" + arctl + "W" + arctl + "]"
-w.setParseAction(lambda tokens: W(tokens[1], tokens[3]))
+eaw = "E" + action + "[" + arctl + "W" + arctl + "]"
+eaw.setParseAction(lambda tokens: EaW(tokens[1], tokens[3], tokens[5]))
 
-path = f | g | x | u | w
+aaf = "A" + action + "F" + arctl
+aaf.setParseAction(lambda tokens: AaF(tokens[1], tokens[3]))
 
+aag = "A" + action + "G" + arctl
+aag.setParseAction(lambda tokens: AaG(tokens[1], tokens[3]))
 
-a = "A" + action + path
-a.setParseAction(lambda tokens: A(tokens[1], tokens[2]))
+aax = "A" + action + "X" + arctl
+aax.setParseAction(lambda tokens: AaX(tokens[1], tokens[3]))
 
-e = "E" + action + path
-e.setParseAction(lambda tokens: E(tokens[1], tokens[2]))
+aau = "A" + action + "[" + arctl + "U" + arctl + "]"
+aau.setParseAction(lambda tokens: AaU(tokens[1], tokens[3], tokens[5]))
 
-temporal = a | e
+aaw = "A" + action + "[" + arctl + "W" + arctl + "]"
+aaw.setParseAction(lambda tokens: AaW(tokens[1], tokens[3], tokens[5]))
+
+temporal = eaf | eag | eax | eau | eaw | aaf | aag | aax | aau | aaw
 
 
 arctl << (logical | temporal | atom)
