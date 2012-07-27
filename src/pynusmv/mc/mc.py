@@ -15,6 +15,20 @@ from ..dd.bdd import BDD
 from ..dd.state import State
 from ..dd.inputs import Inputs
 from ..dd.bddlist import BDDList
+from ..spec.spec import atom
+
+
+def eval_simple_expression(fsm, sexp):
+    """
+    Return a BDD representing the states of fsm satisfying sexp.
+    
+    fsm -- the FSM;
+    sexp -- a string representing a simple expression.
+    
+    Nothing checks whether sexp is really a simple expression.
+    """
+    return eval_ctl_spec(fsm, atom(sexp))
+    
 
 def eval_ctl_spec(fsm, spec, context=None):
     """
