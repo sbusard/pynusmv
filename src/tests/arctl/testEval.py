@@ -5,7 +5,7 @@ from pynusmv.init.init import init_nusmv, deinit_nusmv
 
 from tools.arctl.parsing import parseArctl
 from tools.arctl.ast import Atom
-from tools.arctl.eval import eval as evalArctl
+from tools.arctl.eval import evalArctl
 
 
 class TestEval(unittest.TestCase):

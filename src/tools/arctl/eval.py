@@ -9,70 +9,70 @@ from .ast import (Atom, Not, And, Or, Implies, Iff,
                   AaF, AaG, AaX, AaU, AaW,
                   EaF, EaG, EaX, EaU, EaW)
 
-def eval(fsm, spec):
+def evalArctl(fsm, spec):
     """Return a BDD representing the set of states of fsm satisfying spec."""
     
     if type(spec) is Atom:
         return eval_simple_expression(fsm, spec.value)
         
     elif type(spec) is Not:
-        return ~eval(fsm, spec.child)
+        return ~evalArctl(fsm, spec.child)
         
     elif type(spec) is And:
-        return eval(fsm, spec.left) & eval(fsm, spec.right)
+        return evalArctl(fsm, spec.left) & evalArctl(fsm, spec.right)
         
     elif type(spec) is Or:
-        return eval(fsm, spec.left) | eval(fsm, spec.right)
+        return evalArctl(fsm, spec.left) | evalArctl(fsm, spec.right)
         
     elif type(spec) is Implies:
-        return (~eval(fsm, spec.left)) | eval(fsm, spec.right)
+        return (~evalArctl(fsm, spec.left)) | evalArctl(fsm, spec.right)
         
     elif type(spec) is Iff:
-        l = eval(fsm, spec.left)
-        r = eval(fsm, spec.right)
+        l = evalArctl(fsm, spec.left)
+        r = evalArctl(fsm, spec.right)
         return (l & r) | ((~l) & (~r))
         
     elif type(spec) is AaF:
-        return aaf(fsm, eval(fsm, spec.action), eval(fsm, spec.child))
+        return aaf(fsm, evalArctl(fsm, spec.action), evalArctl(fsm, spec.child))
         
     elif type(spec) is AaG:
-        return aag(fsm, eval(fsm, spec.action), eval(fsm, spec.child))
+        return aag(fsm, evalArctl(fsm, spec.action), evalArctl(fsm, spec.child))
         
     elif type(spec) is AaX:
-        return aax(fsm, eval(fsm, spec.action), eval(fsm, spec.child))
+        return aax(fsm, evalArctl(fsm, spec.action), evalArctl(fsm, spec.child))
         
     elif type(spec) is AaU:
-        return aau(fsm, eval(fsm, spec.action),
-                   eval(fsm, spec.left),
-                   eval(fsm, spec.right))
+        return aau(fsm, evalArctl(fsm, spec.action),
+                   evalArctl(fsm, spec.left),
+                   evalArctl(fsm, spec.right))
         
     elif type(spec) is AaW:
-        return aaw(fsm, eval(fsm, spec.action),
-                   eval(fsm, spec.left),
-                   eval(fsm, spec.right))
+        return aaw(fsm, evalArctl(fsm, spec.action),
+                   evalArctl(fsm, spec.left),
+                   evalArctl(fsm, spec.right))
                    
     elif type(spec) is EaF:
-        return eaf(fsm, eval(fsm, spec.action), eval(fsm, spec.child))
+        return eaf(fsm, evalArctl(fsm, spec.action), evalArctl(fsm, spec.child))
         
     elif type(spec) is EaG:
-        return eag(fsm, eval(fsm, spec.action), eval(fsm, spec.child))
+        return eag(fsm, evalArctl(fsm, spec.action), evalArctl(fsm, spec.child))
         
     elif type(spec) is EaX:
-        return eax(fsm, eval(fsm, spec.action), eval(fsm, spec.child))
+        return eax(fsm, evalArctl(fsm, spec.action), evalArctl(fsm, spec.child))
         
     elif type(spec) is EaU:
-        return eau(fsm, eval(fsm, spec.action),
-                   eval(fsm, spec.left),
-                   eval(fsm, spec.right))
+        return eau(fsm, evalArctl(fsm, spec.action),
+                   evalArctl(fsm, spec.left),
+                   evalArctl(fsm, spec.right))
         
     elif type(spec) is EaW:
-        return eaw(fsm, eval(fsm, spec.action),
-                   eval(fsm, spec.left),
-                   eval(fsm, spec.right))
+        return eaw(fsm, evalArctl(fsm, spec.action),
+                   evalArctl(fsm, spec.left),
+                   evalArctl(fsm, spec.right))
                    
     else:
         # TODO Generate error
-        print("[ERROR] ARCTL eval: unrecognized specification type", spec)
+        print("[ERROR] ARCTL evalArctl: unrecognized specification type", spec)
         return None
         
         
