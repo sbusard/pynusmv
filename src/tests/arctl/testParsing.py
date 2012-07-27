@@ -2,7 +2,7 @@ import unittest
 
 from pyparsing import ParseException
 
-from tools.arctl.parsing import arctl
+from tools.arctl.parsing import parseArctl
 from tools.arctl.ast import (Atom, Not, And, Or, Implies, Iff, 
                              AaF, AaG, AaX, AaU, AaW,
                              EaF, EaG, EaX, EaU, EaW)
@@ -11,7 +11,7 @@ class TestParsing(unittest.TestCase):
     
     def test_atom(self):
         s = "'c <= 3'"
-        asts = arctl.parseString(s, parseAll = True)
+        asts = parseArctl(s)
         self.assertEqual(len(asts), 1)
         
         ast = asts[0]
@@ -26,12 +26,12 @@ class TestParsing(unittest.TestCase):
         
         for s in kos:
             with self.assertRaises(ParseException):
-                arctl.parseString(s, parseAll = True)
+                parseArctl(s)
                 
                 
     def test_and(self):
         s = "('a' & ('b' & 'c'))"
-        asts = arctl.parseString(s, parseAll = True)
+        asts = parseArctl(s)
         self.assertEqual(len(asts), 1)
         
         ast = asts[0]
@@ -47,7 +47,7 @@ class TestParsing(unittest.TestCase):
     
     def test_eauw(self):
         s = "E<'ac'>[A<'ac'>[E<'ac'>['b' W 'c'] W 'd'] U A<'ac'>['e' U 'f']]"
-        asts = arctl.parseString(s, parseAll = True)
+        asts = parseArctl(s)
         self.assertEqual(len(asts), 1)
         
         ast = asts[0]
@@ -64,7 +64,7 @@ class TestParsing(unittest.TestCase):
     def test_full(self):
         s = ("A<'past'>G (E<'true'>F 'future is now'"
              "<-> A<'min'>['past' U 'present'])")
-        asts = arctl.parseString(s, parseAll = True)
+        asts = parseArctl(s)
         self.assertEqual(len(asts), 1)
         
         ast = asts[0]
