@@ -23,7 +23,7 @@ def evalArctl_from_string(fsm, spec):
     """
     specs = parseArctl(spec)
     if len(specs) != 1:
-        raise ParseException()
+        raise ParseException("Multiple parsing results")
     return evalArctl(fsm, specs[0])
     
 

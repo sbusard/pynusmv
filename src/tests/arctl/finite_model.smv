@@ -1,0 +1,24 @@
+MODULE main
+
+	IVAR
+		a : boolean;
+	VAR
+		c : boolean;
+		i : boolean;
+	
+	INIT c & i
+	
+	TRANS next(i) =   !i
+		
+	TRANS
+		next(c) =	case
+						c & i :	case
+									a : FALSE;
+									!a : TRUE;
+								esac;
+						TRUE : FALSE;
+					esac
+	
+	TRANS a in {TRUE, FALSE}
+		
+	INVAR !(!c & i)

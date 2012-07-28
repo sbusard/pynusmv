@@ -19,15 +19,22 @@ class TestEval(unittest.TestCase):
         deinit_nusmv()
     
     
-    def init(self):
+    def init_model(self):
         fsm = BddFsm.from_filename("tests/arctl/model.smv")
         self.assertIsNotNone(fsm)
         return fsm
         
+    
+    def init_finite_model(self):
+        fsm = BddFsm.from_filename("tests/arctl/finite_model.smv")
+        self.assertIsNotNone(fsm)
+        return fsm
+        
+        
     # FIXME There is a segfault when deinit_nusmv is called
     # if bdd is not deleted
     def test_atom(self):
-        fsm = self.init()
+        fsm = self.init_model()
         
         specs = parseArctl("'c'")
         self.assertEqual(len(specs), 1)
@@ -42,7 +49,7 @@ class TestEval(unittest.TestCase):
         
         
     def test_not(self):
-        fsm = self.init()
+        fsm = self.init_model()
         
         specs = parseArctl("~'c'")
         self.assertEqual(len(specs), 1)
@@ -55,7 +62,7 @@ class TestEval(unittest.TestCase):
         
         
     def test_and(self):
-        fsm = self.init()
+        fsm = self.init_model()
         
         candi = evalStr(fsm, "('c' & 'i')")
         c = evalStr(fsm, "'c'")
@@ -66,7 +73,7 @@ class TestEval(unittest.TestCase):
         
         
     def test_or(self):
-        fsm = self.init()
+        fsm = self.init_model()
         
         cordi = evalStr(fsm, "('c' | 'i')")
         c = evalStr(fsm, "'c'")
@@ -77,7 +84,7 @@ class TestEval(unittest.TestCase):
         
         
     def test_implies(self):
-        fsm = self.init()
+        fsm = self.init_model()
         
         cimpli = evalStr(fsm, "('c' -> 'i')")
         c = evalStr(fsm, "'c'")
@@ -90,7 +97,7 @@ class TestEval(unittest.TestCase):
         
         
     def test_iff(self):
-        fsm = self.init()
+        fsm = self.init_model()
         
         ciffi = evalStr(fsm, "('c' <-> 'i')")
         c = evalStr(fsm, "'c'")
@@ -100,3 +107,27 @@ class TestEval(unittest.TestCase):
         self.assertEqual((c & i) | (~c & ~i), ciffi)
         
         del ciffi, c, i
+        
+        
+    def test_eax(self):
+        fsm = self.init_model()
+        
+        eaaxi = evalStr(fsm, "E<'a'>X 'i'")
+        self.assertTrue((fsm.init & eaaxi).is_false())
+        eaaxnc = evalStr(fsm, "E<'a'>X ~'c'")
+        c = evalStr(fsm, "'c'")
+        i = evalStr(fsm, "'i'")
+        self.assertTrue(eaaxnc.isnot_false())
+        self.assertEqual(eaaxnc, c.iff(i))
+        del eaaxi, eaaxnc, c, i
+        
+    
+    def test_neaxt(self):
+        fsm = self.init_finite_model()
+        
+        candi = evalStr(fsm, "('c' & ~'i')")
+        neaxt = evalStr(fsm, "~E<'a'>X 'TRUE'")
+        
+        self.assertTrue(candi <= neaxt)
+        
+        del candi, neaxt
