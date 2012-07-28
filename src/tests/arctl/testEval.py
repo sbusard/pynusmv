@@ -1,6 +1,7 @@
 import unittest
 
 from pynusmv.fsm.fsm import BddFsm
+from pynusmv.dd.bdd import BDD
 from pynusmv.init.init import init_nusmv, deinit_nusmv
 
 from tools.arctl.parsing import parseArctl
@@ -131,3 +132,70 @@ class TestEval(unittest.TestCase):
         self.assertTrue(candi <= neaxt)
         
         del candi, neaxt
+        
+        
+    def test_aax(self):
+        fsm = self.init_model()
+        aaxnc = evalStr(fsm, "A<'a'>X ~'c'")
+        c = evalStr(fsm, "'c'")
+        i = evalStr(fsm, "'i'")
+        self.assertEqual(aaxnc, c.iff(i))
+        
+        del aaxnc, c, i
+    
+      
+    def test_aax_finite(self):
+        fsm = self.init_finite_model()
+        aaxnc = evalStr(fsm, "A<'a'>X ~'c'")
+        c = evalStr(fsm, "'c'")
+        i = evalStr(fsm, "'i'")
+        self.assertEqual(fsm.init, aaxnc)
+        self.assertEqual(aaxnc, c & i)
+        
+        del aaxnc, c, i
+        
+    
+    def test_eaf(self):
+        fsm = self.init_model()
+        eafnc = evalStr(fsm, "E<'a'>F ~'c'")
+        c = evalStr(fsm, "'c'")
+        i = evalStr(fsm, "'i'")
+        self.assertEqual(eafnc, ~(c & ~i))
+        
+        del eafnc, c, i
+        
+        
+    def test_eaf_finite(self):
+        fsm = self.init_finite_model()
+        eafnc = evalStr(fsm, "E<'a'>F ~'c'")
+        c = evalStr(fsm, "'c'")
+        i = evalStr(fsm, "'i'")
+        self.assertTrue(c.iff(i) <= eafnc)
+        
+        del eafnc, c, i
+      
+  
+    # FIXME AaF fails
+    @unittest.skip
+    def test_aaf(self):
+        fsm = self.init_model()
+        aafni = evalStr(fsm, "A<'a'>F ~'i'")
+        c = evalStr(fsm, "'c'")
+        i = evalStr(fsm, "'i'")
+        true = BDD.true(fsm.bddEnc.DDmanager)
+        try:
+            self.assertEqual(aafni, true)
+        finally:
+            print('deleting')
+            del aafni, c, i, true
+            print('deleted')
+            
+    
+    # FIXME AaF fails
+    @unittest.skip    
+    def test_aaf_finite(self):
+        fsm = self.init_finite_model()
+        aafni = evalStr(fsm, "A<'a'>F ~'i'")
+        self.assertEqual(aafni, BDD.true(fsm.bddEnc.DDmanager))
+        
+        del aafni

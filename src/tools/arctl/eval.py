@@ -157,9 +157,18 @@ def eaf(fsm, alpha, phi):
     
 def aaf(fsm, alpha, phi):
     """aaf(a, p) = ~_eu(a, ~p, ~p & ~_ex(a, true)) & ~_eg(a, ~p)"""
-    return (~_eu(fsm, alpha, (~phi),
-                 (~phi) & (~_ex(fsm, alpha, BDD.true(fsm.bddEnc.DDmanager)))) &
-                  (~_eg(fsm, alpha, (~phi))))
+    true = BDD.true(fsm.bddEnc.DDmanager)
+    return (
+                ~_eu(fsm,
+                     alpha,
+                     (~phi),
+                     (~phi)
+                     &
+                     (~_ex(fsm, alpha, true))
+                    )
+                &
+                (~_eg(fsm, alpha, (~phi)))
+           )
     
     
 def eag(fsm, alpha, phi):
