@@ -26,3 +26,4 @@ MODULE main
                         
                         
 SPEC EF(admin = alice) -> AG(admin != none -> admin = alice)
+SPEC EF admin = alice & EF admin = bob

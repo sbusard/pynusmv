@@ -7,6 +7,7 @@ from pynusmv.nusmv.parser import parser
 from pynusmv.nusmv.node import node as nsnode
 
 from pynusmv.spec.spec import Spec
+from pynusmv.prop.propDb import PropDb
 
 class TestParser(unittest.TestCase):
     
@@ -30,4 +31,21 @@ class TestParser(unittest.TestCase):
         self.assertIsNotNone(node)
         node = Spec(node)
         self.assertIsNotNone(node)
+        
+        
+    def test_precedences(self):
+        ret = cmd.Cmd_SecureCommandExecute("read_model -i tests/admin.smv")
+        self.assertEqual(ret, 0)
+        ret = cmd.Cmd_SecureCommandExecute("go")
+        self.assertEqual(ret, 0)
+        
+        propDb = PropDb.get_global_database()
+        self.assertTrue(len(propDb) >= 2)
+        
+        prop = propDb[1]
+        spec = prop.exprcore.cdr # Ignoring NULL context
+        self.assertEqual(spec.type, parser.AND)
+        self.assertEqual(spec.car.type, parser.EF)
+        self.assertEqual(spec.cdr.type, parser.EF)
+        
         
