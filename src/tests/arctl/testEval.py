@@ -31,9 +31,7 @@ class TestEval(unittest.TestCase):
         self.assertIsNotNone(fsm)
         return fsm
         
-        
-    # FIXME There is a segfault when deinit_nusmv is called
-    # if bdd is not deleted
+
     def test_atom(self):
         fsm = self.init_model()
         
@@ -229,4 +227,32 @@ class TestEval(unittest.TestCase):
         fsm = self.init_finite_model()
         c, i = evalStr(fsm, "'c'"), evalStr(fsm, "'i'")
         aacuni = evalStr(fsm, "A<~'a'>['c'U~'i']")
+        self.assertEqual(aacuni, c | ~i)
+        
+        
+    def test_eaw(self):
+        fsm = self.init_model()
+        c, i = evalStr(fsm, "'c'"), evalStr(fsm, "'i'")
+        eacui = evalStr(fsm, "E<'a'>['c' W 'i']")
+        self.assertEqual(c | i, eacui)
+        
+        
+    def test_eaw_finite(self):
+        fsm = self.init_finite_model()
+        c, i = evalStr(fsm, "'c'"), evalStr(fsm, "'i'")
+        enacuni = evalStr(fsm, "E<~'a'>['c'W~'i']")
+        self.assertEqual(enacuni, c | ~i)
+        
+        
+    def test_aaw(self):
+        fsm = self.init_model()
+        c, i = evalStr(fsm, "'c'"), evalStr(fsm, "'i'")
+        aacuni = evalStr(fsm, "A<'a'>['c'W~'i']")
+        self.assertEqual(aacuni, c | ~i)
+        
+        
+    def test_aaw_finite(self):
+        fsm = self.init_finite_model()
+        c, i = evalStr(fsm, "'c'"), evalStr(fsm, "'i'")
+        aacuni = evalStr(fsm, "A<~'a'>['c'W~'i']")
         self.assertEqual(aacuni, c | ~i)

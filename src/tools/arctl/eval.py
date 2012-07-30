@@ -201,10 +201,12 @@ def aag(fsm, alpha, phi):
 
   
 def eaw(fsm, alpha, phi, psi):
-    """eaw(a, p, q) = ???"""
-    pass # TODO Find equivalence and apply accordingly
+    """eaw(a, p, q) = ~aau(a, ~q, ~p & ~q)"""
+    # TODO Discuss this equivalence with Charles
+    return ~aau(fsm, alpha, ~psi, (~phi) & (~psi))
     
     
-def aaw(fsm, alpha, phi, psi):
-    """aaw(a, p, q) = ???"""
-    pass # TODO Find equivalence and apply accordingly
+def aaw(fsm, alpha, phi, psi):    
+    # TODO Discuss this equivalence with Charles
+    """aaw(a, p, q) = ~eau(a, ~q, ~p & ~q)"""
+    return ~eau(fsm, alpha, ~psi, ~phi & ~psi)
