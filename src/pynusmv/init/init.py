@@ -8,7 +8,7 @@ deinit_nusmv must be called when everything is freed.
 This means that deinit_nusmv must be called in a context where there is no
 NuSMV wrapper object that would be freed after deinit_nusmv call.
 """
-
+import gc
 from ..nusmv.cinit import cinit
 
 def init_nusmv():
@@ -20,4 +20,6 @@ def init_nusmv():
 
 def deinit_nusmv():
     """Quit NuSMV."""
+    # Force garbage collection to be sure that all pointers are freed
+    gc.collect()
     cinit.NuSMVCore_quit()

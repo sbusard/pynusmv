@@ -5,6 +5,7 @@ from ..nusmv.cmd import cmd as nscmd
 from ..enc.enc import BddEnc
 from ..dd.bdd import BDD
 from ..dd.state import State
+from ..dd.inputs import Inputs
 from ..utils.pointerwrapper import PointerWrapper
 
 class BddFsm(PointerWrapper):
@@ -67,6 +68,12 @@ class BddFsm(PointerWrapper):
         """Return a BDD representing a state of bdd."""
         state = bddEnc.BddEnc_pick_one_state(self.bddEnc._ptr, bdd._ptr)
         return State(state, self, freeit = True)
+
+    
+    def pick_one_inputs(self, bdd):
+        """Return a BDD representing a possible inputs of bdd."""
+        inputs = bddEnc.BddEnc_pick_one_input(self.bddEnc._ptr, bdd._ptr)
+        return Inputs(inputs, self, freeit = True)
         
         
     # ==========================================================================

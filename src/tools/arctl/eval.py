@@ -102,12 +102,12 @@ def _fp(funct, start):
     νZ.f(Z) greatest fixpoint is implemented with _fp(funct, true).
     """
     
-    acc = start
-    frontier = funct(acc) - acc
-    while not frontier.is_false():
-        acc = acc + frontier
-        frontier = funct(acc) - acc
-    return acc
+    old = start
+    new = funct(start)
+    while old != new:
+        old = new
+        new = funct(old)
+    return old
     
     
 def _ex(fsm, alpha, phi):
@@ -144,10 +144,27 @@ def eau(fsm, alpha, phi, psi):
     
     
 def aau(fsm, alpha, phi, psi):
-    """aau(a, p, q) = ~_eu(a, ~q, ~q & ~_ex(a, true)) & ~_eg(a, ~q)"""
-    return ((~_eu(fsm, alpha, ~psi, (~psi) &
-           (~_ex(fsm, alpha, BDD.true(fsm.bddEnc.DDmanager))))) &
-           (~_eg(fsm, alpha, (~psi))))
+    """aau(a, p, q) = ~_eu(a, ~q, ~q & (~p | ~_ex(a, true))) & ~_eg(a, ~q)"""
+    return (
+                (
+                    ~_eu(
+                         fsm,
+                         alpha,
+                         ~psi, 
+                         (~psi)
+                         &
+                         (
+                            (~phi)
+                            | 
+                            (~_ex(fsm, alpha, BDD.true(fsm.bddEnc.DDmanager)))
+                         )
+                    )
+                )
+                &
+                (
+                    ~_eg(fsm, alpha, (~psi))
+                )
+           )
     
 
 def eaf(fsm, alpha, phi):
