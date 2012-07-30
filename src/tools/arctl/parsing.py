@@ -1,4 +1,4 @@
-from pyparsing import Suppress, SkipTo, Forward
+from pyparsing import Suppress, SkipTo, Forward, opAssoc, operatorPrecedence
 
 from .ast import (Atom, Not, And, Or, Implies, Iff, 
                   AaF, AaG, AaX, AaU, AaW,
@@ -21,44 +21,57 @@ _temporal    := 'A' '<' _action '>' 'F' _arctl |
                 'E' '<' _action '>' 'X' _arctl |
                 'E' '<' _action '>' '[' _arctl 'U' _arctl ']' |
                 'E' '<' _action '>' '[' _arctl 'W' _arctl']'
-_action      := _atom | '~' _action | '(' _action '&' _action ')' |
-                '(' _action '|' _action ')' | '(' _action '->' _action ')' \
-                '(' _action '<->' _action ')'
+_action      := _atom | '(' _action ')' | '~' _action | _action '&' _action |
+                _action '|' _action | _action '->' _action |
+                _action '<->' _action
                
 _atom is defined by any string surrounded by single quotes.
+
+_action is specified with usual precedences and associativity, i.e.
+prec : ~, &, |, ->, <->
+assoc : &, |, <-> left assoc, -> right assoc
 
 
 The parser returns a special structure embedding the structure of the parsed
 expression, represented using special classes defined in this module.
 """
 
+def _ast_(clss, tokens):
+    """
+    Parser tokens and return an AST.
+    
+    Given a list of tokens [v1, op, v2, op, ..., op, vn],
+    return res, a hierarchy of instances of clss such that
+    res = clss(clss(...clss(v1, v2), ..., vn).
+    
+    This is an helper function to parse logical operators.
+    """
+    if len(tokens) == 1:
+        return tokens[0]
+    else:
+        return clss(_ast_(clss, tokens[:-2]), tokens[-1])
+
 def parseArctl(spec):
     """Parse the spec and return its AST."""
     
     _arctl = Forward()
+
 
     _atom = "'" + SkipTo("'") + "'"
     _atom.setParseAction(lambda tokens: Atom(tokens[1]))
 
 
     _action = Forward()
-    
-    _notac = "~" + _action
-    _notac.setParseAction(lambda tokens: Not(tokens[1]))
-
-    _andac = "(" + _action + "&" + _action + ")"
-    _andac.setParseAction(lambda tokens: And(tokens[1], tokens[3]))
-
-    _orac = "(" + _action + "|" + _action + ")"
-    _orac.setParseAction(lambda tokens: Or(tokens[1], tokens[3]))
-
-    _impliesac = "(" + _action + "->" + _action + ")"
-    _impliesac.setParseAction(lambda tokens: Implies(tokens[1], tokens[3]))
-
-    _iffac = "(" + _action + "<->" + _action + ")"
-    _iffac.setParseAction(lambda tokens: Iff(tokens[1], tokens[3]))
-    
-    _action << (_notac | _andac | _orac | _impliesac | _iffac | _atom)
+    _acoperators = (
+        ("~", 1, opAssoc.RIGHT, lambda tokens: Not(tokens[0][1])),
+        ("&", 2, opAssoc.LEFT, lambda tokens: _ast_(And, tokens[0])),
+        ("|", 2, opAssoc.LEFT, lambda tokens: _ast_(Or, tokens[0])),
+        ("->", 2, opAssoc.RIGHT, lambda tokens: Implies(tokens[0][0], tokens[0][2])),
+        ("<->", 2, opAssoc.LEFT, lambda tokens: _ast_(And, tokens[0]))
+    )
+    _action << (Suppress("(") + _action + Suppress(")") |
+                operatorPrecedence(_atom, _acoperators) |
+                _atom)
 
 
     _not = "~" + _arctl
@@ -115,6 +128,7 @@ def parseArctl(spec):
 
     _temporal = (_eaf | _eag | _eax | _eau | _eaw |
                  _aaf | _aag | _aax | _aau | _aaw)
+
 
     _arctl << (_logical | _temporal | _atom)
     
