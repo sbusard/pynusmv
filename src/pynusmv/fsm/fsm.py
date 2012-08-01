@@ -75,6 +75,17 @@ class BddFsm(PointerWrapper):
         inputs = bddEnc.BddEnc_pick_one_input(self.bddEnc._ptr, bdd._ptr)
         return Inputs(inputs, self, freeit = True)
         
+    
+    def get_inputs_between_states(self, current, next):
+        """
+        Return the BDD representing the possible inputs
+        between current and next.
+        """
+        inputs = bddFsm.BddFsm_states_to_states_get_inputs(self._ptr,
+                                                           current._ptr,
+                                                           next._ptr)
+        return Inputs(inputs, self, freeit = True)
+        
         
     # ==========================================================================
     # ===== Static methods =====================================================
