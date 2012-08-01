@@ -113,8 +113,9 @@ def parseArctl(spec):
         
         _arctl = Forward()
 
-
-        formula = (atom | Suppress("(") + _arctl + Suppress(")"))
+        notatom = "~" + atom
+        notatom.setParseAction(lambda tokens: Not(tokens[1]))
+        formula = (atom | notatom | Suppress("(") + _arctl + Suppress(")"))
 
 
         temporal = Forward()

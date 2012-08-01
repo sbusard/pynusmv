@@ -27,7 +27,18 @@ class TestParsing(unittest.TestCase):
         for s in kos:
             with self.assertRaises(ParseException):
                 parseArctl(s)
-                
+    
+    
+    def test_not(self):
+        s = "~'a'"
+        asts = parseArctl(s)
+        self.assertEqual(len(asts), 1)
+        
+        ast = asts[0]
+        self.assertEqual(type(ast), Not)
+        self.assertEqual(type(ast.child), Atom)
+        self.assertEqual(ast.child.value, "a")
+        
     
     def test_and(self):
         s = "'a' & ('b' & 'c')"
@@ -56,6 +67,26 @@ class TestParsing(unittest.TestCase):
         self.assertEqual(ast.left.value, "a")
         self.assertEqual(type(ast.right), Atom)
         self.assertEqual(ast.right.value, "b")
+        
+        
+    def test_logicals(self):
+        s = "'a' & 'c' -> (~'b' | 'c')"
+        asts = parseArctl(s)
+        self.assertEqual(len(asts), 1)
+        
+        ast = asts[0]
+        self.assertEqual(type(ast), Implies)
+        self.assertEqual(type(ast.left), And)
+        self.assertEqual(type(ast.left.left), Atom)
+        self.assertEqual(ast.left.left.value, "a")
+        self.assertEqual(type(ast.left.right), Atom)
+        self.assertEqual(ast.left.right.value, "c")
+        self.assertEqual(type(ast.right), Or)
+        self.assertEqual(type(ast.right.left), Not)
+        self.assertEqual(type(ast.right.left.child), Atom)
+        self.assertEqual(ast.right.left.child.value, "b")
+        self.assertEqual(type(ast.right.right), Atom)
+        self.assertEqual(ast.right.right.value, "c")
         
     
     def test_actions(self):
@@ -101,6 +132,15 @@ class TestParsing(unittest.TestCase):
         self.assertEqual(ast.child.right.child.action.value, "g")
         self.assertEqual(type(ast.child.right.child.child), Atom)
         self.assertEqual(ast.child.right.child.child.value, "h")
+        
+        
+    def test_not_eax(self):
+        s = "E<'a'>X ~ 'c'"
+        asts = parseArctl(s)
+        self.assertEqual(len(asts), 1)
+        
+        ast = asts[0]
+        self.assertEqual(type(ast), EaX)
         
     
     def test_eauw(self):
