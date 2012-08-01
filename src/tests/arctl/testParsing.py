@@ -18,7 +18,7 @@ class TestParsing(unittest.TestCase):
         self.assertEqual(type(ast), Atom)
         self.assertEqual(ast.value, "c <= 3")
         
-    @unittest.skip    
+    
     def test_fail(self):
         kos = ["", "'test", "A<'test'>H 'q'", "O", "A<'a'>E<'e'>G 'true'",
                "E<'ac'>[A<'ac'>['a' E<'ac'>['b' W 'c'] W 'd'] "
@@ -30,7 +30,7 @@ class TestParsing(unittest.TestCase):
                 
     
     def test_and(self):
-        s = "('a' & ('b' & 'c'))"
+        s = "'a' & ('b' & 'c')"
         asts = parseArctl(s)
         self.assertEqual(len(asts), 1)
         
@@ -46,7 +46,7 @@ class TestParsing(unittest.TestCase):
         
     
     def test_implies(self):
-        s = "('a' -> 'b')"
+        s = "'a' -> 'b'"
         asts = parseArctl(s)
         self.assertEqual(len(asts), 1)
         
@@ -77,6 +77,31 @@ class TestParsing(unittest.TestCase):
         self.assertEqual(type(ast.child), Atom)
         self.assertEqual(ast.child.value, "b")
         
+        
+    def test_x(self):
+        s = "E<'a'>X (A<'b'> X 'c' & E<'f'>X E<'g'>X 'h')"
+        asts = parseArctl(s)
+        self.assertEqual(len(asts), 1)
+        
+        ast = asts[0]
+        self.assertEqual(type(ast), EaX)
+        self.assertEqual(type(ast.action), Atom)
+        self.assertEqual(ast.action.value, "a")
+        self.assertEqual(type(ast.child), And)
+        self.assertEqual(type(ast.child.left), AaX)
+        self.assertEqual(type(ast.child.left.action), Atom)
+        self.assertEqual(ast.child.left.action.value, "b")
+        self.assertEqual(type(ast.child.left.child), Atom)
+        self.assertEqual(ast.child.left.child.value, "c")
+        self.assertEqual(type(ast.child.right), EaX)
+        self.assertEqual(type(ast.child.right.action), Atom)
+        self.assertEqual(ast.child.right.action.value, "f")
+        self.assertEqual(type(ast.child.right.child), EaX)
+        self.assertEqual(type(ast.child.right.child.action), Atom)
+        self.assertEqual(ast.child.right.child.action.value, "g")
+        self.assertEqual(type(ast.child.right.child.child), Atom)
+        self.assertEqual(ast.child.right.child.child.value, "h")
+        
     
     def test_eauw(self):
         s = "E<'ac'>[A<'ac'>[E<'ac'>['b' W 'c'] W 'd'] U A<'ac'>['e' U 'f']]"
@@ -93,7 +118,7 @@ class TestParsing(unittest.TestCase):
         self.assertEqual(type(ast.left.right), Atom)
         self.assertEqual(ast.left.right.value, "d")
     
-    @unittest.skip
+    
     def test_full(self):
         s = ("A<'past'>G (E<'true'>F 'future is now'"
              "<-> A<'min'>['past' U 'present'])")
@@ -111,3 +136,37 @@ class TestParsing(unittest.TestCase):
         self.assertEqual(type(ast.child.left.child), Atom)
         self.assertEqual(ast.child.left.child.value, "future is now")
         self.assertEqual(type(ast.child.right), AaU)
+      
+        
+    def test_full2(self):
+        s = ("A<'past' | 'present'>G (E<'true'>F ('future is now' & 'later')"
+             "<-> A<'min'>['past' U 'present' -> 'future'])")
+        asts = parseArctl(s)
+        self.assertEqual(len(asts), 1)
+        
+        ast = asts[0]
+        self.assertEqual(type(ast), AaG)
+        self.assertEqual(type(ast.action), Or)
+        self.assertEqual(type(ast.action.left), Atom)
+        self.assertEqual(ast.action.left.value, "past")
+        self.assertEqual(type(ast.action.right), Atom)
+        self.assertEqual(ast.action.right.value, "present")
+        self.assertEqual(type(ast.child), Iff)
+        self.assertEqual(type(ast.child.left), EaF)
+        self.assertEqual(type(ast.child.left.action), Atom)
+        self.assertEqual(ast.child.left.action.value, "true")
+        self.assertEqual(type(ast.child.left.child), And)
+        self.assertEqual(type(ast.child.left.child.left), Atom)
+        self.assertEqual(ast.child.left.child.left.value, "future is now")
+        self.assertEqual(type(ast.child.left.child.right), Atom)
+        self.assertEqual(ast.child.left.child.right.value, "later")
+        self.assertEqual(type(ast.child.right), AaU)
+        self.assertEqual(type(ast.child.right.action), Atom)
+        self.assertEqual(ast.child.right.action.value, "min")
+        self.assertEqual(type(ast.child.right.left), Atom)
+        self.assertEqual(ast.child.right.left.value, "past")
+        self.assertEqual(type(ast.child.right.right), Implies)
+        self.assertEqual(type(ast.child.right.right.left), Atom)
+        self.assertEqual(ast.child.right.right.left.value, "present")
+        self.assertEqual(type(ast.child.right.right.right), Atom)
+        self.assertEqual(ast.child.right.right.right.value, "future")
