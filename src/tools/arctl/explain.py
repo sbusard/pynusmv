@@ -65,7 +65,7 @@ def explain_witness(fsm, state, spec):
                        
     elif type(spec) is EaG:
         return explain_eag(fsm, state, evalArctl(fsm, spec.action),
-                           evalArctl(fsm.spec.child))
+                           evalArctl(fsm, spec.child))
                        
     elif type(spec) is EaX:
         path = explain_eax(fsm, state, evalArctl(fsm, spec.action),
