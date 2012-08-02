@@ -3,7 +3,183 @@ ARCTL explain functions.
 """
 
 from pynusmv.dd.bdd import BDD
-from .eval import _ex, eag, _eu, eau, eax
+from .eval import _ex, eag, _eu, eau, eax, evalArctl
+from .ast import (Atom, Not, And, Or, Implies, Iff,
+                  AaF, AaG, AaX, AaU, AaW, EaF, EaG, EaX, EaU, EaW)
+
+def explainArctl(fsm, state, spec):
+    """
+    Explain why state of fsm satisfies spec.
+    
+    Return a single path explaining (maybe partially) why state of fsm satisfies
+    spec. The returned structure is a tuple ((s0, i1, s1, ..., sn), (in, loop))
+    where (s0, ..., sn) is a path of fsm explaining spec, and (in, loop)
+    represents a possible loop of this path. If the path is finite, (in, loop)
+    is (None, None).
+    """
+    return explain_witness(fsm, state, spec)
+    
+    
+def explain_witness(fsm, state, spec):
+    """
+    Explain why state of fsm satisfies spec.
+    
+    Return a single path explaining (maybe partially) why state of fsm satisfies
+    spec. The returned structure is a tuple ((s0, i1, s1, ..., sn), (in, loop))
+    where (s0, ..., sn) is a path of fsm explaining spec, and (in, loop)
+    represents a possible loop of this path. If the path is finite, (in, loop)
+    is (None, None).
+    """
+    
+    if type(spec) is Atom:
+        # state is its own explanation
+        return ([state], (None, None))
+        
+    elif type(spec) is Not:
+        return explain_countex(fsm, state, spec.child)
+        
+    elif type(spec) is And:
+        # Do not branch. Choose left child
+        return explain_witness(fsm, state, spec.left)
+        
+    elif type(spec) is Or:
+        # If state satisfies spec.left, explain it
+        # otherwise, state satisfies spec.right, so explain it
+        specbdd = evalArctl(fsm, spec.left)
+        if state <= specbdd:
+            return explain_witness(fsm, state, spec.left)
+        else:
+            return explain_witness(fsm, state, spec.right)
+        
+    elif type(spec) is Implies:
+        # a -> b is ~a | b
+        return explain_witness(fsm, state, Or(Not(spec.left), spec.right))
+        
+    elif type(spec) is Iff:
+        # a <-> b is (a & b) | (~a & ~b)
+        return explain_witness(
+                fsm, state,
+                Or(And(spec.left, spec.right),
+                   And(Not(spec.left), Not(spec.right)))
+               )
+        
+    elif type(spec) in {Aaf, AaG, AaX, AaU, AaW}:
+        # Cannot explain with a single path
+        return([state], (None, None))
+                       
+    elif type(spec) is Eaf:
+        path = explain_eau(fsm, state, evalArctl(fsm, spec.action),
+                           BDD.true(fsm.bddEnc.DDmanager),
+                           evalArctl(fsm, spec.child))
+                           
+        (npath, loops) = explain_witness(fsm, path[-1], spec.child)
+        return (path + npath[1:], loops)
+                       
+    elif type(spec) is EaG:
+        return explain_eag(fsm, state, evalArctl(fsm, spec.action),
+                           evalArctl(fsm.spec.child))
+                       
+    elif type(spec) is EaX:
+        path = explain_eax(fsm, state, evalArctl(fsm, spec.action),
+                           evalArctl(spec.child))
+        (npath, loops) = explain_witness(fsm, path[-1], spec.child)
+        return (path + npath[1:], loops)
+                       
+    elif type(spec) is EaU:
+        path = explain_eau(fsm, state, evalArctl(fsm, spec.action),
+                           evalArctl(fsm, spec.left),
+                           evalArctl(fsm, spec.right))
+                           
+        (npath, loops) = explain_witness(fsm, path[-1], spec.child)
+        return (path + npath[1:], loops)
+                       
+    elif type(spec) is EaW:
+        # eaw(a, p, q) = ~aau(a, ~q, ~p & ~q)
+        return explain_countex(fsm, state,
+                                AaU(spec.action, Not(spec.right),
+                                    And(Not(spec.left), Not(spec.right))))
+        
+    else:
+        # TODO Generate error
+        print("[ERROR] ARCTL explain_witness: unrecognized specification type",
+              spec)
+        return None
+        
+        
+def explain_countex(fsm, state, spec):
+    """
+    Explain why state of fsm violates spec.
+    
+    Return a single path explaining (maybe partially) why state of fsm violates
+    spec. The returned structure is a tuple ((s0, i1, s1, ..., sn), (in, loop))
+    where (s0, ..., sn) is a path of fsm explaining spec, and (in, loop)
+    represents a possible loop of this path. If the path is finite, (in, loop)
+    is (None, None).
+    """
+    
+    if type(spec) is Atom:
+        # state is its own explanation
+        return ([state], (None, None))
+        
+    elif type(spec) is Not:
+        return explain_witness(fsm, state, spec.child)
+        
+    elif type(spec) is And:
+        # ~(a & b) = ~a | ~b
+        return explain_witness(fsm, state, Or(Not(spec.left), Not(spec.right)))
+        
+    elif type(spec) is Or:
+        # ~(a | b) = ~a & ~b
+        return explain_witness(fsm, state, And(Not(spec.left), Not(spec.right)))
+        
+    elif type(spec) is Implies:
+        # ~(a -> b) = a & ~b
+        return explain_witness(fsm, state, And(spec.left, Not(spec.right)))
+        
+    elif type(spec) is Iff:
+        # ~(a <-> b) = (a & ~b) | (~a & b)
+        return explain_witness(fsm, state,
+                               Or(And(spec.left, Not(spec.right)),
+                                  And(Not(spec.left), spec.right)))
+        
+    elif type(spec) is Aaf:
+        # ~aaf(a, p) = _eu(a, ~p, ~p & ~_ex(a, true)) | _eg(a, ~p) = eag(a, ~p)
+        return explain_witness(fsm, state, EaG(spec.action, Not(spec.child)))
+        
+    elif type(spec) is AaG:
+        return explain_witness(fsm, state, EaF(spec.action, Not(spec.child)))
+        
+    elif type(spec) is AaX:
+        # A<a>X f is false because E<a>X ~f is true or E<a>X true is false
+        eaxnf = evalArctl(fsm, EaX(spec.action, Not(spec.child)))
+        if state <= eaxnf:
+            return explain_witness(fsm, state,
+                                   EaX(spec.action, Not(spec.child)))
+        else:
+            return ([state], (None, None))
+        
+    elif type(spec) is AaU:
+        return explain_witness(fsm, state,
+                               EaW(spec.action,
+                                   Not(spec.left),
+                                   And(Not(spec.left), Not(spec.right))))
+        
+    elif type(spec) is AaW:
+        return explain_witness(fsm, state,
+                               EaU(spec.action,
+                                   Not(spec.left),
+                                   And(Not(spec.left), Not(spec.right))))
+                     
+    elif type(spec) in {Eaf, EaG, EaX, EaU, EaW}:
+        # Cannot explain
+        return ([state], (None, None))
+        
+    else:
+        # TODO Generate error
+        print("[ERROR] ARCTL explain_countex: unrecognized specification type",
+              spec)
+        return None
+
 
 def explain_eax(fsm, state, alpha, phi):
     """
