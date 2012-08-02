@@ -6,18 +6,6 @@ from pynusmv.dd.bdd import BDD
 from .eval import _ex, eag, _eu, eau, eax, evalArctl
 from .ast import (Atom, Not, And, Or, Implies, Iff,
                   AaF, AaG, AaX, AaU, AaW, EaF, EaG, EaX, EaU, EaW)
-
-def explainArctl(fsm, state, spec):
-    """
-    Explain why state of fsm satisfies spec.
-    
-    Return a single path explaining (maybe partially) why state of fsm satisfies
-    spec. The returned structure is a tuple ((s0, i1, s1, ..., sn), (in, loop))
-    where (s0, ..., sn) is a path of fsm explaining spec, and (in, loop)
-    represents a possible loop of this path. If the path is finite, (in, loop)
-    is (None, None).
-    """
-    return explain_witness(fsm, state, spec)
     
     
 def explain_witness(fsm, state, spec):
@@ -33,7 +21,7 @@ def explain_witness(fsm, state, spec):
     
     if type(spec) is Atom:
         # state is its own explanation
-        return ([state], (None, None))
+        return ((state,), (None, None))
         
     elif type(spec) is Not:
         return explain_countex(fsm, state, spec.child)
@@ -63,11 +51,11 @@ def explain_witness(fsm, state, spec):
                    And(Not(spec.left), Not(spec.right)))
                )
         
-    elif type(spec) in {Aaf, AaG, AaX, AaU, AaW}:
+    elif type(spec) in {AaF, AaG, AaX, AaU, AaW}:
         # Cannot explain with a single path
-        return([state], (None, None))
+        return((state,), (None, None))
                        
-    elif type(spec) is Eaf:
+    elif type(spec) is EaF:
         path = explain_eau(fsm, state, evalArctl(fsm, spec.action),
                            BDD.true(fsm.bddEnc.DDmanager),
                            evalArctl(fsm, spec.child))
@@ -81,7 +69,7 @@ def explain_witness(fsm, state, spec):
                        
     elif type(spec) is EaX:
         path = explain_eax(fsm, state, evalArctl(fsm, spec.action),
-                           evalArctl(spec.child))
+                           evalArctl(fsm, spec.child))
         (npath, loops) = explain_witness(fsm, path[-1], spec.child)
         return (path + npath[1:], loops)
                        
@@ -119,7 +107,7 @@ def explain_countex(fsm, state, spec):
     
     if type(spec) is Atom:
         # state is its own explanation
-        return ([state], (None, None))
+        return ((state,), (None, None))
         
     elif type(spec) is Not:
         return explain_witness(fsm, state, spec.child)
@@ -142,7 +130,7 @@ def explain_countex(fsm, state, spec):
                                Or(And(spec.left, Not(spec.right)),
                                   And(Not(spec.left), spec.right)))
         
-    elif type(spec) is Aaf:
+    elif type(spec) is AaF:
         # ~aaf(a, p) = _eu(a, ~p, ~p & ~_ex(a, true)) | _eg(a, ~p) = eag(a, ~p)
         return explain_witness(fsm, state, EaG(spec.action, Not(spec.child)))
         
@@ -156,7 +144,7 @@ def explain_countex(fsm, state, spec):
             return explain_witness(fsm, state,
                                    EaX(spec.action, Not(spec.child)))
         else:
-            return ([state], (None, None))
+            return ((state,), (None, None))
         
     elif type(spec) is AaU:
         return explain_witness(fsm, state,
@@ -170,9 +158,9 @@ def explain_countex(fsm, state, spec):
                                    Not(spec.left),
                                    And(Not(spec.left), Not(spec.right))))
                      
-    elif type(spec) in {Eaf, EaG, EaX, EaU, EaW}:
+    elif type(spec) in {EaF, EaG, EaX, EaU, EaW}:
         # Cannot explain
-        return ([state], (None, None))
+        return ((state,), (None, None))
         
     else:
         # TODO Generate error
@@ -249,7 +237,7 @@ def explain_eag(fsm, state, alpha, phi):
         allstates = eag(fsm, alpha, phi)
     
         # Start path at s
-        path = [state]
+        path = (state,)
         # While path[-1] cannot reach itself through states of eag,
         while (path[-1] &
                eax(fsm,

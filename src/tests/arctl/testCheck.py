@@ -27,40 +27,40 @@ class TestCheck(unittest.TestCase):
         self.assertTrue(checkArctl(fsm, spec))
         
         spec = parseArctl("'c2.c = 1'")[0]
-        self.assertFalse(checkArctl(fsm, spec))
+        self.assertFalse(checkArctl(fsm, spec)[0])
         
         
     def test_eax(self):
         fsm = self.init_model()
         
         spec = parseArctl("E<'run = rc1'>X 'c1.c = 1'")[0]
-        self.assertTrue(checkArctl(fsm, spec))
+        self.assertTrue(checkArctl(fsm, spec)[0])
         
         spec = parseArctl("E<'run = rc2'>X 'c1.c = 1'")[0]
-        self.assertFalse(checkArctl(fsm, spec))
+        self.assertFalse(checkArctl(fsm, spec)[0])
         
         spec = parseArctl("E<~'run = rc1'>X 'c1.c = 1'")[0]
-        self.assertFalse(checkArctl(fsm, spec))
+        self.assertFalse(checkArctl(fsm, spec)[0])
         
         
     def test_aax(self):
         fsm = self.init_model()
         
         spec = parseArctl("A<'run = rc1'>X 'c1.c = 1'")[0]
-        self.assertTrue(checkArctl(fsm, spec))
+        self.assertTrue(checkArctl(fsm, spec)[0])
         
         spec = parseArctl("A<'run = rc1'>X 'c2.c = 1'")[0]
-        self.assertFalse(checkArctl(fsm, spec))
+        self.assertFalse(checkArctl(fsm, spec)[0])
         
         
     def test_x(self):
         fsm = self.init_model()
         
         spec = parseArctl("E<'FALSE'>X 'TRUE'")[0]
-        self.assertFalse(checkArctl(fsm, spec))
+        self.assertFalse(checkArctl(fsm, spec)[0])
         
         spec = parseArctl("A<'FALSE'>X 'TRUE'")[0]
-        self.assertFalse(checkArctl(fsm, spec))
+        self.assertFalse(checkArctl(fsm, spec)[0])
         
         spec = parseArctl("~E<'FALSE'>X 'TRUE'")[0]
-        self.assertTrue(checkArctl(fsm, spec))
+        self.assertTrue(checkArctl(fsm, spec)[0])

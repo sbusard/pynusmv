@@ -6,7 +6,7 @@ from pynusmv.init.init import init_nusmv, deinit_nusmv
 from tools.arctl.parsing import parseArctl
 from tools.arctl.eval import evalArctl, evalArctl_from_string as evalStr
 from tools.arctl.explain import (explain_eax, explain_eau, explain_eag,
-                                 explainArctl)
+                                 explain_witness)
 
 
 class TestExplain(unittest.TestCase):
@@ -121,13 +121,13 @@ class TestExplain(unittest.TestCase):
         s = fsm.pick_one_state(specbdd & fsm.init)
         self.assertTrue(s.isnot_false())
         
-        (path, (inp, loop)) = explainArctl(fsm, s, spec)
+        (path, (inp, loop)) = explain_witness(fsm, s, spec)
         # Check that no loop
         self.assertIsNone(inp)
         self.assertIsNone(loop)
         
         # Check path
-        self.assertEqual(path, [s])
+        self.assertEqual(path, (s,))
         
         
     def test_explain_and_atom(self):
@@ -140,11 +140,11 @@ class TestExplain(unittest.TestCase):
         s = fsm.pick_one_state(specbdd & fsm.init)
         self.assertTrue(s.isnot_false())
         
-        (path, (inp, loop)) = explainArctl(fsm, s, spec)
+        (path, (inp, loop)) = explain_witness(fsm, s, spec)
         # Check that no loop
         self.assertIsNone(inp)
         self.assertIsNone(loop)
         
         # Check path
-        self.assertEqual(path, [s])
+        self.assertEqual(path, (s,))
         
