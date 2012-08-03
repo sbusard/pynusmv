@@ -34,7 +34,8 @@ def deinit_nusmv():
         raise NuSMVInitError("Cannot deinitialize NuSMV before initialization.")
     else:
         for elem in __collector:
-            elem._free()
+            if elem() is not None:
+                elem()._free()
         __collector = None
         cinit.NuSMVCore_quit()
     
@@ -51,7 +52,7 @@ def register_wrapper(wrapper):
     if __collector is None:
         raise NuSMVInitError("Cannot register before initializing NuSMV.")
     else:
-        __collector.append(wrapper)
+        __collector.append(weakref.ref(wrapper))
     
     
 class NuSMVInitError(Exception):
