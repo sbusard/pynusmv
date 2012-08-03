@@ -114,7 +114,7 @@ def explain_countex(fsm, state, spec):
                                    EaX(spec.action, Not(spec.child)))
         else:
             return Tlacenode(state, None, None,
-                             (EaX(spec.action, Not(spec.child)),))
+                             (Not(EaX(spec.action, Atom('TRUE'))),))
         
     elif type(spec) is AaU:
         return explain_witness(fsm, state,
@@ -137,13 +137,14 @@ def explain_countex(fsm, state, spec):
                                AaF(spec.action, Not(spec.child)))
         
     elif type(spec) is EaX:
+        # E<a>X f is false because A<a>X ~f is true or E<a>X true is false
         eaxnf = evalArctl(fsm, AaX(spec.action, Not(spec.child)))
         if state <= eaxnf:
             return explain_witness(fsm, state,
                                    AaX(spec.action, Not(spec.child)))
         else:
             return Tlacenode(state, None, None,
-                             (EaX(spec.action, Not(spec.child)),))
+                             (Not(EaX(spec.action, Atom('TRUE'))),))
         
     elif type(spec) is EaU:
         return explain_witness(fsm, state,
@@ -189,17 +190,32 @@ def explain_branch(fsm, state, spec, originalspec):
 
         branch = []
         # intermediate states
+        loop = None
         for s, i in zip(path[::2], path[1::2]):
             wit = explain_witness(fsm, s, spec.child)
             branch.append(wit)
             branch.append(i)
             # manage the loop
-            if s == loopstate:
+            if loopstate is not None and loopstate == s:
                 loop = wit
+                
         # last state
-        branch.append(explain_witness(fsm, path[-1], spec.child))
-
-        return Tlacebranch(originalspec, tuple(branch), (inloop, loop))
+        # if loopstate is None, this means that the explanation is a full
+        # finite path. We have to explain why this state satisfies ~E<a>X TRUE
+        lastnode = explain_witness(fsm, path[-1], spec.child)
+        if loopstate is None:
+            # Add annotation to show that ~E<a>X TRUE is true
+            lastnode = Tlacenode(lastnode.state,
+                                 lastnode.atomics,
+                                 lastnode.branches,
+                                 lastnode.universals +
+                                 (Not(EaX(spec.action, Atom('TRUE'))),)
+                                )
+        branch.append(lastnode)
+        
+        finalloop = loop and (inloop, loop) or None
+        
+        return Tlacebranch(originalspec, tuple(branch), finalloop)
 
     elif type(spec) is EaU:
         alpha = evalArctl(fsm, spec.action)

@@ -229,7 +229,7 @@ def explain_eag(fsm, state, alpha, phi):
     # If state satisfies _eu(a, p, p & ~_ex(a, true)),
     # use explain_eau to extract such a path
     if state <= euppaext:
-        return (explain_eau(fsm, alpha, phi, paext), (None, None))
+        return (explain_eau(fsm, state, alpha, phi, paext), (None, None))
     
     # Otherwise,
     else:    
