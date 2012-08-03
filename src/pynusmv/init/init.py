@@ -23,3 +23,9 @@ def deinit_nusmv():
     # Force garbage collection to be sure that all pointers are freed
     gc.collect()
     cinit.NuSMVCore_quit()
+    
+    
+def reset_nusmv():
+    """Reset NuSMV."""
+    deinit_nusmv()
+    init_nusmv()
