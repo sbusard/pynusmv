@@ -4,6 +4,7 @@ from ..eval import evalArctl
 from ..ast import (Atom, Not, And, Or, Implies, Iff,
                    AaF, AaG, AaX, AaU, AaW, EaF, EaG, EaX, EaU, EaW)
 from .tlace import (Tlacenode, Tlacebranch)
+from ..explain import explain_eax, explain_eag, explain_eau
 
 def explain_witness(fsm, state, spec):
     """
@@ -55,9 +56,8 @@ def explain_witness(fsm, state, spec):
         return Tlacenode(state, None, None, (spec,))
                        
     elif type(spec) in {EaF, EaG, EaX, EaU, EaW}:
-        return Tlacenode(state, None,
-                         (explain_branch(fsm, state, spec),),
-                         None)
+        branch = explain_branch(fsm, state, spec)
+        return Tlacenode(state, None, (branch,), None)
         
     else:
         # TODO Generate error
@@ -119,13 +119,13 @@ def explain_countex(fsm, state, spec):
     elif type(spec) is AaU:
         return explain_witness(fsm, state,
                                EaW(spec.action,
-                                   Not(spec.left),
+                                   Not(spec.right),
                                    And(Not(spec.left), Not(spec.right))))
         
     elif type(spec) is AaW:
         return explain_witness(fsm, state,
                                EaU(spec.action,
-                                   Not(spec.left),
+                                   Not(spec.right),
                                    And(Not(spec.left), Not(spec.right))))
                      
     elif type(spec) is EaF:
@@ -164,69 +164,69 @@ def explain_countex(fsm, state, spec):
         return None
         
         
-    def witness_branch(fsm, state, spec):
-        """
-        Return a TLACE branch explaining why state of fsm satisfies spec.
-        """
-        if type(spec) is EaX:
-            alpha = evalArctl(spec.action)
-            phi = evalArctl(spec.child)
-            path = explain_eax(fsm, state, alpha, phi)
-            branch = (Tlacenode(path[0]),
-                      path[1],
-                      explain_witness(fsm, path[2], spec.child))
-            return Tlacebranch(spec, branch)
+def explain_branch(fsm, state, spec):
+    """
+    Return a TLACE branch explaining why state of fsm satisfies spec.
+    """
+    if type(spec) is EaX:
+        alpha = evalArctl(fsm, spec.action)
+        phi = evalArctl(fsm, spec.child)
+        path = explain_eax(fsm, state, alpha, phi)
+        branch = (Tlacenode(path[0]),
+                  path[1],
+                  explain_witness(fsm, path[2], spec.child))
+        return Tlacebranch(spec, branch)
 
-        elif type(spec) is EaF:
-            newspec = EaU(Atom('TRUE'), spec.car)
-            return witness_branch(fsm, state, newspec)
+    elif type(spec) is EaF:
+        return explain_branch(fsm, state, EaU(spec.action,
+                                              Atom('TRUE'), spec.child))
 
-        elif type(spec) is EaG:
-            alpha = evalArctl(fsm, spec.action)
-            phi = evalArctl(fsm, spec.child)
-            (path, (inloop, loopstate)) = explain_eag(fsm, state, alpha, phi)
+    elif type(spec) is EaG:
+        alpha = evalArctl(fsm, spec.action)
+        phi = evalArctl(fsm, spec.child)
+        (path, (inloop, loopstate)) = explain_eag(fsm, state, alpha, phi)
 
-            branch = []
-            # intermediate states
-            for s, i in zip(path[::2], path[1::2]):
-                wit = explain_witness(fsm, s, spec.car, context)
-                branch.append(wit)
-                branch.append(i)
-                # manage the loop
-                if s == loopstate:
-                    loop = wit
-            # last state
-            branch.append(explain_witness(fsm, path[-1], spec.child))
+        branch = []
+        # intermediate states
+        for s, i in zip(path[::2], path[1::2]):
+            wit = explain_witness(fsm, s, spec.child)
+            branch.append(wit)
+            branch.append(i)
+            # manage the loop
+            if s == loopstate:
+                loop = wit
+        # last state
+        branch.append(explain_witness(fsm, path[-1], spec.child))
 
-            return Tlacebranch(spec, tuple(branch), (inloop, loop))
+        return Tlacebranch(spec, tuple(branch), (inloop, loop))
 
-        elif type(spec) is EaU:
-            alpha = evalArctl(fsm, spec.action)
-            phi = evalArctl(fsm, spec.left)
-            psi = evalArctl(fsm, spec.right)
-            path = explain_eau(fsm, state, alpha, phi, psi)
+    elif type(spec) is EaU:
+        alpha = evalArctl(fsm, spec.action)
+        phi = evalArctl(fsm, spec.left)
+        psi = evalArctl(fsm, spec.right)
+        path = explain_eau(fsm, state, alpha, phi, psi)
 
-            branch = []
-            # intermediate states
-            for s, i in zip(path[::2], path[1::2]):
-                branch.append(explain_witness(fsm, s, spec.left))
-                branch.append(i)
-            # last state
-            branch.append(explain_witness(fsm, path[-1], spec.right))
+        branch = []
+        # intermediate states
+        for s, i in zip(path[::2], path[1::2]):
+            branch.append(explain_witness(fsm, s, spec.left))
+            branch.append(i)
+        # last state
+        branch.append(explain_witness(fsm, path[-1], spec.right))
 
-            return Tlacebranch(spec, tuple(branch))
+        return Tlacebranch(spec, tuple(branch))
 
-        elif type(spec) is EaW:
-            eauspec = EaU(spec.action, spec.left, spec.right)
-            eagspec = EaG(spec.action, spec.left)
-            if state <= evalArctl(fsm, eauspec):
-                return witness_branch(fsm, state, eauspec)
-            else:
-                return witness_branch(fsm, state, eagspec)
-
+    elif type(spec) is EaW:
+        eauspec = EaU(spec.action, spec.left, spec.right)
+        eagspec = EaG(spec.action, spec.left)
+        if state <= evalArctl(fsm, eauspec):
+            return explain_branch(fsm, state, eauspec)
         else:
-            # TODO Generate error
-            print("[ERROR] ARCTL explain_branch:",
-                  "unrecognized specification type",
-                  spec)
-            return None
+            return explain_branch(fsm, state, eagspec)
+
+    else:
+        # TODO Generate error
+        print("[ERROR] ARCTL explain_branch:",
+              "unrecognized specification type",
+              spec)
+        return None
