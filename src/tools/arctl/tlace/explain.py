@@ -56,7 +56,7 @@ def explain_witness(fsm, state, spec):
         return Tlacenode(state, None, None, (spec,))
                        
     elif type(spec) in {EaF, EaG, EaX, EaU, EaW}:
-        branch = explain_branch(fsm, state, spec)
+        branch = explain_branch(fsm, state, spec, spec)
         return Tlacenode(state, None, (branch,), None)
         
     else:
@@ -164,7 +164,7 @@ def explain_countex(fsm, state, spec):
         return None
         
         
-def explain_branch(fsm, state, spec):
+def explain_branch(fsm, state, spec, originalspec):
     """
     Return a TLACE branch explaining why state of fsm satisfies spec.
     """
@@ -175,11 +175,12 @@ def explain_branch(fsm, state, spec):
         branch = (Tlacenode(path[0]),
                   path[1],
                   explain_witness(fsm, path[2], spec.child))
-        return Tlacebranch(spec, branch)
+        return Tlacebranch(originalspec, branch)
 
     elif type(spec) is EaF:
-        return explain_branch(fsm, state, EaU(spec.action,
-                                              Atom('TRUE'), spec.child))
+        return explain_branch(fsm, state,
+                              EaU(spec.action, Atom('TRUE'), spec.child),
+                              originalspec)
 
     elif type(spec) is EaG:
         alpha = evalArctl(fsm, spec.action)
@@ -198,7 +199,7 @@ def explain_branch(fsm, state, spec):
         # last state
         branch.append(explain_witness(fsm, path[-1], spec.child))
 
-        return Tlacebranch(spec, tuple(branch), (inloop, loop))
+        return Tlacebranch(originalspec, tuple(branch), (inloop, loop))
 
     elif type(spec) is EaU:
         alpha = evalArctl(fsm, spec.action)
@@ -214,15 +215,15 @@ def explain_branch(fsm, state, spec):
         # last state
         branch.append(explain_witness(fsm, path[-1], spec.right))
 
-        return Tlacebranch(spec, tuple(branch))
+        return Tlacebranch(originalspec, tuple(branch))
 
     elif type(spec) is EaW:
         eauspec = EaU(spec.action, spec.left, spec.right)
         eagspec = EaG(spec.action, spec.left)
         if state <= evalArctl(fsm, eauspec):
-            return explain_branch(fsm, state, eauspec)
+            return explain_branch(fsm, state, eauspec, originalspec)
         else:
-            return explain_branch(fsm, state, eagspec)
+            return explain_branch(fsm, state, eagspec, originalspec)
 
     else:
         # TODO Generate error

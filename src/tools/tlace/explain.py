@@ -13,7 +13,7 @@ def explain(fsm, state, spec):
     
     fsm -- a pynusmv.fsm.BddFsm representing the system.
     state -- a pynusmv.dd.BDD representing a state of fsm.
-    spec -- a pynusmv.node.node.Node node representing the specification.
+    spec -- a pynusmv.spec.spec.Spec node representing the specification.
     
     Return a tlacenode.Tlacenode explaining why state of fsm violates spec.
     """
@@ -26,8 +26,8 @@ def countex(fsm, state, spec, context):
     
     fsm -- a pynusmv.fsm.BddFsm representing the system.
     state -- a pynusmv.dd.BDD representing a state of fsm.
-    spec -- a pynusmv.node.node.Node node representing the specification.
-    context -- a pynusmv.node.node.Node representing the context of spec in fsm.
+    spec -- a pynusmv.spec.spec.Spec node representing the specification.
+    context -- a pynusmv.spec.spec.Spec representing the context of spec in fsm.
     
     Return a tlacenode.Tlacenode explaining why state of fsm violates spec.
     """
@@ -99,8 +99,8 @@ def witness(fsm, state, spec, context):
     
     fsm -- a pynusmv.fsm.BddFsm representing the system.
     state -- a pynusmv.dd.BDD representing a state of fsm.
-    spec -- a pynusmv.node.node.Node node representing the specification.
-    context -- a pynusmv.node.node.Node representing the context of spec in fsm.
+    spec -- a pynusmv.spec.spec.Spec node representing the specification.
+    context -- a pynusmv.spec.spec.Spec representing the context of spec in fsm.
     
     Return a tlacenode.Tlacenode explaining why state of fsm satisfies spec.
     """
@@ -142,7 +142,7 @@ def witness(fsm, state, spec, context):
           spec.type == parser.EU or
           spec.type == parser.EW):
         return Tlacenode(state, None,
-                         (witness_branch(fsm, state, spec, context),),
+                         (witness_branch(fsm, state, spec, context, spec),),
                          None)
                     
     elif (spec.type == parser.AX or
@@ -159,14 +159,17 @@ def witness(fsm, state, spec, context):
         return Tlacenode(state, (spec,), None, None)
         
         
-def witness_branch(fsm, state, spec, context):
+def witness_branch(fsm, state, spec, context, originalspec):
     """
     Return a TLACE branch explaining why state of fsm satisfies spec.
 
     fsm -- a pynusmv.fsm.BddFsm representing the system.
     state -- a pynusmv.dd.BDD representing a state of fsm.
-    spec -- a pynusmv.node.node.Node node representing the specification.
-    context -- a pynusmv.node.node.Node representing the context of spec in fsm.
+    spec -- a pynusmv.spec.spec.Spec node representing the specification.
+    context -- a pynusmv.spec.spec.Spec representing the context of spec in fsm.
+    originalspec -- a pynusmv.spec.spec.Spec representing the original spec;
+                    used to annotate the produced branch, despite updated
+                    specs.
 
     Return a tlacebranch.Tlacebranch explaining why state of fsm satisfies spec.
     
@@ -179,11 +182,11 @@ def witness_branch(fsm, state, spec, context):
         branch = (Tlacenode(path[0]),
                   path[1],
                   witness(fsm, path[2], spec.car, context))
-        return Tlacebranch(spec, branch)
+        return Tlacebranch(originalspec, branch)
         
     elif spec.type == parser.EF:
         newspec = eu(sptrue(), spec.car)
-        return witness_branch(fsm, state, newspec, context)
+        return witness_branch(fsm, state, newspec, context, originalspec)
         
     elif spec.type == parser.EG:
         f = eval_ctl_spec(fsm, spec.car, context)
@@ -201,7 +204,7 @@ def witness_branch(fsm, state, spec, context):
         # last state
         branch.append(witness(fsm, path[-1], spec.car, context))
         
-        return Tlacebranch(spec, tuple(branch), (inloop, loop))
+        return Tlacebranch(originalspec, tuple(branch), (inloop, loop))
         
     elif spec.type == parser.EU:
         f = eval_ctl_spec(fsm, spec.car, context)
@@ -216,15 +219,15 @@ def witness_branch(fsm, state, spec, context):
         # last state
         branch.append(witness(fsm, path[-1], spec.cdr, context))
         
-        return Tlacebranch(spec, tuple(branch))
+        return Tlacebranch(originalspec, tuple(branch))
         
     elif spec.type == parser.EW:
         euspec = eu(spec.car, spec.cdr)
         egspec = eg(spec.car)
         if state.entailed(eval_ctl_spec(fsm, euspec, context)):
-            return witness_branch(fsm, state, euspec, context)
+            return witness_branch(fsm, state, euspec, context, originalspec)
         else:
-            return witness_branch(fsm, state, egspec, context)
+            return witness_branch(fsm, state, egspec, context, originalspec)
         
     else:
         # Default case, throw an exception because spec is not existential
