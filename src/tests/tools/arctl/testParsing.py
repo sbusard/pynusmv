@@ -141,6 +141,28 @@ class TestParsing(unittest.TestCase):
         
         ast = asts[0]
         self.assertEqual(type(ast), EaX)
+        self.assertEqual(type(ast.action), Atom)
+        self.assertEqual(ast.action.value, "a")
+        self.assertEqual(type(ast.child), Not)
+        self.assertEqual(type(ast.child.child), Atom)
+        self.assertEqual(ast.child.child.value, "c")
+        
+        
+    def test_afnext(self):
+        s = "A<'TRUE'>F (~ E<'TRUE'>X 'TRUE')"
+        asts = parseArctl(s)
+        self.assertEqual(len(asts), 1)
+        
+        ast = asts[0]
+        self.assertEqual(type(ast), AaF)
+        self.assertEqual(type(ast.action), Atom)
+        self.assertEqual(ast.action.value, "TRUE")
+        self.assertEqual(type(ast.child), Not)
+        self.assertEqual(type(ast.child.child), EaX)
+        self.assertEqual(type(ast.child.child.action), Atom)
+        self.assertEqual(ast.child.child.action.value, "TRUE")
+        self.assertEqual(type(ast.child.child.child), Atom)
+        self.assertEqual(ast.child.child.child.value, "TRUE")
         
     
     def test_eauw(self):
