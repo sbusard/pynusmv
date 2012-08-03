@@ -5,14 +5,16 @@ from ...utils import indent
 __id_node = 0
 def xml_representation(fsm, tlacenode, spec):
     """
-    Return the XML representation of tlacenode explaining spec violation by fsm.
+    Return the XML representation of tlacenode explaining spec violation or
+    satisfaction by fsm.
     
     Return the XML representation of a TLACE
     starting at tlacenode, explaining why the state of tlacenode,
-    belonging to fsm, violates spec.
+    belonging to fsm, violates or satisfies spec.
     
     fsm -- the FSM violating spec.
-    tlacenode -- the TLACE node explaining the violation of spec by fsm.
+    tlacenode -- the TLACE node explaining the violation or satisfaction
+                 of spec by fsm.
     spec -- the violated specification.
     """
     
@@ -24,7 +26,7 @@ def xml_representation(fsm, tlacenode, spec):
     # Open counterexample
     xmlrepr = (
     """<?xml version="1.0" encoding="UTF-8"?>
-<counterexample specification="{spec}">
+<tlace specification="{spec}">
 """.format(spec=str(spec)))
     
     indent.inc()
@@ -33,7 +35,7 @@ def xml_representation(fsm, tlacenode, spec):
     
     indent.dec()
     
-    xmlrepr += """</counterexample>"""
+    xmlrepr += """</tlace>"""
     
     return xmlrepr
     
