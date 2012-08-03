@@ -10,15 +10,15 @@ from pynusmv.nusmv.mc import mc
 
 from pynusmv.fsm.fsm import BddFsm
 
+from pynusmv.init.init import init_nusmv, deinit_nusmv
+
 class TestMC(unittest.TestCase):
     
     def setUp(self):
-        cinit.NuSMVCore_init_data()
-        cinit.NuSMVCore_init(None, 0)
-    
+        init_nusmv()
         
     def tearDown(self):
-        cinit.NuSMVCore_quit()
+        deinit_nusmv()
     
     
     def test_mc(self):

@@ -8,24 +8,52 @@ deinit_nusmv must be called when everything is freed.
 This means that deinit_nusmv must be called in a context where there is no
 NuSMV wrapper object that would be freed after deinit_nusmv call.
 """
-import gc
+import weakref
 from ..nusmv.cinit import cinit
+
+# Set of pointer wrappers to collect when deiniting NuSMV
+__collector = None
+
 
 def init_nusmv():
     """Initialize NuSMV."""
-    cinit.NuSMVCore_init_data()
-    cinit.NuSMVCore_init(None, 0) # No addons specified
-    cinit.NuSMVCore_init_cmd_options()
+    global __collector
+    if __collector is not None:
+        raise NuSMVInitError("Cannot initialize NuSMV twice.")
+    else:
+        __collector = []
+        cinit.NuSMVCore_init_data()
+        cinit.NuSMVCore_init(None, 0) # No addons specified
+        cinit.NuSMVCore_init_cmd_options()
     
 
 def deinit_nusmv():
     """Quit NuSMV."""
-    # Force garbage collection to be sure that all pointers are freed
-    gc.collect()
-    cinit.NuSMVCore_quit()
+    global __collector
+    if __collector is None:
+        raise NuSMVInitError("Cannot deinitialize NuSMV before initialization.")
+    else:
+        for elem in __collector:
+            elem._free()
+        __collector = None
+        cinit.NuSMVCore_quit()
     
     
 def reset_nusmv():
     """Reset NuSMV."""
     deinit_nusmv()
     init_nusmv()
+    
+    
+def register_wrapper(wrapper):
+    """Register pointer wrapper to NuSMV garbage collector."""
+    global __collector
+    if __collector is None:
+        raise NuSMVInitError("Cannot register before initializing NuSMV.")
+    else:
+        __collector.append(wrapper)
+    
+    
+class NuSMVInitError(Exception):
+    """NuSMV initialisation-related exception."""
+    pass

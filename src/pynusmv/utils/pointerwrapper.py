@@ -16,6 +16,8 @@ any pointer is wrapped by only one PointerWrapper (or subclass of it)
 if the pointer have to be freed.
 """
 
+from pynusmv.init.init import register_wrapper
+
 class PointerWrapper:
     """Wrapper for a NuSMV pointer."""
     
@@ -27,3 +29,14 @@ class PointerWrapper:
         """
         self._ptr = pointer
         self._freeit = freeit
+        register_wrapper(self)
+        
+    
+    def _free(self):
+        """Every subclass must implement _free if there is something to free."""
+        pass
+        
+        
+    def __del__(self):
+        if self._freeit and self._ptr is not None:
+            self._free()

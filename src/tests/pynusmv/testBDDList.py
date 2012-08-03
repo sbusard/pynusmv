@@ -9,15 +9,15 @@ from pynusmv.dd.bdd import BDD
 from pynusmv.dd.bddlist import BDDList
 from pynusmv.prop.propDb import PropDb
 
+from pynusmv.init.init import init_nusmv, deinit_nusmv
+
 class TestBDDList(unittest.TestCase):
     
     def setUp(self):
-        cinit.NuSMVCore_init_data()
-        cinit.NuSMVCore_init(None, 0)
-    
+        init_nusmv()
         
     def tearDown(self):
-        cinit.NuSMVCore_quit()
+        deinit_nusmv()
     
     
     def test_bddlist(self):

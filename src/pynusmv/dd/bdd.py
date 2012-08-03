@@ -43,9 +43,10 @@ class BDD(PointerWrapper):
         self._manager = dd_manager
     
         
-    def __del__(self):
+    def _free(self):
         if self._freeit and self._ptr is not None:
             dd.bdd_free(self._manager._ptr, self._ptr)
+            self._freeit = False
             
 
     def equal(self, other):

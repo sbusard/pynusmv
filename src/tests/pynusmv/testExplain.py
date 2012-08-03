@@ -12,16 +12,16 @@ from pynusmv.mc.mc import eval_ctl_spec, explainEX, explainEU, explainEG
 from pynusmv.spec.spec import Spec
 from pynusmv.spec.spec import (true as sptrue, false as spfalse, imply, iff,
                                ex, eg, ef, eu, ew, ax, ag, af, au, aw, atom)
+                              
+from pynusmv.init.init import init_nusmv, deinit_nusmv
 
 class TestExplain(unittest.TestCase):
     
     def setUp(self):
-        cinit.NuSMVCore_init_data()
-        cinit.NuSMVCore_init(None, 0)
-    
+        init_nusmv()
         
     def tearDown(self):
-        cinit.NuSMVCore_quit()
+        deinit_nusmv()
         
         
     def init_model(self):

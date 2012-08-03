@@ -8,15 +8,15 @@ from pynusmv.prop.propDb import PropDb
 
 from tools.tlace.check import check
 
+from pynusmv.init.init import init_nusmv, deinit_nusmv
+
 class TestTlaceGeneration(unittest.TestCase):
     
     def setUp(self):
-        cinit.NuSMVCore_init_data()
-        cinit.NuSMVCore_init(None, 0)
-    
+        init_nusmv()
         
     def tearDown(self):
-        cinit.NuSMVCore_quit()
+        deinit_nusmv()
     
     
     def test_check_violated_spec(self):

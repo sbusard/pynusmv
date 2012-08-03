@@ -21,7 +21,7 @@ class BDDList(PointerWrapper):
         self._manager = ddmanager
         
           
-    def __del__(self):
+    def _free(self):
         if self._freeit:
             # Free content
             ptr = self._ptr
@@ -34,6 +34,7 @@ class BDDList(PointerWrapper):
             
             # Free list
             nsnode.free_list(self._ptr)
+            self._freeit = False
         
     
     def __len__(self):

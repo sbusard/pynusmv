@@ -6,11 +6,12 @@ from pynusmv.nusmv.cmd import cmd
 
 from pynusmv.prop.propDb import PropDb
 
+from pynusmv.init.init import init_nusmv, deinit_nusmv
+
 class TestPropDb(unittest.TestCase):
     
     def setUp(self):
-        cinit.NuSMVCore_init_data()
-        cinit.NuSMVCore_init(None, 0)
+        init_nusmv()
         ret = cmd.Cmd_SecureCommandExecute("read_model -i"
                                            " tests/pynusmv/admin.smv")
         self.assertEqual(ret, 0)
@@ -18,7 +19,7 @@ class TestPropDb(unittest.TestCase):
         self.assertEqual(ret, 0)
         
     def tearDown(self):
-        cinit.NuSMVCore_quit()
+        deinit_nusmv()
         
             
     def test_propDb(self):

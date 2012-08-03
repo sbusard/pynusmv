@@ -11,15 +11,15 @@ from pynusmv.prop.propDb import PropDb
 from tools.tlace.check import check
 from tools.tlace.xml import xml_representation
 
+from pynusmv.init.init import init_nusmv, deinit_nusmv
+
 class TestTlacePrinting(unittest.TestCase):
     
     def setUp(self):
-        cinit.NuSMVCore_init_data()
-        cinit.NuSMVCore_init(None, 0)
-    
+        init_nusmv()
         
     def tearDown(self):
-        cinit.NuSMVCore_quit()
+        deinit_nusmv()
     
     
     def test_print_violated_spec_admin(self):

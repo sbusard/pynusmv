@@ -1,21 +1,21 @@
 import unittest
 import sys
 
-from pynusmv.nusmv.cinit import cinit
 from pynusmv.nusmv.cmd import cmd
 
 from pynusmv.prop.propDb import PropDb
 from pynusmv.dd.bdd import BDD
 from pynusmv.fsm.fsm import BddFsm
 
+from pynusmv.init.init import init_nusmv, deinit_nusmv
+
 class TestBDD(unittest.TestCase):
     
     def setUp(self):
-        cinit.NuSMVCore_init_data()
-        cinit.NuSMVCore_init(None, 0)
+        init_nusmv()
         
     def tearDown(self):
-        cinit.NuSMVCore_quit()
+        deinit_nusmv()
         
     def init_model(self):
         fsm = BddFsm.from_filename("tests/pynusmv/admin.smv")

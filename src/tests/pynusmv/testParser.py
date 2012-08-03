@@ -9,14 +9,15 @@ from pynusmv.nusmv.node import node as nsnode
 from pynusmv.spec.spec import Spec
 from pynusmv.prop.propDb import PropDb
 
+from pynusmv.init.init import init_nusmv, deinit_nusmv
+
 class TestParser(unittest.TestCase):
     
     def setUp(self):
-        cinit.NuSMVCore_init_data()
-        cinit.NuSMVCore_init(None, 0)
+        init_nusmv()
         
-    def tearDown(self):    
-        cinit.NuSMVCore_quit()
+    def tearDown(self):
+        deinit_nusmv()
     
     def test_run_checkctlspec(self):
         
