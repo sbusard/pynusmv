@@ -1,5 +1,5 @@
 """
-ARCTL main function.
+ARCTL CLI with trace explanation.
 """
 
 import cmd
