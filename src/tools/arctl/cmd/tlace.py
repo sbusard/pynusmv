@@ -5,7 +5,7 @@ ARCTL CLI with TLACE explanation.
 import cmd
 import argparse
 
-from pynusmv.init.init import init_nusmv, deinit_nusmv
+from pynusmv.init.init import init_nusmv, deinit_nusmv, reset_nusmv
 from pynusmv.fsm.fsm import BddFsm
 
 from tools.arctl.parsing import parseArctl
@@ -36,6 +36,8 @@ class ARCTL_TLACE_shell(cmd.Cmd):
         if len(arg) < 1:
             print("[ERROR] read command needs the SMV model path.")
         else:
+            if self.fsm is not None:
+                reset_nusmv()
             try:
                 self.fsm = BddFsm.from_filename(arg)
                 self.fsmpath = arg
