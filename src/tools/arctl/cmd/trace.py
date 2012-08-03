@@ -87,7 +87,7 @@ class ARCTLshell(cmd.Cmd):
                 (res, (wit, (inp, loop))) = checkArctl(self.fsm, spec)
                 if res:
                     print("The specification", arg, "is true,",
-                          "as shown by")
+                          "witnessed by")
                     print_path(wit, inp, loop)
                         
                 else:
