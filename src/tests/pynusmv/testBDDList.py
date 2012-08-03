@@ -37,7 +37,7 @@ class TestBDDList(unittest.TestCase):
     def test_elements(self):
         # Initialize the model
         ret = cmd.Cmd_SecureCommandExecute("read_model -i"
-                                     "tests/admin.smv")
+                                     "tests/pynusmv/admin.smv")
         self.assertEqual(ret, 0, "cannot read the model")
         ret = cmd.Cmd_SecureCommandExecute("go")
         self.assertEqual(ret, 0, "cannot build the model")

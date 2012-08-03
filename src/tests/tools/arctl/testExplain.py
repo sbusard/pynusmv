@@ -19,7 +19,7 @@ class TestExplain(unittest.TestCase):
     
     
     def init_model(self):
-        fsm = BddFsm.from_filename("tests/arctl/counters.smv")
+        fsm = BddFsm.from_filename("tests/tools/arctl/counters.smv")
         self.assertIsNotNone(fsm)
         return fsm
         

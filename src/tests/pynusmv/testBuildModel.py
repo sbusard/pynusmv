@@ -6,11 +6,10 @@ from pynusmv.nusmv.node import node as nsnode
 from pynusmv.nusmv.parser import parser
 from pynusmv.nusmv.prop import prop
 from pynusmv.nusmv.fsm.bdd import bdd as nsfsm
-from pynusmv.nusmv.mc import mc
 
 from pynusmv.fsm.fsm import BddFsm
 
-class TestMC(unittest.TestCase):
+class TestBuildModel(unittest.TestCase):
     
     def setUp(self):
         cinit.NuSMVCore_init_data()
@@ -21,16 +20,19 @@ class TestMC(unittest.TestCase):
         cinit.NuSMVCore_quit()
     
     
-    def test_mc(self):
+    def test_build_model(self):
         # Initialize the model
-        ret = cmd.Cmd_SecureCommandExecute("read_model -i tests/admin.smv")
+        ret = cmd.Cmd_SecureCommandExecute("read_model -i"
+                                           " tests/pynusmv/admin.smv")
         self.assertEqual(ret, 0)
         ret = cmd.Cmd_SecureCommandExecute("go")
         self.assertEqual(ret, 0)
         
-        # Check CTL specs
         propDb = prop.PropPkg_get_prop_database()
-        for i in range(prop.PropDb_get_size(propDb)):
-            p = prop.PropDb_get_prop_at_index(propDb, i)
-            if prop.Prop_get_type(p) == prop.Prop_Ctl:
-                mc.Mc_CheckCTLSpec(p)
+        fsm_ptr = prop.PropDb_master_get_bdd_fsm(propDb)
+        self.assertIsNotNone(fsm_ptr)
+        fsm = BddFsm(fsm_ptr)
+        enc = fsm.bddEnc
+        self.assertIsNotNone(enc)
+        init = fsm.init
+        self.assertIsNotNone(init)

@@ -7,7 +7,9 @@ class TestInit(unittest.TestCase):
     
     def test_init(self):
         init_nusmv()
-        fsm = BddFsm.from_filename("tests/admin.smv") # Should not produce error
+        # Should not produce error
+        fsm = BddFsm.from_filename("tests/pynusmv/admin.smv")
         reset_nusmv()
-        fsm = BddFsm.from_filename("tests/admin.smv") # Should not produce error
+        # Should not produce error
+        fsm = BddFsm.from_filename("tests/pynusmv/admin.smv")
         deinit_nusmv()

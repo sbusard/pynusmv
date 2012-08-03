@@ -18,7 +18,7 @@ class TestBDD(unittest.TestCase):
         cinit.NuSMVCore_quit()
         
     def init_model(self):
-        fsm = BddFsm.from_filename("tests/admin.smv")
+        fsm = BddFsm.from_filename("tests/pynusmv/admin.smv")
         return (fsm, fsm.bddEnc, fsm.bddEnc.DDmanager)
     
     

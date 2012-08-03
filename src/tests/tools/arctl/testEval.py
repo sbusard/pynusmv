@@ -21,13 +21,13 @@ class TestEval(unittest.TestCase):
     
     
     def init_model(self):
-        fsm = BddFsm.from_filename("tests/arctl/model.smv")
+        fsm = BddFsm.from_filename("tests/tools/arctl/model.smv")
         self.assertIsNotNone(fsm)
         return fsm
         
     
     def init_finite_model(self):
-        fsm = BddFsm.from_filename("tests/arctl/finite_model.smv")
+        fsm = BddFsm.from_filename("tests/tools/arctl/finite_model.smv")
         self.assertIsNotNone(fsm)
         return fsm
         

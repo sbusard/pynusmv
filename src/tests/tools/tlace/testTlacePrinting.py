@@ -2,13 +2,16 @@ import unittest
 
 from pynusmv.nusmv.cinit import cinit
 from pynusmv.nusmv.cmd import cmd
+from pynusmv.nusmv.compile.symb_table import symb_table
+from pynusmv.nusmv.enc.bdd import bdd as bddEnc
 
 from pynusmv.fsm.fsm import BddFsm
 from pynusmv.prop.propDb import PropDb
 
 from tools.tlace.check import check
+from tools.tlace.xml import xml_representation
 
-class TestTlaceGeneration(unittest.TestCase):
+class TestTlacePrinting(unittest.TestCase):
     
     def setUp(self):
         cinit.NuSMVCore_init_data()
@@ -19,10 +22,10 @@ class TestTlaceGeneration(unittest.TestCase):
         cinit.NuSMVCore_quit()
     
     
-    def test_check_violated_spec(self):
+    def test_print_violated_spec_admin(self):
         # Initialize the model
         ret = cmd.Cmd_SecureCommandExecute("read_model -i " 
-                                     "tests/tlace/admin.smv")
+                                     "tests/tools/tlace/admin.smv")
         self.assertEqual(ret, 0, "cannot read the model")
         ret = cmd.Cmd_SecureCommandExecute("go")
         self.assertEqual(ret, 0, "cannot build the model")
@@ -38,11 +41,13 @@ class TestTlaceGeneration(unittest.TestCase):
         self.assertFalse(res[0], "spec should be violated")
         self.assertIsNotNone(res[1], "TLACE should be given")
         
-    
-    def test_check_violated_spec2(self):
+        print(xml_representation(fsm, res[1], spec))
+        
+        
+    def test_print_violated_spec_egmod(self):
         # Initialize the model
-        ret = cmd.Cmd_SecureCommandExecute("read_model -i"
-                                     "tests/tlace/admin.smv")
+        ret = cmd.Cmd_SecureCommandExecute("read_model -i " 
+                                     "tests/tools/tlace/eg.smv")
         self.assertEqual(ret, 0, "cannot read the model")
         ret = cmd.Cmd_SecureCommandExecute("go")
         self.assertEqual(ret, 0, "cannot build the model")
@@ -50,20 +55,43 @@ class TestTlaceGeneration(unittest.TestCase):
         propDb = PropDb.get_global_database()
         master = propDb.master
         fsm = propDb.master.bddFsm
-        self.assertTrue(propDb.get_size() >= 2, "propDb misses some props")
+        self.assertTrue(propDb.get_size() >= 1, "propDb has no properties")
+        prop = propDb.get_prop_at_index(0)
+        spec = prop.exprcore
+        
+        res = check(fsm, spec)
+        self.assertFalse(res[0], "spec should be violated")
+        self.assertIsNotNone(res[1], "TLACE should be given")
+
+        print(xml_representation(fsm, res[1], spec))
+        
+    
+    def test_print_violated_spec_egmod2(self):
+        # Initialize the model
+        ret = cmd.Cmd_SecureCommandExecute("read_model -i " 
+                                     "tests/tools/tlace/eg.smv")
+        self.assertEqual(ret, 0, "cannot read the model")
+        ret = cmd.Cmd_SecureCommandExecute("go")
+        self.assertEqual(ret, 0, "cannot build the model")
+        
+        propDb = PropDb.get_global_database()
+        master = propDb.master
+        fsm = propDb.master.bddFsm
+        self.assertTrue(propDb.get_size() >= 2, "propDb has no properties")
         prop = propDb.get_prop_at_index(1)
-        self.assertIsNotNone(prop, "prop should not be None")
         spec = prop.exprcore
         
         res = check(fsm, spec)
         self.assertFalse(res[0], "spec should be violated")
         self.assertIsNotNone(res[1], "TLACE should be given")
+
+        print(xml_representation(fsm, res[1], spec))
         
     
-    def test_check_satisfied_spec(self):
+    def test_print_violated_spec_admin_af(self):
         # Initialize the model
-        ret = cmd.Cmd_SecureCommandExecute("read_model -i"
-                                     "tests/tlace/admin.smv")
+        ret = cmd.Cmd_SecureCommandExecute("read_model -i " 
+                                     "tests/tools/tlace/admin.smv")
         self.assertEqual(ret, 0, "cannot read the model")
         ret = cmd.Cmd_SecureCommandExecute("go")
         self.assertEqual(ret, 0, "cannot build the model")
@@ -71,20 +99,21 @@ class TestTlaceGeneration(unittest.TestCase):
         propDb = PropDb.get_global_database()
         master = propDb.master
         fsm = propDb.master.bddFsm
-        self.assertTrue(propDb.get_size() >= 3, "propDb misses some props")
-        prop = propDb.get_prop_at_index(2)
-        self.assertIsNotNone(prop, "prop should not be None")
+        self.assertTrue(propDb.get_size() >= 5, "propDb has no properties")
+        prop = propDb.get_prop_at_index(4)
         spec = prop.exprcore
         
         res = check(fsm, spec)
-        self.assertTrue(res[0], "spec should be satisfied")
-        self.assertIsNone(res[1], "TLACE should not exist")
+        self.assertFalse(res[0], "spec should be violated")
+        self.assertIsNotNone(res[1], "TLACE should be given")
+
+        print(xml_representation(fsm, res[1], spec))
         
-    
-    def test_check_ex_spec(self):
+        
+    def test_print_violated_spec_admin_ax(self):
         # Initialize the model
-        ret = cmd.Cmd_SecureCommandExecute("read_model -i"
-                                     "tests/tlace/admin.smv")
+        ret = cmd.Cmd_SecureCommandExecute("read_model -i " 
+                                     "tests/tools/tlace/admin.smv")
         self.assertEqual(ret, 0, "cannot read the model")
         ret = cmd.Cmd_SecureCommandExecute("go")
         self.assertEqual(ret, 0, "cannot build the model")
@@ -92,11 +121,12 @@ class TestTlaceGeneration(unittest.TestCase):
         propDb = PropDb.get_global_database()
         master = propDb.master
         fsm = propDb.master.bddFsm
-        self.assertTrue(propDb.get_size() >= 4, "propDb misses some props")
-        prop = propDb.get_prop_at_index(3)
-        self.assertIsNotNone(prop, "prop should not be None")
+        self.assertTrue(len(propDb) >= 6, "propDb has no properties")
+        prop = propDb[5]
         spec = prop.exprcore
         
         res = check(fsm, spec)
         self.assertFalse(res[0], "spec should be violated")
         self.assertIsNotNone(res[1], "TLACE should be given")
+
+        print(xml_representation(fsm, res[1], spec))

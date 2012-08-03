@@ -20,7 +20,8 @@ class TestParser(unittest.TestCase):
     
     def test_run_checkctlspec(self):
         
-        ret = cmd.Cmd_SecureCommandExecute("read_model -i tests/admin.smv")
+        ret = cmd.Cmd_SecureCommandExecute("read_model -i"
+                                           " tests/pynusmv/admin.smv")
         self.assertEqual(ret, 0)
         ret = cmd.Cmd_SecureCommandExecute("go")
         self.assertEqual(ret, 0)
@@ -34,7 +35,8 @@ class TestParser(unittest.TestCase):
         
         
     def test_precedences(self):
-        ret = cmd.Cmd_SecureCommandExecute("read_model -i tests/admin.smv")
+        ret = cmd.Cmd_SecureCommandExecute("read_model -i"
+                                           " tests/pynusmv/admin.smv")
         self.assertEqual(ret, 0)
         ret = cmd.Cmd_SecureCommandExecute("go")
         self.assertEqual(ret, 0)
