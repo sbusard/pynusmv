@@ -15,7 +15,7 @@ def explain_witness(fsm, state, spec):
     Return a single path explaining (maybe partially) why state of fsm satisfies
     spec. The returned structure is a tuple ((s0, i1, s1, ..., sn), (in, loop))
     where (s0, ..., sn) is a path of fsm explaining spec, and (in, loop)
-    represents a possible loop of this path. If the path is finite, (in, loop)
+    represents a loop of this path. If the path is finite, (in, loop)
     is (None, None).
     """
     
