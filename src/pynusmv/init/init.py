@@ -9,6 +9,7 @@ This means that deinit_nusmv must be called in a context where there is no
 NuSMV wrapper object that would be freed after deinit_nusmv call.
 """
 import weakref
+import gc
 from ..nusmv.cinit import cinit
 
 # Set of pointer wrappers to collect when deiniting NuSMV
@@ -33,6 +34,9 @@ def deinit_nusmv():
     if __collector is None:
         raise NuSMVInitError("Cannot deinitialize NuSMV before initialization.")
     else:
+        # First garbage collect with Python
+        gc.collect
+        # Then garbage collect with PyNuSMV
         for elem in __collector:
             if elem() is not None:
                 elem()._free()
