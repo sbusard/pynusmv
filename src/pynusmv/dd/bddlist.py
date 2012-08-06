@@ -22,7 +22,7 @@ class BDDList(PointerWrapper):
         
           
     def _free(self):
-        if self._freeit:
+        if self._freeit and self._ptr is not None:
             # Free content
             ptr = self._ptr
             while ptr:
@@ -51,6 +51,8 @@ class BDDList(PointerWrapper):
         Return the BDD stored at val.
         
         val -- the index requested OR a slice.
+        
+        Note: cannot access elements with negative indices.
         """
         if type(val) is int:
             if val < 0:
@@ -108,20 +110,23 @@ class BDDList(PointerWrapper):
     
     def from_tuple(l):
         """
-        Create a LISP-like list from the Python-like tuple l.
+        Create a node-based list from the Python tuple l.
         
         l -- a Python tuple of BDDs.
         
         Return a BDDList n representing the given tuple, using NuSMV nodes.
         The nodes are created using new_node, so no node is stored
-        in the corresponding NuSMV hash table.
+        in the NuSMV hash table.
         
         All BDDs are assumed from the same DD manager;
         the created list contains the DD manager of the first non-None BDD.
+        If all elements of l are None,
+        the manager of the created BDDList is None.
         
         All BDDs are duplicated before stored.
         """
         
+        # Reverse tuple before, because we build the list reversely.
         l = l[::-1]
         n = None
         manager = None

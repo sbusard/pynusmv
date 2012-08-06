@@ -3,10 +3,6 @@ Provide functions to initialize and quit NuSMV.
 
 init_nusmv should be called before any other call to pynusmv functions.
 deinit_nusmv should be called after using pynusmv.
-
-deinit_nusmv must be called when everything is freed.
-This means that deinit_nusmv must be called in a context where there is no
-NuSMV wrapper object that would be freed after deinit_nusmv call.
 """
 import weakref
 import gc
@@ -17,7 +13,11 @@ __collector = None
 
 
 def init_nusmv():
-    """Initialize NuSMV."""
+    """
+    Initialize NuSMV.
+    
+    Must be called only once before calling deinit_nusmv.
+    """
     global __collector
     if __collector is not None:
         raise NuSMVInitError("Cannot initialize NuSMV twice.")
@@ -29,7 +29,14 @@ def init_nusmv():
     
 
 def deinit_nusmv():
-    """Quit NuSMV."""
+    """
+    Quit NuSMV.
+    
+    Must be called only once, after calling init_nusmv.
+    
+    Apply Python garbage collection first, then collect every pointer wrapper
+    that is not yet collected by Python GC.
+    """
     global __collector
     if __collector is None:
         raise NuSMVInitError("Cannot deinitialize NuSMV before initialization.")
@@ -45,7 +52,11 @@ def deinit_nusmv():
     
     
 def reset_nusmv():
-    """Reset NuSMV."""
+    """
+    Reset NuSMV, i.e. deinit it and init it again.
+    
+    Cannot be called before init_nusmv.
+    """
     deinit_nusmv()
     init_nusmv()
     

@@ -21,7 +21,7 @@ class BDD(PointerWrapper):
         ~a, -a, compute bdd_not(a)
         a - b computes (a and not b)
         a ^ b computes bdd_xor(a,b)
-        a <= b computes bdd_entailed(a,b)
+        a <= b computes bdd_leq(a,b)
         a < b, a > b, a >= b derive from a <= b
         a == b compares pointers.
     

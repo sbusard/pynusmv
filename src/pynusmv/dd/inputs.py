@@ -9,7 +9,7 @@ from .bdd import BDD
 
 class Inputs(BDD):
     """
-    Python class for inputs and combinatorial structure.
+    Python class for inputs structure.
     
     The Inputs class contains a pointer to a BDD in NuSMV (a bdd_ptr)
     representing inputs of an FSM.
