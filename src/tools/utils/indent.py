@@ -24,4 +24,6 @@ def dec():
     
 def indent(s):
     """Indent s with the current indentation"""
+    global __value
+    global __count
     return __value * __count + s
