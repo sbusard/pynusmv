@@ -8,11 +8,12 @@ class Tlacebranch:
     
     def __init__(self, formula, path, loop=None):
         """
-        Creates a new TLACE branch.
-        formula is an existential temporal formula;
-        path is a list of TLACE nodes;
-        loop is None or a (inputs, node) pair where node is a node of path
-        indicating the start of a loop.
+        Create a new TLACE branch.
+        
+        formula -- an existential temporal formula;
+        path -- a list of TLACE nodes;
+        loop -- None or a (inputs, node) pair where node is a node of path
+                indicating the start of a loop.
         """
         self.__formula = formula
         self.__path = (path, loop)
@@ -29,5 +30,5 @@ class Tlacebranch:
         
     @property
     def path(self):
-        """The path of this branch. A (path, (inputs, loop)) tuple."""
+        """The path of this branch. A (path, (inputs, loop)) tuple, or None."""
         return self.__path

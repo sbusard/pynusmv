@@ -1,1 +1,1 @@
-__all__ = ['check', 'explain', 'tlacebranch', 'tlacenode', 'xml']
+__all__ = ['check', 'explain', 'tlacebranch', 'tlacenode', 'xml', 'tlace']
