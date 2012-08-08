@@ -1,5 +1,3 @@
-pynusmv.tmproj
-
 *.so
 *.o
 *.lo
@@ -166,4 +164,3 @@ pynusmv/nusmv/trans/trans.py
 pynusmv/nusmv/utils/utils.py
 pynusmv/nusmv/wff/w2w/w2w.py
 pynusmv/nusmv/wff/wff.py
-
