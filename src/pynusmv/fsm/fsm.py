@@ -32,6 +32,20 @@ class BddFsm(PointerWrapper):
                    freeit = True)
                    
                    
+    @property
+    def state_constraints(self):
+        """The BDD of states satisfying the invariants of the FSM."""
+        return BDD(bddFsm.BddFsm_get_state_constraints(self._ptr),
+                   self.bddEnc.DDmanager, freeit = True)
+                   
+                   
+    @property
+    def inputs_constraints(self):
+        """The BDD of inputs satisfying the invariants of the FSM."""
+        return BDD(bddFsm.BddFsm_get_input_constraints(self._ptr),
+                   self.bddEnc.DDmanager, freeit = True)
+                   
+                   
     def pre(self, states, inputs = None):
         """
         Return the pre-image of states in this FSM.
