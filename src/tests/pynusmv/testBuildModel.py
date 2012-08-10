@@ -23,7 +23,7 @@ class TestBuildModel(unittest.TestCase):
     def test_build_model(self):
         # Initialize the model
         ret = cmd.Cmd_SecureCommandExecute("read_model -i"
-                                           " tests/pynusmv/admin.smv")
+                                           " tests/pynusmv/models/admin.smv")
         self.assertEqual(ret, 0)
         ret = cmd.Cmd_SecureCommandExecute("go")
         self.assertEqual(ret, 0)

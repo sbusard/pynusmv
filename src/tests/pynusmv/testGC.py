@@ -14,7 +14,7 @@ class TestGC(unittest.TestCase):
         """
         init_nusmv()
         
-        fsm = BddFsm.from_filename("tests/pynusmv/admin.smv")
+        fsm = BddFsm.from_filename("tests/pynusmv/models/admin.smv")
         init = fsm.init
         
         deinit_nusmv()

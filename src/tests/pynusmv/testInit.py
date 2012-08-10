@@ -9,10 +9,10 @@ class TestInit(unittest.TestCase):
     def test_init(self):
         init_nusmv()
         # Should not produce error
-        fsm = BddFsm.from_filename("tests/pynusmv/admin.smv")
+        fsm = BddFsm.from_filename("tests/pynusmv/models/admin.smv")
         reset_nusmv()
         # Should not produce error
-        fsm = BddFsm.from_filename("tests/pynusmv/admin.smv")
+        fsm = BddFsm.from_filename("tests/pynusmv/models/admin.smv")
         deinit_nusmv()
         
         

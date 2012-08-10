@@ -24,7 +24,7 @@ class TestAtom(unittest.TestCase):
         
     
     def init_model(self):
-        fsm = BddFsm.from_filename("tests/pynusmv/admin.smv")
+        fsm = BddFsm.from_filename("tests/pynusmv/models/admin.smv")
         return (fsm, fsm.bddEnc, fsm.bddEnc.DDmanager)
         
     
