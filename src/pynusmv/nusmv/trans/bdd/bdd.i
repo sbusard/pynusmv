@@ -8,6 +8,8 @@
 #include "../../../../nusmv/src/trans/bdd/Cluster.h" 
 #include "../../../../nusmv/src/trans/bdd/ClusterList.h" 
 #include "../../../../nusmv/src/trans/bdd/ClusterOptions.h" 
+
+#include "../../../../nusmv/src/utils/object.h"
 %}
 
 %feature("autodoc", 1);
@@ -20,3 +22,16 @@
 %include ../../../../nusmv/src/trans/bdd/Cluster.h
 %include ../../../../nusmv/src/trans/bdd/ClusterList.h
 %include ../../../../nusmv/src/trans/bdd/ClusterOptions.h
+
+
+%inline %{
+
+BddTrans_ptr BddTrans_copy(const BddTrans_ptr trans) {
+    return BDD_TRANS(Object_copy(OBJECT(trans)));
+}
+
+void BddTrans_free(BddTrans_ptr trans) {
+    Object_destroy(OBJECT(trans), NULL);
+}
+
+%}
