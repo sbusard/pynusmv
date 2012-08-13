@@ -122,3 +122,22 @@ class TestInit(unittest.TestCase):
         self.assertTrue(q.iff(~p) == (~p & q) | (p & ~q))
         ac = fsm.get_inputs_between_states(q, q.iff(~p))
         self.assertTrue(ac == true)
+        
+        
+    def test_get_trans(self):
+        fsm = self.model()
+        
+        trans = fsm.trans
+        self.assertIsNotNone(trans)
+        
+        bdd = trans.monolithic
+        self.assertIsNotNone(bdd)
+        
+        
+    def test_set_trans(self):
+        fsm = self.model()
+        
+        trans = fsm.trans
+        self.assertIsNotNone(trans)
+        
+        fsm.trans = trans

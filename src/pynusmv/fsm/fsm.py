@@ -1,12 +1,14 @@
 from ..nusmv.fsm.bdd import bdd as bddFsm
 from ..nusmv.enc.bdd import bdd as bddEnc
 from ..nusmv.cmd import cmd as nscmd
+from ..nusmv.trans.bdd import bdd as nsbddtrans
 
 from ..enc.enc import BddEnc
 from ..dd.bdd import BDD
 from ..dd.state import State
 from ..dd.inputs import Inputs
 from ..utils.pointerwrapper import PointerWrapper
+from ..trans.trans import BddTrans
 
 class BddFsm(PointerWrapper):
     """
@@ -31,6 +33,27 @@ class BddFsm(PointerWrapper):
         return BDD(bddFsm.BddFsm_get_init(self._ptr), self.bddEnc.DDmanager,
                    freeit = True)
                    
+                   
+    @property
+    def trans(self):
+        """The transition relation of this FSM."""
+        # Do not free the trans, this FSM is the owner of it
+        return BddTrans(bddFsm.BddFsm_get_trans(self._ptr),
+                        self.bddEnc.DDmanager,
+                        freeit = False)
+        
+    @trans.setter
+    def trans(self, new_trans):
+        """Set this FSM transition to new_trans."""
+        # Copy the transition such that this FSM is the owner
+        new_trans_ptr = nsbddtrans.BddTrans_copy(new_trans._ptr)
+        # Get old trans
+        old_trans_ptr = bddFsm.BddFsm_get_trans(self._ptr)
+        # Set the new trans
+        self._ptr.trans = new_trans_ptr
+        # Free old trans
+        nsbddtrans.BddTrans_free(old_trans_ptr)
+        
                    
     @property
     def state_constraints(self):
