@@ -27,6 +27,10 @@ bdd_ptr node2bdd(node_ptr ptr) {
 node_ptr bdd2node(bdd_ptr ptr) {
     return (node_ptr) ptr;
 }
+
+node_ptr int2node(int val) {
+    return (node_ptr) val;
+}
 %}
 
 %include ../../../nusmv/src/utils/defs.h
