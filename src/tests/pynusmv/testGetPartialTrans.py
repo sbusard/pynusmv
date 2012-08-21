@@ -121,11 +121,20 @@ class TestGetPartialTrans(unittest.TestCase):
         # car(car(car(cdr(car(cdr(trans)))))) = 
         #c2.c + 1
         
+        # car(car(car(car(cdr(car(cdr(trans))))))) = 
+        #c2.c
+        
+        # car(car(car(car(car(cdr(car(cdr(trans)))))))) = 
+        #c2
+        
+        # cdr(car(car(car(car(cdr(car(cdr(trans)))))))) = 
+        #c
+        
         # cdr(car(car(car(cdr(car(cdr(trans))))))) = 
         #1
         
-        #print(cdr(car(car(car(cdr(car(cdr(trans))))))).type)
-        #print(nsnode.sprint_node(cdr(car(car(car(cdr(car(cdr(trans)))))))))
+        #print(cdr(cdr(car(car(car(car(cdr(car(cdr(trans))))))))))
+        #print(nsnode.sprint_node(cdr(car(car(car(car(cdr(car(cdr(trans))))))))))
         
         
         
