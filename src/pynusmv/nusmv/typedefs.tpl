@@ -142,3 +142,7 @@ typedef struct string_ *string_ptr;
 typedef struct WordNumber_TAG* WordNumber_ptr;
 
 typedef enum TransType_TAG TransType;
+
+typedef struct Set_TAG* Set_t;
+typedef node_ptr Set_Element_t;
+typedef ListIter_ptr Set_Iterator_t;

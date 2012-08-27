@@ -34,3 +34,9 @@
 %include ../../../nusmv/src/compile/FlatHierarchy.h
 %include ../../../nusmv/src/compile/PredicateExtractor.h
 %include ../../../nusmv/src/compile/PredicateNormaliser.h
+
+%inline %{
+
+EXTERN FlatHierarchy_ptr mainFlatHierarchy;
+
+%}
