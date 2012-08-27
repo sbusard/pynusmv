@@ -140,3 +140,5 @@ typedef struct TimerBench_TAG* TimerBench_ptr;
 typedef struct Triple_TAG*  Triple_ptr;
 typedef struct string_ *string_ptr;
 typedef struct WordNumber_TAG* WordNumber_ptr;
+
+typedef enum TransType_TAG TransType;
