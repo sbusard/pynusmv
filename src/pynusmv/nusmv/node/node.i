@@ -33,6 +33,7 @@ node_ptr int2node(int val) {
 }
 %}
 
+
 %include ../../../nusmv/src/utils/defs.h
 %include ../../../nusmv/src/node/MasterNodeWalker.h
 %include ../../../nusmv/src/node/node.h

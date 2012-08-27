@@ -7,6 +7,7 @@ deinit_nusmv should be called after using pynusmv.
 import weakref
 import gc
 from ..nusmv.cinit import cinit
+from ..nusmv.opt import opt as nsopt
 
 # Set of pointer wrappers to collect when deiniting NuSMV
 __collector = None
@@ -26,6 +27,8 @@ def init_nusmv():
         cinit.NuSMVCore_init_data()
         cinit.NuSMVCore_init(None, 0) # No addons specified
         cinit.NuSMVCore_init_cmd_options()
+        # Set NuSMV in interactive mode to avoid fast termination when errors
+        #nsopt.unset_batch(nsopt.OptsHandler_get_instance())      
     
 
 def deinit_nusmv():
