@@ -7,6 +7,8 @@
 #include "../../../nusmv/src/node/node.h" 
 #include "../../../nusmv/src/node/NodeWalker.h"
 #include "../../../nusmv/src/dd/dd.h"
+
+#include "../../../nusmv/src/utils/ustring.h"
 %}
 
 # Renaming new_node to create_node to avoid clash with default construtor
@@ -30,6 +32,10 @@ node_ptr bdd2node(bdd_ptr ptr) {
 
 node_ptr int2node(int val) {
     return (node_ptr) val;
+}
+
+node_ptr string2node(string_ptr string) {
+    return (node_ptr) string;
 }
 %}
 

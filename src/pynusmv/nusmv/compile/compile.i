@@ -37,6 +37,7 @@
 
 %inline %{
 
+// TODO Remove this?
 EXTERN FlatHierarchy_ptr mainFlatHierarchy;
 
 %}

@@ -90,23 +90,32 @@ class TestFlatHierarchy(unittest.TestCase):
         # There seems to be at least one assign, even if the model does not
         # contain any one; in this case, the assign is empty.
         
-        
+    
+    @unittest.skip    
     def test_counters(self):
         self.print_mainFlatHierarchy("tests/pynusmv/models/counters.smv")
-        
+    
+    @unittest.skip
     def test_counters_assign(self):
         self.print_mainFlatHierarchy("tests/pynusmv/models/counters-assign.smv")
-        
+    
+    @unittest.skip    
     def test_admin(self):
         self.print_mainFlatHierarchy("tests/pynusmv/models/admin.smv")
-        
+    
+    @unittest.skip
     def test_constraints(self):
         self.print_mainFlatHierarchy("tests/pynusmv/models/constraints.smv")
-        
+    
+    @unittest.skip
     def test_mutex(self):
         self.print_mainFlatHierarchy("tests/pynusmv/models/mutex.smv")
-        
+    
+    @unittest.skip
     def test_scheduler(self):
         self.print_mainFlatHierarchy("tests/pynusmv/models/simple-scheduler.smv")
         
     
+    def test_trans_flattening(self):
+        pass # TODO Construct/get a TRANS and flatten it
+        

@@ -1,0 +1,12 @@
+MODULE mymod(t, my)
+    
+    VAR
+        inmod : boolean;
+                        
+                        
+MODULE main
+
+    VAR
+        m : mymod(top, 0);
+        n : mymod(top, m);
+        top : boolean;

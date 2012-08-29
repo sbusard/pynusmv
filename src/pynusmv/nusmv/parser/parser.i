@@ -128,6 +128,7 @@ int ReadSMVFromFile(const char *filename) {
 }
 
 
+// TODO Remove it?
 EXTERN node_ptr parsed_tree;
 
 %}

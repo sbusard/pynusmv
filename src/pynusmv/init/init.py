@@ -6,8 +6,9 @@ deinit_nusmv should be called after using pynusmv.
 """
 import weakref
 import gc
-from ..nusmv.cinit import cinit
+from ..nusmv.cinit import cinit as nscinit
 from ..nusmv.opt import opt as nsopt
+from ..nusmv.cmd import cmd as nscmd
 
 # Set of pointer wrappers to collect when deiniting NuSMV
 __collector = None
@@ -24,11 +25,17 @@ def init_nusmv():
         raise NuSMVInitError("Cannot initialize NuSMV twice.")
     else:
         __collector = []
-        cinit.NuSMVCore_init_data()
-        cinit.NuSMVCore_init(None, 0) # No addons specified
-        cinit.NuSMVCore_init_cmd_options()
+        nscinit.NuSMVCore_init_data()
+        nscinit.NuSMVCore_init(None, 0) # No addons specified
+        nscinit.NuSMVCore_init_cmd_options()
+        
         # Set NuSMV in interactive mode to avoid fast termination when errors
-        #nsopt.unset_batch(nsopt.OptsHandler_get_instance())      
+        nsopt.unset_batch(nsopt.OptsHandler_get_instance())
+        
+        # Initialize option commands (set, unset)
+        # to be able to set parser_is_lax
+        nsopt.init_options_cmd()
+        nscmd.Cmd_SecureCommandExecute("set parser_is_lax")    
     
 
 def deinit_nusmv():
@@ -51,7 +58,7 @@ def deinit_nusmv():
             if elem() is not None:
                 elem()._free()
         __collector = None
-        cinit.NuSMVCore_quit()
+        nscinit.NuSMVCore_quit()
     
     
 def reset_nusmv():
