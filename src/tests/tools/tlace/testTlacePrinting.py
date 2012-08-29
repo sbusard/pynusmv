@@ -5,7 +5,7 @@ from pynusmv.nusmv.cmd import cmd
 from pynusmv.nusmv.compile.symb_table import symb_table
 from pynusmv.nusmv.enc.bdd import bdd as bddEnc
 
-from pynusmv.fsm.fsm import BddFsm
+from pynusmv.fsm.bddFsm import BddFsm
 from pynusmv.prop.propDb import PropDb
 
 from tools.tlace.check import check

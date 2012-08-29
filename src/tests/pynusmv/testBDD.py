@@ -5,7 +5,7 @@ from pynusmv.nusmv.cmd import cmd
 
 from pynusmv.prop.propDb import PropDb
 from pynusmv.dd.bdd import BDD
-from pynusmv.fsm.fsm import BddFsm
+from pynusmv.fsm.bddFsm import BddFsm
 
 from pynusmv.init.init import init_nusmv, deinit_nusmv
 

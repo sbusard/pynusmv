@@ -1,7 +1,7 @@
 import unittest
 
 from pynusmv.init.init import init_nusmv, deinit_nusmv
-from pynusmv.fsm.fsm import BddFsm
+from pynusmv.fsm.bddFsm import BddFsm
 from pynusmv.dd.bdd import BDD
 from pynusmv.mc.mc import eval_simple_expression as evalSexp
 

@@ -1,7 +1,7 @@
 import unittest
 
 from pynusmv.init.init import init_nusmv, deinit_nusmv
-from pynusmv.fsm.fsm import BddFsm
+from pynusmv.fsm.bddFsm import BddFsm
 
 class TestGC(unittest.TestCase):
     

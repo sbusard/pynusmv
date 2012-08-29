@@ -10,7 +10,7 @@ from ..nusmv.mc import mc
 from ..nusmv.node import node as nsnode
 from ..nusmv.dd import dd as nsdd
 
-from ..fsm.fsm import BddFsm
+from ..fsm.bddFsm import BddFsm
 from ..dd.bdd import BDD
 from ..dd.state import State
 from ..dd.inputs import Inputs
