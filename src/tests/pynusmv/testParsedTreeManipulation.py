@@ -160,20 +160,29 @@ class TestParsedTreeManipulation(unittest.TestCase):
                         m),
                     inmod)
         
-        trans = nssexp.Expr_equal(
+        ftrans = nssexp.Expr_equal(
                     nssexp.Expr_next(inmod, st),
                     nssexp.Expr_or(inmod,
                         nsnode.find_node(nsparser.DOT, my, inmod)),
                     st)
+        print(nsnode.sprint_node(ftrans))
+                    
+        res, err = nsparser.ReadNextExprFromString("next(inmod) = (inmod | my.inmod) IN n")
+        self.assertEqual(err, 0)
+        trans = car(res)
+        print(nsnode.sprint_node(trans))
                     
         conttrans = nsnode.find_node(
                         nsparser.CONTEXT,
                         nsnode.find_node(nsparser.DOT, None, n),
-                        trans)
-                
-        flattrans = nscompile.Compile_FlattenSexp(st, conttrans, None)
-        
+                        ftrans)
         print(nsnode.sprint_node(conttrans))
+        
+                
+        fflattrans = nscompile.Compile_FlattenSexp(st, conttrans, None)
+        flattrans = nscompile.Compile_FlattenSexp(st, trans, None)
+        
+        print(nsnode.sprint_node(fflattrans))
         print(nsnode.sprint_node(flattrans))
         
             
