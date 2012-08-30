@@ -28,3 +28,17 @@
 %include ../../../../nusmv/src/trace/exec/SATCompleteTraceExecutor.h
 %include ../../../../nusmv/src/trace/exec/SATPartialTraceExecutor.h
 %include ../../../../nusmv/src/trace/exec/traceExec.h
+
+%inline %{
+
+PartialTraceExecutor_ptr bddPartialTraceExecutor2partialTraceExecutor(
+                                              BDDPartialTraceExecutor_ptr ptr) {
+    return (PartialTraceExecutor_ptr) ptr;
+}
+
+CompleteTraceExecutor_ptr bddCompleteTraceExecutor2completeTraceExecutor(
+                                             BDDCompleteTraceExecutor_ptr ptr) {
+    return (CompleteTraceExecutor_ptr) ptr;
+}
+
+%}

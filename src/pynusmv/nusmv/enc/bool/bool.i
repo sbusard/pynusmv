@@ -12,6 +12,12 @@
 
 %include ../../typedefs.tpl
 
+%inline %{
+BaseEnc_ptr boolenc2baseenc(BoolEnc_ptr bool_enc) {
+    return (BaseEnc_ptr) bool_enc;
+}
+%}
+
 %include ../../../../nusmv/src/utils/defs.h
 %include ../../../../nusmv/src/utils/object.h
 %include ../../../../nusmv/src/enc/bool/BitValues.h

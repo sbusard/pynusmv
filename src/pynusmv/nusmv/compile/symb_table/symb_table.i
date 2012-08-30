@@ -24,3 +24,14 @@
 %include ../../../../nusmv/src/compile/symb_table/SymbLayer.h
 %include ../../../../nusmv/src/compile/symb_table/SymbTable.h
 %include ../../../../nusmv/src/compile/symb_table/SymbType.h
+
+
+%inline %{
+
+SymbLayerIter gen_iter(const SymbLayer_ptr self, unsigned int mask) {
+    SymbLayerIter iter;
+    SymbLayer_gen_iter(self, &iter, mask);
+    return iter;
+}
+
+%}

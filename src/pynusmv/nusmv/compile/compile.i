@@ -37,7 +37,10 @@
 
 %inline %{
 
+int compile_flatten_smv(boolean calc_vars_constrains);
+
 // TODO Remove this?
 EXTERN FlatHierarchy_ptr mainFlatHierarchy;
+EXTERN cmp_struct_ptr cmps;
 
 %}

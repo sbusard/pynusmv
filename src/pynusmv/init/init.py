@@ -47,6 +47,10 @@ def deinit_nusmv():
     Apply Python garbage collection first, then collect every pointer wrapper
     that is not yet collected by Python GC.
     """
+    
+    from ..fsm.globals import Globals
+    Globals.reset_globals()    
+    
     global __collector
     if __collector is None:
         raise NuSMVInitError("Cannot deinitialize NuSMV before initialization.")
