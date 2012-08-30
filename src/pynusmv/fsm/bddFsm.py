@@ -128,22 +128,14 @@ class BddFsm(PointerWrapper):
     # ===== Static methods =====================================================
     # ==========================================================================
     
-    def from_filename(filename):
+    def from_filename(filepath):
         """
-        Return the FSM corresponding to the model in filename.
-        
-        Raise a NuSMVCommandError if something is wrong.
+        Return the FSM corresponding to the model in filepath.
         """
-        from ..prop.propDb import PropDb
-        ret = nscmd.Cmd_SecureCommandExecute("read_model -i " + filename)
-        if ret:
-            raise NuSMVCommandError("Cannot read the model " + filename)
-        ret = nscmd.Cmd_SecureCommandExecute("go")
-        if ret:
-            raise NuSMVCommandError("Cannot build the model")
-        
-        
-        propDb = PropDb.get_global_database()
+        from .globals import Globals
+        Globals.load_from_file(filepath)
+        Globals.compute_model()
+        propDb = Globals.prop_database()
         return propDb.master.bddFsm
         
         

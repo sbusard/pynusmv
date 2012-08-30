@@ -8,6 +8,7 @@ from pynusmv.mc.mc import eval_simple_expression as evalSexp
 
 from pynusmv.prop.propDb import PropDb
 from pynusmv.trans.trans import BddTrans
+from pynusmv.fsm.globals import Globals
 
 
 from pynusmv.nusmv.compile import compile as nscompile
@@ -77,7 +78,7 @@ class TestGetPartialTrans(unittest.TestCase):
         enc = nsenc.Enc_get_bdd_encoding()
         ddmanager = nsbddenc.BddEnc_get_dd_manager(enc)
         
-        propDb = PropDb.get_global_database()
+        propDb = Globals.prop_database()
         master = propDb.master
         
         sexpfsm_ptr = nsprop.Prop_get_scalar_sexp_fsm(master._ptr)

@@ -51,13 +51,3 @@ class PropDb(PointerWrapper):
         """Return an iterator on this propDb."""
         for i in range(len(self)):
             yield self[i]
-        
-    
-        
-    # ==========================================================================
-    # ===== Class methods ======================================================
-    # ==========================================================================    
-    
-    def get_global_database():
-        """Return the global prop database of NuSMV."""
-        return PropDb(nsprop.PropPkg_get_prop_database())

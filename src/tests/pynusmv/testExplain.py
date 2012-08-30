@@ -14,6 +14,7 @@ from pynusmv.spec.spec import (true as sptrue, false as spfalse, imply, iff,
                                ex, eg, ef, eu, ew, ax, ag, af, au, aw, atom)
                               
 from pynusmv.init.init import init_nusmv, deinit_nusmv
+from pynusmv.fsm.globals import Globals
 
 class TestExplain(unittest.TestCase):
     
@@ -32,7 +33,7 @@ class TestExplain(unittest.TestCase):
         ret = cmd.Cmd_SecureCommandExecute("go")
         self.assertEqual(ret, 0, "cannot build the model")
         
-        propDb = PropDb.get_global_database()
+        propDb = Globals.prop_database()
         master = propDb.master
         fsm = propDb.master.bddFsm
         return fsm
