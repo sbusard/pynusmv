@@ -43,4 +43,37 @@ int compile_flatten_smv(boolean calc_vars_constrains);
 EXTERN FlatHierarchy_ptr mainFlatHierarchy;
 EXTERN cmp_struct_ptr cmps;
 
+
+struct cmp_struct {
+  int      read_model;
+  int      hrc_built;
+  int      flatten_hierarchy;
+  int      encode_variables;
+  int      process_selector;
+  int      build_frames;
+  int      build_model;
+  int      build_flat_model;
+  int      build_bool_model;
+  int      bmc_init;
+  int      bmc_setup;
+  int      fairness_constraints;
+  int      coi;
+};
+
+void cmp_struct_reset(cmp_struct_ptr cmp) {
+    cmp->read_model           = 0;
+    cmp->hrc_built            = 0;
+    cmp->flatten_hierarchy    = 0;
+    cmp->encode_variables     = 0;
+    cmp->process_selector     = 0;
+    cmp->build_frames         = 0;
+    cmp->build_model          = 0;
+    cmp->build_flat_model     = 0;
+    cmp->build_bool_model     = 0;
+    cmp->bmc_init             = 0;
+    cmp->bmc_setup            = 0;
+    cmp->fairness_constraints = 0;
+    cmp->coi                  = 0;
+}
+
 %}

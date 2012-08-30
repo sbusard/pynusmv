@@ -78,7 +78,7 @@ class TestGlobals(unittest.TestCase):
         
         
     def test_no_encoding(self):
-        with self.assertRaises(NuSMVNoReadFileException):
+        with self.assertRaises(NuSMVNeedFlatHierarchyException):
             Globals.encode_variables()
     
     @unittest.skip # TODO See Globals source code
@@ -130,7 +130,7 @@ class TestGlobals(unittest.TestCase):
         
         
     def test_no_flat_model(self):
-        with self.assertRaises(NuSMVNoReadFileException):
+        with self.assertRaises(NuSMVNeedFlatHierarchyException):
             Globals.build_flat_model()
             
     
@@ -147,10 +147,10 @@ class TestGlobals(unittest.TestCase):
         
 
     def test_no_model(self):
-        with self.assertRaises(NuSMVNoReadFileException):
+        with self.assertRaises(NuSMVNeedFlatModelException):
             Globals.build_model()
         Globals.load_from_file("tests/pynusmv/models/counters.smv")
-        with self.assertRaises(NuSMVNeedFlatHierarchyException):
+        with self.assertRaises(NuSMVNeedFlatModelException):
             Globals.build_model()
         Globals.flatten_hierarchy()
         with self.assertRaises(NuSMVNeedFlatModelException):
