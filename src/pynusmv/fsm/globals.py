@@ -38,8 +38,7 @@ class Globals:
         
         # Reset cmps
         nscompile.cmp_struct_reset(nscompile.cvar.cmps)
-        
-        
+
     
     @classmethod
     def load_from_file(cls, filepath):
@@ -285,9 +284,19 @@ class Globals:
         Perform all the steps that are not yet performed:
         flattening, encoding, building flat model, building model.
         """
-        pass # TODO
-        # Check cmps and perform what is needed
         
+        if not nscompile.cmp_struct_get_read_model(nscompile.cvar.cmps):
+            raise NuSMVNoReadFileException("No read file.")
+        
+        # Check cmps and perform what is needed
+        if not nscompile.cmp_struct_get_flatten_hrc(nscompile.cvar.cmps):
+            cls.flatten_hierarchy()
+        if not nscompile.cmp_struct_get_encode_variables(nscompile.cvar.cmps):
+            cls.encode_variables()
+        if not nscompile.cmp_struct_get_build_flat_model(nscompile.cvar.cmps):
+            cls.build_flat_model()
+        if not nscompile.cmp_struct_get_build_model(nscompile.cvar.cmps):
+            cls.build_model()
    
         
 class NuSMVLexerException(Exception):

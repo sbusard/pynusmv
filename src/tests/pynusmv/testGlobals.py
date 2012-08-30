@@ -157,9 +157,19 @@ class TestGlobals(unittest.TestCase):
             Globals.build_model()
     
 
-    def test_flat_model(self):
+    def test_model(self):
         Globals.load_from_file("tests/pynusmv/models/counters.smv")
         Globals.flatten_hierarchy()
         Globals.encode_variables()
         Globals.build_flat_model()
         Globals.build_model()
+        
+        
+    def test_compute_model(self):
+        Globals.load_from_file("tests/pynusmv/models/counters.smv")
+        Globals.compute_model()
+        
+    
+    def test_no_compute_model(self):
+        with self.assertRaises(NuSMVNoReadFileException):
+            Globals.compute_model()
