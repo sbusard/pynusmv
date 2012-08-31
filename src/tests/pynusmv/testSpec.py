@@ -155,8 +155,3 @@ class TestSpec(unittest.TestCase):
         self.assertEqual(awspec.type, parser.AW)
         self.assertIsNotNone(awspec.car)
         self.assertIsNotNone(awspec.cdr)
-        
-    
-    def test_atom(self):
-        atomspec = atom("test")
-        self.assertIsNotNone(atomspec)

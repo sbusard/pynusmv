@@ -6,11 +6,9 @@ from pynusmv.nusmv.cmd import cmd
 from pynusmv.fsm.bddFsm import BddFsm
 from pynusmv.init.init import init_nusmv, deinit_nusmv
 
-from pynusmv.nusmv.compile.symb_table import symb_table
-from pynusmv.nusmv.compile.type_checking import type_checking
 
 from pynusmv.mc.mc import eval_ctl_spec, eval_simple_expression
-from pynusmv.spec.spec import atom
+from pynusmv.spec.spec import atom, NuSMVTypeCheckingError
 from pynusmv.prop.propDb import PropDb
 
 class TestAtom(unittest.TestCase):
@@ -28,16 +26,16 @@ class TestAtom(unittest.TestCase):
         return (fsm, fsm.bddEnc, fsm.bddEnc.DDmanager)
         
     
-    def test_success(self):
-        spec = atom("admin = alice")
+    def test_success(self):    
         fsm, _, _ = self.init_model()
+        spec = atom("admin = alice")
         specbdd = eval_ctl_spec(fsm, spec)
         self.assertTrue((specbdd & fsm.init).is_false())
         
     
-    def test_success_or(self):
-        spec = atom("admin = alice | admin = bob")
+    def test_success_or(self):    
         fsm, _, _ = self.init_model()
+        spec = atom("admin = alice | admin = bob")
         specbdd = eval_ctl_spec(fsm, spec)
         self.assertTrue((specbdd & fsm.init).is_false())
         
@@ -50,30 +48,19 @@ class TestAtom(unittest.TestCase):
         
         
     def test_wrong_type(self):
-        spec = atom("admin = starting")
         fsm, _, _ = self.init_model()
+        spec = atom("admin = starting")
         specbdd = eval_ctl_spec(fsm, spec)
         self.assertTrue(specbdd.is_false())
     
         
-    def test_unknown(self):
-        spec = atom("admin = folded")
+    def test_unknown(self):    
         fsm, _, _ = self.init_model()
-        
-        st = fsm.bddEnc.symbTable
-        tc = symb_table.SymbTable_get_type_checker(st)
-        self.assertFalse(
-                type_checking.TypeChecker_is_expression_wellformed(tc,
-                                    spec._ptr, None))
+        with self.assertRaises(NuSMVTypeCheckingError):
+            spec = atom("admin = folded")
         
         
-    # Bug since "admin" is not a boolean
-    @unittest.skip
     def test_bool(self):
-        spec = atom("admin")
         fsm, _, _ = self.init_model()
-        
-        st = fsm.bddEnc.symbTable
-        tc = symb_table.SymbTable_get_type_checker(st)
-        
-        specbdd = eval_ctl_spec(fsm, spec)
+        with self.assertRaises(NuSMVTypeCheckingError):
+            spec = atom("admin")

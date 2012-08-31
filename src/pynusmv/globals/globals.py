@@ -181,7 +181,10 @@ class Globals:
         """
         # Encode variables if needed
         if cls._bdd_encoding is None:
-            cls.encode_variables()
+            if nscompile.cmp_struct_get_encode_variables(nscompile.cvar.cmps):
+                cls._bdd_encoding = BddEnc(nsenc.Enc_get_bdd_encoding())
+            else:
+                cls.encode_variables()
         return cls._bdd_encoding
         
         

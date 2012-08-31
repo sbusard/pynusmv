@@ -1,5 +1,9 @@
-from ..nusmv.parser import parser
+from ..nusmv.parser import parser as nsparser
 from ..nusmv.node import node as nsnode
+from ..nusmv.compile.type_checking import type_checking as nstype_checking
+from ..nusmv.compile.symb_table import symb_table as nssymb_table
+
+from ..parser import parser
 
 from ..utils.pointerwrapper import PointerWrapper
 
@@ -49,130 +53,130 @@ class Spec(PointerWrapper):
     def __or__(self, other):
         if other is None:
             raise ValueError()
-        return Spec(nsnode.find_node(parser.OR, self._ptr, other._ptr))
+        return Spec(nsnode.find_node(nsparser.OR, self._ptr, other._ptr))
         
     def __and__(self, other):
         if other is None:
             raise ValueError()
-        return Spec(nsnode.find_node(parser.AND, self._ptr, other._ptr))
+        return Spec(nsnode.find_node(nsparser.AND, self._ptr, other._ptr))
         
     def __invert__(self):
-        return Spec(nsnode.find_node(parser.NOT, self._ptr, None))
+        return Spec(nsnode.find_node(nsparser.NOT, self._ptr, None))
         
 
 def true():
     """Return a new Spec corresponding to TRUE"""
-    return Spec(nsnode.find_node(parser.TRUEEXP, None, None))
+    return Spec(nsnode.find_node(nsparser.TRUEEXP, None, None))
     
 
 def false():
     """Return a new Spec corresponding to FALSE"""
-    return Spec(nsnode.find_node(parser.FALSEEXP, None, None))
+    return Spec(nsnode.find_node(nsparser.FALSEEXP, None, None))
     
     
 def nott(spec):
     """Return a new Spec corresponding to NOT spec"""
     if spec is None:
         raise ValueError()
-    return Spec(nsnode.find_node(parser.NOT, spec._ptr, None))
+    return Spec(nsnode.find_node(nsparser.NOT, spec._ptr, None))
     
 
 def andd(left, right):
     """Return a new Spec corresponding to left AND right"""
     if left is None or right is None:
         raise ValueError()
-    return Spec(nsnode.find_node(parser.AND, left._ptr, right._ptr))
+    return Spec(nsnode.find_node(nsparser.AND, left._ptr, right._ptr))
     
 
 def orr(left, right):
     """Return a new Spec corresponding to left OR right"""
     if left is None or right is None:
         raise ValueError()
-    return Spec(nsnode.find_node(parser.OR, left._ptr, right._ptr))
+    return Spec(nsnode.find_node(nsparser.OR, left._ptr, right._ptr))
        
 
 def imply(left, right):
     """Return a new Spec corresponding to (left IMPLIES right)"""
     if left is None or right is None:
         raise ValueError()
-    return Spec(nsnode.find_node(parser.IMPLIES, left._ptr, right._ptr))
+    return Spec(nsnode.find_node(nsparser.IMPLIES, left._ptr, right._ptr))
     
 
 def iff(left, right):
     """Return a new Spec corresponding to (left IFF right)"""
     if left is None or right is None:
         raise ValueError()
-    return Spec(nsnode.find_node(parser.IFF, left._ptr, right._ptr))
+    return Spec(nsnode.find_node(nsparser.IFF, left._ptr, right._ptr))
     
     
 def ex(spec):
     """Return a new Spec corresponding to EX spec"""
     if spec is None:
         raise ValueError()
-    return Spec(nsnode.find_node(parser.EX, spec._ptr, None))
+    return Spec(nsnode.find_node(nsparser.EX, spec._ptr, None))
     
 
 def eg(spec):
     """Return a new Spec corresponding to EG spec"""
     if spec is None:
         raise ValueError()
-    return Spec(nsnode.find_node(parser.EG, spec._ptr, None))
+    return Spec(nsnode.find_node(nsparser.EG, spec._ptr, None))
     
     
 def ef(spec):
     """Return a new Spec corresponding to EF spec"""
     if spec is None:
         raise ValueError()
-    return Spec(nsnode.find_node(parser.EF, spec._ptr, None))
+    return Spec(nsnode.find_node(nsparser.EF, spec._ptr, None))
     
     
 def eu(left, right):
     """Return a new Spec corresponding to EU[left U right]"""
     if left is None or right is None:
         raise ValueError()
-    return Spec(nsnode.find_node(parser.EU, left._ptr, right._ptr))
+    return Spec(nsnode.find_node(nsparser.EU, left._ptr, right._ptr))
     
     
 def ew(left, right):
     """Return a new Spec corresponding to EW[left U right]"""
     if left is None or right is None:
         raise ValueError()
-    return Spec(nsnode.find_node(parser.EW, left._ptr, right._ptr))
+    return Spec(nsnode.find_node(nsparser.EW, left._ptr, right._ptr))
     
     
 def ax(spec):
     """Return a new Spec corresponding to AX spec"""
     if spec is None:
         raise ValueError()
-    return Spec(nsnode.find_node(parser.AX, spec._ptr, None))
+    return Spec(nsnode.find_node(nsparser.AX, spec._ptr, None))
     
 
 def ag(spec):
     """Return a new Spec corresponding to AG spec"""
     if spec is None:
         raise ValueError()
-    return Spec(nsnode.find_node(parser.AG, spec._ptr, None))
+    return Spec(nsnode.find_node(nsparser.AG, spec._ptr, None))
     
     
 def af(spec):
     """Return a new Spec corresponding to AF spec"""
     if spec is None:
         raise ValueError()
-    return Spec(nsnode.find_node(parser.AF, spec._ptr, None))
+    return Spec(nsnode.find_node(nsparser.AF, spec._ptr, None))
     
     
 def au(left, right):
     """Return a new Spec corresponding to AU[left U right]"""
     if left is None or right is None:
         raise ValueError()
-    return Spec(nsnode.find_node(parser.AU, left._ptr, right._ptr))
+    return Spec(nsnode.find_node(nsparser.AU, left._ptr, right._ptr))
     
     
 def aw(left, right):
     """Return a new Spec corresponding to AW[left U right]"""
     if left is None or right is None:
         raise ValueError()
-    return Spec(nsnode.find_node(parser.AW, left._ptr, right._ptr))
+    return Spec(nsnode.find_node(nsparser.AW, left._ptr, right._ptr))
 
 
 def atom(strrep):
@@ -180,16 +184,30 @@ def atom(strrep):
     Return a new Spec corresponding to the given atom.
     
     Parse strrep and provide a new Spec representing this atom.
-    
-    Throw a NuSMVParserError if strrep is not a valid atomic proposition.
     """
-    # FIXME NuSMV abruptly exits when strrep is not an atomic proposition
-    node, err = parser.ReadSimpExprFromString(strrep)
-    if err:
-        raise NuSMVParserError(strrep + " is not a valid atomic proposition.")
-    return Spec(nsnode.car(node))
+    
+    from ..globals.globals import Globals
+    
+    # Parsing
+    node = parser.parse_simple_expression(strrep)
+    
+    # Type checking
+    # TODO Prevent printing a message on stderr
+    symb_table = Globals.bdd_encoding().symbTable
+    type_checker = nssymb_table.SymbTable_get_type_checker(symb_table)
+    expr_type = nstype_checking.TypeChecker_get_expression_type(
+                                                       type_checker, node, None)
+    if not nssymb_table.SymbType_is_boolean(expr_type):
+        raise NuSMVTypeCheckingError(strrep + " is wrongly typed.")   
+    
+    return Spec(node)
     
     
 
 class NuSMVParserError(Exception):
     """An error occured while parsing a string with NUSMV."""
+    pass
+
+class NuSMVTypeCheckingError(Exception):
+    """An expression is wrongly typed."""
+    pass
