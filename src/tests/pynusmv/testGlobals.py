@@ -4,7 +4,7 @@ from pynusmv.nusmv.parser import parser as nsparser
 from pynusmv.nusmv.cmd import cmd as nscmd
 
 from pynusmv.init.init import init_nusmv, deinit_nusmv
-from pynusmv.fsm.globals import (Globals,
+from pynusmv.globals.globals import (Globals,
                                  NuSMVNoReadFileException,
                                  NuSMVCannotFlattenException,
                                  NUSMVModelAlreadyFlattenedException,

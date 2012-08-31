@@ -8,7 +8,7 @@ from pynusmv.nusmv.parser import parser
 from pynusmv.dd.bdd import BDD
 from pynusmv.dd.bddlist import BDDList
 from pynusmv.prop.propDb import PropDb
-from pynusmv.fsm.globals import Globals
+from pynusmv.globals.globals import Globals
 
 from pynusmv.init.init import init_nusmv, deinit_nusmv
 

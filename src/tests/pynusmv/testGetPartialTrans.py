@@ -8,7 +8,7 @@ from pynusmv.mc.mc import eval_simple_expression as evalSexp
 
 from pynusmv.prop.propDb import PropDb
 from pynusmv.trans.trans import BddTrans
-from pynusmv.fsm.globals import Globals
+from pynusmv.globals.globals import Globals
 
 
 from pynusmv.nusmv.compile import compile as nscompile

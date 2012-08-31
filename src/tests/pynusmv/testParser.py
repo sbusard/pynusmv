@@ -10,7 +10,7 @@ from pynusmv.spec.spec import Spec
 from pynusmv.prop.propDb import PropDb
 
 from pynusmv.init.init import init_nusmv, deinit_nusmv
-from pynusmv.fsm.globals import Globals
+from pynusmv.globals.globals import Globals
 
 class TestParser(unittest.TestCase):
     

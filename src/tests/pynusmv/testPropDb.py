@@ -5,7 +5,7 @@ from pynusmv.nusmv.cinit import cinit
 from pynusmv.nusmv.cmd import cmd
 
 from pynusmv.prop.propDb import PropDb
-from pynusmv.fsm.globals import Globals
+from pynusmv.globals.globals import Globals
 
 from pynusmv.init.init import init_nusmv, deinit_nusmv
 

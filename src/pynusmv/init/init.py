@@ -48,7 +48,7 @@ def deinit_nusmv():
     that is not yet collected by Python GC.
     """
     
-    from ..fsm.globals import Globals
+    from ..globals.globals import Globals
     Globals.reset_globals()    
     
     global __collector

@@ -132,7 +132,7 @@ class BddFsm(PointerWrapper):
         """
         Return the FSM corresponding to the model in filepath.
         """
-        from .globals import Globals
+        from ..globals.globals import Globals
         Globals.load_from_file(filepath)
         Globals.compute_model()
         propDb = Globals.prop_database()
