@@ -173,3 +173,16 @@ class TestGlobals(unittest.TestCase):
     def test_no_compute_model(self):
         with self.assertRaises(NuSMVNoReadFileError):
             Globals.compute_model()
+            
+            
+    def test_file_error(self):
+        with self.assertRaises(IOError):
+            Globals.load_from_file(
+                            "tests/pynusmv/models/no-model.smv")
+                            
+                            
+    def test_semantics_error(self):
+        Globals.load_from_file(
+                            "tests/pynusmv/models/counter-semantics-error.smv")
+        with self.assertRaises(NuSMVCannotFlattenError):
+            Globals.flatten_hierarchy()

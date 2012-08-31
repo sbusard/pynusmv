@@ -29,6 +29,8 @@ from ..utils.exception import (NuSMVLexerError,
                                NuSMVNeedFlatModelError,
                                NUSMVModelAlreadyBuiltError,
                                NuSMVNeedVariablesEncodedError)
+                               
+import os
 
 class Globals:
     """Provide some functions to access global fsm-related structures."""
@@ -54,6 +56,10 @@ class Globals:
     @classmethod
     def load_from_file(cls, filepath):
         """Load a model from an SMV file."""
+        
+        # Check file
+        if not os.path.exists(filepath):
+            raise IOError("File {} does not exist".format(filepath))
         
         # Check cmps. Need reset_nusmv if a model is already read
         if nscompile.cmp_struct_get_read_model(nscompile.cvar.cmps):
@@ -113,6 +119,9 @@ class Globals:
         If no model is read, raise a NuSMVNoReadFileError.
         If an error occured during flattening,
             raise a NuSMVCannotFlattenError.
+            
+        In case of type checking errors, a message is printed at stderr and
+        a NuSMVCannotFlattenError is raised.
         """
         
         # Check cmps
@@ -125,7 +134,7 @@ class Globals:
             
         
         # Flatten hierarchy
-        ret = nscompile.compile_flatten_smv(0)
+        ret = nscompile.flatten_hierarchy()
         if ret != 0:
             raise NuSMVCannotFlattenError("Cannot flatten the model.")
         

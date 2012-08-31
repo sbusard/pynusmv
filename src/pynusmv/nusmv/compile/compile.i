@@ -7,6 +7,8 @@
 #include "../../../nusmv/src/compile/FlatHierarchy.h" 
 #include "../../../nusmv/src/compile/PredicateExtractor.h" 
 #include "../../../nusmv/src/compile/PredicateNormaliser.h" 
+
+#include "../../../nusmv/src/utils/error.h"
 %}
 
 # Removing possible memory leak warning.
@@ -37,7 +39,18 @@
 
 %inline %{
 
-int compile_flatten_smv(boolean calc_vars_constrains);
+// ret = 0 => Everything is ok
+// ret = 1 => Errors while flattening
+// ret = 2 => Exception (longjump) occured
+int flatten_hierarchy() {
+    int res;
+    CATCH {
+        res = compile_flatten_smv(0);
+    } FAIL {
+        res = 2;
+    }
+    return res;
+}
 
 // TODO Remove this?
 EXTERN FlatHierarchy_ptr mainFlatHierarchy;
