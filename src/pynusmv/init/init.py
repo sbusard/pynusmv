@@ -10,6 +10,8 @@ from ..nusmv.cinit import cinit as nscinit
 from ..nusmv.opt import opt as nsopt
 from ..nusmv.cmd import cmd as nscmd
 
+from ..utils.exception import NuSMVInitError
+
 # Set of pointer wrappers to collect when deiniting NuSMV
 __collector = None
 
@@ -82,8 +84,3 @@ def register_wrapper(wrapper):
         raise NuSMVInitError("Cannot register before initializing NuSMV.")
     else:
         __collector.append(weakref.ref(wrapper))
-    
-    
-class NuSMVInitError(Exception):
-    """NuSMV initialisation-related exception."""
-    pass

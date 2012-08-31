@@ -2,7 +2,7 @@
 Provide functions to parse strings and return corresponding ASTs.
 """
 
-from collections import namedtuple
+from ..utils.exception import NuSMVParsingError, Error
 
 from ..nusmv.parser import parser as nsparser
 from ..nusmv.node import node as nsnode
@@ -22,7 +22,7 @@ def parse_simple_expression(expression):
             err = nsparser.Parser_get_syntax_error(error)
             errlist.append(Error(*err[1:]))
             errors = nsnode.cdr(errors)
-        raise NuSMVParsingException(tuple(errlist))
+        raise NuSMVParsingError(tuple(errlist))
     else:
         return nsnode.car(node) # Get rid of the top SIMPWFF node
         
@@ -42,7 +42,7 @@ def parse_next_expression(expression):
             err = nsparser.Parser_get_syntax_error(error)
             errlist.append(Error(*err[1:]))
             errors = nsnode.cdr(errors)
-        raise NuSMVParsingException(tuple(errlist))
+        raise NuSMVParsingError(tuple(errlist))
     else:
         return nsnode.car(node) # Get rid of the top NEXTWFF node
         
@@ -62,38 +62,6 @@ def parse_identifier(expression):
             err = nsparser.Parser_get_syntax_error(error)
             errlist.append(Error(*err[1:]))
             errors = nsnode.cdr(errors)
-        raise NuSMVParsingException(tuple(errlist))
+        raise NuSMVParsingError(tuple(errlist))
     else:
         return nsnode.car(node) # Get rid of the top COMPID node
-        
-
-Error = namedtuple('Error', ('line', 'token', 'message'))
-Error.__str__ = lambda self: "Error at line {}, token '{}': {}".format(
-                            *self)
-Error.__repr__ = lambda self: "Error at line {}, token '{}': {}".format(
-                            *self)
-    
-    
-class NuSMVParsingException(Exception):
-    """A parsing exception. Contains several errors accessible."""
-    
-    def __init__(self, errors):
-        """
-        Initialize this exception with errors.
-        
-        errors -- a tuple of errors. An error is
-                  an Error(filename, line number, token, message).
-        """
-        super().__init__(self)
-        self._errors = errors
-        
-    def __str__(self):
-        return str(self._errors)
-        
-    def __repr__(self):
-        return repr(self._errors)
-        
-        
-    @property
-    def errors(self):
-        return self._errors

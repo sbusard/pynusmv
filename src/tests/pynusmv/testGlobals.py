@@ -4,12 +4,12 @@ from pynusmv.nusmv.parser import parser as nsparser
 from pynusmv.nusmv.cmd import cmd as nscmd
 
 from pynusmv.init.init import init_nusmv, deinit_nusmv
-from pynusmv.globals.globals import (Globals,
-                                 NuSMVNoReadFileException,
-                                 NuSMVCannotFlattenException,
-                                 NUSMVModelAlreadyFlattenedException,
-                                 NuSMVNeedFlatModelException,
-                                 NuSMVNeedFlatHierarchyException)
+from pynusmv.globals.globals import Globals
+from pynusmv.utils.exception import (NuSMVNoReadFileError,
+                                     NuSMVCannotFlattenError,
+                                     NUSMVModelAlreadyFlattenedError,
+                                     NuSMVNeedFlatModelError,
+                                     NuSMVNeedFlatHierarchyError)
 from pynusmv.parser.parser import parse_simple_expression
 
 class TestGlobals(unittest.TestCase):
@@ -44,7 +44,7 @@ class TestGlobals(unittest.TestCase):
     
     @unittest.skip # TODO See Globals source code
     def test_no_parsed_tree(self):
-        with self.assertRaises(NuSMVNoReadFileException):
+        with self.assertRaises(NuSMVNoReadFileError):
             pt = Globals.parsed_tree()
             
             
@@ -62,12 +62,12 @@ class TestGlobals(unittest.TestCase):
         
     
     def test_no_flattening_hierarchy(self):
-        with self.assertRaises(NuSMVNoReadFileException):
+        with self.assertRaises(NuSMVNoReadFileError):
             Globals.flatten_hierarchy()
     
     @unittest.skip # TODO See Globals source code
     def test_no_flat_hierarchy(self):
-        with self.assertRaises(NuSMVNoReadFileException):
+        with self.assertRaises(NuSMVNoReadFileError):
             Globals.flat_hierarchy()
             
             
@@ -78,23 +78,23 @@ class TestGlobals(unittest.TestCase):
         
         
     def test_no_encoding(self):
-        with self.assertRaises(NuSMVNeedFlatHierarchyException):
+        with self.assertRaises(NuSMVNeedFlatHierarchyError):
             Globals.encode_variables()
     
     @unittest.skip # TODO See Globals source code
     def test_no_bdd_encoding(self):
-        with self.assertRaises(NuSMVNoReadFileException):
+        with self.assertRaises(NuSMVNoReadFileError):
             Globals.bdd_encoding()
     
     def test_no_encoding_after_parsing(self):
         Globals.load_from_file("tests/pynusmv/models/counters.smv")
-        with self.assertRaises(NuSMVNeedFlatHierarchyException):
+        with self.assertRaises(NuSMVNeedFlatHierarchyError):
             Globals.encode_variables()
     
     @unittest.skip # TODO See Globals source code
     def test_no_bdd_encoding_after_parsing(self):
         Globals.load_from_file("tests/pynusmv/models/counters.smv")
-        with self.assertRaises(NuSMVNeedFlatHierarchyException):
+        with self.assertRaises(NuSMVNeedFlatHierarchyError):
             Globals.bdd_encoding()
     
     
@@ -115,9 +115,9 @@ class TestGlobals(unittest.TestCase):
         
         
     def test_no_prop_database(self):
-        with self.assertRaises(NuSMVNeedFlatHierarchyException):
+        with self.assertRaises(NuSMVNeedFlatHierarchyError):
             Globals.prop_database()
-        with self.assertRaises(NuSMVNeedFlatHierarchyException):
+        with self.assertRaises(NuSMVNeedFlatHierarchyError):
             Globals.load_from_file("tests/pynusmv/models/counters.smv")
             Globals.prop_database()
         
@@ -130,13 +130,13 @@ class TestGlobals(unittest.TestCase):
         
         
     def test_no_flat_model(self):
-        with self.assertRaises(NuSMVNeedFlatHierarchyException):
+        with self.assertRaises(NuSMVNeedFlatHierarchyError):
             Globals.build_flat_model()
             
     
     def test_no_flat_model_after_parsing(self):
         Globals.load_from_file("tests/pynusmv/models/counters.smv")
-        with self.assertRaises(NuSMVNeedFlatHierarchyException):
+        with self.assertRaises(NuSMVNeedFlatHierarchyError):
             Globals.build_flat_model()
     
 
@@ -147,13 +147,13 @@ class TestGlobals(unittest.TestCase):
         
 
     def test_no_model(self):
-        with self.assertRaises(NuSMVNeedFlatModelException):
+        with self.assertRaises(NuSMVNeedFlatModelError):
             Globals.build_model()
         Globals.load_from_file("tests/pynusmv/models/counters.smv")
-        with self.assertRaises(NuSMVNeedFlatModelException):
+        with self.assertRaises(NuSMVNeedFlatModelError):
             Globals.build_model()
         Globals.flatten_hierarchy()
-        with self.assertRaises(NuSMVNeedFlatModelException):
+        with self.assertRaises(NuSMVNeedFlatModelError):
             Globals.build_model()
     
 
@@ -171,5 +171,5 @@ class TestGlobals(unittest.TestCase):
         
     
     def test_no_compute_model(self):
-        with self.assertRaises(NuSMVNoReadFileException):
+        with self.assertRaises(NuSMVNoReadFileError):
             Globals.compute_model()

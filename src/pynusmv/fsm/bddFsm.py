@@ -137,8 +137,3 @@ class BddFsm(PointerWrapper):
         Globals.compute_model()
         propDb = Globals.prop_database()
         return propDb.master.bddFsm
-        
-        
-class NuSMVCommandError(Exception):
-    """A NuSMV command ended with an error."""
-    pass

@@ -4,6 +4,7 @@ import sys
 from pynusmv.nusmv.node import node as nsnode
 
 from pynusmv.parser.parser import *
+from pynusmv.utils.exception import NuSMVParsingError
 from pynusmv.init.init import init_nusmv, deinit_nusmv
 
 class TestPyNuSMVParsing(unittest.TestCase):
@@ -44,7 +45,7 @@ class TestPyNuSMVParsing(unittest.TestCase):
                 ]
         
         for expr in exprs:
-            with self.assertRaises(NuSMVParsingException):
+            with self.assertRaises(NuSMVParsingError):
                 node = parse_simple_expression(expr)
                 
                 
@@ -78,7 +79,7 @@ class TestPyNuSMVParsing(unittest.TestCase):
                 ]
         
         for expr in exprs:
-            with self.assertRaises(NuSMVParsingException):
+            with self.assertRaises(NuSMVParsingError):
                 node = parse_next_expression(expr)
                 
                 
@@ -114,5 +115,5 @@ class TestPyNuSMVParsing(unittest.TestCase):
                 ]
         
         for expr in exprs:
-            with self.assertRaises(NuSMVParsingException):
+            with self.assertRaises(NuSMVParsingError):
                 node = parse_identifier(expr)

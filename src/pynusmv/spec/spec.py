@@ -6,6 +6,7 @@ from ..nusmv.compile.symb_table import symb_table as nssymb_table
 from ..parser import parser
 
 from ..utils.pointerwrapper import PointerWrapper
+from ..utils.exception import NuSMVParserError, NuSMVTypeCheckingError
 
 
 class Spec(PointerWrapper):
@@ -201,13 +202,3 @@ def atom(strrep):
         raise NuSMVTypeCheckingError(strrep + " is wrongly typed.")   
     
     return Spec(node)
-    
-    
-
-class NuSMVParserError(Exception):
-    """An error occured while parsing a string with NUSMV."""
-    pass
-
-class NuSMVTypeCheckingError(Exception):
-    """An expression is wrongly typed."""
-    pass

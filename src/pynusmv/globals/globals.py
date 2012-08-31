@@ -16,8 +16,19 @@ from ..nusmv.trace import trace as nstrace
 from ..nusmv.trace.exec import exec as nstraceexec
 
 from ..enc.enc import BddEnc
-from ..parser.parser import Error, NuSMVParsingException
+from ..parser.parser import Error, NuSMVParsingError
 from ..prop.propDb import PropDb
+from ..utils.exception import (NuSMVLexerError,
+                               NuSMVNoReadFileError,
+                               NuSMVModelAlreadyReadError,
+                               NuSMVCannotFlattenError,
+                               NUSMVModelAlreadyFlattenedError,
+                               NuSMVNeedFlatHierarchyError,
+                               NUSMVModelAlreadyEncodedError,
+                               NUSMVFlatModelAlreadyBuiltError,
+                               NuSMVNeedFlatModelError,
+                               NUSMVModelAlreadyBuiltError,
+                               NuSMVNeedVariablesEncodedError)
 
 class Globals:
     """Provide some functions to access global fsm-related structures."""
@@ -46,7 +57,7 @@ class Globals:
         
         # Check cmps. Need reset_nusmv if a model is already read
         if nscompile.cmp_struct_get_read_model(nscompile.cvar.cmps):
-            raise NuSMVModelAlreadyReadException("A model is already read.")
+            raise NuSMVModelAlreadyReadError("A model is already read.")
         
         # Set the input file
         nsopt.set_input_file(nsopt.OptsHandler_get_instance(), filepath)
@@ -58,7 +69,7 @@ class Globals:
         ret = nsparser.Parser_ReadSMVFromFile(filepath)
         if ret == 2:
             # ret = 2 means lexer error
-            raise NuSMVLexerException("An error with NuSMV lexer occured.")
+            raise NuSMVLexerError("An error with NuSMV lexer occured.")
             
         # When parsing a model with parser_is_lax enabled (this is the case
         # since this is enabled in init_nusmv), the parser gets
@@ -74,7 +85,7 @@ class Globals:
                 err = nsparser.Parser_get_syntax_error(error)
                 errlist.append(Error(*err[1:]))
                 errors = nsnode.cdr(errors)
-            raise NuSMVParsingException(tuple(errlist))
+            raise NuSMVParsingError(tuple(errlist))
             
         # Update cmps
         nscompile.cmp_struct_set_read_model(nscompile.cvar.cmps)
@@ -90,7 +101,7 @@ class Globals:
 #        """Return the parsed tree of the last loaded SMV file."""
 #        # Check that a file is read
 #        if cls._parsed_tree is None:
-#            raise NuSMVNoReadFileException("No read file.")
+#            raise NuSMVNoReadFileError("No read file.")
 #        return cls._parsed_tree
         
         
@@ -99,24 +110,24 @@ class Globals:
         """
         Flatten the read model.
         
-        If no model is read, raise a NuSMVNoReadFileException.
+        If no model is read, raise a NuSMVNoReadFileError.
         If an error occured during flattening,
-            raise a NuSMVCannotFlattenException.
+            raise a NuSMVCannotFlattenError.
         """
         
         # Check cmps
         if not nscompile.cmp_struct_get_read_model(nscompile.cvar.cmps):
-            raise NuSMVNoReadFileException("Cannot flatten; no read file.")
+            raise NuSMVNoReadFileError("Cannot flatten; no read file.")
             
         if nscompile.cmp_struct_get_flatten_hrc(nscompile.cvar.cmps):
-            raise NUSMVModelAlreadyFlattenedException(
+            raise NUSMVModelAlreadyFlattenedError(
                     "Model already flattened.")
             
         
         # Flatten hierarchy
         ret = nscompile.compile_flatten_smv(0)
         if ret != 0:
-            raise NuSMVCannotFlattenException("Cannot flatten the model.")
+            raise NuSMVCannotFlattenError("Cannot flatten the model.")
         
         # TODO Wrap the pointer?
         cls._flat_hierarchy = nscompile.cvar.mainFlatHierarchy
@@ -129,9 +140,9 @@ class Globals:
 #        Compute (if needed) and return the main flat hierarchy
 #        of the current model.
 #        
-#        If no model is read, raise a NuSMVNoReadFileException.
+#        If no model is read, raise a NuSMVNoReadFileError.
 #        If an error occured during flattening,
-#            raise a NuSMVCannotFlattenException.
+#            raise a NuSMVCannotFlattenError.
 #        """
 #        # Flatten hierarchy if needed
 #        if cls._flat_hierarchy is None:
@@ -146,9 +157,9 @@ class Globals:
         """
         # Check cmps
         if not nscompile.cmp_struct_get_flatten_hrc(nscompile.cvar.cmps):
-            raise NuSMVNeedFlatHierarchyException("Need flat hierarchy.")
+            raise NuSMVNeedFlatHierarchyError("Need flat hierarchy.")
         if nscompile.cmp_struct_get_encode_variables(nscompile.cvar.cmps):
-            raise NUSMVModelAlreadyEncodedException(
+            raise NUSMVModelAlreadyEncodedError(
                                         "The variables are already encoded.")
         
         # Encode variables
@@ -175,9 +186,9 @@ class Globals:
         Compute (if needed) and return the main bdd encoding
         of the current model.
         
-        If no model is read, raise a NuSMVNoReadFileException.
+        If no model is read, raise a NuSMVNoReadFileError.
         If an error occured during flattening,
-            raise a NuSMVCannotFlattenException.
+            raise a NuSMVCannotFlattenError.
         """
         # Encode variables if needed
         if cls._bdd_encoding is None:
@@ -195,9 +206,9 @@ class Globals:
         """
         # Check cmps
         if not nscompile.cmp_struct_get_flatten_hrc(nscompile.cvar.cmps):
-            raise NuSMVNeedFlatHierarchyException("Need flat hierarchy.")
+            raise NuSMVNeedFlatHierarchyError("Need flat hierarchy.")
         if nscompile.cmp_struct_get_build_flat_model(nscompile.cvar.cmps):
-            raise NUSMVFlatModelAlreadyBuiltException(
+            raise NUSMVFlatModelAlreadyBuiltError(
                                             "The flat model is already built.")
         
         # Simplify the model
@@ -229,11 +240,11 @@ class Globals:
         
         # Check cmps
         if not nscompile.cmp_struct_get_build_flat_model(nscompile.cvar.cmps):
-            raise NuSMVNeedFlatModelException("Need flat model.")
+            raise NuSMVNeedFlatModelError("Need flat model.")
         if not nscompile.cmp_struct_get_encode_variables(nscompile.cvar.cmps):
-            raise NuSMVNeedVariablesEncodedException("Need variables encoded.")
+            raise NuSMVNeedVariablesEncodedError("Need variables encoded.")
         if nscompile.cmp_struct_get_build_model(nscompile.cvar.cmps):
-            raise NUSMVModelAlreadyBuiltException("The model is already built.")
+            raise NUSMVModelAlreadyBuiltError("The model is already built.")
         
         # Build the model
         pd = nsprop.PropPkg_get_prop_database()
@@ -275,7 +286,7 @@ class Globals:
         """
         if not nscompile.cmp_struct_get_flatten_hrc(nscompile.cvar.cmps):
             # Need a flat hierarchy
-            raise NuSMVNeedFlatHierarchyException("Need flat hierarchy.")
+            raise NuSMVNeedFlatHierarchyError("Need flat hierarchy.")
         return PropDb(nsprop.PropPkg_get_prop_database())
         
         
@@ -289,7 +300,7 @@ class Globals:
         """
         
         if not nscompile.cmp_struct_get_read_model(nscompile.cvar.cmps):
-            raise NuSMVNoReadFileException("No read file.")
+            raise NuSMVNoReadFileError("No read file.")
         
         # Check cmps and perform what is needed
         if not nscompile.cmp_struct_get_flatten_hrc(nscompile.cvar.cmps):
@@ -300,48 +311,3 @@ class Globals:
             cls.build_flat_model()
         if not nscompile.cmp_struct_get_build_model(nscompile.cvar.cmps):
             cls.build_model()
-   
-        
-class NuSMVLexerException(Exception):
-    """An error with NuSMV lexer."""
-    pass
-
-class NuSMVNoReadFileException(Exception):
-    """No SMV model has been read yet."""
-    pass
-    
-class NuSMVModelAlreadyReadException(Exception):
-    """A model is already read."""
-    pass
-
-class NuSMVCannotFlattenException(Exception):
-    """No SMV model has been read yet."""
-    pass
-
-class NUSMVModelAlreadyFlattenedException(Exception):
-    """The model is already flattened."""
-    pass
-    
-class NuSMVNeedFlatHierarchyException(Exception):
-    """The model must be flattened."""
-    pass
-    
-class NUSMVModelAlreadyEncodedException(Exception):
-    """The model is already encoded."""
-    pass
-    
-class NUSMVFlatModelAlreadyBuiltException(Exception):
-    """The flat model is already built."""
-    pass
-    
-class NuSMVNeedFlatModelException(Exception):
-    """The model must be simplified."""
-    pass
-    
-class NUSMVModelAlreadyBuiltException(Exception):
-    """The BDD model is already built."""
-    pass
-    
-class NuSMVNeedVariablesEncodedException(Exception):
-    """The variables of the model must be encoded."""
-    pass

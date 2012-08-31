@@ -1,12 +1,6 @@
 from ..nusmv.dd import dd
 from ..utils.pointerwrapper import PointerWrapper
-
-class MissingManagerError(Exception):
-    """
-    Exception for missing BDD manager.
-    """
-    pass
-    
+from ..utils.exception import MissingManagerError
 
 class BDD(PointerWrapper):
     """
