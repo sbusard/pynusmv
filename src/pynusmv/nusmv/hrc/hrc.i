@@ -29,3 +29,9 @@
 %include ../../../nusmv/src/hrc/HrcNode.h
 %include ../../../nusmv/src/hrc/hrcPrefixUtils.h
 %include ../../../nusmv/src/hrc/HrcVarDependencies.h
+
+%inline %{
+
+HrcNode_ptr mainHrcNode;
+
+%}

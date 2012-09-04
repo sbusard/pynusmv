@@ -5,7 +5,7 @@ from pynusmv.nusmv.cinit import cinit
 from pynusmv.nusmv.cmd import cmd
 
 from pynusmv.prop.propDb import PropDb
-from pynusmv.globals.globals import Globals
+from pynusmv.glob import glob
 
 from pynusmv.init.init import init_nusmv, deinit_nusmv
 
@@ -24,7 +24,7 @@ class TestPropDb(unittest.TestCase):
         
             
     def test_propDb(self):
-        propDb = Globals.prop_database()
+        propDb = glob.prop_database()
         self.assertTrue(propDb.get_size() >= 1, "propDb misses some props")
         prop = propDb.get_prop_at_index(0)
         self.assertIsNotNone(prop, "prop should not be None")

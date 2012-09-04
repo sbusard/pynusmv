@@ -50,8 +50,8 @@ def deinit_nusmv():
     that is not yet collected by Python GC.
     """
     
-    from ..globals.globals import Globals
-    Globals.reset_globals()    
+    from ..glob import glob
+    glob.reset_globals()    
     
     global __collector
     if __collector is None:

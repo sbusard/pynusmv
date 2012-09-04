@@ -7,7 +7,7 @@ from pynusmv.nusmv.enc.bdd import bdd as bddEnc
 
 from pynusmv.fsm.bddFsm import BddFsm
 from pynusmv.prop.propDb import PropDb
-from pynusmv.globals.globals import Globals
+from pynusmv.glob import glob
 
 from tools.tlace.check import check
 from tools.tlace.xml import xml_representation
@@ -31,7 +31,7 @@ class TestTlacePrinting(unittest.TestCase):
         ret = cmd.Cmd_SecureCommandExecute("go")
         self.assertEqual(ret, 0, "cannot build the model")
         
-        propDb = Globals.prop_database()
+        propDb = glob.prop_database()
         master = propDb.master
         fsm = propDb.master.bddFsm
         self.assertTrue(propDb.get_size() >= 1, "propDb has no properties")
@@ -53,7 +53,7 @@ class TestTlacePrinting(unittest.TestCase):
         ret = cmd.Cmd_SecureCommandExecute("go")
         self.assertEqual(ret, 0, "cannot build the model")
         
-        propDb = Globals.prop_database()
+        propDb = glob.prop_database()
         master = propDb.master
         fsm = propDb.master.bddFsm
         self.assertTrue(propDb.get_size() >= 1, "propDb has no properties")
@@ -75,7 +75,7 @@ class TestTlacePrinting(unittest.TestCase):
         ret = cmd.Cmd_SecureCommandExecute("go")
         self.assertEqual(ret, 0, "cannot build the model")
         
-        propDb = Globals.prop_database()
+        propDb = glob.prop_database()
         master = propDb.master
         fsm = propDb.master.bddFsm
         self.assertTrue(propDb.get_size() >= 2, "propDb has no properties")
@@ -97,7 +97,7 @@ class TestTlacePrinting(unittest.TestCase):
         ret = cmd.Cmd_SecureCommandExecute("go")
         self.assertEqual(ret, 0, "cannot build the model")
         
-        propDb = Globals.prop_database()
+        propDb = glob.prop_database()
         master = propDb.master
         fsm = propDb.master.bddFsm
         self.assertTrue(propDb.get_size() >= 5, "propDb has no properties")
@@ -119,7 +119,7 @@ class TestTlacePrinting(unittest.TestCase):
         ret = cmd.Cmd_SecureCommandExecute("go")
         self.assertEqual(ret, 0, "cannot build the model")
         
-        propDb = Globals.prop_database()
+        propDb = glob.prop_database()
         master = propDb.master
         fsm = propDb.master.bddFsm
         self.assertTrue(len(propDb) >= 6, "propDb has no properties")

@@ -39,6 +39,8 @@
 
 %inline %{
 
+int compile_flatten_smv(boolean calc_vars_constrains);
+
 // ret = 0 => Everything is ok
 // ret = 1 => Errors while flattening
 // ret = 2 => Exception (longjump) occured
@@ -51,6 +53,18 @@ int flatten_hierarchy() {
     }
     return res;
 }
+
+EXTERN void Compile_ConstructHierarchy 
+ARGS((SymbTable_ptr symb_table,
+      SymbLayer_ptr, node_ptr, node_ptr,
+      node_ptr, FlatHierarchy_ptr, HrcNode_ptr, hash_ptr));
+
+EXTERN void Compile_ProcessHierarchy ARGS((SymbTable_ptr symb_table,
+                                           SymbLayer_ptr layer,
+                                           FlatHierarchy_ptr hierachy,
+                                           node_ptr name,
+                                           boolean create_process_variables, 
+                                           boolean calc_vars_constr));
 
 // TODO Remove this?
 EXTERN FlatHierarchy_ptr mainFlatHierarchy;

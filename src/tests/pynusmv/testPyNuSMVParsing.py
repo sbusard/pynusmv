@@ -2,6 +2,7 @@ import unittest
 import sys
 
 from pynusmv.nusmv.node import node as nsnode
+from pynusmv.nusmv.parser import parser as nsparser
 
 from pynusmv.parser.parser import *
 from pynusmv.utils.exception import NuSMVParsingError
@@ -117,3 +118,51 @@ class TestPyNuSMVParsing(unittest.TestCase):
         for expr in exprs:
             with self.assertRaises(NuSMVParsingError):
                 node = parse_identifier(expr)
+                
+                
+    def test_trans_in_context(self):
+        car = nsnode.car
+        cdr = nsnode.cdr
+        
+        orig = "(next(c) = c) IN c1"
+        
+        trans = "next(c) = c"
+        context = "c1"
+        
+        origp = parse_next_expression(orig)
+        
+        transp = parse_next_expression(trans)
+        # transp is CONTEXT(None, transp body). We want only the body
+        transp = cdr(transp)
+        contextp = parse_identifier(context)
+        # contextp is ATOM. We want DOT(None, ATOM)
+        contextp = nsnode.find_node(nsparser.DOT, None, contextp)
+        
+        fullp = nsnode.find_node(nsparser.CONTEXT, contextp, transp)
+        
+        self.checkNodeTypeEqual(origp, fullp)
+        
+        
+    def checkNodeTypeEqual(self, left, right):
+        car = nsnode.car
+        cdr = nsnode.cdr
+        
+        if left is None:
+            self.assertEqual(left, right)
+        else:
+            if left.type not in {
+                nsparser.NUMBER_SIGNED_WORD,
+                nsparser.NUMBER_UNSIGNED_WORD,
+                nsparser.NUMBER_FRAC,
+                nsparser.NUMBER_EXP,
+                nsparser.NUMBER_REAL,
+                nsparser.NUMBER,
+                nsparser.ATOM,
+                nsparser.FAILURE
+            }:
+                self.assertEqual(left.type, right.type)
+                self.checkNodeTypeEqual(car(left), car(right))
+                self.checkNodeTypeEqual(cdr(left), cdr(right))
+        
+        
+        

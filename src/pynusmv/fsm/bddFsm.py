@@ -39,6 +39,7 @@ class BddFsm(PointerWrapper):
         """The transition relation of this FSM."""
         # Do not free the trans, this FSM is the owner of it
         return BddTrans(bddFsm.BddFsm_get_trans(self._ptr),
+                        self.bddEnc,
                         self.bddEnc.DDmanager,
                         freeit = False)
         
@@ -132,8 +133,8 @@ class BddFsm(PointerWrapper):
         """
         Return the FSM corresponding to the model in filepath.
         """
-        from ..globals.globals import Globals
-        Globals.load_from_file(filepath)
-        Globals.compute_model()
-        propDb = Globals.prop_database()
+        from ..glob import glob
+        glob.load_from_file(filepath)
+        glob.compute_model()
+        propDb = glob.prop_database()
         return propDb.master.bddFsm

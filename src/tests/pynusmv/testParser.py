@@ -10,7 +10,7 @@ from pynusmv.spec.spec import Spec
 from pynusmv.prop.propDb import PropDb
 
 from pynusmv.init.init import init_nusmv, deinit_nusmv
-from pynusmv.globals.globals import Globals
+from pynusmv.glob import glob
 
 class TestParser(unittest.TestCase):
     
@@ -43,7 +43,7 @@ class TestParser(unittest.TestCase):
         ret = cmd.Cmd_SecureCommandExecute("go")
         self.assertEqual(ret, 0)
         
-        propDb = Globals.prop_database()
+        propDb = glob.prop_database()
         self.assertTrue(len(propDb) >= 2)
         
         prop = propDb[1]

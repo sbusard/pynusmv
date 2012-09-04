@@ -37,6 +37,10 @@ node_ptr int2node(int val) {
 node_ptr string2node(string_ptr string) {
     return (node_ptr) string;
 }
+
+string_ptr node2string(node_ptr node) {
+    return (string_ptr) node;
+}
 %}
 
 

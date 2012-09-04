@@ -5,7 +5,7 @@ from pynusmv.nusmv.cmd import cmd
 
 from pynusmv.fsm.bddFsm import BddFsm
 from pynusmv.prop.propDb import PropDb
-from pynusmv.globals.globals import Globals
+from pynusmv.glob import glob
 
 from tools.tlace.check import check
 
@@ -28,7 +28,7 @@ class TestTlaceGeneration(unittest.TestCase):
         ret = cmd.Cmd_SecureCommandExecute("go")
         self.assertEqual(ret, 0, "cannot build the model")
         
-        propDb = Globals.prop_database()
+        propDb = glob.prop_database()
         master = propDb.master
         fsm = propDb.master.bddFsm
         self.assertTrue(propDb.get_size() >= 1, "propDb has no properties")
@@ -48,7 +48,7 @@ class TestTlaceGeneration(unittest.TestCase):
         ret = cmd.Cmd_SecureCommandExecute("go")
         self.assertEqual(ret, 0, "cannot build the model")
         
-        propDb = Globals.prop_database()
+        propDb = glob.prop_database()
         master = propDb.master
         fsm = propDb.master.bddFsm
         self.assertTrue(propDb.get_size() >= 2, "propDb misses some props")
@@ -69,7 +69,7 @@ class TestTlaceGeneration(unittest.TestCase):
         ret = cmd.Cmd_SecureCommandExecute("go")
         self.assertEqual(ret, 0, "cannot build the model")
         
-        propDb = Globals.prop_database()
+        propDb = glob.prop_database()
         master = propDb.master
         fsm = propDb.master.bddFsm
         self.assertTrue(propDb.get_size() >= 3, "propDb misses some props")
@@ -90,7 +90,7 @@ class TestTlaceGeneration(unittest.TestCase):
         ret = cmd.Cmd_SecureCommandExecute("go")
         self.assertEqual(ret, 0, "cannot build the model")
         
-        propDb = Globals.prop_database()
+        propDb = glob.prop_database()
         master = propDb.master
         fsm = propDb.master.bddFsm
         self.assertTrue(propDb.get_size() >= 4, "propDb misses some props")

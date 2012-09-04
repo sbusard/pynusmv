@@ -4,7 +4,7 @@ from pynusmv.init.init import init_nusmv, deinit_nusmv
 from pynusmv.fsm.bddFsm import BddFsm
 
 from pynusmv.prop.propDb import PropDb
-from pynusmv.globals.globals import Globals
+from pynusmv.glob import glob
 
 
 from pynusmv.nusmv.prop import prop as nsprop
@@ -30,7 +30,7 @@ class TestPrintTransForVars(unittest.TestCase):
         fsm = BddFsm.from_filename(modelpath)
         self.assertIsNotNone(fsm)
         
-        propDb = Globals.prop_database()
+        propDb = glob.prop_database()
         master = propDb.master
         
         print("MODEL:", modelpath)

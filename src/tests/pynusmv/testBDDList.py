@@ -8,7 +8,7 @@ from pynusmv.nusmv.parser import parser
 from pynusmv.dd.bdd import BDD
 from pynusmv.dd.bddlist import BDDList
 from pynusmv.prop.propDb import PropDb
-from pynusmv.globals.globals import Globals
+from pynusmv.glob import glob
 
 from pynusmv.init.init import init_nusmv, deinit_nusmv
 
@@ -43,7 +43,7 @@ class TestBDDList(unittest.TestCase):
         ret = cmd.Cmd_SecureCommandExecute("go")
         self.assertEqual(ret, 0, "cannot build the model")
         
-        propDb = Globals.prop_database()
+        propDb = glob.prop_database()
         master = propDb.master
         fsm = propDb.master.bddFsm
         
