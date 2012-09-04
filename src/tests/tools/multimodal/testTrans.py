@@ -4,7 +4,7 @@ from pynusmv.init.init import init_nusmv, deinit_nusmv
 from pynusmv.mc.mc import eval_simple_expression
 
 from tools.multimodal import glob
-from tools.multimodal.trans import BddTrans
+from tools.multimodal.bddTrans import BddTrans
 
 from pynusmv.nusmv.node import node as nsnode
 from pynusmv.nusmv.utils import utils as nsutils
