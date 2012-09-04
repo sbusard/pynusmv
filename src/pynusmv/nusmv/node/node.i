@@ -41,6 +41,10 @@ node_ptr string2node(string_ptr string) {
 string_ptr node2string(node_ptr node) {
     return (string_ptr) node;
 }
+
+boolean node_equal(node_ptr left, node_ptr right) {
+    return left == right;
+}
 %}
 
 

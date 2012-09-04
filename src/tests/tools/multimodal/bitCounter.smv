@@ -1,0 +1,29 @@
+MODULE quad(ac)
+
+    VAR
+        low : boolean;
+        up  : boolean;
+        
+    INIT
+        !low & !up
+        
+    TRANS
+        next(low) = (ac ? !low : low)
+        
+    TRANS
+        next(up) = (ac ? (low ? !up : up) : up)
+                        
+                        
+MODULE main
+
+        
+    VAR
+        upinc: boolean;
+        low : quad(TRUE);
+        up : quad(upinc);
+        
+    INIT
+        !upinc
+
+    TRANS
+        next(upinc) = (low.up ? !upinc : upinc)
