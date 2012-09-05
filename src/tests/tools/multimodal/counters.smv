@@ -5,7 +5,7 @@ MODULE counter(run, start, stop)
     
     VAR c : start..stop;
     INIT c = start
-    TRANS next(c) = case    run : case  c + 1 = stop : start;
+    TRANS next(c) = case    run : case  c = stop : start;
                                         TRUE : c + 1; esac;
                             !run: c;
                     esac

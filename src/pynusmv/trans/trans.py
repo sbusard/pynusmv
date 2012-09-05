@@ -56,17 +56,3 @@ class BddTrans(PointerWrapper):
                                                          self._ptr, states._ptr)
         img = nsbddenc.BddEnc_next_state_var_to_state_var(self._enc._ptr, img)
         return BDD(img, self._manager, freeit = True)
-        
-    
-    def post_state_input(self, states, inputs=None):
-        """
-        Compute the post-image of states, through inputs if not None.
-        
-        The returned BDD contains state and input variables.
-        """
-        if inputs is not None:
-            states = states & inputs
-        img = nsbddtrans.BddTrans_get_forward_image_state_input(
-                                                         self._ptr, states._ptr)
-        img = nsbddenc.BddEnc_next_state_var_to_state_var(self._enc._ptr, img)
-        return BDD(img, self._manager, freeit = True)

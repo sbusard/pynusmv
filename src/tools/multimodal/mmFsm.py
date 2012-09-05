@@ -23,6 +23,15 @@ class MMFsm(BddFsm):
         """Create a new MMFsm with many TRANS."""
         super().__init__(ptr, freeit)
         self._trans = trans and trans or {} 
+        
+    
+    def _abstract_inputs(self, bdd):
+        """Abstract away the input variables from bdd."""
+        ptr = nsdd.bdd_forsome(self.bddEnc.DDmanager._ptr,
+                               bdd._ptr,
+                               nsbddenc.BddEnc_get_input_vars_cube(
+                                                              self.bddEnc._ptr))
+        return BDD(ptr, self.bddEnc.DDmanager, freeit = True)
                    
                    
     def pre(self, states, inputs = None, trans = None):
@@ -48,10 +57,13 @@ class MMFsm(BddFsm):
         for tr in trans:
             if tr not in self._trans:
                 UnknownTransError(tr + " is an unknown TRANS name.")
-            result = result & self._trans[tr].pre(states, inputs)
+            result = result & self._trans[tr].pre_state_input(states, inputs)
         
         # Apply constraints on result
-        return result & self.state_constraints
+        result = result & self.state_constraints
+        
+        # Abstract input variables
+        return self._abstract_inputs(result)
         
         
     def post(self, states, inputs = None, trans = None):
@@ -71,7 +83,6 @@ class MMFsm(BddFsm):
         states = states & self.state_constraints
         if inputs is not None:
             inputs = inputs & self.inputs_constraints
-            states = states & inputs
         
         # Compute the post-image            
         result = BDD.true(self.bddEnc.DDmanager)
