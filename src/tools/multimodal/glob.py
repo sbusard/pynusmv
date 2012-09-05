@@ -9,8 +9,8 @@ from pynusmv.nusmv.node import node as nsnode
 
 from pynusmv.utils.exception import NuSMVCannotFlattenError
 from pynusmv.glob.glob import (load_from_file, _flat_hierarchy, _symb_table,
-                               reset_globals as super_reset_globals,
-                               compute_model, prop_database, symb_table)
+                               compute_model, prop_database, symb_table,
+                               bdd_encoding)
 
 from .mmFsm import MMFsm
 from .bddTrans import BddTrans

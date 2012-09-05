@@ -56,6 +56,20 @@ class TestInit(unittest.TestCase):
         self.assertEqual(p & q, fsm.pre(~p & q, a))
         
         
+    def test_post_counters(self):
+        fsm = BddFsm.from_filename("tests/pynusmv/models/counters.smv")
+        self.assertIsNotNone(fsm)
+        
+        c1c0 = evalSexp(fsm, "c1.c = 0")
+        c1c1 = evalSexp(fsm, "c1.c = 1")
+        c2c0 = evalSexp(fsm, "c2.c = 0")
+        c2c1 = evalSexp(fsm, "c2.c = 1")
+        rc1 = evalSexp(fsm, "run = rc1")
+        rc2 = evalSexp(fsm, "run = rc2")
+        
+        self.assertEqual(fsm.post(c1c0 & c2c0), (c1c1 & c2c0) | (c1c0 & c2c1))
+        
+        
     def test_post(self): 
         fsm = self.model()
         

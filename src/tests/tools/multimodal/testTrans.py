@@ -68,10 +68,15 @@ class TestTrans(unittest.TestCase):
         c2c0 = eval_simple_expression(fsm, "c2.c = 0")
         c1c1 = eval_simple_expression(fsm, "c1.c = 1")
         c2c1 = eval_simple_expression(fsm, "c2.c = 1")
+        rc1 = eval_simple_expression(fsm, "run = rc1")
+        rc2 = eval_simple_expression(fsm, "run = rc2")
         
         bddtrans = bddtranslist[-2] # c2.c TRANS
         next = bddtrans.post(fsm.init)
         self.assertEqual(next, c2c0 | c2c1)
+        
+        self.assertEqual(bddtrans.post_state_input(fsm.init),
+                         (c2c0 & rc1) | (c2c1 & rc2))
         
         bddtrans = bddtranslist[-1] # c1.c TRANS
         prev = bddtrans.pre(c1c1)

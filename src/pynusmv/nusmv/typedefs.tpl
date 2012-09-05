@@ -146,3 +146,10 @@ typedef enum TransType_TAG TransType;
 typedef struct Set_TAG* Set_t;
 typedef node_ptr Set_Element_t;
 typedef ListIter_ptr Set_Iterator_t;
+
+typedef bdd_ptr BddStates;
+typedef bdd_ptr BddInputs;
+typedef bdd_ptr BddStatesInputs;
+typedef bdd_ptr BddStatesInputsNexts;
+typedef bdd_ptr BddInvarStates;
+typedef bdd_ptr BddInvarInputs;

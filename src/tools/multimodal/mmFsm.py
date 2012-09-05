@@ -1,4 +1,11 @@
 from pynusmv.fsm.bddFsm import BddFsm
+from pynusmv.dd.bdd import BDD
+
+from pynusmv.nusmv.enc.bdd import bdd as nsbddenc
+from pynusmv.nusmv.dd import dd as nsdd
+from pynusmv.nusmv.trans.bdd import bdd as nsbddtrans
+
+from .exception import UnknownTransError
 
 class MMFsm(BddFsm):
     """
@@ -18,45 +25,75 @@ class MMFsm(BddFsm):
         self._trans = trans and trans or {} 
                    
                    
-    def pre(self, states, inputs = None):
+    def pre(self, states, inputs = None, trans = None):
         """
         Return the pre-image of states in this FSM.
         
         If inputs is not None, it is used as constraints to get pre-states
         that are reachable through these inputs.
+        
+        If trans is empty or trans is None and this FSM has no TRANS,
+        the result is TRUE (modulo this FSM state constraints).
         """
-        # TODO Reimplement with additional subset of TRANS as optional arg
-        # and by taking self._trans into account
-        if inputs is None:
-            return BDD(bddFsm.BddFsm_get_backward_image(self._ptr, states._ptr),
-                       self.bddEnc.DDmanager, freeit = True)
-        else:
-            return BDD(bddFsm.BddFsm_get_constrained_backward_image(
-                            self._ptr, states._ptr, inputs._ptr),
-                       self.bddEnc.DDmanager, freeit = True)
+        if trans is None:
+            trans = self._trans.keys()
+            
+        # Apply FSM constraints
+        states = states & self.state_constraints
+        if inputs is not None:
+            inputs = inputs & self.inputs_constraints
+        
+        # Compute the pre-image
+        result = BDD.true(self.bddEnc.DDmanager)
+        for tr in trans:
+            if tr not in self._trans:
+                UnknownTransError(tr + " is an unknown TRANS name.")
+            result = result & self._trans[tr].pre(states, inputs)
+        
+        # Apply constraints on result
+        return result & self.state_constraints
         
         
-    def post(self, states, inputs = None):
+    def post(self, states, inputs = None, trans = None):
         """
         Return the post-image of states in this FSM.
         
         If inputs is not None, it is used as constraints to get post-states
         that are reachable through these inputs.
+        
+        If trans is empty or trans is None and this FSM has no TRANS,
+        the result is TRUE (modulo this FSM state constraints).
         """
-        # TODO Reimplement with additional subset of TRANS as optional arg
-        # and by taking self._trans into account
-        if inputs is None:
-            return BDD(bddFsm.BddFsm_get_forward_image(self._ptr, states._ptr),
-                       self.bddEnc.DDmanager, freeit = True)
-        else:
-            return BDD(bddFsm.BddFsm_get_constrained_forward_image(
-                            self._ptr, states._ptr, inputs._ptr),
-                       self.bddEnc.DDmanager, freeit = True)
+        if trans is None:
+            trans = self._trans.keys()
+            
+        # Apply FSM constraints
+        states = states & self.state_constraints
+        if inputs is not None:
+            inputs = inputs & self.inputs_constraints
+            states = states & inputs
         
+        # Compute the post-image            
+        result = BDD.true(self.bddEnc.DDmanager)
+        for tr in trans:
+            if tr not in self._trans:
+                UnknownTransError(tr + " is an unknown TRANS name.")
+            trpost = self._trans[tr].post_state_input(states, inputs)
+            result = result & trpost
         
+        # Apply constraints on result
+        result = result & self.state_constraints
         
-    
-    def get_inputs_between_states(self, current, next):
+        # Abstract input variables
+        ptr = nsdd.bdd_forsome(
+                    self.bddEnc.DDmanager._ptr,
+                    result._ptr,
+                    nsbddenc.BddEnc_get_input_vars_cube(self.bddEnc._ptr))
+                    
+        return BDD(ptr, result._manager, freeit = True)
+                
+        
+    def get_inputs_between_states(self, current, next, trans = None):
         """
         Return the BDD representing the possible inputs
         between current and next.
