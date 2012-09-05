@@ -2,6 +2,7 @@ import unittest
 
 from pynusmv.init.init import init_nusmv, deinit_nusmv
 from pynusmv.mc.mc import eval_simple_expression
+from pynusmv.glob import glob as pyglob
 
 from tools.multimodal import glob
 from tools.multimodal.bddTrans import BddTrans
@@ -15,13 +16,14 @@ class TestTrans(unittest.TestCase):
         init_nusmv()
         
     def tearDown(self):
+        glob.reset_globals()
         deinit_nusmv()
         
         
     def test_flattening(self):
         glob.load_from_file("tests/pynusmv/models/counters.smv")
         
-        translist = glob.flatten_and_remove_trans()
+        translist = glob._flatten_and_remove_trans()
         self.assertTrue(len(translist) > 0)
         
         #trans = translist[-2]
@@ -33,10 +35,10 @@ class TestTrans(unittest.TestCase):
         #print(nsnode.sprint_node(nsnode.cdr(nsnode.car(trans)))) # c2
         #print(nsnode.cdr(trans).type) # 192 = EQUAL
                 
-        st = glob.symb_table()
+        st = pyglob.symb_table()
         self.assertIsNotNone(st)
         
-        glob.encode_variables()
+        pyglob.encode_variables()
         bddtranslist = []
         for trans in translist:
             context = nsnode.car(trans)
@@ -79,14 +81,13 @@ class TestTrans(unittest.TestCase):
     def test_from_string_without_context(self):
         glob.load_from_file("tests/pynusmv/models/counters.smv")
         
-        glob.flatten_hierarchy()
         glob.compute_model()
         
-        st = glob.symb_table()
+        st = pyglob.symb_table()
         trans = "(next(c1.c) = c1.c)"
         bddtrans = BddTrans.from_string(st, trans)
         
-        propDb = glob.prop_database() 
+        propDb = pyglob.prop_database() 
         master = propDb.master
         self.assertIsNotNone(master)
         self.assertIsNotNone(master._ptr)
@@ -103,14 +104,13 @@ class TestTrans(unittest.TestCase):
     def test_from_string_with_embedded_context(self):
         glob.load_from_file("tests/pynusmv/models/counters.smv")
         
-        glob.flatten_hierarchy()
         glob.compute_model()
         
-        st = glob.symb_table()
+        st = pyglob.symb_table()
         trans = "(next(c) = c) IN c1"
         bddtrans = BddTrans.from_string(st, trans)
         
-        propDb = glob.prop_database() 
+        propDb = pyglob.prop_database() 
         master = propDb.master
         self.assertIsNotNone(master)
         self.assertIsNotNone(master._ptr)
@@ -127,16 +127,15 @@ class TestTrans(unittest.TestCase):
     def test_from_string_with_context(self):
         glob.load_from_file("tests/pynusmv/models/counters.smv")
         
-        glob.flatten_hierarchy()
         glob.compute_model()
         
-        st = glob.symb_table()
+        st = pyglob.symb_table()
         trans = "(next(c) = c)"
         context = "c1"
         
         bddtrans = BddTrans.from_string(st, trans, context)
         
-        propDb = glob.prop_database() 
+        propDb = pyglob.prop_database() 
         master = propDb.master
         self.assertIsNotNone(master)
         self.assertIsNotNone(master._ptr)

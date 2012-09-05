@@ -3,7 +3,6 @@ from pynusmv.parser.parser import (parse_next_expression, parse_identifier,
                                    parse_simple_expression)
 from pynusmv.utils.exception import NuSMVTypeCheckingError
 
-from . import glob
 from pynusmv.glob import glob as superGlob
 
 from pynusmv.nusmv.compile import compile as nscompile
@@ -23,7 +22,12 @@ class BddTrans(SuperBddTrans):
             # Free it because such a BddTrans is not owned by anyone
             nsbddtrans.BddTrans_free(self._ptr)
             self._freeit = False
-            
+      
+      
+    # ==========================================================================
+    # ===== Static methods =====================================================
+    # ==========================================================================      
+    
     
     @staticmethod
     def from_trans(symb_table, trans, context=None):

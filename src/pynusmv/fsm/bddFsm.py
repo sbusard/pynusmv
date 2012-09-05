@@ -138,3 +138,4 @@ class BddFsm(PointerWrapper):
         glob.compute_model()
         propDb = glob.prop_database()
         return propDb.master.bddFsm
+        # TODO Remove this and use glob module instead

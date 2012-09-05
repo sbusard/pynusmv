@@ -1,9 +1,10 @@
 import unittest
 
+from pynusmv.init.init import init_nusmv, deinit_nusmv
 from tools.multimodal import glob
 from tools.multimodal.bddTrans import BddTrans
-from pynusmv.init.init import init_nusmv, deinit_nusmv
 from pynusmv.mc.mc import eval_simple_expression
+from pynusmv.glob import glob as pyglob
 
 from pynusmv.nusmv.node import node as nsnode
 from pynusmv.nusmv.compile import compile as nscompile
@@ -15,13 +16,14 @@ class TestFlattening(unittest.TestCase):
         init_nusmv()
         
     def tearDown(self):
+        glob.reset_globals()
         deinit_nusmv()
         
         
     def test_flattening(self):
         glob.load_from_file("tests/pynusmv/models/counters.smv")
         
-        translist = glob.flatten_and_remove_trans()
+        translist = glob._flatten_and_remove_trans()
         self.assertIsNotNone(translist)
         for tr in translist:
             self.assertIsNotNone(tr)
@@ -30,7 +32,7 @@ class TestFlattening(unittest.TestCase):
         glob.compute_model()
         
         
-        fsm = glob.prop_database().master.bddFsm
+        fsm = pyglob.prop_database().master.bddFsm
         c1c0 = eval_simple_expression(fsm, "c1.c = 0")
         c1c1 = eval_simple_expression(fsm, "c1.c = 1")
         c2c0 = eval_simple_expression(fsm, "c2.c = 0")
@@ -46,11 +48,11 @@ class TestFlattening(unittest.TestCase):
     def test_sort_trans_by_context(self):
         glob.load_from_file("tests/tools/multimodal/bitCounter.smv")
         
-        translist = glob.flatten_and_remove_trans()
+        translist = glob._flatten_and_remove_trans()
         self.assertIsNotNone(translist)
         
         glob.compute_model()
-        st = glob.symb_table()
+        st = pyglob.symb_table()
         
         transbymod = {}
         for trans in translist:
@@ -70,7 +72,7 @@ class TestFlattening(unittest.TestCase):
         lowtrans = bddtrans['low']
         maintrans = bddtrans['']
         
-        fsm = glob.prop_database().master.bddFsm
+        fsm = pyglob.prop_database().master.bddFsm
         ll = eval_simple_expression(fsm, "low.low")
         lu = eval_simple_expression(fsm, "low.up")
         ul = eval_simple_expression(fsm, "up.low")

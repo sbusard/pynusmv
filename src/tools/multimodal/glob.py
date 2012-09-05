@@ -8,10 +8,15 @@ from pynusmv.nusmv.utils import utils as nsutils
 from pynusmv.nusmv.node import node as nsnode
 
 from pynusmv.utils.exception import NuSMVCannotFlattenError
-from pynusmv.glob.glob import *
+from pynusmv.glob.glob import (load_from_file, _flat_hierarchy, _symb_table,
+                               reset_globals as super_reset_globals,
+                               compute_model, prop_database, symb_table)
+
+from .mmFsm import MMFsm
+from .bddTrans import BddTrans
 
 
-def flatten_and_remove_trans():
+def _flatten_and_remove_trans():
     """
     Flatten the current model, remove its TRANS statements and return them,
     in their context.
@@ -148,3 +153,50 @@ def flatten_and_remove_trans():
         trans = nsnode.car(trans)
     
     return translist
+    
+
+def mm_fsm():
+    """Return the multi modal FSM represented by the loaded module."""
+    
+    global _mm_fsm
+    if _mm_fsm is None:        
+        # Flatten and remove TRANS, compute the model
+        translist = _flatten_and_remove_trans()
+        compute_model()
+        
+        st = symb_table()
+    
+        # Compute the TRANS
+        transbymod = {}
+        for trans in translist:
+            context = nsnode.sprint_node(nsnode.car(trans))
+            if context not in transbymod:
+                transbymod[context] = None
+            transbymod[context] = nsnode.find_node(nsparser.AND,
+                                                   transbymod[context],
+                                                   trans)
+                 
+        bddtrans = {}                              
+        for cont in transbymod:
+            bddtrans[cont] = BddTrans.from_trans(st, transbymod[cont], None)
+        
+        # Build the mmFsm and return it
+        fsm = prop_database().master.bddFsm
+        _mm_fsm = MMFsm(fsm._ptr, bddtrans, freeit = False)
+        
+    return _mm_fsm
+
+
+# The current fsm
+_mm_fsm = None
+
+
+def reset_globals():
+    """
+    Reset multimodal.glob related global variables.
+    
+    Must be called whenever (and before) pynusmv.init.init.deinit_nusmv
+    is called.    
+    """
+    global _mm_fsm
+    _mm_fsm = None
