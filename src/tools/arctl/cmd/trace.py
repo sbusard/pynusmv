@@ -6,7 +6,8 @@ import cmd
 import argparse
 
 from pynusmv.init.init import init_nusmv, deinit_nusmv, reset_nusmv
-from pynusmv.fsm.fsm import BddFsm
+from pynusmv.fsm.bddFsm import BddFsm
+from pynusmv.utils.exception import PyNuSMVError
 
 from tools.arctl.parsing import parseArctl
 from tools.arctl.check import checkArctl
@@ -97,7 +98,7 @@ class ARCTLshell(cmd.Cmd):
                           "as shown by")
                     print_path(wit, inp, loop)
                     
-            except Exception as e:
+            except PyNuSMVError as e:
                 print("[ERROR]", e)
                 
                 

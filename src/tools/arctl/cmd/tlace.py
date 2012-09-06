@@ -6,7 +6,8 @@ import cmd
 import argparse
 
 from pynusmv.init.init import init_nusmv, deinit_nusmv, reset_nusmv
-from pynusmv.fsm.fsm import BddFsm
+from pynusmv.fsm.bddFsm import BddFsm
+from pynusmv.utils.exception import PyNuSMVError
 
 from tools.arctl.parsing import parseArctl
 from tools.arctl.check import checkArctl
@@ -55,7 +56,7 @@ class ARCTL_TLACE_shell(cmd.Cmd):
         elif arg == "":
             print("[ERROR] Need a specification.")
         else:
-            #try:
+            try:
                 spec = parseArctl(arg)[0]
                 (res, wit) = checkArctl(self.fsm, spec,
                                         explain_witness, explain_countex)
@@ -69,8 +70,8 @@ class ARCTL_TLACE_shell(cmd.Cmd):
                           "as shown by")
                     print(xml_representation(self.fsm, wit, spec))
                     
-            #except Exception as e:
-                #print("[ERROR]", e)
+            except PyNuSMVError as e:
+                print("[ERROR]", e)
                 
                 
     def do_fsm(self, arg):
