@@ -112,21 +112,6 @@ class BddTrans(SuperBddTrans):
         # Parse the string
         trans = parse_next_expression(strtrans)
         
-        #if trans.type == nsparser.CONTEXT and nsnode.car(trans) is None:
-        #    # trans is CONTEXT(None, trans body)
-        #    # we need trans body
-        #    trans = nsnode.cdr(trans)
-        #
-        ## Parse the context if needed
-        #if strcontext is not None:
-        #    context = parse_identifier(strcontext)
-        #    # No type checking since there is no way to make sure the context
-        #    # is a good module instance.
-        #    
-        #    # we need DOT(None, context parsed tree)
-        #    context = nsnode.find_node(nsparser.DOT, None, context)
-        #    trans = nsnode.find_node(nsparser.CONTEXT, context, trans)
-        
         # Type check
         expr_type = nstype_checking.TypeChecker_get_expression_type(
                                                    type_checker, trans, None)
