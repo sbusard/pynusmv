@@ -57,11 +57,11 @@ class NuSMVInitError(PyNuSMVError):
     """NuSMV initialisation-related exception."""
     pass
 
-class NuSMVParserError(Exception):
+class NuSMVParserError(PyNuSMVError):
     """An error occured while parsing a string with NuSMV."""
     pass
 
-class NuSMVTypeCheckingError(Exception):
+class NuSMVTypeCheckingError(PyNuSMVError):
     """An expression is wrongly typed."""
     pass
     
