@@ -11,6 +11,9 @@ def parse_simple_expression(expression):
     """
     Parse a simple expression.
     
+    Returned value is a SWIG wrapper for the NuSMV node_ptr.
+    It is the responsibility of the caller to manage it.
+    
     Throw a NuSMVParsingException if a parsing error occurs.
     """
     node, err = nsparser.ReadSimpExprFromString(expression)
@@ -31,6 +34,9 @@ def parse_next_expression(expression):
     """
     Parse a next expression.
     
+    Returned value is a SWIG wrapper for the NuSMV node_ptr.
+    It is the responsibility of the caller to manage it.
+    
     Throw a NUSMVParsingException if a parsing error occurs.
     """
     node, err = nsparser.ReadNextExprFromString(expression)
@@ -50,6 +56,9 @@ def parse_next_expression(expression):
 def parse_identifier(expression):
     """
     Parse an identifier.
+    
+    Returned value is a SWIG wrapper for the NuSMV node_ptr.
+    It is the responsibility of the caller to manage it.
     
     Throw a NUSMVParsingException if a parsing error occurs.
     """
