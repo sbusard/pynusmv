@@ -29,7 +29,7 @@ class TestFlattening(unittest.TestCase):
             self.assertIsNotNone(tr)
             self.assertEqual(tr.type, nsparser.CONTEXT)
         
-        glob.compute_model()
+        glob._compute_model()
         
         
         fsm = pyglob.prop_database().master.bddFsm
@@ -51,7 +51,7 @@ class TestFlattening(unittest.TestCase):
         translist = glob._flatten_and_remove_trans()
         self.assertIsNotNone(translist)
         
-        glob.compute_model()
+        glob._compute_model()
         st = pyglob.symb_table()
         
         transbymod = {}

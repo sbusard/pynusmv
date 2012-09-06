@@ -25,7 +25,7 @@ class NuSMVCannotFlattenError(PyNuSMVError):
     """No SMV model has been read yet."""
     pass
 
-class NUSMVModelAlreadyFlattenedError(PyNuSMVError):
+class NuSMVModelAlreadyFlattenedError(PyNuSMVError):
     """The model is already flattened."""
     pass
     
@@ -33,11 +33,11 @@ class NuSMVNeedFlatHierarchyError(PyNuSMVError):
     """The model must be flattened."""
     pass
     
-class NUSMVModelAlreadyEncodedError(PyNuSMVError):
+class NuSMVModelAlreadyEncodedError(PyNuSMVError):
     """The model is already encoded."""
     pass
     
-class NUSMVFlatModelAlreadyBuiltError(PyNuSMVError):
+class NuSMVFlatModelAlreadyBuiltError(PyNuSMVError):
     """The flat model is already built."""
     pass
     
@@ -45,7 +45,7 @@ class NuSMVNeedFlatModelError(PyNuSMVError):
     """The model must be simplified."""
     pass
     
-class NUSMVModelAlreadyBuiltError(PyNuSMVError):
+class NuSMVModelAlreadyBuiltError(PyNuSMVError):
     """The BDD model is already built."""
     pass
     
@@ -58,7 +58,7 @@ class NuSMVInitError(PyNuSMVError):
     pass
 
 class NuSMVParserError(Exception):
-    """An error occured while parsing a string with NUSMV."""
+    """An error occured while parsing a string with NuSMV."""
     pass
 
 class NuSMVTypeCheckingError(Exception):

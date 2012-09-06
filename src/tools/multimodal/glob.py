@@ -7,10 +7,11 @@ from pynusmv.nusmv.parser import parser as nsparser
 from pynusmv.nusmv.utils import utils as nsutils
 from pynusmv.nusmv.node import node as nsnode
 
-from pynusmv.utils.exception import NuSMVCannotFlattenError
+from pynusmv.utils.exception import (NuSMVCannotFlattenError,
+                                     NuSMVModelAlreadyFlattenedError)
 from pynusmv.glob.glob import (load_from_file, _flat_hierarchy, _symb_table,
-                               compute_model, prop_database, symb_table,
-                               bdd_encoding)
+                               compute_model as _compute_model, prop_database,
+                               symb_table, bdd_encoding)
 
 from .mmFsm import MMFsm
 from .bddTrans import BddTrans
@@ -29,7 +30,7 @@ def _flatten_and_remove_trans():
         raise NuSMVNoReadFileError("Cannot flatten; no read file.")
         
     if nscompile.cmp_struct_get_flatten_hrc(nscompile.cvar.cmps):
-        raise NUSMVModelAlreadyFlattenedError(
+        raise NuSMVModelAlreadyFlattenedError(
                 "Model already flattened.")
         
     # Flatten hierarchy
@@ -162,7 +163,7 @@ def mm_fsm():
     if _mm_fsm is None:        
         # Flatten and remove TRANS, compute the model
         translist = _flatten_and_remove_trans()
-        compute_model()
+        _compute_model()
         
         st = symb_table()
     

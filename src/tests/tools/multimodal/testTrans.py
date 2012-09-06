@@ -61,7 +61,7 @@ class TestTrans(unittest.TestCase):
             
         self.assertEqual(len(translist), len(bddtranslist))
         
-        glob.compute_model()
+        glob._compute_model()
         
         fsm = glob.prop_database().master.bddFsm
         c1c0 = eval_simple_expression(fsm, "c1.c = 0")
@@ -86,7 +86,7 @@ class TestTrans(unittest.TestCase):
     def test_from_string_without_context(self):
         glob.load_from_file("tests/pynusmv/models/counters.smv")
         
-        glob.compute_model()
+        glob._compute_model()
         
         st = pyglob.symb_table()
         trans = "(next(c1.c) = c1.c)"
@@ -109,7 +109,7 @@ class TestTrans(unittest.TestCase):
     def test_from_string_with_embedded_context(self):
         glob.load_from_file("tests/pynusmv/models/counters.smv")
         
-        glob.compute_model()
+        glob._compute_model()
         
         st = pyglob.symb_table()
         trans = "(next(c) = c) IN c1"
@@ -132,7 +132,7 @@ class TestTrans(unittest.TestCase):
     def test_from_string_with_context(self):
         glob.load_from_file("tests/pynusmv/models/counters.smv")
         
-        glob.compute_model()
+        glob._compute_model()
         
         st = pyglob.symb_table()
         trans = "(next(c) = c)"

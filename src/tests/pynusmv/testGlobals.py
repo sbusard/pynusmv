@@ -7,7 +7,7 @@ from pynusmv.init.init import init_nusmv, deinit_nusmv
 from pynusmv.glob import glob
 from pynusmv.utils.exception import (NuSMVNoReadFileError,
                                      NuSMVCannotFlattenError,
-                                     NUSMVModelAlreadyFlattenedError,
+                                     NuSMVModelAlreadyFlattenedError,
                                      NuSMVNeedFlatModelError,
                                      NuSMVNeedFlatHierarchyError)
 from pynusmv.parser.parser import parse_simple_expression

@@ -22,12 +22,12 @@ from ..utils.exception import (NuSMVLexerError,
                                NuSMVNoReadFileError,
                                NuSMVModelAlreadyReadError,
                                NuSMVCannotFlattenError,
-                               NUSMVModelAlreadyFlattenedError,
+                               NuSMVModelAlreadyFlattenedError,
                                NuSMVNeedFlatHierarchyError,
-                               NUSMVModelAlreadyEncodedError,
-                               NUSMVFlatModelAlreadyBuiltError,
+                               NuSMVModelAlreadyEncodedError,
+                               NuSMVFlatModelAlreadyBuiltError,
                                NuSMVNeedFlatModelError,
-                               NUSMVModelAlreadyBuiltError,
+                               NuSMVModelAlreadyBuiltError,
                                NuSMVNeedVariablesEncodedError)
                                
 import os
@@ -133,7 +133,7 @@ def flatten_hierarchy():
         raise NuSMVNoReadFileError("Cannot flatten; no read file.")
         
     if nscompile.cmp_struct_get_flatten_hrc(nscompile.cvar.cmps):
-        raise NUSMVModelAlreadyFlattenedError(
+        raise NuSMVModelAlreadyFlattenedError(
                 "Model already flattened.")
         
     
@@ -186,7 +186,7 @@ def encode_variables():
     if not nscompile.cmp_struct_get_flatten_hrc(nscompile.cvar.cmps):
         raise NuSMVNeedFlatHierarchyError("Need flat hierarchy.")
     if nscompile.cmp_struct_get_encode_variables(nscompile.cvar.cmps):
-        raise NUSMVModelAlreadyEncodedError(
+        raise NuSMVModelAlreadyEncodedError(
                                     "The variables are already encoded.")
     
     # Encode variables
@@ -235,7 +235,7 @@ def build_flat_model():
     if not nscompile.cmp_struct_get_flatten_hrc(nscompile.cvar.cmps):
         raise NuSMVNeedFlatHierarchyError("Need flat hierarchy.")
     if nscompile.cmp_struct_get_build_flat_model(nscompile.cvar.cmps):
-        raise NUSMVFlatModelAlreadyBuiltError(
+        raise NuSMVFlatModelAlreadyBuiltError(
                                         "The flat model is already built.")
     
     # Simplify the model
@@ -270,7 +270,7 @@ def build_model():
     if not nscompile.cmp_struct_get_encode_variables(nscompile.cvar.cmps):
         raise NuSMVNeedVariablesEncodedError("Need variables encoded.")
     if nscompile.cmp_struct_get_build_model(nscompile.cvar.cmps):
-        raise NUSMVModelAlreadyBuiltError("The model is already built.")
+        raise NuSMVModelAlreadyBuiltError("The model is already built.")
     
     # Build the model
     pd = nsprop.PropPkg_get_prop_database()
