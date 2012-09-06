@@ -4,6 +4,7 @@ from pynusmv.dd.bdd import BDD
 from pynusmv.nusmv.enc.bdd import bdd as nsbddenc
 from pynusmv.nusmv.dd import dd as nsdd
 from pynusmv.nusmv.trans.bdd import bdd as nsbddtrans
+from pynusmv.nusmv.fsm.bdd import bdd as nsbddfsm
 
 from .exception import UnknownTransError
 
@@ -27,10 +28,13 @@ class MMFsm(BddFsm):
     
     def _abstract_inputs(self, bdd):
         """Abstract away the input variables from bdd."""
-        ptr = nsdd.bdd_forsome(self.bddEnc.DDmanager._ptr,
-                               bdd._ptr,
-                               nsbddenc.BddEnc_get_input_vars_cube(
-                                                              self.bddEnc._ptr))
+        ptr = nsbddfsm.BddFsm_states_inputs_to_states(self._ptr, bdd._ptr)
+        return BDD(ptr, self.bddEnc.DDmanager, freeit = True)
+        
+        
+    def _abstract_states(self, bdd):
+        """Abstract away the state and frozen variables from bdd."""
+        ptr = nsbddfsm.BddFsm_states_inputs_to_inputs(self._ptr, bdd._ptr)
         return BDD(ptr, self.bddEnc.DDmanager, freeit = True)
                    
                    
@@ -96,22 +100,30 @@ class MMFsm(BddFsm):
         result = result & self.state_constraints
         
         # Abstract input variables
-        ptr = nsdd.bdd_forsome(
-                    self.bddEnc.DDmanager._ptr,
-                    result._ptr,
-                    nsbddenc.BddEnc_get_input_vars_cube(self.bddEnc._ptr))
-                    
-        return BDD(ptr, result._manager, freeit = True)
+        return self._abstract_inputs(result)
                 
         
     def get_inputs_between_states(self, current, next, trans = None):
         """
         Return the BDD representing the possible inputs
         between current and next.
-        """
-        # TODO Reimplement with additional subset of TRANS as optional arg
-        # and by taking self._trans into account
-        inputs = bddFsm.BddFsm_states_to_states_get_inputs(self._ptr,
-                                                           current._ptr,
-                                                           next._ptr)
-        return Inputs(inputs, self, freeit = True)
+        """        
+        if trans is None:
+            trans = self._trans.keys()
+        
+        # Get weak backward image of next in result
+        next = next & self.state_constraints
+        
+        result = BDD.true(self.bddEnc.DDmanager)
+        
+        for tr in trans:
+            if tr not in self._trans:
+                UnknownTransError(tr + " is an unknown TRANS name.")
+            trpre = self._trans[tr].pre_state_input(next, None)
+            result = result & trpre            
+        
+        # Accumulate with current
+        result = result & current
+        result = result & self.inputs_constraints
+        
+        return self._abstract_states(result)
