@@ -23,26 +23,6 @@ class Testglob(unittest.TestCase):
         
     def test_parsing(self):
         glob.load_from_file("tests/pynusmv/models/counters.smv")
-        
-    
-    def test_parsed_tree(self):
-        glob.load_from_file("tests/pynusmv/models/counters.smv")
-        pt = glob.parsed_tree()
-        self.assertIsNotNone(pt)
-        self.assertEqual(pt.type, nsparser.CONS)
-        
-   
-    def test_parsed_tree_after_reparsing(self):
-        glob.load_from_file("tests/pynusmv/models/counters.smv")
-        sexp = parse_simple_expression("c1.c = 3")
-        pt = glob.parsed_tree()
-        self.assertIsNotNone(pt)
-        self.assertEqual(pt.type, nsparser.CONS)
-        
-    
-    def test_no_parsed_tree(self):
-        with self.assertRaises(NuSMVNoReadFileError):
-            pt = glob.parsed_tree()
             
             
     def test_load_allow_flattening_with_command(self):

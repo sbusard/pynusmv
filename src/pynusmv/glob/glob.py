@@ -35,7 +35,6 @@ import os
 
 """Provide some functions to access global fsm-related structures."""
 
-_parsed_tree = None
 _bdd_encoding = None
 _prop_database = None
 _symb_table = None
@@ -44,8 +43,7 @@ _symb_table = None
 def reset_globals():
     """Reset the globals"""
     
-    global _parsed_tree, _bdd_encoding, _prop_database, _symb_table
-    _parsed_tree = None
+    global _bdd_encoding, _prop_database, _symb_table
     _bdd_encoding = None
     _prop_database = None
     _symb_table = None
@@ -95,23 +93,6 @@ def load_from_file(filepath):
         
     # Update cmps
     nscompile.cmp_struct_set_read_model(nscompile.cvar.cmps)
-    
-    # Store the parsed tree for further use
-    # TODO Wrap the pointer?
-    global _parsed_tree
-    _parsed_tree = nsparser.cvar.parsed_tree
-    
-
-def parsed_tree():
-    """Return the parsed tree of the last loaded SMV file."""
-    # Check that a file is read
-    global _parsed_tree
-    if _parsed_tree is None:
-        if nscompile.cmp_struct_get_read_model(nscompile.cvar.cmps):
-            _parsed_tree = nsparser.cvar.parsed_tree
-        else:
-            raise NuSMVNoReadFileError("No read file.")
-    return _parsed_tree
     
     
 def flatten_hierarchy():
