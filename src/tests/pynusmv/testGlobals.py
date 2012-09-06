@@ -51,19 +51,9 @@ class Testglob(unittest.TestCase):
         self.assertEqual(ret, 0)
         
     
-    def test_flat_hierarchy(self):
-        glob.load_from_file("tests/pynusmv/models/counters.smv")
-        fh = glob.flat_hierarchy()
-        self.assertIsNotNone(fh)
-        
-    
     def test_no_flattening_hierarchy(self):
         with self.assertRaises(NuSMVNoReadFileError):
             glob.flatten_hierarchy()
-    
-    def test_no_flat_hierarchy(self):
-        with self.assertRaises(NuSMVNoReadFileError):
-            glob.flat_hierarchy()
             
             
     def test_load_and_flat_allow_encoding_with_command(self):

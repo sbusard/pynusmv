@@ -24,7 +24,7 @@ class TestTypeChecking(unittest.TestCase):
         self.assertIsNotNone(sexp)
         
         st = glob.symb_table()
-        tp = nssymb_table.SymbTable_get_type_checker(st)
+        tp = nssymb_table.SymbTable_get_type_checker(st._ptr)
         expr_type = nstype_checking.TypeChecker_get_expression_type(
                                                            tp, sexp, None)
         self.assertTrue(nssymb_table.SymbType_is_error(expr_type))

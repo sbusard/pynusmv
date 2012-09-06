@@ -69,10 +69,11 @@ class BddTrans(SuperBddTrans):
                    if not None. Already parsed.
         """
         
-        flattrans = nscompile.Compile_FlattenSexp(symb_table, trans, context)
+        flattrans = nscompile.Compile_FlattenSexp(symb_table._ptr, trans,
+                                                  context)
         
         # Build the BDD trans
-        fsmbuilder = superGlob.fsm_builder()
+        fsmbuilder = nscompile.Compile_get_global_fsm_builder()
         enc = superGlob.bdd_encoding()
         ddmanager = enc.DDmanager
         
@@ -104,7 +105,7 @@ class BddTrans(SuperBddTrans):
         context -- an additional context, in which trans will be flattened,
                    if not None. A string representing the context.
         """
-        type_checker = nssymb_table.SymbTable_get_type_checker(symb_table)
+        type_checker = nssymb_table.SymbTable_get_type_checker(symb_table._ptr)
         
         if strcontext is not None:
             strtrans = "(" + strtrans + ")" + " IN " + strcontext

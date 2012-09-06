@@ -195,7 +195,7 @@ def atom(strrep):
     # Type checking
     # TODO Prevent printing a message on stderr
     symb_table = glob.bdd_encoding().symbTable
-    type_checker = nssymb_table.SymbTable_get_type_checker(symb_table)
+    type_checker = nssymb_table.SymbTable_get_type_checker(symb_table._ptr)
     expr_type = nstype_checking.TypeChecker_get_expression_type(
                                                        type_checker, node, None)
     if not nssymb_table.SymbType_is_boolean(expr_type):

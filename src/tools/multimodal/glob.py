@@ -9,7 +9,7 @@ from pynusmv.nusmv.node import node as nsnode
 
 from pynusmv.utils.exception import (NuSMVCannotFlattenError,
                                      NuSMVModelAlreadyFlattenedError)
-from pynusmv.glob.glob import (load_from_file, _flat_hierarchy, _symb_table,
+from pynusmv.glob.glob import (load_from_file, _symb_table,
                                compute_model as _compute_model,
                                prop_database as _prop_database,
                                symb_table, bdd_encoding)
@@ -137,8 +137,7 @@ def _flatten_and_remove_trans():
         nscompile.cmp_struct_set_flatten_hrc(nscompile.cvar.cmps)   
     
         # TODO Wrap the pointers?
-        global _flat_hierarchy, _symb_table
-        _flat_hierarchy = nscompile.cvar.mainFlatHierarchy
+        global _symb_table
         _symb_table = nscompile.Compile_get_global_symb_table()
         
         

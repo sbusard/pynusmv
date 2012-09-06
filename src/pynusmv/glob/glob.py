@@ -16,6 +16,7 @@ from ..nusmv.trace import trace as nstrace
 from ..nusmv.trace.exec import exec as nstraceexec
 
 from ..enc.enc import BddEnc
+from ..symb_table.symb_table import SymbTable
 from ..parser.parser import Error, NuSMVParsingError
 from ..prop.propDb import PropDb
 from ..utils.exception import (NuSMVLexerError,
@@ -35,7 +36,6 @@ import os
 """Provide some functions to access global fsm-related structures."""
 
 _parsed_tree = None
-_flat_hierarchy = None
 _bdd_encoding = None
 _prop_database = None
 _symb_table = None
@@ -44,10 +44,8 @@ _symb_table = None
 def reset_globals():
     """Reset the globals"""
     
-    global _parsed_tree, _flat_hierarchy, _bdd_encoding
-    global _prop_database, _symb_table
+    global _parsed_tree, _bdd_encoding, _prop_database, _symb_table
     _parsed_tree = None
-    _flat_hierarchy = None
     _bdd_encoding = None
     _prop_database = None
     _symb_table = None
@@ -143,24 +141,8 @@ def flatten_hierarchy():
         raise NuSMVCannotFlattenError("Cannot flatten the model.")
     
     # TODO Wrap the pointers?
-    global _flat_hierarchy, _symb_table
-    _flat_hierarchy = nscompile.cvar.mainFlatHierarchy
-    _symb_table = nscompile.Compile_get_global_symb_table()
-    
-
-def flat_hierarchy():
-    """
-    Compute (if needed) and return the main flat hierarchy
-    of the current model.
-    """
-    # Flatten hierarchy if needed
-    global _flat_hierarchy
-    if _flat_hierarchy is None:
-        if nscompile.cmp_struct_get_flatten_hrc(nscompile.cvar.cmps):
-            _flat_hierarchy = nscompile.cvar.mainFlatHierarchy
-        else:
-            flatten_hierarchy()
-    return _flat_hierarchy
+    global _symb_table
+    _symb_table = SymbTable(nscompile.Compile_get_global_symb_table())
     
     
 def symb_table():
@@ -172,7 +154,7 @@ def symb_table():
     global _symb_table
     if _symb_table is None:
         if nscompile.cmp_struct_get_flatten_hrc(nscompile.cvar.cmps):
-            _symb_table = nscompile.Compile_get_global_symb_table()
+            _symb_table = SymbTable(nscompile.Compile_get_global_symb_table())
         else:
             flatten_hierarchy()
     return _symb_table
@@ -338,12 +320,3 @@ def compute_model():
         build_flat_model()
     if not nscompile.cmp_struct_get_build_model(nscompile.cvar.cmps):
         build_model()
-        
-
-def fsm_builder():
-    """Return the global FSM builder."""
-    # The global FSM builder is created when initializing
-    # the Compile package. So it can be get at any moment when NuSMV
-    # is initialized
-    # TODO Wrap the pointer?
-    return nscompile.Compile_get_global_fsm_builder()

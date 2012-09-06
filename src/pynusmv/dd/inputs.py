@@ -31,8 +31,8 @@ class Inputs(BDD):
         table = enc.symbTable
 
         # Get symbols (SymbTable) for inputs
-        layers = symb_table.SymbTable_get_class_layer_names(table, None)
-        symbols = symb_table.SymbTable_get_layers_i_symbols(table, layers)
+        layers = symb_table.SymbTable_get_class_layer_names(table._ptr, None)
+        symbols = symb_table.SymbTable_get_layers_i_symbols(table._ptr, layers)
 
         # Get assign symbols (BddEnc)
         assignList = bddEnc.BddEnc_assign_symbols(enc._ptr,self._ptr,
