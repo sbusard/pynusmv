@@ -63,7 +63,7 @@ class TestTrans(unittest.TestCase):
         
         glob._compute_model()
         
-        fsm = glob.prop_database().master.bddFsm
+        fsm = pyglob.prop_database().master.bddFsm
         c1c0 = eval_simple_expression(fsm, "c1.c = 0")
         c2c0 = eval_simple_expression(fsm, "c2.c = 0")
         c1c1 = eval_simple_expression(fsm, "c1.c = 1")

@@ -10,7 +10,8 @@ from pynusmv.nusmv.node import node as nsnode
 from pynusmv.utils.exception import (NuSMVCannotFlattenError,
                                      NuSMVModelAlreadyFlattenedError)
 from pynusmv.glob.glob import (load_from_file, _flat_hierarchy, _symb_table,
-                               compute_model as _compute_model, prop_database,
+                               compute_model as _compute_model,
+                               prop_database as _prop_database,
                                symb_table, bdd_encoding)
 
 from .mmFsm import MMFsm
@@ -182,7 +183,7 @@ def mm_fsm():
             bddtrans[cont] = BddTrans.from_trans(st, transbymod[cont], None)
         
         # Build the mmFsm and return it
-        fsm = prop_database().master.bddFsm
+        fsm = _prop_database().master.bddFsm
         _mm_fsm = MMFsm(fsm._ptr, bddtrans, freeit = False)
         
     return _mm_fsm
