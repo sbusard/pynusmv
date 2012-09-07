@@ -26,7 +26,7 @@ To build PyNuSMV, you have to compile NuSMV first:
 
 # Compile CUDD
 cd src/cudd-2.4.1.1
-make # use platform-dependent makefile if needed
+make # use platform-specific makefile if needed
 
 # Compile NuSMV
 cd ../nusmv
