@@ -1,0 +1,50 @@
+PyNuSMV is distributed with some tools developed thanks to the library. These tools serve as examples of how to use PyNuSMV and what can be achieved. This section describes the tools currently distributed with PyNuSMV.
+
+
+1. TLACE
+--------------------------------------------------------------------------------
+
+This tool is provided in the tools.tlace package.
+     
+Tree-Like Annotated Counter-Examples (TLACEs for short) are rich branching counter-examples [BP12]. This tool extends NuSMV explanations to produce these rich counter-examples instead of single paths. It uses NuSMV model checking algorithms and path explanation generators (ex_explain, eg_explain, eu_explain), the parser for CTL formulas, etc. The result is a tool taking an SMV model as argument, checking all CTL properties of the model and producing TLACEs when the property is violated.
+
+To run this tool, launch the following command from the src/ directory of PyNuSMV package.
+
+python -m tools.tlace.tlace MODEL
+
+where MODEL is an SMV model. The tool computes the given model, check all its CTL specifications and produces a TLACE explaining why each violated specification is violated.
+
+    
+2. ARCTL + TLACE
+--------------------------------------------------------------------------------
+     
+Action-Restricted CTL (ARCTL for short) is an extension of CTL where quantified paths are restricted to paths of actions satisfying a propositional property [PR06]. This tool is defined in the tools.arctl package.
+
+It performs ARCTL model checking on SMV models and produces counter-examples and witnesses to explain ARCTL properties violation or satisfaction. These diagnostics can be either simple paths of the system or full TLACEs; TLACEs are defined in the separated sub-package tools.arctl.tlace.
+
+Finally, this tool provides two CLI to use these functionalities; these CLI are defined in the sub-package tools.arctl.cmd. tools.arctl.cmd.trace is a CLI that allows to read a system from an SMV model and to check ARCTL specifications over it. Whatever the result of the verification, this CLI produces a diagnostic to explain the verification outcome. This CLI produces simple paths of the system as diagnostics. On the other hand, tools.arctl.cmd.tlace provides the same functionalities but produces TLACEs as diagnostics.
+
+To run this tool, launch the following command from the src/ directory of PyNuSMV package.
+
+python -m tools.arctl.cmd.trace
+
+This gives a prompt accepting some commands. The list of accepted commands can be shown using the help command.
+
+To launch the CLI producing TLACEs. Just run the same command with tlace instead of trace; accepted commands are the same.
+	
+	
+3. Multimodal systems
+--------------------------------------------------------------------------------
+
+A multimodal system is a system with several transition realtions. The tool given in the tools.multimodal package is not a full program like the two previous ones but an extension of PyNuSMV. This extension allows to generate a multimodal system from an SMV model. This model contains several BddTrans, each one representing the transition relation of a particular context, i.e. the transition relation of the variables of the instance of a module.
+
+With this multimodal system, it is possible to compute the pre- or post-image of a BDD representing a set of states of the model through only a sub-set of the different transition relations.
+
+To use this extension of PyNuSMV, the model can be generated thanks to the functions given in the tools.multimodal.glob module. This gives a MMFsm, defined in the tools.multimodal.mmFsm module; as this class is a sub-class of the pynusmv.fsm.bddFsm.BddFsm class, all the operations provided by the latter one are accessible on the former one.
+
+
+REFERENCES
+--------------------------------------------------------------------------------
+
+[BP12] Simon Busard, Charles Pecheur: Rich Counter-Examples for Temporal-Epistemic Logic Model Checking. IWIGP 2012: 39-53
+[PR06] Charles Pecheur, Franco Raimondi: Symbolic Model Checking of Logics with Actions. MoChArt 2006: 113-128
