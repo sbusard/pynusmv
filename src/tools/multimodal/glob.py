@@ -1,3 +1,8 @@
+"""
+Provide some functions to compute the model and build a multimodal FSM from
+a given SMV model.
+"""
+
 from pynusmv.nusmv.compile import compile as nscompile
 from pynusmv.nusmv.compile.symb_table import symb_table as nssymb_table
 from pynusmv.nusmv.hrc import hrc as nshrc

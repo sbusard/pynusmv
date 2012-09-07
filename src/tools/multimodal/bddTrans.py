@@ -17,6 +17,11 @@ from pynusmv.nusmv.node import node as nsnode
 from pynusmv.nusmv.parser import parser as nsparser
 
 class BddTrans(SuperBddTrans):
+    """
+    A BddTrans with more functionalities like post-operation including
+    input variables in the result. Useful to perform post-operation with
+    several transition relations.
+    """
     
     def _free(self):
         if self._freeit and self._ptr is not None:
