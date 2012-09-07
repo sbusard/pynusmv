@@ -132,6 +132,8 @@ class BddFsm(PointerWrapper):
     def from_filename(filepath):
         """
         Return the FSM corresponding to the model in filepath.
+        
+        This function modifies the global environment of NuSMV.
         """
         from ..glob import glob
         glob.load_from_file(filepath)

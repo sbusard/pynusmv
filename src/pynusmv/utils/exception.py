@@ -1,3 +1,11 @@
+"""
+Provide all the exceptions used in PyNuSMV.
+
+Every particular exception raised by a PyNuSMV function is a sub-class
+of the class PyNuSMVError, such that one can catch all PyNuSMV while letting
+the other go by catching PyNuSMVError exceptions.
+"""
+
 from collections import namedtuple
 
 
@@ -73,7 +81,10 @@ Error.__repr__ = lambda self: "Error at line {}, token '{}': {}".format(
                             *self)    
     
 class NuSMVParsingError(PyNuSMVError):
-    """A parsing exception. Contains several errors accessible."""
+    """
+    A parsing exception. Contains several errors accessible through
+    the "errors" attribute.
+    """
     
     def __init__(self, errors):
         """

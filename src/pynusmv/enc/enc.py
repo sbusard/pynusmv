@@ -22,6 +22,6 @@ class BddEnc(PointerWrapper):
     
     @property
     def symbTable(self):
-        """Return a pointer to the NuSMV symb table of this enc."""
+        """Return the NuSMV symb table of this enc."""
         base_enc = bddEnc.bddenc2baseenc(self._ptr)
         return SymbTable(baseEnc.BaseEnc_get_symb_table(base_enc))

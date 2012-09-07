@@ -185,6 +185,9 @@ def atom(strrep):
     Return a new Spec corresponding to the given atom.
     
     Parse strrep and provide a new Spec representing this atom.
+    The parsed spec is type checked on the current model. A model needs to be
+    read and with variables encoded to be able to type check the atomic
+    proposition.
     """
     
     from ..glob import glob
@@ -195,6 +198,7 @@ def atom(strrep):
     # Type checking
     # TODO Prevent printing a message on stderr
     symb_table = glob.bdd_encoding().symbTable
+    # TODO Type check only if symb_table is not None? With a Warning?
     type_checker = nssymb_table.SymbTable_get_type_checker(symb_table._ptr)
     expr_type = nstype_checking.TypeChecker_get_expression_type(
                                                        type_checker, node, None)

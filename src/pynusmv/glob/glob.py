@@ -102,6 +102,7 @@ def flatten_hierarchy():
     If no model is read, raise a NuSMVNoReadFileError.
     If an error occured during flattening,
         raise a NuSMVCannotFlattenError.
+    If the model is already flattened, raise a NuSMVModelAlreadyFlattenedError.
         
     In case of type checking errors, a message is printed at stderr and
     a NuSMVCannotFlattenError is raised.
@@ -144,6 +145,9 @@ def symb_table():
 def encode_variables():
     """
     Encode the BDD variables of the current model.
+    
+    If the model is not flattened, raise a NuSMVNeedFlatHierarchyError;
+    if the variables are already encoded, raise a NuSMVModelAlreadyEncodedError.
     """
     # Check cmps
     if not nscompile.cmp_struct_get_flatten_hrc(nscompile.cvar.cmps):
@@ -175,10 +179,6 @@ def bdd_encoding():
     """
     Compute (if needed) and return the main bdd encoding
     of the current model.
-    
-    If no model is read, raise a NuSMVNoReadFileError.
-    If an error occured during flattening,
-        raise a NuSMVCannotFlattenError.
     """
     # Encode variables if needed
     global _bdd_encoding
@@ -193,6 +193,9 @@ def bdd_encoding():
 def build_flat_model():
     """
     Build the Sexp FSM of the current model.
+    
+    If the model is not flattened, raise a NuSMVNeedFlatHierarchyError;
+    if the Sexp FSM is already built, raise a NuSMVFlatModelAlreadyBuiltError.
     """
     # Check cmps
     if not nscompile.cmp_struct_get_flatten_hrc(nscompile.cvar.cmps):
@@ -225,6 +228,13 @@ def build_flat_model():
 def build_model():
     """
     Build the BDD FSM of the current model.
+    
+    If the Sexp FSM of the model is not built yet,
+        raise a NuSMVNeedFlatModelError;
+    if the variables of the model are not encoded yet,
+        raise a NuSMVNeedVariablesEncodedError;
+    if the BDD FSM of the model is already built,
+        raise a NuSMVModelAlreadyBuiltError
     """
     
     # Check cmps
