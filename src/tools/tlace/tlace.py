@@ -4,6 +4,7 @@ import argparse
 from pynusmv.prop.propDb import PropDb
 from pynusmv.prop.prop import propTypes
 from pynusmv.init.init import init_nusmv, deinit_nusmv
+from pynusmv.glob import glob
 from pynusmv.fsm.bddFsm import BddFsm
 
 from tools.tlace.check import check as check_ctl_spec
@@ -29,7 +30,7 @@ def check_and_explain(allargs):
     
     # Initialize the model
     fsm = BddFsm.from_filename(args.model)
-    propDb = PropDb.get_global_database()
+    propDb = glob.prop_database()
     
     # Check all CTL properties
     for prop in propDb:
