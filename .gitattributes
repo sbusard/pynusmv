@@ -1,7 +1,7 @@
 /COMPILE export-ignore
 /doc export-ignore
 /QUESTIONS export-ignore
-/tools export-ignore
+/bin export-ignore
 /utils export-ignore
 
 /.gitattributes export-ignore
