@@ -91,27 +91,26 @@ class TestFlatHierarchy(unittest.TestCase):
         # contain any one; in this case, the assign is empty.
         
     
-    @unittest.skip    
     def test_counters(self):
         self.print_mainFlatHierarchy("tests/pynusmv/models/counters.smv")
     
-    @unittest.skip
+    
     def test_counters_assign(self):
         self.print_mainFlatHierarchy("tests/pynusmv/models/counters-assign.smv")
     
-    @unittest.skip    
+    
     def test_admin(self):
         self.print_mainFlatHierarchy("tests/pynusmv/models/admin.smv")
     
-    @unittest.skip
+    
     def test_constraints(self):
         self.print_mainFlatHierarchy("tests/pynusmv/models/constraints.smv")
     
-    @unittest.skip
+    
     def test_mutex(self):
         self.print_mainFlatHierarchy("tests/pynusmv/models/mutex.smv")
     
-    @unittest.skip
+    
     def test_scheduler(self):
         self.print_mainFlatHierarchy("tests/pynusmv/models/simple-scheduler.smv")
         

@@ -14,13 +14,13 @@ class TestMMFsm(unittest.TestCase):
         glob.reset_globals()
         deinit_nusmv()
         
-    @unittest.skip    
+    
     def test_fsm(self):
         glob.load_from_file("tests/tools/multimodal/bitCounter.smv")
         fsm = glob.mm_fsm()
         self.assertIsNotNone(fsm)
         
-    @unittest.skip    
+    
     def test_post_bitCounter(self):
         glob.load_from_file("tests/tools/multimodal/bitCounter.smv")
         fsm = glob.mm_fsm()
