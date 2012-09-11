@@ -20,7 +20,7 @@ class MMFsm(BddFsm):
     BDD.
     """
     
-    def __init__(self, ptr, trans = None, freeit = True):
+    def __init__(self, ptr, trans = None, freeit = False):
         """Create a new MMFsm with many TRANS."""
         super().__init__(ptr, freeit)
         self._trans = trans and trans or {} 
@@ -60,7 +60,7 @@ class MMFsm(BddFsm):
         result = BDD.true(self.bddEnc.DDmanager)
         for tr in trans:
             if tr not in self._trans:
-                UnknownTransError(tr + " is an unknown TRANS name.")
+                raise UnknownTransError(tr + " is an unknown TRANS name.")
             result = result & self._trans[tr].pre_state_input(states, inputs)
         
         # Apply constraints on result
@@ -92,7 +92,7 @@ class MMFsm(BddFsm):
         result = BDD.true(self.bddEnc.DDmanager)
         for tr in trans:
             if tr not in self._trans:
-                UnknownTransError(tr + " is an unknown TRANS name.")
+                raise UnknownTransError(tr + " is an unknown TRANS name.")
             trpost = self._trans[tr].post_state_input(states, inputs)
             result = result & trpost
         
@@ -118,7 +118,7 @@ class MMFsm(BddFsm):
         
         for tr in trans:
             if tr not in self._trans:
-                UnknownTransError(tr + " is an unknown TRANS name.")
+                raise UnknownTransError(tr + " is an unknown TRANS name.")
             trpre = self._trans[tr].pre_state_input(next, None)
             result = result & trpre            
         
