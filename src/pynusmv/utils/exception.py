@@ -73,6 +73,10 @@ class NuSMVTypeCheckingError(PyNuSMVError):
     """An expression is wrongly typed."""
     pass
     
+class NuSMVFlatteningError(PyNuSMVError):
+    """An error occured while flattening some expression."""
+    pass
+    
         
 Error = namedtuple('Error', ('line', 'token', 'message'))
 Error.__str__ = lambda self: "Error at line {}, token '{}': {}".format(

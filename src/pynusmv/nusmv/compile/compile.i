@@ -66,6 +66,7 @@ EXTERN void Compile_ProcessHierarchy ARGS((SymbTable_ptr symb_table,
                                            boolean create_process_variables, 
                                            boolean calc_vars_constr));
 
+
 // TODO Remove this?
 EXTERN FlatHierarchy_ptr mainFlatHierarchy;
 EXTERN cmp_struct_ptr cmps;
@@ -104,3 +105,55 @@ void cmp_struct_reset(cmp_struct_ptr cmp) {
 }
 
 %}
+
+
+# Typemap to be sure that even the node_ptr is Nil, it is returned as None
+%typemap(in, numinputs=0) int* error (int temp) {
+    $1 = &temp;
+}
+
+%typemap(argout) int* error {
+    PyObject *o, *o2, *o3;
+    o = PyInt_FromLong(*$1);
+    if (!$result) {
+        $result = o;
+    } else {
+        if (!PyTuple_Check($result)) {
+            PyObject *o2 = $result;
+            $result = PyTuple_New(1);
+            PyTuple_SetItem($result,0,o2);
+        }
+        o3 = PyTuple_New(1);
+        PyTuple_SetItem(o3,0,o);
+        o2 = $result;
+        $result = PySequence_Concat(o2,o3);
+        Py_DECREF(o2);
+        Py_DECREF(o3);
+    }
+}
+
+%inline %{
+
+// Helper for Compile_FlattenSexp with handling exceptions
+// error = 0 => No exception
+// error = 1 => Exception thrown                                         
+node_ptr FlattenSexp(const SymbTable_ptr symb_table, node_ptr sexp,
+                             node_ptr context, int* error)
+{
+  node_ptr result;
+  
+  CATCH {
+    result = Compile_FlattenSexp(symb_table, sexp, context);
+    *error = 0;
+  }
+  FAIL {
+    result = Nil;
+    *error = 1;
+  }
+
+  return result;
+}
+
+%}
+
+%clear int* error;

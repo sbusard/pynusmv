@@ -1,7 +1,7 @@
 from pynusmv.trans.trans import BddTrans as SuperBddTrans
 from pynusmv.parser.parser import (parse_next_expression, parse_identifier,
                                    parse_simple_expression)
-from pynusmv.utils.exception import NuSMVTypeCheckingError
+from pynusmv.utils.exception import NuSMVTypeCheckingError, NuSMVFlatteningError
 from pynusmv.dd.bdd import BDD
 
 from pynusmv.glob import glob as superGlob
@@ -74,8 +74,11 @@ class BddTrans(SuperBddTrans):
                    if not None. Already parsed.
         """
         
-        flattrans = nscompile.Compile_FlattenSexp(symb_table._ptr, trans,
+        flattrans, err = nscompile.FlattenSexp(symb_table._ptr, trans,
                                                   context)
+        if err:
+            raise NuSMVFlatteningError("Cannot flatten TRANS")
+        
         
         # Build the BDD trans
         fsmbuilder = nscompile.Compile_get_global_fsm_builder()

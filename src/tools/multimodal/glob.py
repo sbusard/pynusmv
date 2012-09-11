@@ -181,7 +181,7 @@ def mm_fsm():
             transbymod[context] = nsnode.find_node(nsparser.AND,
                                                    transbymod[context],
                                                    trans)
-                 
+        
         bddtrans = {}                              
         for cont in transbymod:
             bddtrans[cont] = BddTrans.from_trans(st, transbymod[cont], None)
