@@ -2,6 +2,7 @@ import unittest
 
 from pynusmv.init.init import init_nusmv, deinit_nusmv
 from tools.multimodal import glob
+from pynusmv.glob import glob as superGlob
 
 from pynusmv.nusmv.parser import parser as nsparser
 from pynusmv.nusmv.compile import compile as nscompile
@@ -157,7 +158,58 @@ class TestVariables(unittest.TestCase):
             ite = nsutils.ListIter_get_next(ite)
             
         print("------------------------------------------------------")
+        
+        
+    def test_get_instances_after_flattening(self):
+        car = nsnode.car
+        cdr = nsnode.cdr
+        
+        glob.load_from_file("tests/tools/ctlk/dining-crypto.smv")
+        
+        # Flatten
+        superGlob.flatten_hierarchy()
+        
+        # Get parsed tree
+        tree = nsparser.cvar.parsed_tree
+        self.assertIsNotNone(tree)
+        self.assertIsNotNone(car(tree))
+        
+        print(tree.type) # 145 = CONS
+        print(car(tree).type) # 117 = MODULE
+        print(nsnode.sprint_node(car(car(car(tree))))) # main
+        print(cdr(car(tree)).type) # 145 = CONS
+        print(car(cdr(car(tree))).type) # 113 = DEFINE
+        print(cdr(cdr(car(tree)))) # None 
+        print(cdr(tree).type) # 145 = CONS
+        print(car(cdr(tree)).type) # 117 = MODULE
+        print(nsnode.sprint_node(car(car(car(cdr(tree)))))) # cryptograph
+        
+        print("----- Instances after flattening")
+        # main module is car(tree)
+        main_vars = self.get_instances_for_module(car(tree))
+        # Variables are removed from parsed_tree when flattening
+        self.assertEqual(len(main_vars), 0)
+        
+        instances_args = {}
+        
+        for var in main_vars:
+            # var = COLON(ATOM, MODTYPE(ATOM, CONS))
             
+            varname = nsnode.sprint_node(car(var))
+            instances_args[varname] = []
+            
+            args = cdr(cdr(var))
+            argslist = []
+            while args is not None:
+                arg = car(args)
+                instances_args[varname].append(arg)
+                argslist.append(nsnode.sprint_node(arg))
+                args = cdr(args)
+                
+            print(varname, ":", nsnode.sprint_node(car(cdr(var))), argslist)
+            
+        print("------------------------------------------------------")
+
             
     def test_dincry(self):
         self.print_instances("tests/tools/ctlk/dining-crypto.smv")

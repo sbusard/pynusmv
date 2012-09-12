@@ -6,9 +6,11 @@ MODULE cryptograph(leftcoin)
         
     IVAR
         say : {equal, different};
-    
+
     
     TRANS next(payer) = payer
+    
+    TRANS next(coin) = coin
     
     TRANS
         say = case
@@ -23,11 +25,23 @@ MODULE main
         c1 : cryptograph(c3.coin);
         c2 : cryptograph(c1.coin);
         c3 : cryptograph(c2.coin);
+        countsay : {unknown, odd, even};
         
     INIT
         toint(c1.payer) + toint(c2.payer) + toint(c3.payer) <= 1
+        &
+        countsay = unknown
         
-    DEFINE
-        odd := (toint(c1.say = different) +
-                toint(c2.say = different) +
-                toint(c3.say = different)) mod 2 = 1;
+    TRANS
+        next(countsay) =
+            case
+                countsay = unknown :
+                    case
+                        toint(c1.say = different) +
+                        toint(c2.say = different) +
+                        toint(c3.say = different)
+                        mod 2 = 1 : odd;
+                        TRUE : even;
+                    esac;
+                TRUE: countsay;
+            esac
