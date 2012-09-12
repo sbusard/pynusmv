@@ -134,6 +134,25 @@ class TestParsing(unittest.TestCase):
         self.assertEqual(ast.child.right.child.child.value, "h")
         
         
+    def test_ef_and(self):
+        s = "E<'a'>F 'admin = alice' & E<'b'>F 'admin = bob'"
+        asts = parseArctl(s)
+        self.assertEqual(len(asts), 1)
+        
+        ast = asts[0]
+        self.assertEqual(type(ast), And)
+        self.assertEqual(type(ast.left), EaF)
+        self.assertEqual(type(ast.left.action), Atom)
+        self.assertEqual(ast.left.action.value, "a")
+        self.assertEqual(type(ast.left.child), Atom)
+        self.assertEqual(ast.left.child.value, "admin = alice")
+        self.assertEqual(type(ast.right), EaF)
+        self.assertEqual(type(ast.right.action), Atom)
+        self.assertEqual(ast.right.action.value, "b")
+        self.assertEqual(type(ast.right.child), Atom)
+        self.assertEqual(ast.right.child.value, "admin = bob")
+        
+        
     def test_not_eax(self):
         s = "E<'a'>X ~ 'c'"
         asts = parseArctl(s)
