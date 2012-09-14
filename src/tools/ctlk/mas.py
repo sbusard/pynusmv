@@ -24,25 +24,27 @@ class MAS(BddFsm):
         self._reachable = None
                                               
                                               
-    def equivalent_states(self, states, agent):
+    def equivalent_states(self, states, agents):
         """
         Return the BDD representing the set of states epistemically equivalent
-        to states through the epistemic relation of agent. agent is the name
-        of a single agent.
+        to states through the epistemic relation of agents. agents is a set of agents name.
         
         states -- a BDD of states of self
-        agent -- the name of an agent. agent must be one of this MAS agents.
+        agents -- a set of agents names.
+                  These agents must be ones of this MAS agents.
         """
             
         # Apply FSM constraints
         states = states & self.state_constraints
         
         # Compute the post-image
-        if agent not in self._epistemic:
-            raise UnknownAgentError(ag + " is an unknown agent name.")
+        agents = frozenset(agents)
+        if agents not in self._epistemic:
+            raise UnknownAgentError(str(agents) +
+                                    " are an unknown agents names.")
         # pre_ or post_ operations can be used since the epistemic relations
         # are equivalence relations and thus are symetric
-        result = self._epistemic[agent].pre(states)
+        result = self._epistemic[agents].pre(states)
         
         # Apply constraints on result
         return result & self.state_constraints

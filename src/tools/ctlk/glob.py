@@ -21,6 +21,8 @@ from pynusmv.glob.glob import (load_from_file,
 from .bddTrans import BddTrans
 from .mas import MAS
 
+import itertools
+
 
 # The current multi-agent system
 _mas = None
@@ -182,14 +184,30 @@ def mas():
                      for key in list(argvars.keys())+list(localvars.keys())}
         
         # Compute epistemic relation
-        epistemictrans = {}
+        singletrans = {}
         for agent in variables:
             transexpr = None
             for var in variables[agent]:
                 transexpr = nsnode.find_node(nsparser.AND,                                                       
                                              _get_epistemic_trans(var),
                                              transexpr)
-            epistemictrans[agent] = BddTrans.from_trans(st, transexpr, None)                
+            singletrans[agent] = transexpr
+            
+        agents = singletrans.keys()
+        trans = {}
+        for i in range(1, len(agents) + 1):
+            for subset in itertools.combinations(agents, i):
+                transexpr = None
+                for a in subset:
+                    transexpr = nsnode.find_node(nsparser.AND,                                                       
+                                                 singletrans[a],
+                                                 transexpr)
+                trans[frozenset(subset)] = transexpr
+        
+        epistemictrans = {}
+        for agents in trans:
+            epistemictrans[agents] = BddTrans.from_trans(st, trans[agents],
+                                                         None)                
         
         # Create the MAS
         fsm = _prop_database().master.bddFsm

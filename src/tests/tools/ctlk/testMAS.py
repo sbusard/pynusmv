@@ -81,8 +81,8 @@ class TestMAS(unittest.TestCase):
         odd = eval_simple_expression(fsm, "countsay = odd")
         true = eval_simple_expression(fsm, "TRUE")
         
-        self.assertEqual(fsm.equivalent_states(c1p, "c1"), c1p)
-        self.assertEqual(fsm.equivalent_states(c1p, "c2"), true)
+        self.assertEqual(fsm.equivalent_states(c1p, {"c1"}), c1p)
+        self.assertEqual(fsm.equivalent_states(c1p, {"c2"}), true)
         
         
     def test_reachable_states_for_simple_model(self):

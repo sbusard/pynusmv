@@ -181,7 +181,7 @@ def nk(fsm, agent, phi):
     # nK<'a'> 'p' = fsm.equiv_states_for_some(phi, ag)
     #             = fsm.equiv_states_for_all(phi, ag)
     # (since for_some and for_all are equal when using only one relation)
-    return fsm.equivalent_states(phi & fsm.reachable_states, agent)
+    return fsm.equivalent_states(phi & fsm.reachable_states, frozenset({agent}))
     
 
 def ne(fsm, group, phi):
@@ -209,13 +209,7 @@ def nd(fsm, group, phi):
     group -- a non-empty list of (str) names of agents of fsm
     phi -- a BDD representing the set of states of fsm satisfying phi
     """
-    # A state satisfies nD<g> p iff there is an equivalent state
-    # in all relations of all agents in g that satisfies p
-    # nD<g> p = /\_{ag in g} nK<ag> p
-    result = BDD.true(fsm.bddEnc.DDmanager)
-    for agent in group:
-        result = result & nk(fsm, agent, phi)
-    return result
+    return fsm.equivalent_states(phi & fsm.reachable_states, frozenset(group))
     
     
 def nc(fsm, group, phi):

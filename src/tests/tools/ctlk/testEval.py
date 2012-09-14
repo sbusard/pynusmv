@@ -347,8 +347,8 @@ class TestEval(unittest.TestCase):
         false = eval_simple_expression(fsm, "FALSE")
         
         s = c1p & ~c2p & ~c3p
-        eqs2 = fsm.equivalent_states(s, "c2")
-        eqs3 = fsm.equivalent_states(s, "c3")
+        eqs2 = fsm.equivalent_states(s, {"c2"})
+        eqs3 = fsm.equivalent_states(s, {"c3"})
         self.assertEqual(eqs2 & eqs3, ~c2p & ~c3p)
     
     
