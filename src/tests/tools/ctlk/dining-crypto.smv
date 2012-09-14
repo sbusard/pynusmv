@@ -1,4 +1,4 @@
-MODULE cryptograph(leftcoin)
+MODULE cryptograph(leftcoin, countsay)
 
     VAR
         coin : {tail, head};
@@ -22,13 +22,13 @@ MODULE cryptograph(leftcoin)
 MODULE main
 
     VAR
-        c1 : cryptograph(c3.coin);
-        c2 : cryptograph(c1.coin);
-        c3 : cryptograph(c2.coin);
+        c1 : cryptograph(c3.coin, countsay);
+        c2 : cryptograph(c1.coin, countsay);
+        c3 : cryptograph(c2.coin, countsay);
         countsay : {unknown, odd, even};
         
     INIT
-        toint(c1.payer) + toint(c2.payer) + toint(c3.payer) <= 1
+        (toint(c1.payer) + toint(c2.payer) + toint(c3.payer)) <= 1
         &
         countsay = unknown
         
@@ -37,9 +37,9 @@ MODULE main
             case
                 countsay = unknown :
                     case
-                        toint(c1.say = different) +
+                        (toint(c1.say = different) +
                         toint(c2.say = different) +
-                        toint(c3.say = different)
+                        toint(c3.say = different))
                         mod 2 = 1 : odd;
                         TRUE : even;
                     esac;

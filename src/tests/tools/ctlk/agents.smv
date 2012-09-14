@@ -1,0 +1,33 @@
+MODULE agenttrue(global)
+
+    VAR
+        local : boolean;
+    
+    INIT
+        local
+    
+    TRANS
+        next(local) = global ? !local : local
+    
+
+MODULE agentfalse(global)
+
+    VAR
+        local : boolean;
+    
+    INIT
+        local
+    
+    TRANS
+        next(local) = global ? local : !local
+                
+
+MODULE main
+
+    VAR
+        at      : agenttrue(global);
+        af      : agentfalse(global);
+        global  : boolean;
+        
+    INIT
+        global

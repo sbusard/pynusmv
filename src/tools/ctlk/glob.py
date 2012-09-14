@@ -12,12 +12,13 @@ from pynusmv.nusmv.compile.symb_table import symb_table as nssymb_table
 from pynusmv.utils.exception import NuSMVNoReadFileError
 from pynusmv.parser.parser import parse_next_expression
 
-from tools.multimodal.glob import (load_from_file, _flatten_and_remove_trans,
-                                   symb_table, bdd_encoding, _prop_database,
-                                   _compute_model,
-                                   reset_globals as _reset_globals)
-from tools.multimodal.bddTrans import BddTrans
-
+from pynusmv.glob.glob import (load_from_file,
+                               flatten_hierarchy as _flatten_hierarchy,
+                               symb_table, bdd_encoding,
+                               prop_database as _prop_database,
+                               compute_model as _compute_model)
+                               
+from .bddTrans import BddTrans
 from .mas import MAS
 
 
@@ -35,10 +36,10 @@ def reset_globals():
     _mas = None
 
 
-def _get_instances_for_module(modtree):
+def _get_instances_args_for_module(modtree):
     """
-    Return a dictionary of variable name -> variable declaration pairs,
-    that are instances of modules in module modtree.
+    Return a dictionary of instance name -> list of instance arguments pairs,
+    with instances of modules in module modtree.
     
     modtree is a part of the AST of the SMV model. modtree.type = MODULE
     """
@@ -60,7 +61,14 @@ def _get_instances_for_module(modtree):
                     if varid in varlist:
                         pass # TODO Variable already defined
                     else:
-                        varlist[varid] = var
+                        # Compute args list
+                        argslist = []
+                        args = nsnode.cdr(nsnode.cdr(var))
+                        while args is not None:
+                            arg = nsnode.car(args)
+                            argslist.append(arg)
+                            args = nsnode.cdr(args)
+                        varlist[varid] = argslist
                 decl = nsnode.cdr(decl)
         
         declarations = nsnode.cdr(declarations)
@@ -68,7 +76,31 @@ def _get_instances_for_module(modtree):
     return varlist
     
     
-def _get_variables_by_instances(instances):
+def _flatten_and_filter_variable_args(arguments):
+    """
+    Return a new dictionary instance name -> list of vars where
+    all vars belong to arguments (under the correct instance name)
+    all vars are VAR types
+    all vars are flattened.
+    
+    arguments -- a dictionary instance name -> list of module arguments
+    """
+    result = {}
+    st = symb_table()
+    for instance in arguments:
+        result[instance] = []
+        for argument in arguments[instance]:
+            arg, err = nscompile.FlattenSexp(st._ptr, argument, None)
+            if err:
+                # TODO raise exception
+                print("[ERROR] Cannot flatten argument")
+            isVar = nssymb_table.SymbTable_is_symbol_var(st._ptr, arg)
+            if isVar:
+                result[instance].append(arg)
+    return result
+    
+    
+def _get_variables_by_instances(agents):
     """
     Return a dictionary of instance->list of variables
     """
@@ -77,9 +109,8 @@ def _get_variables_by_instances(instances):
     
     # Populate variables with instances
     variables = {}
-    for instance in instances:
-        variables[instance] = []
-    
+    for agent in agents:
+        variables[agent] = []
     
     varset = nscompile.FlatHierarchy_get_vars(flatHierarchy)
     varlist = nsset.Set_Set2List(varset)
@@ -92,7 +123,7 @@ def _get_variables_by_instances(instances):
         if isVar:
             # Put the var in the variables dictionary, under the right instance
             topcontext = varname.partition(".")[0]
-            if topcontext in instances:
+            if topcontext in variables:
                 variables[topcontext].append(var)                    
         ite = nsutils.ListIter_get_next(ite)
         
@@ -129,42 +160,30 @@ def mas():
         if main is None:
             print("[ERROR] No main module.")
             return # TODO Error, cannot find main module
-        instances = _get_instances_for_module(main)
-        
-        # Flatten the model without TRANS
-        translist = _flatten_and_remove_trans()
+        arguments = _get_instances_args_for_module(main)
+        # arguments is a dict instancename(str)->listofargs(node)
+        agents = arguments.keys()
         
         # Compute the model
         _compute_model()
         
-        # Sort TRANS by agents and compute them
-        transbyinst = {}
-        for trans in translist:
-            context = nsnode.sprint_node(nsnode.car(trans))
-            topcontext = context.partition(".")[0]
-            if topcontext not in transbyinst:
-                transbyinst[topcontext] = None
-            transbyinst[topcontext] = nsnode.find_node(nsparser.AND,
-                                                       transbyinst[topcontext],
-                                                       trans)
-                                                       
-        # Note: there may be a transition for the top context,
-        # i.e. transbyinst[""] can be not null
+        st = symb_table()
         
-        st = symb_table()                                               
-        temptrans = {}                              
-        for cont in transbyinst:
-            temptrans[cont] = BddTrans.from_trans(st, transbyinst[cont], None)
+        # Flatten arguments and filter on variables
+        argvars = _flatten_and_filter_variable_args(arguments)
         
         # Get agents observable variables (locals + module parameters)
-        agents = list(temptrans.keys())
-        if "" in agents:
-            agents.remove("")
-        variables = _get_variables_by_instances(agents)
+        localvars = _get_variables_by_instances(agents)
+        #localvars is a dict instancename(str)->listofvars(node)
+        
+        # Merge instance variable arguments and local variables
+        variables = {key: ((key in argvars and argvars[key] or []) + 
+                           (key in localvars and localvars[key] or []))
+                     for key in list(argvars.keys())+list(localvars.keys())}
         
         # Compute epistemic relation
         epistemictrans = {}
-        for agent in agents:
+        for agent in variables:
             transexpr = None
             for var in variables[agent]:
                 transexpr = nsnode.find_node(nsparser.AND,                                                       
@@ -174,6 +193,6 @@ def mas():
         
         # Create the MAS
         fsm = _prop_database().master.bddFsm
-        _mas = MAS(fsm._ptr, temptrans, epistemictrans, freeit = False)
+        _mas = MAS(fsm._ptr, epistemictrans, freeit = False)
         
     return _mas

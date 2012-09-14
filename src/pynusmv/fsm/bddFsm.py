@@ -8,6 +8,7 @@ from ..dd.bdd import BDD
 from ..dd.state import State
 from ..dd.inputs import Inputs
 from ..utils.pointerwrapper import PointerWrapper
+from ..utils.misc import fixpoint
 from ..trans.trans import BddTrans
 
 class BddFsm(PointerWrapper):
@@ -19,6 +20,16 @@ class BddFsm(PointerWrapper):
     
     BddFsm do not have to be freed.
     """
+    
+    def __init__(self, ptr, freeit = False):
+        """
+        Create a new BddFsm.
+        
+        ptr -- the pointer of the NuSMV FSM
+        freeit -- whether or not free the pointer
+        """
+        super().__init__(ptr, freeit = freeit)
+        self._reachable = None
     
         
     @property
@@ -123,6 +134,15 @@ class BddFsm(PointerWrapper):
                                                            current._ptr,
                                                            next._ptr)
         return Inputs(inputs, self, freeit = True)
+        
+        
+    @property    
+    def reachable_states(self):
+        """Return a BDD representing the set of reachable states of the MAS."""
+        if self._reachable is None:
+            self._reachable = fixpoint(lambda Z: (self.init | self.post(Z)),
+                                       BDD.false(self.bddEnc.DDmanager))
+        return self._reachable
         
         
     # ==========================================================================

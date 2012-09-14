@@ -1,0 +1,15 @@
+MODULE agent
+
+    VAR
+        local : boolean;
+                
+
+MODULE main
+
+    VAR
+        a1 : agent;
+        a2 : agent;
+        a3 : agent;
+        
+    INVAR
+        (toint(a1.local) + toint(a2.local) + toint(a3.local)) = 1
