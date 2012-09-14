@@ -371,33 +371,7 @@ class TestEval(unittest.TestCase):
                           "-> D<'c2','c3'> 'c1.payer'")
         self.assertEqual(len(specs), 1)
         spec = specs[0]
-        cud1 = evalCTLK(fsm, spec)
-        
-        cundc1 = evalCTLK(fsm, parseCTLK("'c1.payer' & 'countsay != unknown'"
-                                         "& ~(D<'c2','c3'> 'c1.payer')")[0])
-        
-        n2kn1 = evalCTLK(fsm, parseCTLK("nK<'c2'> ~'c1.payer'")[0])
-        n3kn1 = evalCTLK(fsm, parseCTLK("nK<'c3'> ~'c1.payer'")[0])
-        
-        tmp = fsm.reachable_states & cundc1
-        while tmp.isnot_false():
-            # s satisfies c1.payer & unknown & nD<c2,c3> ~c1.payer
-            # show that it satisfies nD<c2,c3> ~c1.payer
-            # it satisfies nD<c2,c3> ~c1.payer because it satisfies
-            # nK<c2> ~c1.payer and nK<c3> ~c1.payer
-            s = fsm.pick_one_state(tmp)
-            sts = (~c1p & fsm.equivalent_states(s, "c2")
-                        & fsm.equivalent_states(s, "c3")
-                        & fsm.reachable_states)
-            if sts.isnot_false():
-                sp = fsm.pick_one_state(sts)
-            else:
-                sp = None
-            print(s.get_str_values())
-            print("=>")
-            print(sp and sp.get_str_values() or sp)
-            tmp -= s
-        
+        cud1 = evalCTLK(fsm, spec)        
         self.assertTrue(fsm.reachable_states <= cud1)
 
 

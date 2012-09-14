@@ -191,26 +191,10 @@ def mas():
                 transexpr = nsnode.find_node(nsparser.AND,                                                       
                                              _get_epistemic_trans(var),
                                              transexpr)
-            singletrans[agent] = transexpr
-            
-        agents = singletrans.keys()
-        trans = {}
-        for i in range(1, len(agents) + 1):
-            for subset in itertools.combinations(agents, i):
-                transexpr = None
-                for a in subset:
-                    transexpr = nsnode.find_node(nsparser.AND,                                                       
-                                                 singletrans[a],
-                                                 transexpr)
-                trans[frozenset(subset)] = transexpr
-        
-        epistemictrans = {}
-        for agents in trans:
-            epistemictrans[agents] = BddTrans.from_trans(st, trans[agents],
-                                                         None)                
+            singletrans[agent] = transexpr           
         
         # Create the MAS
         fsm = _prop_database().master.bddFsm
-        _mas = MAS(fsm._ptr, epistemictrans, freeit = False)
+        _mas = MAS(fsm._ptr, singletrans, freeit = False)
         
     return _mas
