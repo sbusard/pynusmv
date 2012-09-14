@@ -413,3 +413,35 @@ class TestEval(unittest.TestCase):
         spec = specs[0]
         gcg = evalCTLK(fsm, spec) 
         self.assertEqual(gcg, true)
+        
+        
+    def test_c_dincry(self):
+        fsm = self.model()
+        
+        c1p = eval_simple_expression(fsm, "c1.payer")
+        c2p = eval_simple_expression(fsm, "c2.payer")
+        c3p = eval_simple_expression(fsm, "c3.payer")
+        c1h = eval_simple_expression(fsm, "c1.coin = head")
+        c2h = eval_simple_expression(fsm, "c2.coin = head")
+        c3h = eval_simple_expression(fsm, "c3.coin = head")
+        odd = eval_simple_expression(fsm, "countsay = odd")
+        even = eval_simple_expression(fsm, "countsay = even")
+        unk = eval_simple_expression(fsm, "countsay = unknown")
+        true = eval_simple_expression(fsm, "TRUE")
+        false = eval_simple_expression(fsm, "FALSE")
+        
+        specs = parseCTLK("'countsay = odd' -> "
+                          "C<'c1','c2','c3'> "
+                          "('c1.payer' | 'c2.payer' | 'c3.payer')")
+        self.assertEqual(len(specs), 1)
+        spec = specs[0]
+        oc123 = evalCTLK(fsm, spec)        
+        self.assertTrue(fsm.reachable_states <= oc123)
+        
+        specs = parseCTLK("'countsay = even' -> "
+                          "C<'c1','c2','c3'> "
+                          "(~'c1.payer' & ~'c2.payer' & ~'c3.payer')")
+        self.assertEqual(len(specs), 1)
+        spec = specs[0]
+        ec123 = evalCTLK(fsm, spec)        
+        self.assertTrue(fsm.reachable_states <= ec123)
