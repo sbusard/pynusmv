@@ -237,7 +237,7 @@ def explain_eag(fsm, state, alpha, phi):
         allstates = eag(fsm, alpha, phi)
     
         # Start path at s
-        path = (state,)
+        path = [state]
         # While path[-1] cannot reach itself through states of eag,
         while (path[-1] &
                eax(fsm,
@@ -251,7 +251,7 @@ def explain_eag(fsm, state, alpha, phi):
         eaus = eau(fsm, alpha, allstates, path[-1])
         first = explain_eax(fsm, path[-1], alpha, eaus)
         second = explain_eau(fsm, first[-1], alpha, allstates, path[-1])
-        fs = first + second[1:]
+        fs = tuple(path) + first[1:] + second[1:]
     
         # Store the loop
         inputs = fs[-2]
