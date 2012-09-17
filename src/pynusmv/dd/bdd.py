@@ -286,10 +286,10 @@ class BDD(PointerWrapper):
         return not self.equal(other)
         
     def __gt__(self, other):
-        return not (self <= other)
+        return other.__lt__(self)
         
     def __ge__(self, other):
-        return not (self < other)
+        return other.__le__(self)
     
     
     

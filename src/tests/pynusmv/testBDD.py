@@ -6,6 +6,7 @@ from pynusmv.nusmv.cmd import cmd
 from pynusmv.prop.propDb import PropDb
 from pynusmv.dd.bdd import BDD
 from pynusmv.fsm.bddFsm import BddFsm
+from pynusmv.mc.mc import eval_simple_expression
 
 from pynusmv.init.init import init_nusmv, deinit_nusmv
 
@@ -180,4 +181,22 @@ class TestBDD(unittest.TestCase):
         self.assertTrue(init - false == init)
         self.assertTrue(true - init == ~init)
         self.assertTrue(false - init == false)
+        
+        
+    def test_uncomparable_sets(self):
+        (fsm, enc, manager) = self.init_model()
+        
+        alice = eval_simple_expression(fsm, "admin = alice")
+        processing = eval_simple_expression(fsm, "state = processing")
+        
+        self.assertFalse(alice <= processing)
+        self.assertFalse(processing <= alice)
+        self.assertFalse(alice < processing)
+        self.assertFalse(processing < alice)
+        self.assertFalse(alice == processing)
+        self.assertTrue(alice != processing)
+        self.assertFalse(alice >= processing)
+        self.assertFalse(processing >= alice)
+        self.assertFalse(alice > processing)
+        self.assertFalse(processing > alice)
         
