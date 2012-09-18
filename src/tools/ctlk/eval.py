@@ -178,9 +178,7 @@ def nk(fsm, agent, phi):
     """
     # Return the set of states that have a successor in agent's knowledge
     # that satisfies phi
-    # nK<'a'> 'p' = fsm.equiv_states_for_some(phi, ag)
-    #             = fsm.equiv_states_for_all(phi, ag)
-    # (since for_some and for_all are equal when using only one relation)
+    # nK<'a'> 'p' = fsm.equivalent_states(phi, agent)
     return fsm.equivalent_states(phi & fsm.reachable_states, frozenset({agent}))
     
 
