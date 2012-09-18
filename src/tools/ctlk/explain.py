@@ -130,17 +130,18 @@ def explain_nk(fsm, state, agent, p):
     agent -- the name of an agent of fsm
     p -- a BDD representing the set of states of fsm satisfying the property phi
     
-    Return a tuple (s, s') where
+    Return a tuple (s, ag, s') where
         s is state
         s' belongs to p
         s' is reachable
-        s' is equivalent to s for agent in fsm.
+        s' is equivalent to s for agent in fsm
+        ag is {{agent}}.
     The returned value explains why state satisfies nK<agent> phi in fsm
     by showing a state equivalent to state for agent that satisfies phi.
     """
     equiv_states = nk(fsm, agent, state)
     sp = fsm.pick_one_state(equiv_states & p)
-    return (state, sp)
+    return (state, frozenset({agent}), sp)
     
 
 def explain_ne(fsm, state, group, p):
@@ -152,17 +153,20 @@ def explain_ne(fsm, state, group, p):
     group -- a list of names of agents of fsm
     p -- a BDD representing the set of states of fsm satisfying the property phi
     
-    Return a tuple (s, s') where
+    Return a tuple (s, agent, s') where
         s is state
         s' belongs to p
-        s' is equivalent to s for some agent of group in fsm.
+        s' is equivalent to s for some agent of group in fsm
+        agent is the agent of group for which s and s' are equivalent.
     The returned value explains why state satisfies nE<group> phi in fsm
     by showing a state equivalent to state for some agents in group
     that satisfies phi.
     """
-    equiv_states = ne(fsm, group, state)
-    sp = fsm.pick_one_state(equiv_states & p)
-    return (state, sp)
+    for agent in group:
+        nks = nk(fsm, agent, p)
+        if state <= nks:
+            return explain_nk(fsm, state, agent, p)
+    # If this is reached, state |/= nE<group> phi
     
 
 def explain_nd(fsm, state, group, p):
@@ -174,7 +178,7 @@ def explain_nd(fsm, state, group, p):
     group -- a list of names of agents of fsm
     p -- a BDD representing the set of states of fsm satisfying the property phi
     
-    Return a tuple (s, s') where
+    Return a tuple (s, group, s') where
         s is state
         s' belongs to p
         s' is distributively equivalent to s for group in fsm.
@@ -184,7 +188,7 @@ def explain_nd(fsm, state, group, p):
     """
     equiv_states = nd(fsm, group, state)
     sp = fsm.pick_one_state(equiv_states & p)
-    return (state, sp)
+    return (state, frozenset(group), sp)
     
 
 def explain_nc(fsm, state, group, p):
@@ -197,11 +201,13 @@ def explain_nc(fsm, state, group, p):
     group -- a list of names of agents of fsm
     p -- a BDD representing the set of states of fsm satisfying the property phi
     
-    Return a tuple (s_0, ..., s_n) where
+    Return a tuple (s_0, ag_1, ..., ag_n, s_n) where
         s_0 is state
         s_n belongs to p
         s_j is equivalent to s_j+1 for some agent in group in fsm,
             forall j : 0 <= j < n
+        ag_j+1 is the name of the agent of group
+            for which s_j and s_j+1 are equivalent, forall j : 0 <= j < n
     The returned value explains why state satisfies nC<group> phi in fsm
     by showing path in the knowledge of agents of group
     to a state that satisfies phi.
@@ -224,8 +230,8 @@ def explain_nc(fsm, state, group, p):
     s = state
     path = [s]
     for states in paths[::-1]:
-        sp = fsm.pick_one_state(ne(fsm, group, s) & states)
-        path.append(sp)
-        s = sp
+        (olds, ag, s) = explain_ne(fsm, s, group, states)
+        path.append(ag)
+        path.append(s)
     
     return tuple(path)
