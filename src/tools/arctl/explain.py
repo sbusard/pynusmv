@@ -244,7 +244,7 @@ def explain_eag(fsm, state, alpha, phi):
                    alpha,
                    eau(fsm, alpha, allstates, path[-1]))).is_false():
             # choose a successor of path[-1] in eag and add it in path
-            path.append(fsm.post(state, alpha) & allstates)
+            path.append(fsm.pick_one_state(fsm.post(state, alpha) & allstates))
     
         # At this point, path[-1] can reach itself through states of eag
         # Explain it with explain_eau and explain_eax
