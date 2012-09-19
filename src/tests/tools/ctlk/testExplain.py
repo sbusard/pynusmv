@@ -8,7 +8,8 @@ from tools.ctlk.eval import evalCTLK, ex, eu, eg, nk, nd, ne, nc
 from tools.ctlk.parsing import parseCTLK
 
 from tools.ctlk.explain import (explain_ex, explain_eg, explain_eu,
-                                explain_nk, explain_ne, explain_nd, explain_nc)
+                                explain_nk, explain_ne, explain_nd, explain_nc,
+                                explain_reachable)
 
 class TestExplain(unittest.TestCase):
     
@@ -429,3 +430,57 @@ class TestExplain(unittest.TestCase):
                             (sp <= fsm.equivalent_states(s, {"c2"})))
             
         self.assertTrue(witness[-1] <= c3h)
+        
+        
+    def test_reachable_simple(self):
+        fsm = self.simplemodel()
+        
+        lt = eval_simple_expression(fsm, "at.local")
+        lf = eval_simple_expression(fsm, "af.local")
+        g = eval_simple_expression(fsm, "global")
+        true = eval_simple_expression(fsm, "TRUE")
+        false = eval_simple_expression(fsm, "FALSE")
+        
+        state = fsm.pick_one_state(~lf & ~lt & ~g)
+        self.assertTrue(state <= fsm.reachable_states)
+        witness = explain_reachable(fsm, state)
+        self.assertIsNotNone(witness)
+        self.assertEqual(witness[0], state)
+        
+        for (s, i, sp) in zip(witness[::2], witness[1::2], witness[2::2]):
+            self.assertTrue(s <= fsm.reachable_states)
+            self.assertTrue(sp <= fsm.reachable_states)
+            self.assertIsNotNone(i)
+            self.assertTrue(i <= fsm.get_inputs_between_states(s, sp))
+        
+        self.assertTrue(witness[-1] <= fsm.init)
+        
+        
+    def test_reachable_dincry(self):
+        fsm = self.model()
+        
+        c1p = eval_simple_expression(fsm, "c1.payer")
+        c2p = eval_simple_expression(fsm, "c2.payer")
+        c3p = eval_simple_expression(fsm, "c3.payer")
+        c1h = eval_simple_expression(fsm, "c1.coin = head")
+        c2h = eval_simple_expression(fsm, "c2.coin = head")
+        c3h = eval_simple_expression(fsm, "c3.coin = head")
+        odd = eval_simple_expression(fsm, "countsay = odd")
+        even = eval_simple_expression(fsm, "countsay = even")
+        unk = eval_simple_expression(fsm, "countsay = unknown")
+        true = eval_simple_expression(fsm, "TRUE")
+        false = eval_simple_expression(fsm, "FALSE")
+        
+        state = fsm.pick_one_state(c1p & ~c2p & ~c3p & odd)
+        self.assertTrue(state <= fsm.reachable_states)
+        witness = explain_reachable(fsm, state)
+        self.assertIsNotNone(witness)
+        self.assertEqual(witness[0], state)
+        
+        for (s, i, sp) in zip(witness[::2], witness[1::2], witness[2::2]):
+            self.assertTrue(s <= fsm.reachable_states)
+            self.assertTrue(sp <= fsm.reachable_states)
+            self.assertIsNotNone(i)
+            self.assertTrue(i <= fsm.get_inputs_between_states(s, sp))
+        
+        self.assertTrue(witness[-1] <= fsm.init)

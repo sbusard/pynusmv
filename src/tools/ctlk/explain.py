@@ -85,7 +85,7 @@ def explain_eu(fsm, state, p, q):
         s_0 is state
         s_j belongs to p forall j : 0 <= j < n
         s_n belongs to q
-        i_j is a possible input between s_j-1 and s_J in fsm.
+        i_j is a possible input between s_j-1 and s_j in fsm.
     The returned value represents a finite path in fsm, ending with a state of q
     with intermediate states of p and starting at state.
     """
@@ -233,5 +233,51 @@ def explain_nc(fsm, state, group, p):
         (olds, ag, s) = explain_ne(fsm, s, group, states)
         path.append(ag)
         path.append(s)
+    
+    return tuple(path)
+    
+    
+def explain_reachable(fsm, state):
+    """
+    Return a reversed path explaining why state of fsm is reachable.
+    
+    fsm -- a MAS
+    state -- a reachable State of fsm
+    
+    Return a tuple (s_0, ..., i_n, s_n) where
+        s_0 is state
+        s_n belongs is an initial state in fsm
+        i_j is a possible input between s_j-1 and s_j in fsm
+            forall j : 0 < j <= n.
+    The returned value represents a finite reversed path in fsm,
+    ending with an initial state and starting at state.
+    """
+    
+    # Compute fixpoint and store intermediate BDDs
+    funct = lambda Z: (fsm.init | fsm.post(Z))
+    old = BDD.false(fsm.bddEnc.DDmanager)
+    new = funct(old)
+    paths = [new]
+    # Stop when reaching state
+    # This is ensured since state is reachable
+    while (state & new).is_false():
+        old = new
+        new = funct(old)
+        paths.append(new - old)
+        
+    # paths contains intermediate BDDs
+    # paths[i] contains the BDD of all reachable states
+    # that can be reached from an initial state in i steps
+    
+    # paths[-1] contains state, skip it
+    paths = paths[:-1]
+    s = state
+    path = [s]
+    for states in paths[::-1]:
+        sp = fsm.pick_one_state(fsm.pre(s) & states)
+        i = fsm.pick_one_inputs(fsm.get_inputs_between_states(s, sp))
+        path.append(i)
+        path.append(sp)
+        s = sp
     
     return tuple(path)
