@@ -1,6 +1,6 @@
 from pyparsing import Suppress, SkipTo, Forward, ZeroOrMore, Literal, Group
 
-from .ast import (TrueExp, FalseExp, Init,
+from .ast import (TrueExp, FalseExp, Init, Reachable,
                   Atom, Not, And, Or, Implies, Iff, 
                   AF, AG, AX, AU, AW, EF, EG, EX, EU, EW,
                   nK, nE, nD, nC, K, E, D, C)
@@ -111,6 +111,8 @@ def parseCTLK(spec):
         false.setParseAction(lambda tokens: FalseExp())
         init = Literal("Init")
         init.setParseAction(lambda tokens: Init())
+        reachable = Literal("Reachable")
+        reachable.setParseAction(lambda tokens: Reachable())
         
         atom = "'" + SkipTo("'") + "'"
         atom.setParseAction(lambda tokens: Atom(tokens[1]))
@@ -118,7 +120,7 @@ def parseCTLK(spec):
         agent = atom
         group = Group(ZeroOrMore(agent + Suppress(",")) + agent)
         
-        proposition = true | false | init | atom
+        proposition = true | false | init | reachable | atom
         
         _ctlk = Forward()
 

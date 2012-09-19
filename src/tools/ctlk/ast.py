@@ -4,7 +4,7 @@ AST classes for CTLK formulas representation.
 
 from collections import namedtuple
 
-# TrueExp, FalseExp, Init
+# TrueExp, FalseExp, Init, Reachable
 TrueExp = namedtuple('TrueExp', [])
 TrueExp.__str__ = lambda self: "True"
 
@@ -13,6 +13,9 @@ FalseExp.__str__ = lambda self: "False"
 
 Init = namedtuple('Init', [])
 Init.__str__ = lambda self: "Init"
+
+Reachable = namedtuple('Reachable', [])
+Reachable.__str__ = lambda self: "Reachable"
 
 # Atom
 Atom = namedtuple('Atom', ['value'])

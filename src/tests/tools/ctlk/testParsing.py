@@ -3,7 +3,7 @@ import unittest
 from pyparsing import ParseException
 
 from tools.ctlk.parsing import parseCTLK
-from tools.ctlk.ast import (TrueExp, FalseExp, Init,
+from tools.ctlk.ast import (TrueExp, FalseExp, Init, Reachable,
                             Atom, Not, And, Or, Implies, Iff, 
                             AF, AG, AX, AU, AW, EF, EG, EX, EU, EW,
                             nK, nE, nD, nC, K, E, D, C)
@@ -55,6 +55,15 @@ class TestParsing(unittest.TestCase):
         
         ast = asts[0]
         self.assertEqual(type(ast), Init)
+        
+    
+    def test_reachable(self):
+        s = "Reachable"
+        asts = parseCTLK(s)
+        self.assertEqual(len(asts), 1)
+        
+        ast = asts[0]
+        self.assertEqual(type(ast), Reachable)
     
     
     def test_not(self):
@@ -256,7 +265,7 @@ class TestParsing(unittest.TestCase):
                 AG E<'a','b'> (True | 'r')
             U
                 nC<'c','a'> E['s' W False -> AX 's']
-            ] -> 'r'
+            ] -> Reachable
             """
         asts = parseCTLK(s)
         self.assertEqual(len(asts), 1)
@@ -304,5 +313,4 @@ class TestParsing(unittest.TestCase):
         self.assertEqual(type(ast.left.right.child.right.right.child), Atom)
         self.assertEqual(ast.left.right.child.right.right.child.value, "s")        
         
-        self.assertEqual(type(ast.right), Atom)
-        self.assertEqual(ast.right.value, "r")
+        self.assertEqual(type(ast.right), Reachable)
