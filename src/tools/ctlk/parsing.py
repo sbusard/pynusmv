@@ -1,6 +1,7 @@
 from pyparsing import Suppress, SkipTo, Forward, ZeroOrMore, Literal, Group
 
-from .ast import (Atom, Not, And, Or, Implies, Iff, 
+from .ast import (TrueExp, FalseExp, Init,
+                  Atom, Not, And, Or, Implies, Iff, 
                   AF, AG, AX, AU, AW, EF, EG, EX, EU, EW,
                   nK, nE, nD, nC, K, E, D, C)
                   
@@ -104,17 +105,27 @@ def parseCTLK(spec):
     """Parse the spec and return the list of possible ASTs."""
     global _ctlk
     if _ctlk is None:
+        true = Literal("True")
+        true.setParseAction(lambda tokens: TrueExp())
+        false = Literal("False")
+        false.setParseAction(lambda tokens: FalseExp())
+        init = Literal("Init")
+        init.setParseAction(lambda tokens: Init())
+        
         atom = "'" + SkipTo("'") + "'"
         atom.setParseAction(lambda tokens: Atom(tokens[1]))
         
         agent = atom
         group = Group(ZeroOrMore(agent + Suppress(",")) + agent)
         
+        proposition = true | false | init | atom
+        
         _ctlk = Forward()
 
-        notatom = "~" + atom
-        notatom.setParseAction(lambda tokens: Not(tokens[1]))
-        formula = (atom | notatom | Suppress("(") + _ctlk + Suppress(")"))
+        notproposition = "~" + proposition
+        notproposition.setParseAction(lambda tokens: Not(tokens[1]))
+        formula = (proposition | notproposition |
+                   Suppress("(") + _ctlk + Suppress(")"))
 
         logical = Forward()
         

@@ -3,7 +3,8 @@ import unittest
 from pyparsing import ParseException
 
 from tools.ctlk.parsing import parseCTLK
-from tools.ctlk.ast import (Atom, Not, And, Or, Implies, Iff, 
+from tools.ctlk.ast import (TrueExp, FalseExp, Init,
+                            Atom, Not, And, Or, Implies, Iff, 
                             AF, AG, AX, AU, AW, EF, EG, EX, EU, EW,
                             nK, nE, nD, nC, K, E, D, C)
 
@@ -27,6 +28,33 @@ class TestParsing(unittest.TestCase):
         for s in kos:
             with self.assertRaises(ParseException):
                 parseCTLK(s)
+                
+                
+    def test_true(self):
+        s = "True"
+        asts = parseCTLK(s)
+        self.assertEqual(len(asts), 1)
+        
+        ast = asts[0]
+        self.assertEqual(type(ast), TrueExp)
+        
+        
+    def test_false(self):
+        s = "False"
+        asts = parseCTLK(s)
+        self.assertEqual(len(asts), 1)
+        
+        ast = asts[0]
+        self.assertEqual(type(ast), FalseExp)
+        
+    
+    def test_init(self):
+        s = "Init"
+        asts = parseCTLK(s)
+        self.assertEqual(len(asts), 1)
+        
+        ast = asts[0]
+        self.assertEqual(type(ast), Init)
     
     
     def test_not(self):
@@ -223,11 +251,11 @@ class TestParsing(unittest.TestCase):
     def test_full(self):
         s = """
             A[
-                K<'a'> EF 'p'
+                K<'a'> EF Init
                 &
-                AG E<'a','b'> ('q' | 'r')
+                AG E<'a','b'> (True | 'r')
             U
-                nC<'c','a'> E['s' W 'q' -> AX 's']
+                nC<'c','a'> E['s' W False -> AX 's']
             ] -> 'r'
             """
         asts = parseCTLK(s)
@@ -238,15 +266,14 @@ class TestParsing(unittest.TestCase):
         self.assertEqual(type(ast.left), AU)
         self.assertEqual(type(ast.left.left), And)
         
-        # K<'a'> EF 'p'
+        # K<'a'> EF Init
         self.assertEqual(type(ast.left.left.left), K)
         self.assertEqual(type(ast.left.left.left.agent), Atom)
         self.assertEqual(ast.left.left.left.agent.value, "a")
         self.assertEqual(type(ast.left.left.left.child), EF)
-        self.assertEqual(type(ast.left.left.left.child.child), Atom)
-        self.assertEqual(ast.left.left.left.child.child.value, "p")
+        self.assertEqual(type(ast.left.left.left.child.child), Init)
         
-        # AG E<'a','b'> ('q' | 'r')
+        # AG E<'a','b'> (True | 'r')
         self.assertEqual(type(ast.left.left.right), AG)
         self.assertEqual(type(ast.left.left.right.child), E)
         self.assertEqual(type(ast.left.left.right.child.group), list)
@@ -256,12 +283,11 @@ class TestParsing(unittest.TestCase):
         self.assertEqual(type(ast.left.left.right.child.group[1]), Atom)
         self.assertEqual(ast.left.left.right.child.group[1].value, "b")
         self.assertEqual(type(ast.left.left.right.child.child), Or)
-        self.assertEqual(type(ast.left.left.right.child.child.left), Atom)
-        self.assertEqual(ast.left.left.right.child.child.left.value, "q")
+        self.assertEqual(type(ast.left.left.right.child.child.left), TrueExp)
         self.assertEqual(type(ast.left.left.right.child.child.right), Atom)
         self.assertEqual(ast.left.left.right.child.child.right.value, "r")
                 
-        # nC<'c','a'> E['s' W 'q' -> AX 's']
+        # nC<'c','a'> E['s' W False -> AX 's']
         self.assertEqual(type(ast.left.right), nC)
         self.assertEqual(type(ast.left.right.group), list)
         self.assertEqual(len(ast.left.right.group), 2)
@@ -273,8 +299,7 @@ class TestParsing(unittest.TestCase):
         self.assertEqual(type(ast.left.right.child.left), Atom)
         self.assertEqual(ast.left.right.child.left.value, "s")
         self.assertEqual(type(ast.left.right.child.right), Implies)
-        self.assertEqual(type(ast.left.right.child.right.left), Atom)
-        self.assertEqual(ast.left.right.child.right.left.value, "q")
+        self.assertEqual(type(ast.left.right.child.right.left), FalseExp)
         self.assertEqual(type(ast.left.right.child.right.right), AX)
         self.assertEqual(type(ast.left.right.child.right.right.child), Atom)
         self.assertEqual(ast.left.right.child.right.right.child.value, "s")        

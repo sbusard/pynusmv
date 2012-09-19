@@ -4,6 +4,16 @@ AST classes for CTLK formulas representation.
 
 from collections import namedtuple
 
+# TrueExp, FalseExp, Init
+TrueExp = namedtuple('TrueExp', [])
+TrueExp.__str__ = lambda self: "True"
+
+FalseExp = namedtuple('FalseExp', [])
+FalseExp.__str__ = lambda self: "False"
+
+Init = namedtuple('Init', [])
+Init.__str__ = lambda self: "Init"
+
 # Atom
 Atom = namedtuple('Atom', ['value'])
 Atom.__str__ = lambda self: "'" + str(self.value) + "'"
