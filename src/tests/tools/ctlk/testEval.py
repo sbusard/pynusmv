@@ -65,6 +65,16 @@ class TestEval(unittest.TestCase):
         
         self.assertEqual(fsm.init, evalCTLK(fsm, spec))
         
+        
+    def test_reachable(self):
+        fsm = self.model()
+        
+        specs = parseCTLK("Reachable")
+        self.assertEqual(len(specs), 1)
+        spec = specs[0]
+        
+        self.assertEqual(fsm.reachable_states, evalCTLK(fsm, spec))
+        
     
     def test_atom(self):
         fsm = self.model()

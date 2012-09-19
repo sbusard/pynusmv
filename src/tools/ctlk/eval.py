@@ -6,7 +6,7 @@ from pynusmv.dd.bdd import BDD
 from pynusmv.mc.mc import eval_simple_expression
 from pynusmv.utils.misc import fixpoint as fp
 
-from .ast import (TrueExp, FalseExp, Init,
+from .ast import (TrueExp, FalseExp, Init, Reachable,
                   Atom, Not, And, Or, Implies, Iff, 
                   AF, AG, AX, AU, AW, EF, EG, EX, EU, EW,
                   nK, nE, nD, nC, K, E, D, C)
@@ -28,6 +28,9 @@ def evalCTLK(fsm, spec):
         
     elif type(spec) is Init:
         return fsm.init
+        
+    elif type(spec) is Reachable:
+        return fsm.reachable_states
     
     elif type(spec) is Atom:
         return eval_simple_expression(fsm, spec.value)
