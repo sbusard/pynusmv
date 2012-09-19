@@ -31,6 +31,40 @@ class TestEval(unittest.TestCase):
         self.assertIsNotNone(fsm)
         return fsm
         
+        
+    def test_true(self):
+        fsm = self.model()
+        
+        true = eval_simple_expression(fsm, "TRUE")
+        
+        specs = parseCTLK("True")
+        self.assertEqual(len(specs), 1)
+        spec = specs[0]
+        
+        self.assertEqual(true, evalCTLK(fsm, spec))
+        
+        
+    def test_false(self):
+        fsm = self.model()
+        
+        false = eval_simple_expression(fsm, "FALSE")
+        
+        specs = parseCTLK("False")
+        self.assertEqual(len(specs), 1)
+        spec = specs[0]
+        
+        self.assertEqual(false, evalCTLK(fsm, spec))
+        
+        
+    def test_init(self):
+        fsm = self.model()
+        
+        specs = parseCTLK("Init")
+        self.assertEqual(len(specs), 1)
+        spec = specs[0]
+        
+        self.assertEqual(fsm.init, evalCTLK(fsm, spec))
+        
     
     def test_atom(self):
         fsm = self.model()

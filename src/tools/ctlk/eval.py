@@ -6,7 +6,8 @@ from pynusmv.dd.bdd import BDD
 from pynusmv.mc.mc import eval_simple_expression
 from pynusmv.utils.misc import fixpoint as fp
 
-from .ast import (Atom, Not, And, Or, Implies, Iff, 
+from .ast import (TrueExp, FalseExp, Init,
+                  Atom, Not, And, Or, Implies, Iff, 
                   AF, AG, AX, AU, AW, EF, EG, EX, EU, EW,
                   nK, nE, nD, nC, K, E, D, C)
 
@@ -19,7 +20,16 @@ def evalCTLK(fsm, spec):
     spec -- an AST-based CTLK specification
     """
     
-    if type(spec) is Atom:
+    if type(spec) is TrueExp:
+        return BDD.true(fsm.bddEnc.DDmanager)
+        
+    elif type(spec) is FalseExp:
+        return BDD.false(fsm.bddEnc.DDmanager)
+        
+    elif type(spec) is Init:
+        return fsm.init
+    
+    elif type(spec) is Atom:
         return eval_simple_expression(fsm, spec.value)
         
     elif type(spec) is Not:
