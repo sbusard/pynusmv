@@ -94,7 +94,7 @@ def evalCTLK(fsm, spec):
     elif type(spec) is EW:
         # E[ p W q ] = E[ p U q ] | EG p
         return (eu(fsm, evalCTLK(fsm, spec.left), evalCTLK(fsm, spec.right)) |
-                eg(fsm, evalCTLK(fsm.spec.left)))
+                eg(fsm, evalCTLK(fsm, spec.left)))
         
     elif type(spec) is AW:
         # A[p W q] = ~E[~q U ~p & ~q]
@@ -190,7 +190,7 @@ def nk(fsm, agent, phi):
     phi -- a BDD representing the set of states of fsm satisfying phi
     """
     # Return the set of states that have a successor in agent's knowledge
-    # that satisfies phi
+    # that satisfies phi and is reachable
     # nK<'a'> 'p' = fsm.equivalent_states(phi, agent)
     return fsm.equivalent_states(phi & fsm.reachable_states, frozenset({agent}))
     
@@ -232,5 +232,8 @@ def nc(fsm, group, phi):
     phi -- a BDD representing the set of states of fsm satisfying phi
     """
     # nC<g> p = μZ. p | nE<g> Z
-    return fp(lambda Z: (phi | ne(fsm, group, Z)),
+    #return fp(lambda Z: (phi | ne(fsm, group, Z)),
+    #          BDD.false(fsm.bddEnc.DDmanager))
+    # nC<g> p = μZ. nE<g> (p | Z)
+    return fp(lambda Z: ne(fsm, group, (Z | phi)),
               BDD.false(fsm.bddEnc.DDmanager))

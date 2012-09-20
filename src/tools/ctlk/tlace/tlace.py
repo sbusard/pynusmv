@@ -61,12 +61,12 @@ class Tlacebranch:
         formula -- an existential temporal formula,
                    represented by a CTLK AST instance.
         """
-        self.__formula = formula      
+        self._formula = formula      
     
     @property
     def specification(self):
         """The spec of this branch."""
-        return self.__formula
+        return self._formula
         
     def __str__(self):
         pass # TODO
@@ -86,19 +86,19 @@ class TemporalBranch(Tlacebranch):
                 indicating the start of the loop; input being an input between
                 path[-1] and state.
         """
-        self.__formula = formula
-        self.__path = path
-        self.__loop = loop
+        super().__init__(formula)
+        self._path = path
+        self._loop = loop
         
     @property
     def path(self):
         """The path of this branch"""
-        return self.__path
+        return self._path
         
     @property
     def loop(self):
         """The loop of this branch, possibly None"""
-        return self.__loop
+        return self._loop
     
     
 class EpistemicBranch(Tlacebranch):
@@ -114,10 +114,10 @@ class EpistemicBranch(Tlacebranch):
                 where ag_i is the name of the agents
                 for which s_i-1 is equivalent to s_i, for all i : 0 < i <= n.
         """
-        self.__formula = formula
-        self.__path = path
+        super().__init__(formula)
+        self._path = path
         
     @property
     def path(self):
         """The path of this branch"""
-        return self.__path
+        return self._path

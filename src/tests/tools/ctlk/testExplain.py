@@ -451,7 +451,7 @@ class TestExplain(unittest.TestCase):
             self.assertTrue(s <= fsm.reachable_states)
             self.assertTrue(sp <= fsm.reachable_states)
             self.assertIsNotNone(i)
-            self.assertTrue(i <= fsm.get_inputs_between_states(s, sp))
+            self.assertTrue(i <= fsm.get_inputs_between_states(sp, s))
         
         self.assertTrue(witness[-1] <= fsm.init)
         
@@ -481,6 +481,6 @@ class TestExplain(unittest.TestCase):
             self.assertTrue(s <= fsm.reachable_states)
             self.assertTrue(sp <= fsm.reachable_states)
             self.assertIsNotNone(i)
-            self.assertTrue(i <= fsm.get_inputs_between_states(s, sp))
+            self.assertTrue(i <= fsm.get_inputs_between_states(sp, s))
         
         self.assertTrue(witness[-1] <= fsm.init)

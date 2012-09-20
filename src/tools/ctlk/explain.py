@@ -139,7 +139,7 @@ def explain_nk(fsm, state, agent, p):
     The returned value explains why state satisfies nK<agent> phi in fsm
     by showing a state equivalent to state for agent that satisfies phi.
     """
-    equiv_states = nk(fsm, agent, state)
+    equiv_states = nk(fsm, agent, state) & fsm.reachable_states
     sp = fsm.pick_one_state(equiv_states & p)
     return (state, frozenset({agent}), sp)
     
@@ -186,7 +186,7 @@ def explain_nd(fsm, state, group, p):
     by showing a state group-distributively equivalent to state
     that satisfies phi.
     """
-    equiv_states = nd(fsm, group, state)
+    equiv_states = nd(fsm, group, state) & fsm.reachable_states
     sp = fsm.pick_one_state(equiv_states & p)
     return (state, frozenset(group), sp)
     
@@ -214,7 +214,7 @@ def explain_nc(fsm, state, group, p):
     """
     
     # Compute fixpoint and store intermediate BDDs
-    funct = lambda Z: (p | ne(fsm, group, Z))
+    funct = lambda Z: ne(fsm, group, (Z | p))
     old = BDD.false(fsm.bddEnc.DDmanager)
     new = funct(old)
     paths = [new]
@@ -233,6 +233,10 @@ def explain_nc(fsm, state, group, p):
         (olds, ag, s) = explain_ne(fsm, s, group, states)
         path.append(ag)
         path.append(s)
+    # Still need to show why the last one satisfies nE<group> phi
+    (olds, ag, s) = explain_ne(fsm, path[-1], group, p)
+    path.append(ag)
+    path.append(s)
     
     return tuple(path)
     
@@ -275,7 +279,7 @@ def explain_reachable(fsm, state):
     path = [s]
     for states in paths[::-1]:
         sp = fsm.pick_one_state(fsm.pre(s) & states)
-        i = fsm.pick_one_inputs(fsm.get_inputs_between_states(s, sp))
+        i = fsm.pick_one_inputs(fsm.get_inputs_between_states(sp, s))
         path.append(i)
         path.append(sp)
         s = sp
