@@ -12,8 +12,9 @@ from tools.ctlk.parsing import parseCTLK
 from tools.ctlk.eval import evalCTLK
 from tools.ctlk.tlace.tlace import Tlacenode, TemporalBranch, EpistemicBranch
 from tools.ctlk.tlace.explain import explain_witness, explain_countex
+from tools.ctlk.tlace.xml import xml_countex, xml_witness
 
-class TestExplain(unittest.TestCase):
+class TestXML(unittest.TestCase):
     
     def setUp(self):
         init_nusmv()
@@ -52,6 +53,8 @@ class TestExplain(unittest.TestCase):
         self.assertEqual(len(expl.branches), 0)
         self.assertEqual(len(expl.universals), 0)
         
+        print(xml_witness(fsm, expl, spec))
+        
         
     def test_false(self):
         fsm = self.simplemodel()
@@ -68,6 +71,8 @@ class TestExplain(unittest.TestCase):
         self.assertEqual(len(expl.atomics), 0)
         self.assertEqual(len(expl.branches), 0)
         self.assertEqual(len(expl.universals), 0)
+        
+        print(xml_countex(fsm, expl, spec))
         
         
     def test_init(self):
@@ -86,6 +91,8 @@ class TestExplain(unittest.TestCase):
         self.assertEqual(type(expl.atomics[0]), Init)
         self.assertEqual(len(expl.branches), 0)
         self.assertEqual(len(expl.universals), 0)
+        
+        print(xml_witness(fsm, expl, spec))
         
         
     def test_reachable(self):
@@ -131,6 +138,8 @@ class TestExplain(unittest.TestCase):
         self.assertEqual(len(path[-1].atomics), 1)
         self.assertEqual(type(path[-1].atomics[0]), Init)
         
+        print(xml_witness(fsm, expl, spec))
+        
         
     def test_full_witness(self):
         fsm = self.model()
@@ -143,6 +152,8 @@ class TestExplain(unittest.TestCase):
         expl = explain_witness(fsm, state, spec)
         self.assertIsNotNone(expl)
         
+        print(xml_witness(fsm, expl, spec))
+        
         
         spec = parseCTLK("E[nE<'c1','c2'> 'c3.payer' U"
                         " E[ nC<'c1','c3'> ('c1.payer' | 'c2.payer') W"
@@ -154,6 +165,8 @@ class TestExplain(unittest.TestCase):
         expl = explain_witness(fsm, state, spec)
         self.assertIsNotNone(expl)
         
+        print(xml_witness(fsm, expl, spec))
+        
         
         spec = parseCTLK("AG(~'c1.payer' | E<'c1'> ('c1.payer' -> "
                          "C<'c2','c3'> AF 'c1.payer'))")[0]
@@ -163,6 +176,8 @@ class TestExplain(unittest.TestCase):
         
         expl = explain_witness(fsm, state, spec)
         self.assertIsNotNone(expl)
+        
+        print(xml_witness(fsm, expl, spec))
         
         
     def test_full_countex(self):
@@ -178,6 +193,8 @@ class TestExplain(unittest.TestCase):
         expl = explain_countex(fsm, state, spec)
         self.assertIsNotNone(expl)
         
+        print(xml_countex(fsm, expl, spec))
+        
         
         spec = parseCTLK("AG(~'c1.payer' | E<'c1'> ('c1.payer' -> "
                          "C<'c2','c3'> AF 'c1.payer'))")[0]
@@ -188,3 +205,5 @@ class TestExplain(unittest.TestCase):
         
         expl = explain_countex(fsm, state, spec)
         self.assertIsNotNone(expl)
+        
+        print(xml_countex(fsm, expl, spec))

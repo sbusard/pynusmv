@@ -82,29 +82,35 @@ nK.__str__ = (lambda self: "nK" + "<" + str(self.agent) + ">" + " "
                                 + str(self.child))
 
 nE = namedtuple('nE', ['group', 'child'])
-nE.__str__ = (lambda self: "nE" + "<" + str(self.group) + ">" + " "
-                                + str(self.child))
+nE.__str__ = (lambda self: "nE" + "<" +
+                           ','.join([ag.value for ag in self.group]) +
+                           ">" + " " + str(self.child))
 
 nD = namedtuple('nD', ['group', 'child'])
-nD.__str__ = (lambda self: "nD" + "<" + str(self.group) + ">" + " "
-                                + str(self.child))
+nD.__str__ = (lambda self: "nD" + "<" +
+                           ','.join([ag.value for ag in self.group]) +
+                           ">" + " " + str(self.child))
 
 nC = namedtuple('nC', ['group', 'child'])
-nC.__str__ = (lambda self: "nC" + "<" + str(self.group) + ">" + " "
-                                + str(self.child))
+nC.__str__ = (lambda self: "nC" + "<" +
+                           ','.join([ag.value for ag in self.group]) +
+                           ">" + " " + str(self.child))
                                 
 K = namedtuple('K', ['agent', 'child'])
 K.__str__ = (lambda self: "K" + "<" + str(self.agent) + ">" + " "
                               + str(self.child))
 
 E = namedtuple('E', ['group', 'child'])
-E.__str__ = (lambda self: "E" + "<" + str(self.group) + ">" + " "
-                              + str(self.child))
+E.__str__ = (lambda self: "E" + "<" +
+                           ','.join([ag.value for ag in self.group]) +
+                           ">" + " " + str(self.child))
 
 D = namedtuple('D', ['group', 'child'])
-D.__str__ = (lambda self: "D" + "<" + str(self.group) + ">" + " "
-                              + str(self.child))
+D.__str__ = (lambda self: "D" + "<" +
+                           ','.join([ag.value for ag in self.group]) +
+                           ">" + " " + str(self.child))
 
 C = namedtuple('C', ['group', 'child'])
-C.__str__ = (lambda self: "C" + "<" + str(self.group) + ">" + " "
-                              + str(self.child))
+C.__str__ = (lambda self: "C" + "<" +
+                           ','.join([ag.value for ag in self.group]) +
+                           ">" + " " + str(self.child))

@@ -259,7 +259,10 @@ def explain_branch(fsm, state, spec, originalspec):
                 loop = wit
                 
         # last state and loop
-        branch.append(explain_witness(fsm, path[-1], spec.child))
+        wit = explain_witness(fsm, path[-1], spec.child)
+        branch.append(wit)
+        if loopstate == path[-1]:
+            loop = wit
         finalloop = (inloop, loop)
         
         return TemporalBranch(originalspec, tuple(branch), finalloop)

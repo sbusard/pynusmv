@@ -55,7 +55,7 @@ def explain_eg(fsm, state, p):
     # While path[-1] cannot reach itself through states of allstates,
     while (path[-1] & ex(fsm, eu(fsm, allstates, path[-1]))).is_false():
         # choose a successor of path[-1] in allstates and add it in path
-        path.append(fsm.pick_one_state(fsm.post(state) & allstates))
+        path.append(fsm.pick_one_state(fsm.post(path[-1]) & allstates))
 
     # At this point, path[-1] can reach itself through states of allstates
     # Explain it with explain_eu and explain_ex
