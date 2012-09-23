@@ -133,16 +133,16 @@ class CTLK_shell(cmd.Cmd):
         if "check" not in self.argparsers:
             self.parse_check()
         
+        # Error if try to check when no fsm is read
+        if self.fsm is None:
+            print("check: error: no read model.")
+            return False
+        
         # Handle arguments parsing error
         try:
             args = self.argparsers["check"].parse_args(self._split(arg))
         except ArgumentParsingError as err:
             print(err, end="")
-            return False
-        
-        # Error if try to check when no fsm is read
-        if self.fsm is None:
-            print("check: error: no read model.")
             return False
             
         try:
@@ -159,8 +159,6 @@ class CTLK_shell(cmd.Cmd):
         except PyNuSMVError as err:
             print("check: error:", err)
             
-            
-        
         
     def help_check(self):
         if "check" not in self.argparsers:
@@ -180,7 +178,7 @@ class CTLK_shell(cmd.Cmd):
                         "check",
                         description="Check a specification.",
                         add_help=False)
-            parser.add_argument('spec', metavar='SPEC',
+            parser.add_argument('spec', metavar='"SPEC"',
                                 help="the specification to check")
             parser.add_argument('-d', action='store_false', dest="diagnostic",
                                 help="disable diagnostic", default=True)
