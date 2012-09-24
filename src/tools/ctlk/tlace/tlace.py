@@ -41,9 +41,6 @@ class Tlacenode:
     def universals(self):
         """universal annotations of this node"""
         return self.__universals
-        
-    def __str__(self):
-        pass # TODO
 
 
 class Tlacebranch:
@@ -67,9 +64,6 @@ class Tlacebranch:
     def specification(self):
         """The spec of this branch."""
         return self._formula
-        
-    def __str__(self):
-        pass # TODO
         
         
 class TemporalBranch(Tlacebranch):
