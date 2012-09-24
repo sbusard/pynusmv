@@ -150,7 +150,6 @@ class CTLK_shell(cmd.Cmd):
             (sat, diag) = checkCTLK(self.fsm, spec)
             print("The formula", '"' + str(spec) + '"', "is {}."
                                             .format("true" if sat else "false"))
-            # TODO Implement diagnostic in text instead of XML
             xml = xml_witness if sat else xml_countex
             if args.diagnostic:
                 print(xml(self.fsm, diag, spec))
@@ -170,7 +169,7 @@ class CTLK_shell(cmd.Cmd):
         """Build and store the parser for the model command."""
         # check [-d] [-x] SPEC
         # check the specification SPEC and provide a diagnostic
-        # -d do not show the diagnostics
+        # -d show the diagnostics
         # -x show the diagnostics as XML instead of text
         
         if "check" not in self.argparsers:
@@ -180,10 +179,8 @@ class CTLK_shell(cmd.Cmd):
                         add_help=False)
             parser.add_argument('spec', metavar='"SPEC"',
                                 help="the specification to check")
-            parser.add_argument('-d', action='store_false', dest="diagnostic",
-                                help="disable diagnostic", default=True)
-            parser.add_argument('-x', action="store_true", dest="xml",
-                                help="show diagnostic in XML")
+            parser.add_argument('-d', action='store_true', dest="diagnostic",
+                                help="show a diagnostic in XML")
             self.argparsers["check"] = parser
                                 
             
@@ -203,8 +200,8 @@ class CTLK_shell(cmd.Cmd):
         
     def _split(self, string, sep=None, escape=None):
         """
-        Split string with sep,
-        except if we are between two occurrences of escape.
+        Split string with each occurrence of sep,
+        except if this occurrence is between two occurrences of escape.
         """
         sep = sep if sep else [" "]
         escape = escape if escape else '"'
