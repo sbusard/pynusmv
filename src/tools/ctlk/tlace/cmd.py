@@ -328,7 +328,6 @@ class CTLK_explain_shell(cmd.Cmd):
         arg argument is ignored.
         """
         
-        pass # TODO Implement
         # Explain the syntax for explanations
         
         # Syntax follows this regex: (\.|[0-9]+)*
@@ -339,6 +338,25 @@ class CTLK_explain_shell(cmd.Cmd):
         # more dots go up the tree
         
         # reset, empty line, CTRL-d
+        
+        help = """This prompt allows to explore the TLACE explaining a property.
+It starts at the root of the TLACE and allows navigation.
+
+The commands to navigate follow this regular expression (\.|[0-9]+)*
+    a dot selects the current node/branch, more dots go up to the parent;
+    a number selects the branch/node of the current item;
+    
+    ex: 0.3.0.1 from the root node selects the second node of the first branch
+        of the third node of the first branch of the root node;
+        ...1 from a node selects the second branch of the parent of its parent
+        branch;
+        
+In addition, three commands are also provided
+    reset: restart the explanation to the root node;
+    an empty line: shows the current item;
+    CTRL-d: quits the prompt to return to the CLI main prompt.
+"""
+        print(help)
         
         
     def do_reset(self, arg):
