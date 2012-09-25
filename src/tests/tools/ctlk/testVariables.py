@@ -1,8 +1,7 @@
 import unittest
 
 from pynusmv.init.init import init_nusmv, deinit_nusmv
-from tools.multimodal import glob
-from pynusmv.glob import glob as superGlob
+from pynusmv.glob import glob
 
 from pynusmv.nusmv.parser import parser as nsparser
 from pynusmv.nusmv.compile import compile as nscompile
@@ -22,7 +21,8 @@ class TestVariables(unittest.TestCase):
         
     def test_fsm(self):
         glob.load_from_file("tests/tools/ctlk/dining-crypto.smv")
-        fsm = glob.mm_fsm()
+        glob.compute_model()
+        fsm = glob.prop_database().master.bddFsm
         self.assertIsNotNone(fsm)
         
         
@@ -113,7 +113,8 @@ class TestVariables(unittest.TestCase):
                 
         
         # Get FSM and stuff
-        fsm = glob.mm_fsm()
+        glob.compute_model()
+        fsm = glob.prop_database().master.bddFsm
         self.assertIsNotNone(fsm)
         
         flatH = nscompile.cvar.mainFlatHierarchy
@@ -167,7 +168,7 @@ class TestVariables(unittest.TestCase):
         glob.load_from_file("tests/tools/ctlk/dining-crypto.smv")
         
         # Flatten
-        superGlob.flatten_hierarchy()
+        glob.flatten_hierarchy()
         
         # Get parsed tree
         tree = nsparser.cvar.parsed_tree
@@ -216,8 +217,8 @@ class TestVariables(unittest.TestCase):
             
         
     def test_bitCounter(self):
-        self.print_instances("tests/tools/multimodal/bitCounter.smv")
+        self.print_instances("tests/tools/ctlk/bitCounter.smv")
        
         
     def test_counters(self):
-        self.print_instances("tests/tools/multimodal/counters.smv")
+        self.print_instances("tests/tools/ctlk/counters.smv")
