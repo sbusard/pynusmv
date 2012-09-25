@@ -10,6 +10,7 @@ from ..dd.inputs import Inputs
 from ..utils.pointerwrapper import PointerWrapper
 from ..utils.misc import fixpoint
 from ..trans.trans import BddTrans
+from ..utils.exception import NuSMVBddPickingError
 
 class BddFsm(PointerWrapper):
     """
@@ -115,13 +116,21 @@ class BddFsm(PointerWrapper):
         
     def pick_one_state(self, bdd):
         """Return a BDD representing a state of bdd."""
-        state = bddEnc.BddEnc_pick_one_state(self.bddEnc._ptr, bdd._ptr)
+        if bdd.is_false():
+            raise NuSMVBddPickingError("Cannot pick state from false BDD.")
+        state = bddEnc.pick_one_state(self.bddEnc._ptr, bdd._ptr)
+        if state is None:
+            raise NuSMVBddPickingError("Cannot pick state from BDD.")
         return State(state, self, freeit = True)
 
     
     def pick_one_inputs(self, bdd):
         """Return a BDD representing a possible inputs of bdd."""
-        inputs = bddEnc.BddEnc_pick_one_input(self.bddEnc._ptr, bdd._ptr)
+        if bdd.is_false():
+            raise NuSMVBddPickingError("Cannot pick inputs from false BDD.")
+        inputs = bddEnc.pick_one_input(self.bddEnc._ptr, bdd._ptr)
+        if inputs is None:
+            raise NuSMVBddPickingError("Cannot pick inputs from BDD.")
         return Inputs(inputs, self, freeit = True)
         
     

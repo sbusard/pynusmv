@@ -77,6 +77,10 @@ class NuSMVFlatteningError(PyNuSMVError):
     """An error occured while flattening some expression."""
     pass
     
+class NuSMVBddPickingError(PyNuSMVError):
+    """An error occured while picking a state/inputs from a BDD."""
+    pass
+    
         
 Error = namedtuple('Error', ('line', 'token', 'message'))
 Error.__str__ = lambda self: "Error at line {}, token '{}': {}".format(

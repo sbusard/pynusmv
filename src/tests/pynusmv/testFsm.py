@@ -4,8 +4,9 @@ from pynusmv.init.init import init_nusmv, deinit_nusmv
 from pynusmv.fsm.bddFsm import BddFsm
 from pynusmv.dd.bdd import BDD
 from pynusmv.mc.mc import eval_simple_expression as evalSexp
+from pynusmv.utils.exception import NuSMVBddPickingError
 
-class TestInit(unittest.TestCase):
+class TestFsm(unittest.TestCase):
     
     def setUp(self):
         init_nusmv()
@@ -92,12 +93,29 @@ class TestInit(unittest.TestCase):
         
         s = fsm.pick_one_state(p)
         self.assertTrue(false < s < p < true)
-        s = fsm.pick_one_state(false)
-        self.assertTrue(s.is_false())
+        with self.assertRaises(NuSMVBddPickingError):
+            s = fsm.pick_one_state(false)
         s = fsm.pick_one_state(true)
         self.assertTrue(s.isnot_false())
         self.assertTrue(false < s < p < true or false < s < ~p < true)
         self.assertTrue(false < s < q < true or false < s < ~q < true)
+        
+        
+    def test_pick_one_state_error(self):
+        fsm = self.model()
+        
+        false = BDD.false(fsm.bddEnc.DDmanager)
+        true = BDD.true(fsm.bddEnc.DDmanager)
+        p = evalSexp(fsm, "p")
+        q = evalSexp(fsm, "q")
+        a = evalSexp(fsm, "a")
+        
+        with self.assertRaises(NuSMVBddPickingError):
+            s = fsm.pick_one_state(false)
+            
+        with self.assertRaises(NuSMVBddPickingError):
+            s = fsm.pick_one_state(a)
+        
         
         
     def test_pick_one_inputs(self):
@@ -116,6 +134,22 @@ class TestInit(unittest.TestCase):
         ac = fsm.pick_one_inputs(true)
         self.assertTrue(false < ac < true)
         self.assertTrue(ac == a or ac == ~a)
+        
+        
+    def test_pick_one_inputs_error(self):
+        fsm = self.model()
+        
+        false = BDD.false(fsm.bddEnc.DDmanager)
+        true = BDD.true(fsm.bddEnc.DDmanager)
+        p = evalSexp(fsm, "p")
+        q = evalSexp(fsm, "q")
+        a = evalSexp(fsm, "a")
+        
+        with self.assertRaises(NuSMVBddPickingError):
+            i = fsm.pick_one_inputs(false)
+            
+        with self.assertRaises(NuSMVBddPickingError):
+            i = fsm.pick_one_inputs(p)
         
         
     def test_get_inputs(self):
