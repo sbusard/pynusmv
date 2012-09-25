@@ -386,8 +386,11 @@ In addition, three commands are also provided
         
         # Check existence of requested node and branch
         try:
-            elements = self._split_and_keep(line, ".")
-            for (index, i) in zip(elements, range(len(elements))):
+            elements = []
+            for (grp, i) in zip(re.finditer(r"\.|[0-9]+", line),
+                                  range(len(line))):
+                index = grp.group(0)
+                elements.append(index)
                 if index == ".":
                     stack.pop()
                 else:
@@ -397,7 +400,7 @@ In addition, three commands are also provided
                     if type(elem) is Tlacenode:
                         if index < 0 or len(elem.branches) <= index:
                             print("error: index out of range:",
-                                  "".join(elements[:i+1]))
+                                  "".join(elements))
                             return False
                         else:
                             stack.push(elem.branches[index])
@@ -405,7 +408,7 @@ In addition, three commands are also provided
                         index = index * 2
                         if index < 0 or len(elem.path) <= index:
                             print("error: index out of range",
-                                  "".join(elements[:i+1]))
+                                  "".join(elements))
                             return False
                         else:
                             stack.push(elem.path[index])
@@ -423,9 +426,10 @@ In addition, three commands are also provided
                 print("Explaining temporal branch for", elem.specification)
             elif type(elem) is EpistemicBranch:
                 print("Explaining epistemic branch for", elem.specification)
+            print("-" * 80)
             self._show(elem)
         except IndexError:
-            print("error: reached root TLACE node and beyond")
+            print("error: reached root TLACE node and beyond; abort")
             return False
             
         # Save the modified stack
@@ -436,23 +440,6 @@ In addition, three commands are also provided
         """Quit the explanation prompt (you can hit CTRL-d)."""
         print()
         return True
-        
-        
-    def _split_and_keep(self, string, sep):
-        """Split but keep separators."""
-        values = []
-        cur = ""
-        for c in string:
-            if c == sep:
-                if cur != "":
-                    values.append(cur)
-                values.append(c)
-                cur = ""
-            else:
-                cur += c
-        if cur != "":
-            values.append(cur)
-        return values
             
     
     def _show(self, tlace, index=0, prev=None, prefix=None):
@@ -460,9 +447,8 @@ In addition, three commands are also provided
         prefix = prefix if prefix else ""
         if type(tlace) is Tlacenode:
             # State
-            header = "----- State " + str(index) + " "
-            header += "-" * (80 - len(header))
-            print(header)
+            header = " State " + str(index) + " "
+            print(header.center(40,"-"))
             values = tlace.state.get_str_values()
             for var in values:
                 if (prev is not None and
@@ -485,32 +471,28 @@ In addition, three commands are also provided
         elif type(tlace) is TemporalBranch:
             # Loop?
             if tlace.loop is not None and tlace.loop[1] == tlace.path[0]:
-                header = "----- Loop starts here "
-                header += "-" * (80 - len(header))
-                print(header)
+                header = " Loop starts here "
+                print(header.center(40, "-"))
             self._show(tlace.path[0], prefix=prefix + "0.")
             # Show the states, and the inputs,
             for (os, i, s, ind) in zip(tlace.path[::2], tlace.path[1::2],
                                        tlace.path[2::2],
                                        range(len(tlace.path[2::2]))):
                 # Inputs
-                header = "----- Inputs "
-                header += "-" * (80 - len(header))
-                print(header)
+                header = " Inputs "
+                print(header.center(40, "-"))
                 values = i.get_str_values()
                 for var in values:
                     print(var, "=", values[var])
                 # don't forget loops,
                 if tlace.loop is not None and tlace.loop[1] == s:
-                    header = "----- Loop starts here "
-                    header += "-" * (80 - len(header))
-                    print(header)
+                    header = " Loop starts here "
+                    print(header.center(40, "-"))
                 self._show(s, ind + 1, os, prefix + str(ind + 1) + ".")
             # Print loop inputs if needed
             if tlace.loop is not None:
-                header = "----- Inputs "
-                header += "-" * (80 - len(header))
-                print(header)
+                header = " Inputs "
+                print(header.center(40, "-"))
                 values = tlace.loop[0].get_str_values()
                 for var in values:
                     print(var, "=", values[var])
@@ -522,11 +504,12 @@ In addition, three commands are also provided
                                         tlace.path[2::2],
                                         range(len(tlace.path[2::2]))):
                 # Agents
-                header = ("----- Agents : " +
-                          (",".join(ag) if type(ag) is frozenset else str(ag)) +
-                          " ")
-                header += "-" * (80 - len(header))
-                print(header)
+                if len(ag) > 1:
+                    header = " Agents : "
+                else:
+                    header = " Agent : "
+                header += ",".join(ag) + " "
+                print(header.center(40, "-"))
                 # State
                 self._show(s, ind + 1, os, prefix + str(ind + 1) + ".")
 
