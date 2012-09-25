@@ -122,7 +122,6 @@ def flatten_hierarchy():
     if ret != 0:
         raise NuSMVCannotFlattenError("Cannot flatten the model.")
     
-    # TODO Wrap the pointers?
     global _symb_table
     _symb_table = SymbTable(nscompile.Compile_get_global_symb_table())
     
