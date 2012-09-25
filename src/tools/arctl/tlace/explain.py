@@ -1,7 +1,7 @@
 """ARCTL TLACE explanations."""
 
 from ..eval import evalArctl
-from ..ast import (Atom, Not, And, Or, Implies, Iff,
+from ..ast import (TrueExp, FalseExp, Atom, Not, And, Or, Implies, Iff,
                    AaF, AaG, AaX, AaU, AaW, EaF, EaG, EaX, EaU, EaW)
 from .tlace import (Tlacenode, Tlacebranch)
 from ..explain import explain_eax, explain_eag, explain_eau
@@ -13,7 +13,18 @@ def explain_witness(fsm, state, spec):
     Return a TLACE node explaining why state of fsm satifies spec.
     """
     
-    if type(spec) is Atom:
+    if type(spec) is TrueExp:
+        # state is its own explanation, no need for annotation
+        return Tlacenode(state, None, None, None)
+        
+    elif type(spec) is FalseExp:    
+        print("[ERROR] ARCTL TLACE explain_witness:",
+              "cannot explain why state satisfies False",
+              spec)
+        # TODO Error, cannot explain why state |= False
+        return None
+    
+    elif type(spec) is Atom:
         # state is its own explanation
         return Tlacenode(state, (spec,), None, None)
         
@@ -74,7 +85,17 @@ def explain_countex(fsm, state, spec):
     Return a TLACE node explaining why state of fsm violates spec.
     """
     
-    if type(spec) is Atom:
+    if type(spec) is TrueExp:    
+        print("[ERROR] ARCTL TLACE explain_countex:",
+              "cannot explain why state violates True",
+              spec)
+        # TODO Error, cannot explain why state |/= True
+        return None
+        
+    elif type(spec) is FalseExp:
+        return explain_witness(fsm, state, TrueExp())
+    
+    elif type(spec) is Atom:
         # state is its own explanation
         return Tlacenode(state, (Not(spec),), None, None)
         

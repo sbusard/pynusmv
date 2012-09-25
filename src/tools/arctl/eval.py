@@ -9,7 +9,8 @@ from pynusmv.mc.mc import eval_simple_expression
 
 from .parsing import parseArctl
 
-from .ast import (Atom, Not, And, Or, Implies, Iff, 
+from .ast import (TrueExp, FalseExp,
+                  Atom, Not, And, Or, Implies, Iff, 
                   AaF, AaG, AaX, AaU, AaW,
                   EaF, EaG, EaX, EaU, EaW)
                   
@@ -30,7 +31,13 @@ def evalArctl_from_string(fsm, spec):
 def evalArctl(fsm, spec):
     """Return a BDD representing the set of states of fsm satisfying spec."""
     
-    if type(spec) is Atom:
+    if type(spec) is TrueExp:
+        return BDD.true(fsm.bddEnc.DDmanager)
+        
+    elif type(spec) is FalseExp:
+        return BDD.false(fsm.bddEnc.DDmanager)
+    
+    elif type(spec) is Atom:
         return eval_simple_expression(fsm, spec.value)
         
     elif type(spec) is Not:

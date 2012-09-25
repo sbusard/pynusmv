@@ -4,7 +4,7 @@ ARCTL explain functions.
 
 from pynusmv.dd.bdd import BDD
 from .eval import _ex, eag, _eu, eau, eax, evalArctl
-from .ast import (Atom, Not, And, Or, Implies, Iff,
+from .ast import (TrueExp, FalseExp, Atom, Not, And, Or, Implies, Iff,
                   AaF, AaG, AaX, AaU, AaW, EaF, EaG, EaX, EaU, EaW)
     
     
@@ -19,7 +19,18 @@ def explain_witness(fsm, state, spec):
     is (None, None).
     """
     
-    if type(spec) is Atom:
+    if type(spec) is TrueExp:
+        # state is its own explanation
+        return ((state,), (None, None))
+
+    elif type(spec) is FalseExp:    
+        print("[ERROR] ARCTL explain_witness:",
+              "cannot explain why state satisfies False",
+              spec)
+        # TODO Error, cannot explain why state |= False
+        return None
+    
+    elif type(spec) is Atom:
         # state is its own explanation
         return ((state,), (None, None))
         
@@ -78,7 +89,7 @@ def explain_witness(fsm, state, spec):
                            evalArctl(fsm, spec.left),
                            evalArctl(fsm, spec.right))
                            
-        (npath, loops) = explain_witness(fsm, path[-1], spec.child)
+        (npath, loops) = explain_witness(fsm, path[-1], spec.right)
         return (path + npath[1:], loops)
                        
     elif type(spec) is EaW:
@@ -104,6 +115,17 @@ def explain_countex(fsm, state, spec):
     represents a possible loop of this path. If the path is finite, (in, loop)
     is (None, None).
     """
+
+    if type(spec) is TrueExp:    
+        print("[ERROR] ARCTL explain_countex:",
+              "cannot explain why state violates True",
+              spec)
+        # TODO Error, cannot explain why state |= False
+        return None
+    
+    elif type(spec) is FalseExp:
+        # state is its own explanation
+        return ((state,), (None, None))
     
     if type(spec) is Atom:
         # state is its own explanation

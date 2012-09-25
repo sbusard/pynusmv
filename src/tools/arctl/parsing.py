@@ -1,6 +1,7 @@
 from pyparsing import Suppress, SkipTo, Forward, ZeroOrMore, Literal
 
-from .ast import (Atom, Not, And, Or, Implies, Iff, 
+from .ast import (TrueExp, FalseExp,
+                  Atom, Not, And, Or, Implies, Iff, 
                   AaF, AaG, AaX, AaU, AaW,
                   EaF, EaG, EaX, EaU, EaW)
                   
@@ -106,16 +107,23 @@ def parseArctl(spec):
     """Parse the spec and return its AST."""
     global _arctl
     if _arctl is None:
+        true = Literal("True")
+        true.setParseAction(lambda tokens: TrueExp())
+        false = Literal("False")
+        false.setParseAction(lambda tokens: FalseExp())
         atom = "'" + SkipTo("'") + "'"
         atom.setParseAction(lambda tokens: Atom(tokens[1]))
         
         action = _logicals_(atom)
         
         _arctl = Forward()
+        
+        proposition = true | false | atom
 
-        notatom = "~" + atom
-        notatom.setParseAction(lambda tokens: Not(tokens[1]))
-        formula = (atom | notatom | Suppress("(") + _arctl + Suppress(")"))
+        notproposition = "~" + proposition
+        notproposition.setParseAction(lambda tokens: Not(tokens[1]))
+        formula = (proposition | notproposition |
+                   Suppress("(") + _arctl + Suppress(")"))
 
 
         temporal = Forward()

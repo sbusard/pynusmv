@@ -4,6 +4,13 @@ AST classes for ARCTL formulas representation.
 
 from collections import namedtuple
 
+# TrueExp, FalseExp
+TrueExp = namedtuple('TrueExp', [])
+TrueExp.__str__ = lambda self: "True"
+
+FalseExp = namedtuple('FalseExp', [])
+FalseExp.__str__ = lambda self: "False"
+
 # Atom
 Atom = namedtuple('Atom', ['value'])
 Atom.__str__ = lambda self: "'" + str(self.value) + "'"
