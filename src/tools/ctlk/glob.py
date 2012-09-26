@@ -96,8 +96,7 @@ def _flatten_and_filter_variable_args(arguments):
             if err:
                 # TODO raise exception
                 print("[ERROR] Cannot flatten argument")
-            isVar = nssymb_table.SymbTable_is_symbol_var(st._ptr, arg)
-            if isVar:
+            if nssymb_table.SymbTable_is_symbol_var(st._ptr, arg):
                 result[instance].append(arg)
     return result
     

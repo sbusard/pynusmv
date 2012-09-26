@@ -4,8 +4,6 @@ from pynusmv.parser.parser import (parse_next_expression, parse_identifier,
 from pynusmv.utils.exception import NuSMVTypeCheckingError, NuSMVFlatteningError
 from pynusmv.dd.bdd import BDD
 
-from pynusmv.glob import glob as superGlob
-
 from pynusmv.nusmv.compile import compile as nscompile
 from pynusmv.nusmv.fsm import fsm as nsfsm
 from pynusmv.nusmv.trans.bdd import bdd as nsbddtrans
@@ -28,34 +26,6 @@ class BddTrans(SuperBddTrans):
             # Free it because such a BddTrans is not owned by anyone
             nsbddtrans.BddTrans_free(self._ptr)
             self._freeit = False
-            
-        
-    def pre_state_input(self, states, inputs=None):
-        """
-        Compute the pre-image of states, through inputs if not None.
-        
-        The returned BDD contains state and input variables.
-        """
-        if inputs is not None:
-            states = states & inputs
-        ptr = nsbddenc.BddEnc_state_var_to_next_state_var(self._enc._ptr, 
-                                                          states._ptr)
-        img = nsbddtrans.BddTrans_get_backward_image_state_input(self._ptr, ptr)
-        return BDD(img, self._manager, freeit = True)
-        
-    
-    def post_state_input(self, states, inputs=None):
-        """
-        Compute the post-image of states, through inputs if not None.
-        
-        The returned BDD contains state and input variables.
-        """
-        if inputs is not None:
-            states = states & inputs
-        img = nsbddtrans.BddTrans_get_forward_image_state_input(
-                                                         self._ptr, states._ptr)
-        img = nsbddenc.BddEnc_next_state_var_to_state_var(self._enc._ptr, img)
-        return BDD(img, self._manager, freeit = True)
       
       
     # ==========================================================================
@@ -82,7 +52,8 @@ class BddTrans(SuperBddTrans):
         
         # Build the BDD trans
         fsmbuilder = nscompile.Compile_get_global_fsm_builder()
-        enc = superGlob.bdd_encoding()
+        from .glob import bdd_encoding
+        enc = bdd_encoding()
         ddmanager = enc.DDmanager
         
         clusters = nsfsm.FsmBuilder_clusterize_expr(fsmbuilder, enc._ptr,
