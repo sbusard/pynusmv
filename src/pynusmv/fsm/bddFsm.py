@@ -115,7 +115,13 @@ class BddFsm(PointerWrapper):
         
         
     def pick_one_state(self, bdd):
-        """Return a BDD representing a state of bdd."""
+        """
+        Return a BDD representing a state of bdd.
+        
+        If bdd is false or an error occurs while picking one state (for example
+        if the bdd does not contain any state but inputs),
+        a NuSMVBddPickingError occurs.
+        """
         if bdd.is_false():
             raise NuSMVBddPickingError("Cannot pick state from false BDD.")
         state = bddEnc.pick_one_state(self.bddEnc._ptr, bdd._ptr)
@@ -125,7 +131,13 @@ class BddFsm(PointerWrapper):
 
     
     def pick_one_inputs(self, bdd):
-        """Return a BDD representing a possible inputs of bdd."""
+        """
+        Return a BDD representing a possible inputs of bdd.
+        
+        If bdd is false or an error occurs while picking one inputs (for example
+        if the bdd does not contain any inputs but states),
+        a NuSMVBddPickingError occurs.
+        """
         if bdd.is_false():
             raise NuSMVBddPickingError("Cannot pick inputs from false BDD.")
         inputs = bddEnc.pick_one_input(self.bddEnc._ptr, bdd._ptr)
@@ -147,7 +159,7 @@ class BddFsm(PointerWrapper):
         
     @property    
     def reachable_states(self):
-        """Return a BDD representing the set of reachable states of the MAS."""
+        """Return a BDD representing the set of reachable states of the FSM."""
         if self._reachable is None:
             self._reachable = fixpoint(lambda Z: (self.init | self.post(Z)),
                                        BDD.false(self.bddEnc.DDmanager))

@@ -67,7 +67,6 @@ EXTERN void Compile_ProcessHierarchy ARGS((SymbTable_ptr symb_table,
                                            boolean calc_vars_constr));
 
 
-// TODO Remove this?
 EXTERN FlatHierarchy_ptr mainFlatHierarchy;
 EXTERN cmp_struct_ptr cmps;
 

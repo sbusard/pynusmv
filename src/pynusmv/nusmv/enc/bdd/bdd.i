@@ -19,6 +19,7 @@ BaseEnc_ptr bddenc2baseenc(BddEnc_ptr bdd_enc) {
     return (BaseEnc_ptr) bdd_enc;
 }
 
+// Result is NULL if an error occured, not NULL otherwise
 bdd_ptr pick_one_state(const BddEnc_ptr self, bdd_ptr states) {
     bdd_ptr result;
     CATCH {
@@ -30,6 +31,8 @@ bdd_ptr pick_one_state(const BddEnc_ptr self, bdd_ptr states) {
     return result;
 }
 
+
+// Result is NULL if an error occured, not NULL otherwise
 bdd_ptr pick_one_input(const BddEnc_ptr self, bdd_ptr inputs) {
     bdd_ptr result;
     CATCH {
