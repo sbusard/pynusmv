@@ -120,7 +120,7 @@ def explain_countex(fsm, state, spec):
         print("[ERROR] ARCTL explain_countex:",
               "cannot explain why state violates True",
               spec)
-        # TODO Error, cannot explain why state |= False
+        # TODO Error, cannot explain why state |/= True
         return None
     
     elif type(spec) is FalseExp:
