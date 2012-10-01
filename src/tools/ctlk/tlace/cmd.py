@@ -173,6 +173,29 @@ class CTLK_shell(cmd.Cmd):
             self.parse_check()
         self.argparsers["check"].print_help()
         
+        # Print CTLK grammar
+        print()
+        print("""
+Grammar for CTLK properties
+
+phi         := atom | logical | temporal | epistemic
+
+logical     := '~'phi | '('phi')' | phi '&' phi | phi '|' phi |
+               phi '->' phi | phi '<->' phi
+               
+temporal    := 'EX' phi | 'EF' phi | 'EG' phi |
+               'E[' phi 'U' phi ']' | 'E[' phi 'W' phi ']' |
+               'AX' phi | 'AF' phi | 'AG' phi |
+               'A[' phi 'U' phi ']' | 'A[' phi 'W' phi ']'
+               
+epistemic   := 'nK<' agent '>' phi | 'nE<' group '>' phi |
+               'nD<' group '>' phi | 'nC<' group '> phi |
+               'K<' agent '>' phi | 'E<' group '>' phi |
+               'D<' group '>' phi | 'C<' group '> phi
+
+atom being any string surrounded by single quotes (');
+agent being an atom and group a comma-separated list of agents.""")
+        
         
     def parse_check(self):
         """Build and store the parser for the check command."""
