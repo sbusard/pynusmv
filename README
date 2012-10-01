@@ -19,6 +19,9 @@ Some tools provided with PyNuSMV in the tools/ directory also need the following
 pyparsing version 1.5.6 or higher -- http://pyparsing.wikispaces.com/
 
 
+SWIG and pyparsing are provided in this package in the dep/ directory.
+
+
 Build
 -----
 
