@@ -18,7 +18,7 @@ where MODEL is an SMV model. The tool computes the given model, check all its CT
 2. ARCTL + TLACE
 --------------------------------------------------------------------------------
      
-Action-Restricted CTL (ARCTL for short) is an extension of CTL where quantified paths are restricted to paths of actions satisfying a propositional property [PR06]. This tool is defined in the tools.arctl package.
+Action-Restricted CTL (ARCTL for short) is an extension of CTL where quantified paths are restricted to paths of actions satisfying a propositional property [PR07]. This tool is defined in the tools.arctl package.
 
 It performs ARCTL model checking on SMV models and produces counter-examples and witnesses to explain ARCTL properties violation or satisfaction. These diagnostics can be either simple paths of the system or full TLACEs; TLACEs are defined in the separated sub-package tools.arctl.tlace.
 
@@ -33,18 +33,27 @@ This gives a prompt accepting some commands. The list of accepted commands can b
 To launch the CLI producing TLACEs. Just run the same command with tlace instead of trace; accepted commands are the same.
 	
 	
-3. Multimodal systems
+3. CTLK model checking and TLACE generation and exploration
 --------------------------------------------------------------------------------
 
-A multimodal system is a system with several transition realtions. The tool given in the tools.multimodal package is not a full program like the two previous ones but an extension of PyNuSMV. This extension allows to generate a multimodal system from an SMV model. This model contains several BddTrans, each one representing the transition relation of a particular context, i.e. the transition relation of the variables of the instance of a module.
+CTLK is an extension of CTLK allowing to reason about time and knowledge of the agents of a system [PL03]. This logic is interpreted over systems composed of agents that have a limited knowledge of the system current state. It allows the mix temporal and epistemic operators to express, for example, that at all time, an agent knows that a property is true.
 
-With this multimodal system, it is possible to compute the pre- or post-image of a BDD representing a set of states of the model through only a sub-set of the different transition relations.
+This tool performs model checking of CTLK on multi-agent systems defined with the SMV language. Il also generates diagnostics for explaining verification outcomes. Finally, it allows the user to interactively explore a TLACE explaining the result of verification.
 
-To use this extension of PyNuSMV, the model can be generated thanks to the functions given in the tools.multimodal.glob module. This gives a MMFsm, defined in the tools.multimodal.mmFsm module; as this class is a sub-class of the pynusmv.fsm.bddFsm.BddFsm class, all the operations provided by the latter one are accessible on the former one.
+More precisely, this tool accepts any SMV model and follows these conventions:
+    - any instance of a module declared in the "main" module is considered an agent;
+    - the direct knowledge of an agent is given by all its local variables, i.e. the variables declared in its module, and by all its arguments that are variables.
+
+To run this tool, launch the following command from the src/ directory of PyNuSMV package.
+
+python -m tools.ctlk.tlace.cmd
+
+This gives a prompt accepting some commands listed by the "help" command. This prompt accepts, for example, the "model" command to specify an SMV model, the "check" command to verify a CTLK property, or the "explain" command to explain the model checking result. In particular, the "explain" command opens another prompt to explore the diagnostic; the help can be accessed through the "help" command. Finally, note that any command has its own help message, accessible through the "help <cmd>" command.
 
 
 REFERENCES
 --------------------------------------------------------------------------------
 
 [BP12] Simon Busard, Charles Pecheur: Rich Counter-Examples for Temporal-Epistemic Logic Model Checking. IWIGP 2012: 39-53
-[PR06] Charles Pecheur, Franco Raimondi: Symbolic Model Checking of Logics with Actions. MoChArt 2006: 113-128
+[PL03] W.Penczek, A.Lomuscio: Verifying epistemic properties of multi-agent systems via bounded model checking. Fundamenta Informaticae, 55(2) :167–185, 2003.
+[PR07] Charles Pecheur, Franco Raimondi: Symbolic Model Checking of Logics with Actions. MoChArt 2006: 113-128
