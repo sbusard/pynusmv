@@ -1,0 +1,40 @@
+The dep/ directory contains source code of tools needed to run PyNuSMV. Currently, this directory contains:
+    
+    - swig-2.0.6.tar.gz :
+        SWIG version 2.0.6
+        needed to use PyNuSMV
+        
+    - pyparsing-1.5.6.zip :
+        PyParsing version 1.5.6
+        needed to use some tools built on PyNuSMV
+
+With these packages, you can install the dependencies of PyNuSMV.
+
+
+
+
+You can also build the dependencies, without installing them on your system, and still correctly use PyNuSMV. To do so, follow these steps.
+
+
+To use SWIG without installing it, run these commands in the dep/ directory.
+        
+    tar xvf swig-2.0.6.tar.gz
+    cd swig-2.0.6
+    ./configure
+    make
+
+When this is done, the swig program is available in the current directory. You can then build PyNuSMV as explained in the README file at the root of the package, but replace the command
+
+    python setup.py build_ext --inplace
+    
+by
+    
+    python setup.py build_ext --inplace --swig=../dep/swig-2.0.6/swig
+    
+
+To use PyParsing without installing it, run these commands in the dep/ directory.
+
+    unzip pyparsing-1.5.6.zip
+    cp pyparsing-1.5.6/pyparsing_py3.py ../src/pyparsing.py
+    
+You can now use tools like CTLK+TLACE (that uses PyParsing) without installing PyParsing on your system.

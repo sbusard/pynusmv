@@ -60,6 +60,7 @@ This package contains
 - NOTES file : notes about PyNuSMV details;
 - LGPL-2.1 : a copy of the LGPLv2 License;
 - TOOLS : notes about the tools provided with PyNuSMV;
+- dep/ : a directory containing some tools on which PyNuSMV depends;
 - src/ : PyNuSMV sources
 
     - build_libnusmv.sh : NuSMV shared library building script;
