@@ -297,6 +297,37 @@ class TestParsing(unittest.TestCase):
         self.assertEqual(type(ast.right), Atom)
         self.assertEqual(ast.right.value, "r")
         
+        
+    def test_weird(self):
+        s = """
+            AF (
+                (K<'c1'> (AF (K<'c1'> 'c2.payer' | K<'c1'> ~'c2.payer')))
+                |
+                (K<'c1'> (~AF (K<'c1'> 'c2.payer' | K<'c1'> ~'c2.payer')))
+               )
+            """
+        asts = parseCTLK(s)
+        self.assertEqual(len(asts), 1)
+        
+        ast = asts[0]
+        self.assertEqual(type(ast), AF)
+        self.assertEqual(type(ast.child), Or)
+        self.assertEqual(type(ast.child.left), K)
+        self.assertEqual(type(ast.child.left.agent), Atom)
+        self.assertEqual(ast.child.left.agent.value, "c1")
+        self.assertEqual(type(ast.child.left.child), AF)
+        self.assertEqual(type(ast.child.left.child.child), Or)
+        self.assertEqual(type(ast.child.left.child.child.left), K)
+        self.assertEqual(type(ast.child.left.child.child.right), K)
+        self.assertEqual(type(ast.child.left.child.child.right.agent), Atom)
+        self.assertEqual(ast.child.left.child.child.right.agent.value, "c1")
+        self.assertEqual(type(ast.child.left.child.child.right.child), Not)
+        self.assertEqual(
+                       type(ast.child.left.child.child.right.child.child), Atom)
+        self.assertEqual(
+                 ast.child.left.child.child.right.child.child.value, "c2.payer")
+        self.assertEqual(type(ast.child.right), K)
+        
     
     def test_epistemic_temporal_logical(self):
         s = "nK<'ag'> AX ~'b'"
