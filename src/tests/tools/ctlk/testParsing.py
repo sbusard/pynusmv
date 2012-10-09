@@ -3,12 +3,42 @@ import unittest
 from pyparsing import ParseException
 
 from tools.ctlk.parsing import parseCTLK
-from tools.ctlk.ast import (TrueExp, FalseExp, Init, Reachable,
+from tools.ctlk.ast import (Spec, TrueExp, FalseExp, Init, Reachable,
                             Atom, Not, And, Or, Implies, Iff, 
                             AF, AG, AX, AU, AW, EF, EG, EX, EU, EW,
                             nK, nE, nD, nC, K, E, D, C)
 
 class TestParsing(unittest.TestCase):
+    
+    def test_subclassing(self):
+        self.assertTrue(issubclass(TrueExp, Spec))
+        self.assertTrue(issubclass(FalseExp, Spec))
+        self.assertTrue(issubclass(Init, Spec))
+        self.assertTrue(issubclass(Reachable, Spec))
+        self.assertTrue(issubclass(Atom, Spec))
+        self.assertTrue(issubclass(Not, Spec))
+        self.assertTrue(issubclass(And, Spec))
+        self.assertTrue(issubclass(Or, Spec))
+        self.assertTrue(issubclass(Implies, Spec))
+        self.assertTrue(issubclass(Iff, Spec))
+        self.assertTrue(issubclass(AF, Spec))
+        self.assertTrue(issubclass(AG, Spec))
+        self.assertTrue(issubclass(AX, Spec))
+        self.assertTrue(issubclass(AU, Spec))
+        self.assertTrue(issubclass(AW, Spec))
+        self.assertTrue(issubclass(EF, Spec))
+        self.assertTrue(issubclass(EG, Spec))
+        self.assertTrue(issubclass(EX, Spec))
+        self.assertTrue(issubclass(EU, Spec))
+        self.assertTrue(issubclass(EW, Spec))
+        self.assertTrue(issubclass(nK, Spec))
+        self.assertTrue(issubclass(nE, Spec))
+        self.assertTrue(issubclass(nD, Spec))
+        self.assertTrue(issubclass(nC, Spec))
+        self.assertTrue(issubclass(K, Spec))
+        self.assertTrue(issubclass(E, Spec))
+        self.assertTrue(issubclass(D, Spec))
+        self.assertTrue(issubclass(C, Spec))
     
     def test_atom(self):
         s = "'c <= 3'"
@@ -16,7 +46,8 @@ class TestParsing(unittest.TestCase):
         self.assertEqual(len(asts), 1)
         
         ast = asts[0]
-        self.assertEqual(type(ast), Atom)
+        self.assertTrue(isinstance(ast, Spec))
+        self.assertTrue(isinstance(ast, Atom))
         self.assertEqual(ast.value, "c <= 3")
         
     
@@ -36,7 +67,8 @@ class TestParsing(unittest.TestCase):
         self.assertEqual(len(asts), 1)
         
         ast = asts[0]
-        self.assertEqual(type(ast), TrueExp)
+        self.assertTrue(isinstance(ast, Spec))
+        self.assertTrue(isinstance(ast, TrueExp))
         
         
     def test_false(self):
@@ -45,7 +77,8 @@ class TestParsing(unittest.TestCase):
         self.assertEqual(len(asts), 1)
         
         ast = asts[0]
-        self.assertEqual(type(ast), FalseExp)
+        self.assertTrue(isinstance(ast, Spec))
+        self.assertTrue(isinstance(ast, FalseExp))
         
     
     def test_init(self):
@@ -54,7 +87,8 @@ class TestParsing(unittest.TestCase):
         self.assertEqual(len(asts), 1)
         
         ast = asts[0]
-        self.assertEqual(type(ast), Init)
+        self.assertTrue(isinstance(ast, Spec))
+        self.assertTrue(isinstance(ast, Init))
         
     
     def test_reachable(self):
@@ -63,7 +97,8 @@ class TestParsing(unittest.TestCase):
         self.assertEqual(len(asts), 1)
         
         ast = asts[0]
-        self.assertEqual(type(ast), Reachable)
+        self.assertTrue(isinstance(ast, Spec))
+        self.assertTrue(isinstance(ast, Reachable))
     
     
     def test_not(self):
@@ -72,8 +107,10 @@ class TestParsing(unittest.TestCase):
         self.assertEqual(len(asts), 1)
         
         ast = asts[0]
-        self.assertEqual(type(ast), Not)
-        self.assertEqual(type(ast.child), Atom)
+        self.assertTrue(isinstance(ast, Spec))
+        self.assertTrue(isinstance(ast, Not))
+        self.assertTrue(isinstance(ast.child, Spec))
+        self.assertTrue(isinstance(ast.child, Atom))
         self.assertEqual(ast.child.value, "a")
         
     
@@ -83,13 +120,18 @@ class TestParsing(unittest.TestCase):
         self.assertEqual(len(asts), 1)
         
         ast = asts[0]
-        self.assertEqual(type(ast), And)
-        self.assertEqual(type(ast.left), Atom)
+        self.assertTrue(isinstance(ast, Spec))
+        self.assertTrue(isinstance(ast, And))
+        self.assertTrue(isinstance(ast.left, Spec))
+        self.assertTrue(isinstance(ast.left, Atom))
         self.assertEqual(ast.left.value, "a")
-        self.assertEqual(type(ast.right), And)
-        self.assertEqual(type(ast.right.left), Atom)
+        self.assertTrue(isinstance(ast.right, Spec))
+        self.assertTrue(isinstance(ast.right, And))
+        self.assertTrue(isinstance(ast.right.left, Spec))
+        self.assertTrue(isinstance(ast.right.left, Atom))
         self.assertEqual(ast.right.left.value, "b")
-        self.assertEqual(type(ast.right.right), Atom)
+        self.assertTrue(isinstance(ast.right.right, Spec))
+        self.assertTrue(isinstance(ast.right.right, Atom))
         self.assertEqual(ast.right.right.value, "c")
         
     
@@ -99,10 +141,13 @@ class TestParsing(unittest.TestCase):
         self.assertEqual(len(asts), 1)
         
         ast = asts[0]
-        self.assertEqual(type(ast), Implies)
-        self.assertEqual(type(ast.left), Atom)
+        self.assertTrue(isinstance(ast, Spec))
+        self.assertTrue(isinstance(ast, Implies))
+        self.assertTrue(isinstance(ast.left, Spec))
+        self.assertTrue(isinstance(ast.left, Atom))
         self.assertEqual(ast.left.value, "a")
-        self.assertEqual(type(ast.right), Atom)
+        self.assertTrue(isinstance(ast.right, Spec))
+        self.assertTrue(isinstance(ast.right, Atom))
         self.assertEqual(ast.right.value, "b")
         
         
@@ -112,10 +157,13 @@ class TestParsing(unittest.TestCase):
         self.assertEqual(len(asts), 1)
         
         ast = asts[0]
-        self.assertEqual(type(ast), Iff)
-        self.assertEqual(type(ast.left), Atom)
+        self.assertTrue(isinstance(ast, Spec))
+        self.assertTrue(isinstance(ast, Iff))
+        self.assertTrue(isinstance(ast.left, Spec))
+        self.assertTrue(isinstance(ast.left, Atom))
         self.assertEqual(ast.left.value, "a")
-        self.assertEqual(type(ast.right), Atom)
+        self.assertTrue(isinstance(ast.right, Spec))
+        self.assertTrue(isinstance(ast.right, Atom))
         self.assertEqual(ast.right.value, "b = 3")
         
         
@@ -125,17 +173,25 @@ class TestParsing(unittest.TestCase):
         self.assertEqual(len(asts), 1)
         
         ast = asts[0]
-        self.assertEqual(type(ast), Implies)
-        self.assertEqual(type(ast.left), And)
-        self.assertEqual(type(ast.left.left), Atom)
+        self.assertTrue(isinstance(ast, Spec))
+        self.assertTrue(isinstance(ast, Implies))
+        self.assertTrue(isinstance(ast.left, Spec))
+        self.assertTrue(isinstance(ast.left, And))
+        self.assertTrue(isinstance(ast.left.left, Spec))
+        self.assertTrue(isinstance(ast.left.left, Atom))
         self.assertEqual(ast.left.left.value, "a")
-        self.assertEqual(type(ast.left.right), Atom)
+        self.assertTrue(isinstance(ast.left.right, Spec))
+        self.assertTrue(isinstance(ast.left.right, Atom))
         self.assertEqual(ast.left.right.value, "c")
-        self.assertEqual(type(ast.right), Or)
-        self.assertEqual(type(ast.right.left), Not)
-        self.assertEqual(type(ast.right.left.child), Atom)
+        self.assertTrue(isinstance(ast.right, Spec))
+        self.assertTrue(isinstance(ast.right, Or))
+        self.assertTrue(isinstance(ast.right.left, Spec))
+        self.assertTrue(isinstance(ast.right.left, Not))
+        self.assertTrue(isinstance(ast.right.left.child, Spec))
+        self.assertTrue(isinstance(ast.right.left.child, Atom))
         self.assertEqual(ast.right.left.child.value, "b")
-        self.assertEqual(type(ast.right.right), Atom)
+        self.assertTrue(isinstance(ast.right.right, Spec))
+        self.assertTrue(isinstance(ast.right.right, Atom))
         self.assertEqual(ast.right.right.value, "c")
         
         
