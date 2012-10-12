@@ -13,6 +13,8 @@ from pynusmv.utils.exception import PyNuSMVError
 from .lazyExplainShell import LazyCTLK_explain_shell
 from .explainShell import CTLK_explain_shell
 
+from ..util.nonExitingArgumentParser import (NonExitingArgumentParser,
+                                             ArgumentParsingError)
 from .. import glob
 from ..parsing import parseCTLK
 from ..tlace.check import checkCTLK
@@ -21,17 +23,6 @@ from ..lazyTlace.check import checkCTLK as lazyCheckCTLK
 
 
 Model = namedtuple("Model", ("path", "content"))
-
-
-class ArgumentParsingError(Exception):
-    """An error occured while parsing arguments."""
-    pass
-
-class NonExitingArgumentParser(argparse.ArgumentParser):
-    """An ArgumentParser that does not exit."""
-    
-    def exit(self, status=0, message=None):
-        raise ArgumentParsingError(message)
 
 
 class CTLK_shell(cmd.Cmd):
