@@ -105,7 +105,7 @@ class NuSMVParsingError(PyNuSMVError):
         self._errors = errors
         
     def __str__(self):
-        return str(self._errors)
+        return "\n".join([str(err) for err in self._errors])
         
     def __repr__(self):
         return repr(self._errors)
