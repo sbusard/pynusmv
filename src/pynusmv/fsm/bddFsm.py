@@ -157,6 +157,16 @@ class BddFsm(PointerWrapper):
         return Inputs(inputs, self, freeit = True)
         
         
+    def count_states(self, bdd):
+        """Return the number of states of the given BDD, as a double."""
+        return bddEnc.BddEnc_count_states_of_bdd(self.bddEnc._ptr, bdd._ptr)
+        
+        
+    def count_inputs(self, bdd):
+        """Return the number of inputs of the given BDD, as a double."""
+        return bddEnc.BddEnc_count_inputs_of_bdd(self.bddEnc._ptr, bdd._ptr)
+        
+        
     @property    
     def reachable_states(self):
         """Return a BDD representing the set of reachable states of the FSM."""

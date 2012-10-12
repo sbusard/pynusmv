@@ -172,6 +172,39 @@ class TestFsm(unittest.TestCase):
         self.assertTrue(ac == true)
         
         
+    def test_count_states(self):
+        fsm = self.model()
+        
+        false = BDD.false(fsm.bddEnc.DDmanager)
+        true = BDD.true(fsm.bddEnc.DDmanager)
+        p = evalSexp(fsm, "p")
+        q = evalSexp(fsm, "q")
+        a = evalSexp(fsm, "a")
+        
+        self.assertEqual(fsm.count_states(p & q), 1)
+        self.assertEqual(fsm.count_states(true), 4)
+        self.assertEqual(fsm.count_states(false), 0)
+        self.assertEqual(fsm.count_states(p), 2)
+        
+        self.assertEqual(fsm.count_states(p & q & ~a), 0) # WHY ?
+    
+    
+    def test_count_inputs(self):
+        fsm = self.model()
+        
+        false = BDD.false(fsm.bddEnc.DDmanager)
+        true = BDD.true(fsm.bddEnc.DDmanager)
+        p = evalSexp(fsm, "p")
+        q = evalSexp(fsm, "q")
+        a = evalSexp(fsm, "a")
+        
+        self.assertEqual(fsm.count_inputs(a), 1)
+        self.assertEqual(fsm.count_inputs(~a), 1)
+        self.assertEqual(fsm.count_inputs(true), 2)
+        self.assertEqual(fsm.count_inputs(false), 0)
+        self.assertEqual(fsm.count_inputs(p & q & a), 0) # WHY ?
+        
+        
     def test_get_trans(self):
         fsm = self.model()
         
