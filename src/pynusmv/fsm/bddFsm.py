@@ -159,12 +159,50 @@ class BddFsm(PointerWrapper):
         
     def count_states(self, bdd):
         """Return the number of states of the given BDD, as a double."""
+        # Apply mask before counting states
+        bdd = bdd & self.bddEnc.statesMask
         return bddEnc.BddEnc_count_states_of_bdd(self.bddEnc._ptr, bdd._ptr)
         
         
     def count_inputs(self, bdd):
         """Return the number of inputs of the given BDD, as a double."""
+        # Apply mask before counting inputs
+        bdd = bdd & self.bddEnc.inputsMask
         return bddEnc.BddEnc_count_inputs_of_bdd(self.bddEnc._ptr, bdd._ptr)
+        
+        
+    def pick_all_states(self, bdd):
+        """
+        Return a tuple of all states belonging to bdd.
+        
+        Raise a NuSMVBddPickingError if something is wrong.
+        """
+        # Apply mask
+        bdd = bdd & self.bddEnc.statesMask
+        # Get all states
+        (err, t) = bddEnc.pick_all_terms_states(self.bddEnc._ptr, bdd._ptr)
+        if err:
+            raise NuSMVBddPickingError("Cannot pick all states.")
+        else:
+            return [State(te, self) for te in t]
+            
+            
+    def pick_all_inputs(self, bdd):
+        """
+        Return a tuple of all inputs belonging to bdd.
+        
+        Raise a NuSMVBddPickingError if something is wrong.
+        """
+        mask = self.bddEnc.inputsMask
+        
+        # Apply mask
+        bdd = bdd & mask
+        # Get all states
+        (err, t) = bddEnc.pick_all_terms_inputs(self.bddEnc._ptr, bdd._ptr)
+        if err:
+            raise NuSMVBddPickingError("Cannot pick all inputs.")
+        else:
+            return [Inputs(te, self) for te in t]
         
         
     @property    
