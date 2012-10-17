@@ -93,10 +93,7 @@ def _flatten_and_filter_variable_args(arguments):
         result[instance] = []
         for argument in arguments[instance]:
             arg, err = nscompile.FlattenSexp(st._ptr, argument, None)
-            if err:
-                # TODO raise exception
-                print("[ERROR] Cannot flatten argument")
-            if nssymb_table.SymbTable_is_symbol_var(st._ptr, arg):
+            if not err and nssymb_table.SymbTable_is_symbol_var(st._ptr, arg):
                 result[instance].append(arg)
     return result
     
