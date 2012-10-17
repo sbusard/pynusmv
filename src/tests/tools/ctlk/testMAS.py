@@ -2,6 +2,7 @@ import unittest
 
 from pynusmv.init.init import init_nusmv, deinit_nusmv
 from pynusmv.mc.mc import eval_simple_expression
+from pynusmv.dd.bdd import BDD
 
 from tools.ctlk import glob
 
@@ -51,6 +52,57 @@ class TestMAS(unittest.TestCase):
         self.assertEqual(fsm.pre(g), true)
         self.assertEqual(fsm.pre(lf), lf.iff(g))
         
+        
+    def test_post(self):
+        fsm = self.model()
+        
+        c1p = eval_simple_expression(fsm, "c1.payer")
+        c2p = eval_simple_expression(fsm, "c2.payer")
+        c3p = eval_simple_expression(fsm, "c3.payer")
+        c1ch = eval_simple_expression(fsm, "c1.coin = head")
+        c2ch = eval_simple_expression(fsm, "c2.coin = head")
+        c3ch = eval_simple_expression(fsm, "c3.coin = head")
+        c1se = eval_simple_expression(fsm, "c1.say = equal")
+        c2se = eval_simple_expression(fsm, "c2.say = equal")
+        c3se = eval_simple_expression(fsm, "c3.say = equal")        
+        unknown = eval_simple_expression(fsm, "countsay = unknown")
+        odd = eval_simple_expression(fsm, "countsay = odd")
+        even = eval_simple_expression(fsm, "countsay = even")
+        true = eval_simple_expression(fsm, "TRUE")
+        false = eval_simple_expression(fsm, "FALSE")
+        
+        self.assertEqual(1, fsm.count_states(fsm.pick_one_state(c1p)))
+        
+        self.assertEqual(1, fsm.count_states(c1p & ~c2p & ~c3p & c1ch & c2ch & c3ch & unknown))
+        self.assertEqual(1, fsm.count_states(c1p & ~c2p & ~c3p & c1ch & c2ch & c3ch & odd))
+        
+        
+    def test_constraints_post(self):
+        glob.load_from_file("tests/tools/ctlk/constraints.smv")
+        fsm = glob.mas()
+        self.assertIsNotNone(fsm)
+        
+        false = eval_simple_expression(fsm, "FALSE")
+        false = eval_simple_expression(fsm, "TRUE")
+        p = eval_simple_expression(fsm, "p")
+        q = eval_simple_expression(fsm, "q")
+        a = eval_simple_expression(fsm, "a")
+        
+        self.assertEqual(1, fsm.count_states(fsm.init))
+        self.assertEqual(2, fsm.count_states(fsm.post(fsm.init)))
+        self.assertEqual(1, fsm.count_states(p & q))
+        self.assertEqual(1, fsm.count_states(p & ~q))
+        self.assertEqual(1, fsm.count_states(~p & q))
+        self.assertEqual(1, fsm.count_states(~p & ~q))
+        
+        self.assertEqual(2, fsm.count_states(fsm.post(p & q)))
+        self.assertEqual(1, fsm.count_states(fsm.post(p & ~q)))
+        self.assertEqual(1, fsm.count_states(fsm.post(~p & q)))
+        self.assertEqual(1, fsm.count_states(fsm.post(p & q, a)))
+        self.assertEqual(0, fsm.count_states(fsm.post(p & ~q, ~a)))
+        self.assertEqual(0, fsm.count_states(fsm.post(~p & q, a)))
+        self.assertEqual(1, fsm.count_states(fsm.post(~p & q, ~a)))
+                
         
     def test_simple_post(self):
         glob.load_from_file("tests/tools/ctlk/agents.smv")

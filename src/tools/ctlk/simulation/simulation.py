@@ -4,8 +4,9 @@ from pynusmv.mc.mc import eval_simple_expression
 from pynusmv.utils.exception import PyNuSMVError
 from ..util.nonExitingArgumentParser import (NonExitingArgumentParser,
                                              ArgumentParsingError)
+from pynusmv.utils.exception import NuSMVBddPickingError
 
-def choose_next_state(fsm, BDD):
+def choose_one_state(fsm, BDD):
     """
     Use an interactive prompt to ask the user to choose a State in BDD.
     
@@ -14,12 +15,28 @@ def choose_next_state(fsm, BDD):
     
     Return a new state of BDD or None if no state has been chosen.
     """
-    shell = _Next_State_Shell(fsm, BDD)
+    shell = _One_State_Shell(fsm, BDD)
     shell.cmdloop()
     return shell.chosen
     
     
-class _Next_State_Shell(cmd.Cmd):
+def choose_next_state(fsm, state):
+    """
+    Use an interactive prompt to ask the user
+    to choose a successor of state in fsm.
+    
+    fsm -- the model;
+    state -- a a state of fsm.
+    
+    Return a new state of fsm that is a successor of state in fsm
+    or None if no state has been chosen.
+    """
+    shell = _Next_State_Shell(fsm, state)
+    shell.cmdloop()
+    return shell.chosen
+    
+    
+class _One_State_Shell(cmd.Cmd):
     """
     A shell allowing to choose state among a given BDD.
     
@@ -50,7 +67,7 @@ class _Next_State_Shell(cmd.Cmd):
     
     def __init__(self, fsm, bdd, bound=10, prompt="> "):
         """
-        Initialize a next state shell.
+        Initialize a one state shell.
         
         fsm -- the FSM of interest;
         bdd -- the original BDD, represents a set of states of fsm;
@@ -83,30 +100,24 @@ class _Next_State_Shell(cmd.Cmd):
         # Reset shown states
         self.shown = []
         bdd = self.bdds[-1]
-        count = self.fsm.count_states(bdd)
-        if count > self.bound:
-            print("Too many states ("+ str(int(count)) + "), add constraints")
+        states = self.fsm.pick_all_states(bdd)
+        if len(states) > self.bound:
+            print("Too many states ("+ str(len(states)) + "), add constraints")
         else:
             prev = None
-            while(bdd.isnot_false()):
-                # Get the state
-                s = self.fsm.pick_one_state(bdd)
-                
-                # Add it to the list of shown states
-                self.shown.append(s)
-                
+            for state in states:
+                self.shown.append(state)
                 # Show the state
                 header = " State " + str(len(self.shown)) + " "
-                print(header.center(40,"-"))
-                values = s.get_str_values()
+                print(header.center(40, "-"))
+                values = state.get_str_values()
                 for var in values:
                     if (prev is not None and
                         prev.get_str_values()[var] != values[var] or
                         prev is None) :
                         print(var, "=", values[var])
                         
-                prev = s
-                bdd -= s
+                prev = state
         
         
     def preloop(self):
@@ -258,3 +269,82 @@ class _Next_State_Shell(cmd.Cmd):
     def do_EOF(self, arg):
         "Quit without choosing a state."
         return True
+        
+        
+class _Next_State_Shell(_One_State_Shell):
+    """
+    A shell allowing to choose a successor of a given state in a given FSM.
+    
+    This shell differs from _One_State_Shell by
+        - getting a state of the FSM instead of a BDD;
+        - choosing a successor of this state;
+        - displaying possible inputs to reach each possible state.
+    """
+    
+    def __init__(self, fsm, state, bound=10, prompt="> "):
+        """
+        Initialize a one state shell.
+        
+        fsm -- the FSM of interest;
+        bdd -- the state of interest, belongs to fsm;
+        bound -- the maximum number of states that can be displayed;
+        prompt -- the prompt of the shell.
+        """
+        
+        self.state = state
+        bdd = fsm.post(state)
+        super().__init__(fsm, bdd, bound, prompt)
+        
+        
+    def _show_last(self):
+        """
+        Show the last BDD.
+        
+        If the size of the last BDD is greater than self.bound,
+        show only a message asking for constraints
+        (and the size of the BDD in terms of states).
+        """
+        
+        def show_state_or_inputs(item, prev = None):
+            values = item.get_str_values()
+            for var in values:
+                if (prev is not None and
+                    prev.get_str_values()[var] != values[var] or
+                    prev is None) :
+                    print(var, "=", values[var])
+        
+        # Reset shown states
+        self.shown = []
+        bdd = self.bdds[-1]
+        states = self.fsm.pick_all_states(bdd)
+        if len(states) > self.bound:
+            print("Too many states ("+ str(len(states)) + "), add constraints")
+        else:
+            prev = None
+            for state in states:
+                # Get inputs
+                inputs = self.fsm.get_inputs_between_states(self.state, state)
+                
+                try:
+                    inputs = self.fsm.pick_all_inputs(inputs)
+                    
+                    print(" State ".center(40, "-"))
+                    show_state_or_inputs(state, prev)
+                    print(" Reachable through ".center(40,"-"))
+                    previ = None
+                    for inp in inputs:
+                        self.shown.append(state)
+                        print((" Inputs " + str(len(self.shown)) + " ").
+                              center(40, "-"))
+                        show_state_or_inputs(inp, previ)
+                        previ = inp
+                    
+                except NuSMVBddPickingError:
+                    # Cannot get inputs, so no inputs
+                    self.shown.append(state)
+                    # Show the state
+                    header = " State " + str(len(self.shown)) + " "
+                    print(header.center(40, "-"))
+                    show_state_or_inputs(state, prev)
+                        
+                prev = state
