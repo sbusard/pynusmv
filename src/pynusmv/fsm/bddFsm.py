@@ -177,6 +177,9 @@ class BddFsm(PointerWrapper):
         
         Raise a NuSMVBddPickingError if something is wrong.
         """
+        # FIXME Still get segmentation faults. Need investigation.
+        # tests/pynusmv/testFsm.py seems to raise segmentation faults
+        
         # Apply mask
         bdd = bdd & self.bddEnc.statesMask
         # Get all states
@@ -184,7 +187,7 @@ class BddFsm(PointerWrapper):
         if err:
             raise NuSMVBddPickingError("Cannot pick all states.")
         else:
-            return [State(te, self) for te in t]
+            return tuple(State(te, self) for te in t)
             
             
     def pick_all_inputs(self, bdd):
@@ -193,6 +196,9 @@ class BddFsm(PointerWrapper):
         
         Raise a NuSMVBddPickingError if something is wrong.
         """
+        # FIXME Still get segmentation faults. Need investigation.
+        # tests/pynusmv/testFsm.py seems to raise segmentation faults
+        
         mask = self.bddEnc.inputsMask
         
         # Apply mask
@@ -202,7 +208,7 @@ class BddFsm(PointerWrapper):
         if err:
             raise NuSMVBddPickingError("Cannot pick all inputs.")
         else:
-            return [Inputs(te, self) for te in t]
+            return tuple(Inputs(te, self) for te in t)
         
         
     @property    
