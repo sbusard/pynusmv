@@ -8,7 +8,7 @@ from tools.ctlk.parsing import parseCTLK
 from tools.ctlk.simulation.simulation import choose_one_state, choose_next_state
 
 
-class TestExplain(unittest.TestCase):
+class TestSimulation(unittest.TestCase):
     
     def setUp(self):
         init_nusmv()
@@ -22,8 +22,8 @@ class TestExplain(unittest.TestCase):
         fsm = glob.mas()
         self.assertIsNotNone(fsm)
         return fsm
-     
-    @unittest.skip # Skip it to keep tests automatic  
+    
+    @unittest.skip # Skip it to keep tests automatic 
     def test_one_state(self):
         fsm = self.model()
         c2p = eval_simple_expression(fsm, "c2.payer")
@@ -42,12 +42,17 @@ class TestExplain(unittest.TestCase):
     def test_next_state_with_inputs(self):
         fsm = self.model()
         c2p = eval_simple_expression(fsm, "c2.payer")
-        state = choose_next_state(fsm, fsm.pick_one_state(fsm.init))
+        (inputs, state) = choose_next_state(fsm, fsm.pick_one_state(fsm.init))
         
         print()
         if state is None:
             print("No chosen state.")
         else:
+            if inputs is not None:
+                values = inputs.get_str_values()
+                for var in values:
+                    print(var, "=", values[var])
+                    print("-" * 40)
             values = state.get_str_values()
             for var in values:
                 print(var, "=", values[var])
@@ -59,12 +64,17 @@ class TestExplain(unittest.TestCase):
         fsm = glob.mas()
         self.assertIsNotNone(fsm)
         c2p = eval_simple_expression(fsm, "top")
-        state = choose_next_state(fsm, fsm.pick_one_state(fsm.init))
+        (inputs, state) = choose_next_state(fsm, fsm.pick_one_state(fsm.init))
         
         print()
         if state is None:
             print("No chosen state.")
         else:
+            if inputs is not None:
+                values = inputs.get_str_values()
+                for var in values:
+                    print(var, "=", values[var])
+                    print("-" * 40)
             values = state.get_str_values()
             for var in values:
                 print(var, "=", values[var])

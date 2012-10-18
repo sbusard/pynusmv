@@ -26,14 +26,14 @@ def choose_next_state(fsm, state):
     to choose a successor of state in fsm.
     
     fsm -- the model;
-    state -- a a state of fsm.
+    state -- a state of fsm.
     
-    Return a new state of fsm that is a successor of state in fsm
-    or None if no state has been chosen.
+    Return a new (inputs, next) pair of fsm such that next is a successor of
+    state in fsm through inputs, or None if no state has been chosen.
     """
     shell = _Next_State_Shell(fsm, state)
     shell.cmdloop()
-    return shell.chosen
+    return (shell.chosenInputs, shell.chosen)
     
     
 class _One_State_Shell(cmd.Cmd):
@@ -172,8 +172,22 @@ class _One_State_Shell(cmd.Cmd):
             print("choose: error: unknown state.")
             return False
         else:
-            self.chosen = self.shown[state]
-            return True
+            return self._choose(state)
+            
+    
+    def _choose(self, index):
+        """
+        Choose the state with ID index.
+        
+        If index is a correct ID, set self.chosen to the state, return True;
+        otherwise don't set self.chosen and return False.
+        """
+        if index < 0 or len(self.shown) <= index:
+            print("choose: error: unknown state.")
+            return False
+        else:
+            self.chosen = self.shown[index]
+            return True        
             
             
     def emptyline(self):
@@ -278,7 +292,10 @@ class _Next_State_Shell(_One_State_Shell):
     This shell differs from _One_State_Shell by
         - getting a state of the FSM instead of a BDD;
         - choosing a successor of this state;
-        - displaying possible inputs to reach each possible state.
+        - displaying possible inputs to reach each possible state;
+        - chosen item can be a tuple (inputs, state) instead of just a state,
+          if there are input variables in the model. In this case, self.chosen
+          is the state and self.chosenInputs is the inputs (can be None).
     """
     
     def __init__(self, fsm, state, bound=10, prompt="> "):
@@ -292,6 +309,7 @@ class _Next_State_Shell(_One_State_Shell):
         """
         
         self.state = state
+        self.chosenInputs = None
         bdd = fsm.post(state)
         super().__init__(fsm, bdd, bound, prompt)
         
@@ -333,7 +351,7 @@ class _Next_State_Shell(_One_State_Shell):
                     print(" Reachable through ".center(40,"-"))
                     previ = None
                     for inp in inputs:
-                        self.shown.append(state)
+                        self.shown.append((inp,state))
                         print((" Inputs " + str(len(self.shown)) + " ").
                               center(40, "-"))
                         show_state_or_inputs(inp, previ)
@@ -341,10 +359,26 @@ class _Next_State_Shell(_One_State_Shell):
                     
                 except NuSMVBddPickingError:
                     # Cannot get inputs, so no inputs
-                    self.shown.append(state)
+                    self.shown.append((None, state))
                     # Show the state
                     header = " State " + str(len(self.shown)) + " "
                     print(header.center(40, "-"))
                     show_state_or_inputs(state, prev)
                         
                 prev = state
+                
+                
+    def _choose(self, index):
+        """
+        Choose the (inputs, state) pair with ID index.
+        
+        If index is a correct ID, set self.chosen to the state and self.inputs
+        to the inputs, return True;
+        otherwise don't set self.chosen and self.inputs and return False.
+        """
+        if index < 0 or len(self.shown) <= index:
+            print("choose: error: unknown state.")
+            return False
+        else:
+            self.chosenInputs, self.chosen = self.shown[index]
+            return True
