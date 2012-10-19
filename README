@@ -22,6 +22,7 @@ pyparsing version 1.5.6 or higher -- http://pyparsing.wikispaces.com/
 SWIG and pyparsing are provided in this package in the dep/ directory.
 
 
+
 Build
 -----
 
@@ -40,6 +41,8 @@ SWIG from sources even if you have SWIG, you can use:
 
 make PYTHON3=python3.2 SWIG=
 
+
+PyNuSMV is then located into src/pynusmv directory.
 
 
 If you want more control on the different steps of the building, you can follow these instructions:
@@ -60,7 +63,32 @@ Then, you can build PyNuSMV by running:
 ./build_libnusmv.sh
 python setup.py build_ext --inplace
 
-PyNuSMV is located into src/pynusmv directory.
+
+Problems
+--------
+
+On Mac OS X, an error can occur when compiling NuSMV sources when embedding no SAT solver:
+
+/bin/sh ../../../libtool --tag=CC   --mode=link gcc -std=gnu99  -fno-strict-aliasing -g -O2   -o libsatsolvers.la -lm 
+libtool: link: ar cru .libs/libsatsolvers.a 
+ar: no archive members specified
+usage:  ar -d [-TLsv] archive file ...
+	ar -m [-TLsv] archive file ...
+	ar -m [-abiTLsv] position archive file ...
+	ar -p [-TLsv] archive [file ...]
+	ar -q [-cTLsv] archive file ...
+	ar -r [-cuTLsv] archive file ...
+	ar -r [-abciuTLsv] position archive file ...
+	ar -t [-TLsv] archive [file ...]
+	ar -x [-ouTLsv] archive [file ...]
+
+
+To avoid this error, modify
+    src/nusmv/src/sat/Makefile:
+        line 85: libsat_la_DEPENDENCIES = 
+        line 343: libsat_la_LIBADD = 
+    src/nusmv/src/sat/solvers/Makefile:
+        line 322: noinst_LTLIBRARIES =
 
 
 -------------
