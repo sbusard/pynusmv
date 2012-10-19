@@ -25,11 +25,30 @@ SWIG and pyparsing are provided in this package in the dep/ directory.
 Build
 -----
 
-To build PyNuSMV, you have to compile NuSMV first:
+To build PyNuSMV, you can just use the provided Makefiles:
+
+make
+
+
+These Makefiles accept arguments:
+    - PYTHON3 defines the Python 3 command. By default, `python3` is used.
+    - SWIG defines the SWIG command. By default, if `swig` exists, it is used, otherwise, SWIG is compiled with the given sources; if this argument is not empty, it is used as the `swig` command.
+    - PYPARSING defines the PyParsing file. By default, PyParsing is searched, if found it is used, otherwise it is extracted from the given sources; if PYPARSING is set to something different from 0, the file is taken from the given sources even if PyParsing is already installed.
+      
+For example, if you want to use `python3.2` instead of `python3` and to compile
+SWIG from sources even if you have SWIG, you can use:
+
+make PYTHON3=python3.2 SWIG=
+
+
+
+If you want more control on the different steps of the building, you can follow these instructions:
+
+First compile NuSMV:
 
 # Compile CUDD
 cd src/cudd-2.4.1.1
-make # use platform-specific makefile if needed
+make # use platform-specific makefile if needed e.g. make -f Makefile_os_x_64bit
 
 # Compile NuSMV
 cd ../nusmv
