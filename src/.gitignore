@@ -19,6 +19,7 @@ MiniSat_v070721
 cudd-2.4.1.1/include/
 nusmv/Makefile
 nusmv/NuSMV
+nusmv/nusmv-config.h
 nusmv/_configs.sed
 nusmv/config.h
 nusmv/config.log
