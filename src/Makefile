@@ -26,6 +26,11 @@ ifneq ($(wildcard ../dep/swig-2.0.6/swig),)
 SWIG=../dep/swig-2.0.6/swig
 endif
 endif
+ifeq ($(SWIG),)
+ifneq ($(wildcard ../dep/swig-2.0.6/swig),)
+SWIG=../dep/swig-2.0.6/swig
+endif
+endif
 
 
 all: cudd nusmv pynusmv
@@ -40,7 +45,7 @@ cudd:
 nusmv: cudd
 	@if [ ! -f nusmv/NuSMV ]; then \
 		cd nusmv; \
-		if [! -f Makefile ]; then \
+		if [ ! -f Makefile ]; then \
 			./configure; \
 		fi; \
 		make; \
@@ -48,10 +53,15 @@ nusmv: cudd
 
 
 pynusmv: nusmv
-ifndef SWIG
-	./build_libnusmv.sh
-	$(PYTHON3) setup.py build_ext --inplace
-else
-	./build_libnusmv.sh
+ifdef SWIG
+ifneq ($(SWIG),)
+	@if [ ! -f lib/libnusmv.so ]; then ./build_libnusmv.sh; fi; \
 	$(PYTHON3) setup.py build_ext --inplace --swig=$(SWIG)
+else
+	@if [ ! -f lib/libnusmv.so ]; then ./build_libnusmv.sh fi; \
+	$(PYTHON3) setup.py build_ext --inplace
+endif
+else
+	@if [ ! -f lib/libnusmv.so ]; then ./build_libnusmv.sh; fi; \
+	$(PYTHON3) setup.py build_ext --inplace
 endif
