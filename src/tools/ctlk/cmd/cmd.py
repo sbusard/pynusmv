@@ -20,6 +20,7 @@ from ..parsing import parseCTLK
 from ..tlace.check import checkCTLK
 from ..tlace.xml import xml_witness, xml_countex
 from ..lazyTlace.check import checkCTLK as lazyCheckCTLK
+from ..simulation.stateChoice import choose_one_state, choose_next_state
 
 
 Model = namedtuple("Model", ("path", "content"))
@@ -37,6 +38,7 @@ class CTLK_shell(cmd.Cmd):
         self.fsm = None
         self.model = None
         self.last = None
+        self.paths = []
     
     def preloop(self):
         init_nusmv()
@@ -55,6 +57,8 @@ class CTLK_shell(cmd.Cmd):
     #   reset : reset NuSMV, set read model to None
     #   check : check a spec
     #   explain : explain why a spec violated/satisfied
+    #   simulate : simulate the model
+    #   show_paths : list all the paths already simulated
     # use command arguments to choose aternatives if needed
     
     # Catch PyNuSMVError to show a message on the prompt
@@ -303,14 +307,167 @@ agent being an atom and group a comma-separated list of agents.""")
                                 help="explain with a lazy explanation" +
                                      " (ignored if no given specification)")
             self.argparsers["explain"] = parser
-                                
+            
+            
+    def do_simulate(self, arg):
+        if "simulate" not in self.argparsers:
+            self.parse_simulate()
+        
+        # Error if try to check when no fsm is read
+        if self.fsm is None:
+            print("simulate: error: no read model.")
+            return False
+            
+        # Handle arguments parsing error
+        try:
+            args = (self.argparsers["simulate"].
+                                           parse_args(self._split_escaped(arg)))
+        except ArgumentParsingError as err:
+            print(err, end="")
+            return False
+            
+        # Check existence of a under stateid, if given
+        if args.stateid is not None:
+            # args.stateid should be path.state
+            # Check it and put it in state variable
+            sp = args.stateid.split(".")
+            if len(sp) != 2:
+                print("simulate: error: ID should be a couple pathId.stateId.")
+                return False
+            try:
+                pathid = int(sp[0])
+                stateid = int(sp[1])
+                if pathid <= 0 or len(self.paths) < pathid:
+                    print("simulate: error: {} is not a valid path ID."
+                                                                .format(pathid))
+                    return False
+                if (stateid <= 0
+                    or len(self.paths[pathid - 1]) <= (stateid - 1) * 2):
+                    print("simulate: error: {}"
+                          " is not a valid state ID in path {}."
+                          .format(stateid, pathid))
+                    return False
+                state = self.paths[pathid - 1][(stateid - 1) * 2]
+                self._show_path([state])
+            except ValueError:    
+                # Print an error and return if the state is misspecified
+                print("simulate: error: ID should be a couple path.state.")
+                return False
+        else:
+            state = choose_one_state(self.fsm, self.fsm.init)
+            if state is None:
+                # No chosen state, abort
+                return False
+        
+        path = [state]
+        while state is not None:
+            print("----- Choose next state")
+            (inputs, state) = choose_next_state(self.fsm, state)
+            if state is None:
+                self.paths.append(path)
+                return False
+            else:
+                path.append(inputs)
+                path.append(state)
+        
+        
+    def help_simulate(self):
+        if "simulate" not in self.argparsers:
+            self.parse_simulate()
+        self.argparsers["simulate"].print_help()
+        
+        
+    def parse_simulate(self):
+        """Build and store the parser of the simulate command."""
+        # simulate [path.state]
+        # simulate the model from path.state,
+        # i.e. the stateth state of pathth path, if path.state is given,
+        # simulate the model and start by asking for an initial state otherwise
+        
+        if "simulate" not in self.argparsers:
+            parser = NonExitingArgumentParser(
+                        "simulate",
+                        description="Simulate the model.",
+                        add_help=False)
+            parser.add_argument('stateid', metavar='"ID"', nargs="?",
+                                help="the id of the starting state, "
+                                     "as pathId.stateId; "
+                                     "if omitted, "
+                                     "start by asking for an initial sate")
+            self.argparsers["simulate"] = parser
+        
+        
+    def do_show_path(self, arg):
+        if "show_path" not in self.argparsers:
+            self.parse_show_path()
+        
+        # Error if try to check when no fsm is read
+        if self.fsm is None:
+            print("show_path: error: no read model.")
+            return False
+            
+        # Handle arguments parsing error
+        try:
+            args = (self.argparsers["show_path"].
+                                           parse_args(self._split_escaped(arg)))
+        except ArgumentParsingError as err:
+            print(err, end="")
+            return False
+            
+        if args.pathid is not None:
+            if args.pathid <= 0 or len(self.paths) < args.pathid:
+                print("show_path: error: {} is not a valid path ID."
+                                                           .format(args.pathid))
+                return False
+            
+            else:
+                # Show path
+                path = self.paths[args.pathid - 1]
+                self._show_path(path, args.pathid)
+                return False
+        else:
+            # Show all
+            i = 1
+            for path in self.paths:
+                header = (" Path " + str(i) +
+                          " (" + str(int(len(path) / 2 + 1)) + " states) ")
+                print(header.center(40, "-"))
+                self._show_path(path[0:1])
+                i += 1
+            return False            
+        
+        
+    def help_show_path(self):
+        if "show_path" not in self.argparsers:
+            self.parse_show_path()
+        self.argparsers["show_path"].print_help()
+        
+        
+    def parse_show_path(self):
+        """Build and store the parser of the show_path command."""
+        # show_path [path]
+        # show the given path,
+        # show all the paths (first state + length) if path is omitted
+        
+        if "show_path" not in self.argparsers:
+            parser = NonExitingArgumentParser(
+                        "show_path",
+                        description="Show simulated paths.",
+                        add_help=False)
+            parser.add_argument('pathid', metavar='"PATHID"', nargs="?",
+                                type=int,
+                                help="the id of the path to show; "
+                                     "if omitted, "
+                                     "show all the paths")
+            self.argparsers["show_path"] = parser
             
             
     def do_reset(self, args):
         """Reset the prompt; forget the read model and restart NuSMV."""
         self.fsm = None
         self.model = None
-        self.last = None      
+        self.last = None
+        self.paths = []
         glob.reset_globals()
         reset_nusmv()
     
@@ -348,7 +505,47 @@ agent being an atom and group a comma-separated list of agents.""")
         if cur != "":
             res.append(cur)
         return res
-
+        
+        
+    def _show_path(self, path, pathprefix=None):
+        """
+        Show the given path.
+        
+        path -- a list of states separated by inputs.
+        """
+        def show_elem(elem, prev=None):
+            values = elem.get_str_values()
+            for var in values:
+                if (prev is not None and
+                    prev.get_str_values()[var] != values[var] or
+                    prev is None) :
+                    print(var, "=", values[var])
+        
+        i = 1
+        if len(path) > 0:
+            header = (" State " +
+                      ((str(pathprefix) + "." + str(i)) + " " if pathprefix
+                        else ""))
+            print(header.center(40, "-"))
+            show_elem(path[0])
+            prev = path[0]
+        else:
+            prev = None
+        for (inputs, state) in zip(path[1::2], path[2::2]):
+            # Show inputs
+            header = " Inputs "
+            print(header.center(40, "-"))
+            show_elem(inputs)
+            
+            # Show state
+            i += 1
+            header = (" State " +
+                      ((str(pathprefix) + "." + str(i)) if pathprefix else "") +
+                      " ")
+            print(header.center(40, "-"))
+            show_elem(state, prev)
+                    
+            prev = state
 
 
 if __name__ == "__main__":

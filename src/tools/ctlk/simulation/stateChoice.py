@@ -29,7 +29,7 @@ def choose_next_state(fsm, state):
     state -- a state of fsm.
     
     Return a new (inputs, next) pair of fsm such that next is a successor of
-    state in fsm through inputs, or None if no state has been chosen.
+    state in fsm through inputs, or (None, None) if no state has been chosen.
     """
     shell = _Next_State_Shell(fsm, state)
     shell.cmdloop()
@@ -65,7 +65,7 @@ class _One_State_Shell(cmd.Cmd):
     with None if no state has been chosen (EOF entered).
     """
     
-    def __init__(self, fsm, bdd, bound=10, prompt="> "):
+    def __init__(self, fsm, bdd, bound=10, prompt=">> "):
         """
         Initialize a one state shell.
         
@@ -298,7 +298,7 @@ class _Next_State_Shell(_One_State_Shell):
           is the state and self.chosenInputs is the inputs (can be None).
     """
     
-    def __init__(self, fsm, state, bound=10, prompt="> "):
+    def __init__(self, fsm, state, bound=10, prompt=">> "):
         """
         Initialize a one state shell.
         
