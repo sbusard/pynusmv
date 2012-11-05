@@ -296,3 +296,35 @@ class TestFsm(unittest.TestCase):
         self.assertIsNotNone(trans)
         
         fsm.trans = trans
+        
+        
+    def test_fairness_from_nusmv(self):
+        fsm = BddFsm.from_filename("tests/pynusmv/models/counters-fair.smv")
+        self.assertIsNotNone(fsm)
+        
+        from pynusmv.nusmv.fsm.bdd import bdd as nsbddfsm
+        
+        justiceList = nsbddfsm.BddFsm_get_justice(fsm._ptr)
+        fairnessList = nsbddfsm.justiceList2fairnessList(justiceList)
+        
+        ite = nsbddfsm.FairnessList_begin(fairnessList)
+        fairBdds = []
+        while not nsbddfsm.FairnessListIterator_is_end(ite):
+            fairBdds.append(nsbddfsm.JusticeList_get_p(justiceList, ite))
+            ite = nsbddfsm.FairnessListIterator_next(ite)
+        self.assertEqual(len(fairBdds), 2)
+        
+        
+    def test_fairness(self):
+        fsm = BddFsm.from_filename("tests/pynusmv/models/counters-fair.smv")
+        self.assertIsNotNone(fsm)
+        
+        false = BDD.false(fsm.bddEnc.DDmanager)
+        true = BDD.true(fsm.bddEnc.DDmanager)
+        rc1 = evalSexp(fsm, "run = rc1")
+        rc2 = evalSexp(fsm, "run = rc2")
+        
+        fairBdds = fsm.fairness_constraints
+        self.assertEqual(len(fairBdds), 2)
+        for fair in fairBdds:
+            self.assertTrue(fair == rc1 or fair == rc2)

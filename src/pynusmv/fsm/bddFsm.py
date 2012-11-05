@@ -82,6 +82,23 @@ class BddFsm(PointerWrapper):
                    self.bddEnc.DDmanager, freeit = True)
                    
                    
+    @property
+    def fairness_constraints(self):
+        """The list of fairness constraints, as BDDs."""
+        justiceList = bddFsm.BddFsm_get_justice(self._ptr)
+        fairnessList = bddFsm.justiceList2fairnessList(justiceList)
+        
+        ite = bddFsm.FairnessList_begin(fairnessList)
+        fairBdds = []
+        while not bddFsm.FairnessListIterator_is_end(ite):
+            fairBdds.append(
+                BDD(bddFsm.JusticeList_get_p(justiceList, ite),
+                    self.bddEnc.DDmanager, freeit = True))
+            ite = bddFsm.FairnessListIterator_next(ite)
+            
+        return fairBdds
+                   
+                   
     def pre(self, states, inputs = None):
         """
         Return the pre-image of states in this FSM.
