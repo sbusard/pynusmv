@@ -1,0 +1,41 @@
+--  
+--
+-- by Simon Busard <simon.busard@uclouvain.be>, 10/08/2012
+
+MODULE main
+
+    VAR
+        p: boolean;
+        q : boolean;
+    IVAR
+        a : boolean;
+        
+    INIT p & q
+    
+    INVAR p | q
+    
+    TRANS
+        next(p) = case
+                    p & q & a:      FALSE;
+                    p & q & !a:     TRUE;
+                    !p & q & a:     FALSE;
+                    !p & q & !a:    FALSE;
+                    p & !q & a:     TRUE;
+                    p & !q & !a:    FALSE;
+                    !p & !q & a:    FALSE;
+                    !p & !q & !a:   FALSE;
+                esac
+                
+    
+    TRANS
+        next(q) = case
+                    p & q & a:      TRUE;
+                    p & q & !a:     FALSE;
+                    !p & q & a:     FALSE;
+                    !p & q & !a:    TRUE;
+                    p & !q & a:     FALSE;
+                    p & !q & !a:    FALSE;
+                    !p & !q & a:    FALSE;
+                    !p & !q & !a:   FALSE;
+                esac
+        

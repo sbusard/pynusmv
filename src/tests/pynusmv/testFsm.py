@@ -81,6 +81,11 @@ class TestFsm(unittest.TestCase):
         self.assertEqual(~p & q, fsm.post(~p & q))
         self.assertEqual(p & ~q, fsm.post(p & q, ~a))
         
+        self.assertEqual(1, fsm.count_states(fsm.post(~p & q)))
+        self.assertEqual(2, fsm.count_states(fsm.post(p & q)))
+        self.assertEqual(1, fsm.count_states(fsm.post(p & q, a)))
+        self.assertEqual(0, fsm.count_states(fsm.post(p & ~q, ~a)))
+        
         
     def test_pick_one_state(self):
         fsm = self.model()
@@ -172,6 +177,108 @@ class TestFsm(unittest.TestCase):
         self.assertTrue(ac == true)
         
         
+    def test_count_states(self):
+        fsm = self.model()
+        
+        false = BDD.false(fsm.bddEnc.DDmanager)
+        true = BDD.true(fsm.bddEnc.DDmanager)
+        p = evalSexp(fsm, "p")
+        q = evalSexp(fsm, "q")
+        a = evalSexp(fsm, "a")
+        
+        self.assertEqual(fsm.count_states(p & q), 1)
+        self.assertEqual(fsm.count_states(true), 4)
+        self.assertEqual(fsm.count_states(false), 0)
+        self.assertEqual(fsm.count_states(p), 2)
+        
+        self.assertEqual(fsm.count_states(p & q & a), 0) # WHY ?
+    
+    
+    def test_count_inputs(self):
+        fsm = self.model()
+        
+        false = BDD.false(fsm.bddEnc.DDmanager)
+        true = BDD.true(fsm.bddEnc.DDmanager)
+        p = evalSexp(fsm, "p")
+        q = evalSexp(fsm, "q")
+        a = evalSexp(fsm, "a")
+        
+        self.assertEqual(fsm.count_inputs(a), 1)
+        self.assertEqual(fsm.count_inputs(~a), 1)
+        self.assertEqual(fsm.count_inputs(true), 2)
+        self.assertEqual(fsm.count_inputs(false), 0)
+        self.assertEqual(fsm.count_inputs(p & q & a), 0) # WHY ?
+        
+        
+    def test_count_inputs_no_in_model(self):
+        fsm = BddFsm.from_filename("tests/pynusmv/models/modules.smv")
+        self.assertIsNotNone(fsm)
+
+        ni = evalSexp(fsm, "n.inmod")
+        mi = evalSexp(fsm, "m.inmod")
+        top = evalSexp(fsm, "top")
+        true = evalSexp(fsm, "TRUE")
+
+        self.assertEqual(0, fsm.count_inputs(ni))
+
+ 
+    def test_pick_states(self):
+        fsm = self.model()
+        
+        false = BDD.false(fsm.bddEnc.DDmanager)
+        true = BDD.true(fsm.bddEnc.DDmanager)
+        p = evalSexp(fsm, "p")
+        q = evalSexp(fsm, "q")
+        a = evalSexp(fsm, "a")
+        
+        pstates = fsm.pick_all_states(p)
+        self.assertEqual(len(pstates), 2)
+        self.assertTrue(false < pstates[0] < p)
+        self.assertTrue(false < pstates[1] < p)
+        self.assertTrue(pstates[0] != pstates[1])
+        
+        # FIXME Raise a segmentation fault
+        #astates = fsm.pick_all_states(a)
+        #self.assertEqual(len(astates), 2) # WHY ?
+        
+          
+    def test_pick_inputs(self):
+        fsm = self.model()
+        
+        false = BDD.false(fsm.bddEnc.DDmanager)
+        true = BDD.true(fsm.bddEnc.DDmanager)
+        p = evalSexp(fsm, "p")
+        q = evalSexp(fsm, "q")
+        a = evalSexp(fsm, "a")
+        
+        ainputs = fsm.pick_all_inputs(a)
+        self.assertEqual(len(ainputs), 1)
+        self.assertTrue(false < ainputs[0] <= a)
+        self.assertTrue(ainputs[0] == a)
+        
+        tinputs = fsm.pick_all_inputs(true)
+        self.assertEqual(len(tinputs), 2)
+        self.assertTrue(tinputs[0] == a or tinputs[0] == ~a)
+        self.assertTrue(tinputs[1] == a or tinputs[1] == ~a)
+        self.assertTrue(tinputs[0] != tinputs[1])
+        
+        pinputs = fsm.pick_all_states(p)
+        self.assertEqual(len(pinputs), 2) # WHY ?
+        
+             
+    def test_pick_no_inputs(self):
+        fsm = BddFsm.from_filename("tests/pynusmv/models/modules.smv")
+        self.assertIsNotNone(fsm)
+
+        ni = evalSexp(fsm, "n.inmod")
+        mi = evalSexp(fsm, "m.inmod")
+        top = evalSexp(fsm, "top")
+        true = evalSexp(fsm, "TRUE")
+
+        with self.assertRaises(NuSMVBddPickingError):
+            fsm.pick_all_inputs(ni)
+        
+        
     def test_get_trans(self):
         fsm = self.model()
         
@@ -189,3 +296,35 @@ class TestFsm(unittest.TestCase):
         self.assertIsNotNone(trans)
         
         fsm.trans = trans
+        
+        
+    def test_fairness_from_nusmv(self):
+        fsm = BddFsm.from_filename("tests/pynusmv/models/counters-fair.smv")
+        self.assertIsNotNone(fsm)
+        
+        from pynusmv.nusmv.fsm.bdd import bdd as nsbddfsm
+        
+        justiceList = nsbddfsm.BddFsm_get_justice(fsm._ptr)
+        fairnessList = nsbddfsm.justiceList2fairnessList(justiceList)
+        
+        ite = nsbddfsm.FairnessList_begin(fairnessList)
+        fairBdds = []
+        while not nsbddfsm.FairnessListIterator_is_end(ite):
+            fairBdds.append(nsbddfsm.JusticeList_get_p(justiceList, ite))
+            ite = nsbddfsm.FairnessListIterator_next(ite)
+        self.assertEqual(len(fairBdds), 2)
+        
+        
+    def test_fairness(self):
+        fsm = BddFsm.from_filename("tests/pynusmv/models/counters-fair.smv")
+        self.assertIsNotNone(fsm)
+        
+        false = BDD.false(fsm.bddEnc.DDmanager)
+        true = BDD.true(fsm.bddEnc.DDmanager)
+        rc1 = evalSexp(fsm, "run = rc1")
+        rc2 = evalSexp(fsm, "run = rc2")
+        
+        fairBdds = fsm.fairness_constraints
+        self.assertEqual(len(fairBdds), 2)
+        for fair in fairBdds:
+            self.assertTrue(fair == rc1 or fair == rc2)

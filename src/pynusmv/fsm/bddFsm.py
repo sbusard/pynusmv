@@ -82,6 +82,23 @@ class BddFsm(PointerWrapper):
                    self.bddEnc.DDmanager, freeit = True)
                    
                    
+    @property
+    def fairness_constraints(self):
+        """The list of fairness constraints, as BDDs."""
+        justiceList = bddFsm.BddFsm_get_justice(self._ptr)
+        fairnessList = bddFsm.justiceList2fairnessList(justiceList)
+        
+        ite = bddFsm.FairnessList_begin(fairnessList)
+        fairBdds = []
+        while not bddFsm.FairnessListIterator_is_end(ite):
+            fairBdds.append(
+                BDD(bddFsm.JusticeList_get_p(justiceList, ite),
+                    self.bddEnc.DDmanager, freeit = True))
+            ite = bddFsm.FairnessListIterator_next(ite)
+            
+        return fairBdds
+                   
+                   
     def pre(self, states, inputs = None):
         """
         Return the pre-image of states in this FSM.
@@ -155,6 +172,60 @@ class BddFsm(PointerWrapper):
                                                            current._ptr,
                                                            next._ptr)
         return Inputs(inputs, self, freeit = True)
+        
+        
+    def count_states(self, bdd):
+        """Return the number of states of the given BDD, as a double."""
+        # Apply mask before counting states
+        bdd = bdd & self.bddEnc.statesMask
+        return bddEnc.BddEnc_count_states_of_bdd(self.bddEnc._ptr, bdd._ptr)
+        
+        
+    def count_inputs(self, bdd):
+        """Return the number of inputs of the given BDD, as a double."""
+        # Apply mask before counting inputs
+        bdd = bdd & self.bddEnc.inputsMask
+        return bddEnc.BddEnc_count_inputs_of_bdd(self.bddEnc._ptr, bdd._ptr)
+        
+        
+    def pick_all_states(self, bdd):
+        """
+        Return a tuple of all states belonging to bdd.
+        
+        Raise a NuSMVBddPickingError if something is wrong.
+        """
+        # FIXME Still get segmentation faults. Need investigation.
+        # tests/pynusmv/testFsm.py seems to raise segmentation faults
+        
+        # Apply mask
+        bdd = bdd & self.bddEnc.statesMask
+        # Get all states
+        (err, t) = bddEnc.pick_all_terms_states(self.bddEnc._ptr, bdd._ptr)
+        if err:
+            raise NuSMVBddPickingError("Cannot pick all states.")
+        else:
+            return tuple(State(te, self) for te in t)
+            
+            
+    def pick_all_inputs(self, bdd):
+        """
+        Return a tuple of all inputs belonging to bdd.
+        
+        Raise a NuSMVBddPickingError if something is wrong.
+        """
+        # FIXME Still get segmentation faults. Need investigation.
+        # tests/pynusmv/testFsm.py seems to raise segmentation faults
+        
+        mask = self.bddEnc.inputsMask
+        
+        # Apply mask
+        bdd = bdd & mask
+        # Get all states
+        (err, t) = bddEnc.pick_all_terms_inputs(self.bddEnc._ptr, bdd._ptr)
+        if err:
+            raise NuSMVBddPickingError("Cannot pick all inputs.")
+        else:
+            return tuple(Inputs(te, self) for te in t)
         
         
     @property    

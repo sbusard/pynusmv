@@ -44,6 +44,16 @@ typedef struct BddFsm_TAG
 
 %}
 
+
+%inline %{
+
+FairnessList_ptr justiceList2fairnessList(JusticeList_ptr l) {
+    return (FairnessList_ptr) l;
+}
+
+%}
+
+
 %include ../../../../nusmv/src/utils/defs.h
 %include ../../../../nusmv/src/fsm/bdd/bdd.h
 %include ../../../../nusmv/src/fsm/bdd/BddFsm.h
