@@ -1,12 +1,11 @@
-import os.path
 from distutils.core import setup
 from distutils.extension import Extension
 
-abspath = os.path.abspath('.')
 include_dirs = ['nusmv', 'nusmv/src', 'cudd-2.4.1.1/include']
 swig_opts = ['-py3']
 libraries = ['nusmv']
-library_dirs = [os.path.join(abspath,'lib')]
+runtime_library_dirs = ['lib']
+library_dirs = ['lib']
 extensions = []
 
 # addons_core modules
@@ -23,7 +22,8 @@ extensions.append(
                             'pynusmv/nusmv/addons_core/addons_core.py',
                             'pynusmv/nusmv/addons_core/addons_core_wrap.c'],
                 swig_opts = swig_opts, libraries = libraries,
-                library_dirs = library_dirs, include_dirs = include_dirs)
+                library_dirs = library_dirs, include_dirs = include_dirs,
+                runtime_library_dirs = runtime_library_dirs)
     )
 extensions.append(
      Extension('pynusmv.nusmv.addons_core.compass._compass',
@@ -38,7 +38,8 @@ extensions.append(
                             'pynusmv/nusmv/addons_core/compass/compass.py',
                             'pynusmv/nusmv/addons_core/compass/compass_wrap.c'],
                 swig_opts = swig_opts, libraries = libraries,
-                library_dirs = library_dirs, include_dirs = include_dirs)
+                library_dirs = library_dirs, include_dirs = include_dirs,
+                runtime_library_dirs = runtime_library_dirs)
     )
 extensions.append(
      Extension('pynusmv.nusmv.addons_core.compass.compile._compile',
@@ -53,7 +54,8 @@ extensions.append(
                             'pynusmv/nusmv/addons_core/compass/compile/compile.py',
                             'pynusmv/nusmv/addons_core/compass/compile/compile_wrap.c'],
                 swig_opts = swig_opts, libraries = libraries,
-                library_dirs = library_dirs, include_dirs = include_dirs)
+                library_dirs = library_dirs, include_dirs = include_dirs,
+                runtime_library_dirs = runtime_library_dirs)
     )
 extensions.append(
      Extension('pynusmv.nusmv.addons_core.compass.parser.ap._ap',
@@ -69,7 +71,8 @@ extensions.append(
                             'pynusmv/nusmv/addons_core/compass/parser/ap/ap.py',
                             'pynusmv/nusmv/addons_core/compass/parser/ap/ap_wrap.c'],
                 swig_opts = swig_opts, libraries = libraries,
-                library_dirs = library_dirs, include_dirs = include_dirs)
+                library_dirs = library_dirs, include_dirs = include_dirs,
+                runtime_library_dirs = runtime_library_dirs)
     )
 extensions.append(
      Extension('pynusmv.nusmv.addons_core.compass.parser.prob._prob',
@@ -85,7 +88,8 @@ extensions.append(
                             'pynusmv/nusmv/addons_core/compass/parser/prob/prob.py',
                             'pynusmv/nusmv/addons_core/compass/parser/prob/prob_wrap.c'],
                 swig_opts = swig_opts, libraries = libraries,
-                library_dirs = library_dirs, include_dirs = include_dirs)
+                library_dirs = library_dirs, include_dirs = include_dirs,
+                runtime_library_dirs = runtime_library_dirs)
     )
     
 # be module
@@ -104,7 +108,8 @@ extensions.append(
                             'pynusmv/nusmv/be/be.py',
                             'pynusmv/nusmv/be/be_wrap.c'],
                 swig_opts = swig_opts, libraries = libraries,
-                library_dirs = library_dirs, include_dirs = include_dirs)
+                library_dirs = library_dirs, include_dirs = include_dirs,
+                runtime_library_dirs = runtime_library_dirs)
     )
 
 # bmc modules
@@ -131,7 +136,8 @@ extensions.append(
                             'pynusmv/nusmv/bmc/bmc.py',
                             'pynusmv/nusmv/bmc/bmc_wrap.c'],
                 swig_opts = swig_opts, libraries = libraries,
-                library_dirs = library_dirs, include_dirs = include_dirs)
+                library_dirs = library_dirs, include_dirs = include_dirs,
+                runtime_library_dirs = runtime_library_dirs)
     )
 extensions.append(
      Extension('pynusmv.nusmv.bmc.sbmc._sbmc',
@@ -157,7 +163,8 @@ extensions.append(
                             'pynusmv/nusmv/bmc/sbmc/sbmc.py',
                             'pynusmv/nusmv/bmc/sbmc/sbmc_wrap.c'],
                 swig_opts = swig_opts, libraries = libraries,
-                library_dirs = library_dirs, include_dirs = include_dirs)
+                library_dirs = library_dirs, include_dirs = include_dirs,
+                runtime_library_dirs = runtime_library_dirs)
     )
     
 # cinit module
@@ -174,7 +181,8 @@ extensions.append(
                             'pynusmv/nusmv/cinit/cinit.py',
                             'pynusmv/nusmv/cinit/cinit_wrap.c'],
                 swig_opts = swig_opts, libraries = libraries,
-                library_dirs = library_dirs, include_dirs = include_dirs)
+                library_dirs = library_dirs, include_dirs = include_dirs,
+                runtime_library_dirs = runtime_library_dirs)
     )
     
 # cmd module
@@ -191,7 +199,8 @@ extensions.append(
                             'pynusmv/nusmv/cmd/cmd.py',
                             'pynusmv/nusmv/cmd/cmd_wrap.c'],
                 swig_opts = swig_opts, libraries = libraries,
-                library_dirs = library_dirs, include_dirs = include_dirs)
+                library_dirs = library_dirs, include_dirs = include_dirs,
+                runtime_library_dirs = runtime_library_dirs)
     )
     
 # compile modules
@@ -211,7 +220,8 @@ extensions.append(
                             'pynusmv/nusmv/compile/compile.py',
                             'pynusmv/nusmv/compile/compile_wrap.c'],
                 swig_opts = swig_opts, libraries = libraries,
-                library_dirs = library_dirs, include_dirs = include_dirs)
+                library_dirs = library_dirs, include_dirs = include_dirs,
+                runtime_library_dirs = runtime_library_dirs)
     )
 extensions.append(
      Extension('pynusmv.nusmv.compile.symb_table._symb_table',
@@ -232,7 +242,8 @@ extensions.append(
                             'pynusmv/nusmv/compile/symb_table/symb_table.py',
                             'pynusmv/nusmv/compile/symb_table/symb_table_wrap.c'],
                 swig_opts = swig_opts, libraries = libraries,
-                library_dirs = library_dirs, include_dirs = include_dirs)
+                library_dirs = library_dirs, include_dirs = include_dirs,
+                runtime_library_dirs = runtime_library_dirs)
     )
 extensions.append(
      Extension('pynusmv.nusmv.compile.type_checking._type_checking',
@@ -247,7 +258,8 @@ extensions.append(
                             'pynusmv/nusmv/compile/type_checking/type_checking.py',
                             'pynusmv/nusmv/compile/type_checking/type_checking_wrap.c'],
                 swig_opts = swig_opts, libraries = libraries,
-                library_dirs = library_dirs, include_dirs = include_dirs)
+                library_dirs = library_dirs, include_dirs = include_dirs,
+                runtime_library_dirs = runtime_library_dirs)
     )
 extensions.append(
      Extension('pynusmv.nusmv.compile.type_checking.checkers._checkers',
@@ -264,7 +276,8 @@ extensions.append(
                             'pynusmv/nusmv/compile/type_checking/checkers/checkers.py',
                             'pynusmv/nusmv/compile/type_checking/checkers/checkers_wrap.c'],
                 swig_opts = swig_opts, libraries = libraries,
-                library_dirs = library_dirs, include_dirs = include_dirs)
+                library_dirs = library_dirs, include_dirs = include_dirs,
+                runtime_library_dirs = runtime_library_dirs)
     )
     
 # dag module
@@ -281,7 +294,8 @@ extensions.append(
                             'pynusmv/nusmv/dag/dag.py',
                             'pynusmv/nusmv/dag/dag_wrap.c'],
                 swig_opts = swig_opts, libraries = libraries,
-                library_dirs = library_dirs, include_dirs = include_dirs)
+                library_dirs = library_dirs, include_dirs = include_dirs,
+                runtime_library_dirs = runtime_library_dirs)
     )
     
 # dd module
@@ -299,7 +313,8 @@ extensions.append(
                             'pynusmv/nusmv/dd/dd.py',
                             'pynusmv/nusmv/dd/dd_wrap.c'],
                 swig_opts = swig_opts, libraries = libraries,
-                library_dirs = library_dirs, include_dirs = include_dirs)
+                library_dirs = library_dirs, include_dirs = include_dirs,
+                runtime_library_dirs = runtime_library_dirs)
     )
     
 # enc modules
@@ -317,7 +332,8 @@ extensions.append(
                             'pynusmv/nusmv/enc/enc.py',
                             'pynusmv/nusmv/enc/enc_wrap.c'],
                 swig_opts = swig_opts, libraries = libraries,
-                library_dirs = library_dirs, include_dirs = include_dirs)
+                library_dirs = library_dirs, include_dirs = include_dirs,
+                runtime_library_dirs = runtime_library_dirs)
     )
 extensions.append(
      Extension('pynusmv.nusmv.enc.base._base',
@@ -334,7 +350,8 @@ extensions.append(
                             'pynusmv/nusmv/enc/base/base.py',
                             'pynusmv/nusmv/enc/base/base_wrap.c'],
                 swig_opts = swig_opts, libraries = libraries,
-                library_dirs = library_dirs, include_dirs = include_dirs)
+                library_dirs = library_dirs, include_dirs = include_dirs,
+                runtime_library_dirs = runtime_library_dirs)
     )
 extensions.append(
      Extension('pynusmv.nusmv.enc.bdd._bdd',
@@ -352,7 +369,8 @@ extensions.append(
                             'pynusmv/nusmv/enc/bdd/bdd.py',
                             'pynusmv/nusmv/enc/bdd/bdd_wrap.c'],
                 swig_opts = swig_opts, libraries = libraries,
-                library_dirs = library_dirs, include_dirs = include_dirs)
+                library_dirs = library_dirs, include_dirs = include_dirs,
+                runtime_library_dirs = runtime_library_dirs)
     )
 extensions.append(
      Extension('pynusmv.nusmv.enc.be._be',
@@ -368,7 +386,8 @@ extensions.append(
                             'pynusmv/nusmv/enc/be/be.py',
                             'pynusmv/nusmv/enc/be/be_wrap.c'],
                 swig_opts = swig_opts, libraries = libraries,
-                library_dirs = library_dirs, include_dirs = include_dirs)
+                library_dirs = library_dirs, include_dirs = include_dirs,
+                runtime_library_dirs = runtime_library_dirs)
     )
 extensions.append(
      Extension('pynusmv.nusmv.enc.bool._bool',
@@ -385,7 +404,8 @@ extensions.append(
                             'pynusmv/nusmv/enc/bool/bool.py',
                             'pynusmv/nusmv/enc/bool/bool_wrap.c'],
                 swig_opts = swig_opts, libraries = libraries,
-                library_dirs = library_dirs, include_dirs = include_dirs)
+                library_dirs = library_dirs, include_dirs = include_dirs,
+                runtime_library_dirs = runtime_library_dirs)
     )
 extensions.append(
      Extension('pynusmv.nusmv.enc.utils._utils',
@@ -401,7 +421,8 @@ extensions.append(
                             'pynusmv/nusmv/enc/utils/utils.py',
                             'pynusmv/nusmv/enc/utils/utils_wrap.c'],
                 swig_opts = swig_opts, libraries = libraries,
-                library_dirs = library_dirs, include_dirs = include_dirs)
+                library_dirs = library_dirs, include_dirs = include_dirs,
+                runtime_library_dirs = runtime_library_dirs)
     )
     
 # fsm modules
@@ -419,7 +440,8 @@ extensions.append(
                             'pynusmv/nusmv/fsm/fsm.py',
                             'pynusmv/nusmv/fsm/fsm_wrap.c'],
                 swig_opts = swig_opts, libraries = libraries,
-                library_dirs = library_dirs, include_dirs = include_dirs)
+                library_dirs = library_dirs, include_dirs = include_dirs,
+                runtime_library_dirs = runtime_library_dirs)
     )
 extensions.append(
      Extension('pynusmv.nusmv.fsm.bdd._bdd',
@@ -436,7 +458,8 @@ extensions.append(
                             'pynusmv/nusmv/fsm/bdd/bdd.py',
                             'pynusmv/nusmv/fsm/bdd/bdd_wrap.c'],
                 swig_opts = swig_opts, libraries = libraries,
-                library_dirs = library_dirs, include_dirs = include_dirs)
+                library_dirs = library_dirs, include_dirs = include_dirs,
+                runtime_library_dirs = runtime_library_dirs)
     )
 extensions.append(
      Extension('pynusmv.nusmv.fsm.be._be',
@@ -451,7 +474,8 @@ extensions.append(
                             'pynusmv/nusmv/fsm/be/be.py',
                             'pynusmv/nusmv/fsm/be/be_wrap.c'],
                 swig_opts = swig_opts, libraries = libraries,
-                library_dirs = library_dirs, include_dirs = include_dirs)
+                library_dirs = library_dirs, include_dirs = include_dirs,
+                runtime_library_dirs = runtime_library_dirs)
     )
 extensions.append(
      Extension('pynusmv.nusmv.fsm.sexp._sexp',
@@ -470,7 +494,8 @@ extensions.append(
                             'pynusmv/nusmv/fsm/sexp/sexp.py',
                             'pynusmv/nusmv/fsm/sexp/sexp_wrap.c'],
                 swig_opts = swig_opts, libraries = libraries,
-                library_dirs = library_dirs, include_dirs = include_dirs)
+                library_dirs = library_dirs, include_dirs = include_dirs,
+                runtime_library_dirs = runtime_library_dirs)
     )
     
 # hrc modules
@@ -492,7 +517,8 @@ extensions.append(
                             'pynusmv/nusmv/hrc/hrc.py',
                             'pynusmv/nusmv/hrc/hrc_wrap.c'],
                 swig_opts = swig_opts, libraries = libraries,
-                library_dirs = library_dirs, include_dirs = include_dirs)
+                library_dirs = library_dirs, include_dirs = include_dirs,
+                runtime_library_dirs = runtime_library_dirs)
     )
 extensions.append(
      Extension('pynusmv.nusmv.hrc.dumpers._dumpers',
@@ -511,7 +537,8 @@ extensions.append(
                             'pynusmv/nusmv/hrc/dumpers/dumpers.py',
                             'pynusmv/nusmv/hrc/dumpers/dumpers_wrap.c'],
                 swig_opts = swig_opts, libraries = libraries,
-                library_dirs = library_dirs, include_dirs = include_dirs)
+                library_dirs = library_dirs, include_dirs = include_dirs,
+                runtime_library_dirs = runtime_library_dirs)
     )
     
 # ltl modules
@@ -528,7 +555,8 @@ extensions.append(
                             'pynusmv/nusmv/ltl/ltl.py',
                             'pynusmv/nusmv/ltl/ltl_wrap.c'],
                 swig_opts = swig_opts, libraries = libraries,
-                library_dirs = library_dirs, include_dirs = include_dirs)
+                library_dirs = library_dirs, include_dirs = include_dirs,
+                runtime_library_dirs = runtime_library_dirs)
     )
 extensions.append(
      Extension('pynusmv.nusmv.ltl.ltl2smv._ltl2smv',
@@ -543,7 +571,8 @@ extensions.append(
                             'pynusmv/nusmv/ltl/ltl2smv/ltl2smv.py',
                             'pynusmv/nusmv/ltl/ltl2smv/ltl2smv_wrap.c'],
                 swig_opts = swig_opts, libraries = libraries,
-                library_dirs = library_dirs, include_dirs = include_dirs)
+                library_dirs = library_dirs, include_dirs = include_dirs,
+                runtime_library_dirs = runtime_library_dirs)
     )
     
 # mc module
@@ -560,7 +589,8 @@ extensions.append(
                             'pynusmv/nusmv/mc/mc.py',
                             'pynusmv/nusmv/mc/mc_wrap.c'],
                 swig_opts = swig_opts, libraries = libraries,
-                library_dirs = library_dirs, include_dirs = include_dirs)
+                library_dirs = library_dirs, include_dirs = include_dirs,
+                runtime_library_dirs = runtime_library_dirs)
     )
     
 # node modules
@@ -579,7 +609,8 @@ extensions.append(
                             'pynusmv/nusmv/node/node.py',
                             'pynusmv/nusmv/node/node_wrap.c'],
                 swig_opts = swig_opts, libraries = libraries,
-                library_dirs = library_dirs, include_dirs = include_dirs)
+                library_dirs = library_dirs, include_dirs = include_dirs,
+                runtime_library_dirs = runtime_library_dirs)
     )
 extensions.append(
      Extension('pynusmv.nusmv.node.normalizers._normalizers',
@@ -598,7 +629,8 @@ extensions.append(
                             'pynusmv/nusmv/node/normalizers/normalizers.py',
                             'pynusmv/nusmv/node/normalizers/normalizers_wrap.c'],
                 swig_opts = swig_opts, libraries = libraries,
-                library_dirs = library_dirs, include_dirs = include_dirs)
+                library_dirs = library_dirs, include_dirs = include_dirs,
+                runtime_library_dirs = runtime_library_dirs)
     )
 extensions.append(
      Extension('pynusmv.nusmv.node.printers._printers',
@@ -619,7 +651,8 @@ extensions.append(
                             'pynusmv/nusmv/node/printers/printers.py',
                             'pynusmv/nusmv/node/printers/printers_wrap.c'],
                 swig_opts = swig_opts, libraries = libraries,
-                library_dirs = library_dirs, include_dirs = include_dirs)
+                library_dirs = library_dirs, include_dirs = include_dirs,
+                runtime_library_dirs = runtime_library_dirs)
     )
     
 # opt module
@@ -637,7 +670,8 @@ extensions.append(
                             'pynusmv/nusmv/opt/opt.py',
                             'pynusmv/nusmv/opt/opt_wrap.c'],
                 swig_opts = swig_opts, libraries = libraries,
-                library_dirs = library_dirs, include_dirs = include_dirs)
+                library_dirs = library_dirs, include_dirs = include_dirs,
+                runtime_library_dirs = runtime_library_dirs)
     )
     
 # parser modules
@@ -657,7 +691,8 @@ extensions.append(
                             'pynusmv/nusmv/parser/parser.py',
                             'pynusmv/nusmv/parser/parser_wrap.c'],
                 swig_opts = swig_opts, libraries = libraries,
-                library_dirs = library_dirs, include_dirs = include_dirs)
+                library_dirs = library_dirs, include_dirs = include_dirs,
+                runtime_library_dirs = runtime_library_dirs)
     )
 extensions.append(
      Extension('pynusmv.nusmv.parser.idlist._idlist',
@@ -674,7 +709,8 @@ extensions.append(
                             'pynusmv/nusmv/parser/idlist/idlist.py',
                             'pynusmv/nusmv/parser/idlist/idlist_wrap.c'],
                 swig_opts = swig_opts, libraries = libraries,
-                library_dirs = library_dirs, include_dirs = include_dirs)
+                library_dirs = library_dirs, include_dirs = include_dirs,
+                runtime_library_dirs = runtime_library_dirs)
     )
 extensions.append(
      Extension('pynusmv.nusmv.parser.ord._ord',
@@ -691,7 +727,8 @@ extensions.append(
                             'pynusmv/nusmv/parser/ord/ord.py',
                             'pynusmv/nusmv/parser/ord/ord_wrap.c'],
                 swig_opts = swig_opts, libraries = libraries,
-                library_dirs = library_dirs, include_dirs = include_dirs)
+                library_dirs = library_dirs, include_dirs = include_dirs,
+                runtime_library_dirs = runtime_library_dirs)
     )
 extensions.append(
      Extension('pynusmv.nusmv.parser.psl._psl',
@@ -710,7 +747,8 @@ extensions.append(
                             'pynusmv/nusmv/parser/psl/psl.py',
                             'pynusmv/nusmv/parser/psl/psl_wrap.c'],
                 swig_opts = swig_opts, libraries = libraries,
-                library_dirs = library_dirs, include_dirs = include_dirs)
+                library_dirs = library_dirs, include_dirs = include_dirs,
+                runtime_library_dirs = runtime_library_dirs)
     )
     
 # prop module
@@ -729,7 +767,8 @@ extensions.append(
                             'pynusmv/nusmv/prop/prop.py',
                             'pynusmv/nusmv/prop/prop_wrap.c'],
                 swig_opts = swig_opts, libraries = libraries,
-                library_dirs = library_dirs, include_dirs = include_dirs)
+                library_dirs = library_dirs, include_dirs = include_dirs,
+                runtime_library_dirs = runtime_library_dirs)
     )
 
 # rbc modules
@@ -748,7 +787,8 @@ extensions.append(
                             'pynusmv/nusmv/rbc/rbc.py',
                             'pynusmv/nusmv/rbc/rbc_wrap.c'],
                 swig_opts = swig_opts, libraries = libraries,
-                library_dirs = library_dirs, include_dirs = include_dirs)
+                library_dirs = library_dirs, include_dirs = include_dirs,
+                runtime_library_dirs = runtime_library_dirs)
     )
 extensions.append(
      Extension('pynusmv.nusmv.rbc.clg._clg',
@@ -763,7 +803,8 @@ extensions.append(
                             'pynusmv/nusmv/rbc/clg/clg.py',
                             'pynusmv/nusmv/rbc/clg/clg_wrap.c'],
                 swig_opts = swig_opts, libraries = libraries,
-                library_dirs = library_dirs, include_dirs = include_dirs)
+                library_dirs = library_dirs, include_dirs = include_dirs,
+                runtime_library_dirs = runtime_library_dirs)
     )
     
 # sat module
@@ -783,7 +824,8 @@ extensions.append(
                             'pynusmv/nusmv/sat/sat.py',
                             'pynusmv/nusmv/sat/sat_wrap.c'],
                 swig_opts = swig_opts, libraries = libraries,
-                library_dirs = library_dirs, include_dirs = include_dirs)
+                library_dirs = library_dirs, include_dirs = include_dirs,
+                runtime_library_dirs = runtime_library_dirs)
     )
     
 # set module
@@ -800,7 +842,8 @@ extensions.append(
                             'pynusmv/nusmv/set/set.py',
                             'pynusmv/nusmv/set/set_wrap.c'],
                 swig_opts = swig_opts, libraries = libraries,
-                library_dirs = library_dirs, include_dirs = include_dirs)
+                library_dirs = library_dirs, include_dirs = include_dirs,
+                runtime_library_dirs = runtime_library_dirs)
     )
     
 # sexp module
@@ -817,7 +860,8 @@ extensions.append(
                             'pynusmv/nusmv/sexp/sexp.py',
                             'pynusmv/nusmv/sexp/sexp_wrap.c'],
                 swig_opts = swig_opts, libraries = libraries,
-                library_dirs = library_dirs, include_dirs = include_dirs)
+                library_dirs = library_dirs, include_dirs = include_dirs,
+                runtime_library_dirs = runtime_library_dirs)
     )
     
 # simulate module
@@ -835,7 +879,8 @@ extensions.append(
                             'pynusmv/nusmv/simulate/simulate.py',
                             'pynusmv/nusmv/simulate/simulate_wrap.c'],
                 swig_opts = swig_opts, libraries = libraries,
-                library_dirs = library_dirs, include_dirs = include_dirs)
+                library_dirs = library_dirs, include_dirs = include_dirs,
+                runtime_library_dirs = runtime_library_dirs)
     )
 
 # trace modules
@@ -857,7 +902,8 @@ extensions.append(
                             'pynusmv/nusmv/trace/trace.py',
                             'pynusmv/nusmv/trace/trace_wrap.c'],
                 swig_opts = swig_opts, libraries = libraries,
-                library_dirs = library_dirs, include_dirs = include_dirs)
+                library_dirs = library_dirs, include_dirs = include_dirs,
+                runtime_library_dirs = runtime_library_dirs)
     )
 extensions.append(
      Extension('pynusmv.nusmv.trace.eval._eval',
@@ -872,7 +918,8 @@ extensions.append(
                             'pynusmv/nusmv/trace/eval/eval.py',
                             'pynusmv/nusmv/trace/eval/eval_wrap.c'],
                 swig_opts = swig_opts, libraries = libraries,
-                library_dirs = library_dirs, include_dirs = include_dirs)
+                library_dirs = library_dirs, include_dirs = include_dirs,
+                runtime_library_dirs = runtime_library_dirs)
     )
 extensions.append(
      Extension('pynusmv.nusmv.trace.exec._exec',
@@ -895,7 +942,8 @@ extensions.append(
                             'pynusmv/nusmv/trace/exec/exec.py',
                             'pynusmv/nusmv/trace/exec/exec_wrap.c'],
                 swig_opts = swig_opts, libraries = libraries,
-                library_dirs = library_dirs, include_dirs = include_dirs)
+                library_dirs = library_dirs, include_dirs = include_dirs,
+                runtime_library_dirs = runtime_library_dirs)
     )
 extensions.append(
      Extension('pynusmv.nusmv.trace.loaders._loaders',
@@ -912,7 +960,8 @@ extensions.append(
                             'pynusmv/nusmv/trace/loaders/loaders.py',
                             'pynusmv/nusmv/trace/loaders/loaders_wrap.c'],
                 swig_opts = swig_opts, libraries = libraries,
-                library_dirs = library_dirs, include_dirs = include_dirs)
+                library_dirs = library_dirs, include_dirs = include_dirs,
+                runtime_library_dirs = runtime_library_dirs)
     )
 extensions.append(
      Extension('pynusmv.nusmv.trace.plugins._plugins',
@@ -932,7 +981,8 @@ extensions.append(
                             'pynusmv/nusmv/trace/plugins/plugins.py',
                             'pynusmv/nusmv/trace/plugins/plugins_wrap.c'],
                 swig_opts = swig_opts, libraries = libraries,
-                library_dirs = library_dirs, include_dirs = include_dirs)
+                library_dirs = library_dirs, include_dirs = include_dirs,
+                runtime_library_dirs = runtime_library_dirs)
     )   
 
 # trans modules
@@ -949,7 +999,8 @@ extensions.append(
                             'pynusmv/nusmv/trans/trans.py',
                             'pynusmv/nusmv/trans/trans_wrap.c'],
                 swig_opts = swig_opts, libraries = libraries,
-                library_dirs = library_dirs, include_dirs = include_dirs)
+                library_dirs = library_dirs, include_dirs = include_dirs,
+                runtime_library_dirs = runtime_library_dirs)
     )
 extensions.append(
      Extension('pynusmv.nusmv.trans.bdd._bdd',
@@ -968,7 +1019,8 @@ extensions.append(
                             'pynusmv/nusmv/trans/bdd/bdd.py',
                             'pynusmv/nusmv/trans/bdd/bdd_wrap.c'],
                 swig_opts = swig_opts, libraries = libraries,
-                library_dirs = library_dirs, include_dirs = include_dirs)
+                library_dirs = library_dirs, include_dirs = include_dirs,
+                runtime_library_dirs = runtime_library_dirs)
     )
 extensions.append(
      Extension('pynusmv.nusmv.trans.generic._generic',
@@ -983,7 +1035,8 @@ extensions.append(
                             'pynusmv/nusmv/trans/generic/generic.py',
                             'pynusmv/nusmv/trans/generic/generic_wrap.c'],
                 swig_opts = swig_opts, libraries = libraries,
-                library_dirs = library_dirs, include_dirs = include_dirs)
+                library_dirs = library_dirs, include_dirs = include_dirs,
+                runtime_library_dirs = runtime_library_dirs)
     )
     
 # utils module
@@ -1022,7 +1075,8 @@ extensions.append(
                             'pynusmv/nusmv/utils/utils.py',
                             'pynusmv/nusmv/utils/utils_wrap.c'],
                 swig_opts = swig_opts, libraries = libraries,
-                library_dirs = library_dirs, include_dirs = include_dirs)
+                library_dirs = library_dirs, include_dirs = include_dirs,
+                runtime_library_dirs = runtime_library_dirs)
     )
     
 # wff modules
@@ -1039,7 +1093,8 @@ extensions.append(
                             'pynusmv/nusmv/wff/wff.py',
                             'pynusmv/nusmv/wff/wff_wrap.c'],
                 swig_opts = swig_opts, libraries = libraries,
-                library_dirs = library_dirs, include_dirs = include_dirs)
+                library_dirs = library_dirs, include_dirs = include_dirs,
+                runtime_library_dirs = runtime_library_dirs)
     )
 extensions.append(
      Extension('pynusmv.nusmv.wff.w2w._w2w',
@@ -1054,7 +1109,8 @@ extensions.append(
                             'pynusmv/nusmv/wff/w2w/w2w.py',
                             'pynusmv/nusmv/wff/w2w/w2w_wrap.c'],
                 swig_opts = swig_opts, libraries = libraries,
-                library_dirs = library_dirs, include_dirs = include_dirs)
+                library_dirs = library_dirs, include_dirs = include_dirs,
+                runtime_library_dirs = runtime_library_dirs)
     )
 
 
