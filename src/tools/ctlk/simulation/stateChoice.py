@@ -6,7 +6,7 @@ from ..util.nonExitingArgumentParser import (NonExitingArgumentParser,
                                              ArgumentParsingError)
 from pynusmv.utils.exception import NuSMVBddPickingError
 
-def choose_one_state(fsm, BDD):
+def choose_one_state(fsm, BDD, bound=10):
     """
     Use an interactive prompt to ask the user to choose a State in BDD.
     
@@ -15,12 +15,12 @@ def choose_one_state(fsm, BDD):
     
     Return a new state of BDD or None if no state has been chosen.
     """
-    shell = _One_State_Shell(fsm, BDD)
+    shell = _One_State_Shell(fsm, BDD, bound)
     shell.cmdloop()
     return shell.chosen
     
     
-def choose_next_state(fsm, state):
+def choose_next_state(fsm, state, bound=10):
     """
     Use an interactive prompt to ask the user
     to choose a successor of state in fsm.
@@ -31,7 +31,7 @@ def choose_next_state(fsm, state):
     Return a new (inputs, next) pair of fsm such that next is a successor of
     state in fsm through inputs, or (None, None) if no state has been chosen.
     """
-    shell = _Next_State_Shell(fsm, state)
+    shell = _Next_State_Shell(fsm, state, bound)
     shell.cmdloop()
     return (shell.chosenInputs, shell.chosen)
     
