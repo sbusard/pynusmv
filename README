@@ -26,6 +26,9 @@ SWIG and pyparsing are provided in this package in the dep/ directory.
 Build
 -----
 
+With the pre-compiled version of PyNuSMV, PyNuSMV is already built and is located in src/pynumsv. Otherwise, read the following instructions.
+
+
 To build PyNuSMV, you can just use the provided Makefiles:
 
 make

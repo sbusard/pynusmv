@@ -36,7 +36,7 @@ To launch the CLI producing TLACEs. Just run the same command with tlace instead
 3. CTLK model checking and TLACE generation and exploration
 --------------------------------------------------------------------------------
 
-CTLK is an extension of CTLK allowing to reason about time and knowledge of the agents of a system [PL03]. This logic is interpreted over systems composed of agents that have a limited knowledge of the system current state. It allows the mix temporal and epistemic operators to express, for example, that at all time, an agent knows that a property is true.
+CTLK is an extension of CTLK allowing to reason about time and knowledge of the agents of a system [PL03]. This logic is interpreted over systems composed of agents that have a limited knowledge of the system current state. It allows to mix temporal and epistemic operators to express, for example, that at all time, an agent knows that a property is true.
 
 This tool performs model checking of CTLK on multi-agent systems defined with the SMV language. Il also generates diagnostics for explaining verification outcomes. Finally, it allows the user to interactively explore a TLACE explaining the result of verification.
 
@@ -46,7 +46,7 @@ More precisely, this tool accepts any SMV model and follows these conventions:
 
 To run this tool, launch the following command from the src/ directory of PyNuSMV package.
 
-python -m tools.ctlk.tlace.cmd
+python -m tools.ctlk.cmd.cmd
 
 This gives a prompt accepting some commands listed by the "help" command. This prompt accepts, for example, the "model" command to specify an SMV model, the "check" command to verify a CTLK property, or the "explain" command to explain the model checking result. In particular, the "explain" command opens another prompt to explore the diagnostic; the help can be accessed through the "help" command. Finally, note that any command has its own help message, accessible through the "help <cmd>" command.
 
