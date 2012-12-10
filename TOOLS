@@ -51,6 +51,16 @@ python -m tools.ctlk.cmd.cmd
 This gives a prompt accepting some commands listed by the "help" command. This prompt accepts, for example, the "model" command to specify an SMV model, the "check" command to verify a CTLK property, or the "explain" command to explain the model checking result. In particular, the "explain" command opens another prompt to explore the diagnostic; the help can be accessed through the "help" command. Finally, note that any command has its own help message, accessible through the "help <cmd>" command.
 
 
+4. CTL model checking
+--------------------------------------------------------------------------------
+
+PyNuSMV is shipped with a reimplementation of CTL model checking, for performance measures. This tool can be run with
+
+python -m tools.ctl.CTLcheck [model]
+
+where [model] is the path to a NuSMV model. The tool loads the model, checks every CTL specification in the model file and outputs its truth value.
+
+
 REFERENCES
 --------------------------------------------------------------------------------
 
