@@ -26,7 +26,7 @@ def check(modelPath, evalSpecs=True):
                 violating = fsm.init & ~eval_ctl(fsm, spec)
                 print('Specification',str(spec), 'is',
                       str(violating.is_false()))
-                      
+                # We could generate counter-examples here      
     deinit_nusmv()
 
 

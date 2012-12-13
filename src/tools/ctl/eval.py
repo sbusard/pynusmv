@@ -3,6 +3,8 @@ from pynusmv.dd.bdd import BDD
 from pynusmv.spec import spec as SPEC
 from pynusmv.mc.mc import eval_ctl_spec
 
+from pynusmv.nusmv.fsm.bdd import bdd as nsBddFsm
+
 def eval_ctl(fsm, spec, context = None):
     """
     Evaluate spec in fsm.
@@ -92,20 +94,32 @@ def eval_ctl(fsm, spec, context = None):
         
         
 def ex(fsm, phi):
-    return fsm.pre(phi)
+    phi = phi & fair_states(fsm) & fsm.reachable_states
+    return fsm.pre(phi) & fsm.reachable_states
+    
     
 def eg(fsm, phi):
-    return _fp(lambda Z: phi & fsm.pre(Z),
-               BDD.true(fsm.bddEnc.DDmanager))
+    if phi.is_true():
+        return fair_states(fsm)
+    res = BDD.true(fsm.bddEnc.DDmanager)
+    old = BDD.false(fsm.bddEnc.DDmanager)
+    while res != old:
+        old = res
+        new = ex(fsm, res)
+        res = res & new & phi & fsm.reachable_states
+    return res
+    
     
 def eu(fsm, phi, psi):
-    return _fp(lambda Z: psi | (phi & fsm.pre(Z)),
-               BDD.false(fsm.bddEnc.DDmanager))
+    Y = psi & fair_states(fsm) & fsm.reachable_states
+    old = Y
+    new = Y
+    while new.isnot_false():
+        old = Y
+        Y = Y | (ex(fsm, new) & phi)
+        new = Y & ~old  
+    return Y
     
-def _fp(funct, start):
-    old = start
-    new = funct(start)
-    while old != new:
-        old = new
-        new = funct(old)
-    return old
+    
+def fair_states(fsm):
+    return BDD(nsBddFsm.BddFsm_get_fair_states(fsm._ptr), fsm.bddEnc.DDmanager)

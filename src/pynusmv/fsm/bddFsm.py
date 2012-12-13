@@ -232,8 +232,10 @@ class BddFsm(PointerWrapper):
     def reachable_states(self):
         """Return a BDD representing the set of reachable states of the FSM."""
         if self._reachable is None:
-            self._reachable = fixpoint(lambda Z: (self.init | self.post(Z)),
-                                       BDD.false(self.bddEnc.DDmanager))
+            #self._reachable = fixpoint(lambda Z: (self.init | self.post(Z)),
+            #                           BDD.false(self.bddEnc.DDmanager))
+            self._reachable = BDD(bddFsm.BddFsm_get_reachable_states(self._ptr),
+                                  self.bddEnc.DDmanager)
         return self._reachable
         
         
