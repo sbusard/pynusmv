@@ -1,5 +1,3 @@
-.. _pynusmv:
-
 pynusmv
 =======
 
