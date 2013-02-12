@@ -8,6 +8,7 @@
 .dirstamp
 __pycache__
 lib/
+*.pyc
 
 *_wrap.c
 
