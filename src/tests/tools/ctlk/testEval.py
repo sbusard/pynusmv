@@ -434,7 +434,7 @@ class TestEval(unittest.TestCase):
         self.assertEqual(len(specs), 1)
         spec = specs[0]
         a1da1 = evalCTLK(fsm, spec)        
-        self.assertEqual(fsm.reachable_states, a1da1)
+        self.assertEqual(true, a1da1)
                 
         
     def test_c_simple(self):
