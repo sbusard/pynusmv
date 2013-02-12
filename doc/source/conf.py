@@ -1,7 +1,8 @@
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 #
 # PyNuSMV documentation build configuration file, created by
-# sphinx-quickstart on Tue Feb 12 09:14:44 2013.
+# sphinx-quickstart on Tue Feb 12 11:50:14 2013.
 #
 # This file is execfile()d with the current directory set to its containing dir.
 #
@@ -17,7 +18,7 @@ import sys, os
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 #sys.path.insert(0, os.path.abspath('.'))
-sys.path.insert(0, os.path.abspath('../../src/'))
+sys.path.insert(0, os.path.abspath('../../src'))
 
 # -- General configuration -----------------------------------------------------
 
@@ -26,7 +27,7 @@ sys.path.insert(0, os.path.abspath('../../src/'))
 
 # Add any Sphinx extension module names here, as strings. They can be extensions
 # coming with Sphinx (named 'sphinx.ext.*') or your custom ones.
-extensions = ['sphinx.ext.autodoc', 'sphinx.ext.coverage']
+extensions = ['sphinx.ext.autodoc', 'sphinx.ext.coverage', 'sphinx.ext.viewcode']
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
@@ -41,8 +42,8 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = u'PyNuSMV'
-copyright = u'2013, Simon Busard'
+project = 'PyNuSMV'
+copyright = '2013, Simon Busard'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
@@ -184,8 +185,8 @@ latex_elements = {
 # Grouping the document tree into LaTeX files. List of tuples
 # (source start file, target name, title, author, documentclass [howto/manual]).
 latex_documents = [
-  ('index', 'PyNuSMV.tex', u'PyNuSMV Documentation',
-   u'Simon Busard', 'manual'),
+  ('index', 'PyNuSMV.tex', 'PyNuSMV Documentation',
+   'Simon Busard', 'manual'),
 ]
 
 # The name of an image file (relative to this directory) to place at the top of
@@ -214,8 +215,8 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    ('index', 'pynusmv', u'PyNuSMV Documentation',
-     [u'Simon Busard'], 1)
+    ('index', 'pynusmv', 'PyNuSMV Documentation',
+     ['Simon Busard'], 1)
 ]
 
 # If true, show URL addresses after external links.
@@ -228,8 +229,8 @@ man_pages = [
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-  ('index', 'PyNuSMV', u'PyNuSMV Documentation',
-   u'Simon Busard', 'PyNuSMV', 'One line description of project.',
+  ('index', 'PyNuSMV', 'PyNuSMV Documentation',
+   'Simon Busard', 'PyNuSMV', 'One line description of project.',
    'Miscellaneous'),
 ]
 
