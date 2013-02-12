@@ -1,9 +1,6 @@
 pynusmv Package
 ===============
 
-Subpackages
------------
-
 .. toctree::
 
     pynusmv.dd
