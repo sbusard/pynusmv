@@ -34,6 +34,7 @@ Subpackages
     pynusmv.enc
     pynusmv.fsm
     pynusmv.mc
+    pynusmv.nusmv
     pynusmv.parser
     pynusmv.prop
     pynusmv.spec
