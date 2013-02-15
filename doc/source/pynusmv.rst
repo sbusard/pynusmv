@@ -9,6 +9,14 @@ pynusmv Package
     :undoc-members:
     :show-inheritance:
 
+:mod:`fsm` Module
+-----------------
+
+.. automodule:: pynusmv.fsm
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 :mod:`glob` Module
 ------------------
 
@@ -32,7 +40,6 @@ Subpackages
 
     pynusmv.dd
     pynusmv.enc
-    pynusmv.fsm
     pynusmv.mc
     pynusmv.nusmv
     pynusmv.parser
