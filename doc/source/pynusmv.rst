@@ -41,6 +41,14 @@ pynusmv Package
     :undoc-members:
     :show-inheritance:
 
+:mod:`mc` Module
+----------------
+
+.. automodule:: pynusmv.mc
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 :mod:`symb_table` Module
 ------------------------
 
@@ -63,7 +71,6 @@ Subpackages
 .. toctree::
 
     pynusmv.dd
-    pynusmv.mc
     pynusmv.nusmv
     pynusmv.parser
     pynusmv.prop
