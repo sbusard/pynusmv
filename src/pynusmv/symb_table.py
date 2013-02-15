@@ -1,4 +1,6 @@
-from ..utils.pointerwrapper import PointerWrapper
+__all__ = ['SymbTable']
+
+from .utils.pointerwrapper import PointerWrapper
     
 
 class SymbTable(PointerWrapper):

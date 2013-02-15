@@ -20,7 +20,7 @@ from .nusmv.trace import trace as nstrace
 from .nusmv.trace.exec import exec as nstraceexec
 
 from .enc import BddEnc
-from .symb_table.symb_table import SymbTable
+from .symb_table import SymbTable
 from .parser.parser import Error, NuSMVParsingError
 from .prop.propDb import PropDb
 from .utils.exception import (NuSMVLexerError,

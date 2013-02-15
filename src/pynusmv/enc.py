@@ -4,7 +4,7 @@ from .nusmv.enc.bdd import bdd as bddEnc
 from .nusmv.enc.base import base as baseEnc
 from .dd.manager import DDManager
 from .dd.bdd import BDD
-from .symb_table.symb_table import SymbTable
+from .symb_table import SymbTable
 from .utils.pointerwrapper import PointerWrapper
 
 class BddEnc(PointerWrapper):
