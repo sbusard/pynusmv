@@ -1,7 +1,7 @@
 import unittest
 
 from pynusmv.init import init_nusmv, deinit_nusmv
-from pynusmv.mc.mc import eval_simple_expression
+from pynusmv.mc import eval_simple_expression
 from pynusmv.dd.bdd import BDD
 
 from tools.ctlk import glob

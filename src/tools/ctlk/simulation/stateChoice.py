@@ -1,6 +1,6 @@
 import cmd
 
-from pynusmv.mc.mc import eval_simple_expression
+from pynusmv.mc import eval_simple_expression
 from pynusmv.utils.exception import PyNuSMVError
 from ..util.nonExitingArgumentParser import (NonExitingArgumentParser,
                                              ArgumentParsingError)

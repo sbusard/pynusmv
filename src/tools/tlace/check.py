@@ -1,4 +1,4 @@
-from pynusmv.mc.mc import eval_ctl_spec
+from pynusmv.mc import eval_ctl_spec
 from .explain import explain
 
 def check(fsm, spec):

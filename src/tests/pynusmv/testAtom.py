@@ -7,7 +7,7 @@ from pynusmv.fsm import BddFsm
 from pynusmv.init import init_nusmv, deinit_nusmv
 
 
-from pynusmv.mc.mc import eval_ctl_spec, eval_simple_expression
+from pynusmv.mc import eval_ctl_spec, eval_simple_expression
 from pynusmv.spec.spec import atom, NuSMVTypeCheckingError
 from pynusmv.prop.propDb import PropDb
 

@@ -5,7 +5,7 @@ ARCTL evaluation functions.
 from pyparsing import ParseException
 
 from pynusmv.dd.bdd import BDD
-from pynusmv.mc.mc import eval_simple_expression
+from pynusmv.mc import eval_simple_expression
 
 from .parsing import parseArctl
 

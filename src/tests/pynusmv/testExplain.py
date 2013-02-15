@@ -8,7 +8,7 @@ from pynusmv.nusmv.parser import parser
 from pynusmv.dd.bdd import BDD
 from pynusmv.dd.bddlist import BDDList
 from pynusmv.prop.propDb import PropDb
-from pynusmv.mc.mc import eval_ctl_spec, explainEX, explainEU, explainEG
+from pynusmv.mc import eval_ctl_spec, explainEX, explainEU, explainEG
 from pynusmv.spec.spec import Spec
 from pynusmv.spec.spec import (true as sptrue, false as spfalse, imply, iff,
                                ex, eg, ef, eu, ew, ax, ag, af, au, aw, atom)

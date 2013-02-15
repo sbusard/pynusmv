@@ -4,7 +4,7 @@ from pynusmv.init import init_nusmv, deinit_nusmv
 from pynusmv.fsm import BddFsm
 from pynusmv.trans import BddTrans
 from pynusmv.dd.bdd import BDD
-from pynusmv.mc.mc import eval_simple_expression as evalSexp
+from pynusmv.mc import eval_simple_expression as evalSexp
 
 from pynusmv.prop.propDb import PropDb
 from pynusmv.trans import BddTrans
