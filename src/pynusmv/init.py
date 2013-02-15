@@ -5,7 +5,7 @@ init_nusmv should be called before any other call to pynusmv functions.
 deinit_nusmv should be called after using pynusmv.
 """
 
-__all__ = ['init_nusmv', 'deinit_nusmv_', 'reset_nusmv', 'register_wrapper']
+__all__ = ['init_nusmv', 'deinit_nusmv', 'reset_nusmv', 'register_wrapper']
 
 import weakref
 import gc
@@ -24,6 +24,7 @@ def init_nusmv():
     Initialize NuSMV.
     
     Must be called only once before calling deinit_nusmv.
+    
     """
     global __collector
     if __collector is not None:
@@ -51,6 +52,7 @@ def deinit_nusmv():
     
     Apply Python garbage collection first, then collect every pointer wrapper
     that is not yet collected by Python GC.
+    
     """
     
     from . import glob
