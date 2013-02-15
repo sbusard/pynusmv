@@ -3,7 +3,7 @@ import unittest
 from pynusmv.nusmv.parser import parser as nsparser
 from pynusmv.nusmv.cmd import cmd as nscmd
 
-from pynusmv.init.init import init_nusmv, deinit_nusmv
+from pynusmv.init import init_nusmv, deinit_nusmv
 from pynusmv.glob import glob
 from pynusmv.utils.exception import (NuSMVNoReadFileError,
                                      NuSMVCannotFlattenError,

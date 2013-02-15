@@ -5,7 +5,7 @@ ARCTL CLI with trace explanation.
 import cmd
 import argparse
 
-from pynusmv.init.init import init_nusmv, deinit_nusmv, reset_nusmv
+from pynusmv.init import init_nusmv, deinit_nusmv, reset_nusmv
 from pynusmv.fsm.bddFsm import BddFsm
 from pynusmv.utils.exception import PyNuSMVError
 

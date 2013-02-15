@@ -1,6 +1,6 @@
 import unittest
 
-from pynusmv.init.init import init_nusmv, deinit_nusmv
+from pynusmv.init import init_nusmv, deinit_nusmv
 
 from pynusmv.nusmv.parser import parser as nsparser
 from pynusmv.nusmv.utils import utils as nsutils

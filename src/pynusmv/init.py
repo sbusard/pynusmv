@@ -6,11 +6,11 @@ deinit_nusmv should be called after using pynusmv.
 """
 import weakref
 import gc
-from ..nusmv.cinit import cinit as nscinit
-from ..nusmv.opt import opt as nsopt
-from ..nusmv.cmd import cmd as nscmd
+from .nusmv.cinit import cinit as nscinit
+from .nusmv.opt import opt as nsopt
+from .nusmv.cmd import cmd as nscmd
 
-from ..utils.exception import NuSMVInitError
+from .utils.exception import NuSMVInitError
 
 # Set of pointer wrappers to collect when deiniting NuSMV
 __collector = None
@@ -50,7 +50,7 @@ def deinit_nusmv():
     that is not yet collected by Python GC.
     """
     
-    from ..glob import glob
+    from .glob import glob
     glob.reset_globals()    
     
     global __collector

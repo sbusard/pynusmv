@@ -8,7 +8,7 @@ from pynusmv.dd.bdd import BDD
 from pynusmv.fsm.bddFsm import BddFsm
 from pynusmv.mc.mc import eval_simple_expression
 
-from pynusmv.init.init import init_nusmv, deinit_nusmv
+from pynusmv.init import init_nusmv, deinit_nusmv
 
 class TestBDD(unittest.TestCase):
     

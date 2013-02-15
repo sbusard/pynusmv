@@ -1,6 +1,5 @@
 import unittest
 
-from pynusmv.nusmv.cinit import cinit
 from pynusmv.nusmv.cmd import cmd
 from pynusmv.nusmv.compile.symb_table import symb_table
 from pynusmv.nusmv.enc.bdd import bdd as bddEnc
@@ -12,7 +11,7 @@ from pynusmv.glob import glob
 from tools.tlace.check import check
 from tools.tlace.xml import xml_representation
 
-from pynusmv.init.init import init_nusmv, deinit_nusmv
+from pynusmv.init import init_nusmv, deinit_nusmv
 
 class TestTlacePrinting(unittest.TestCase):
     

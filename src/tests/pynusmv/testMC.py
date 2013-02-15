@@ -1,16 +1,10 @@
 import unittest
 
-from pynusmv.nusmv.cinit import cinit
 from pynusmv.nusmv.cmd import cmd
-from pynusmv.nusmv.node import node as nsnode
-from pynusmv.nusmv.parser import parser
 from pynusmv.nusmv.prop import prop
-from pynusmv.nusmv.fsm.bdd import bdd as nsfsm
 from pynusmv.nusmv.mc import mc
 
-from pynusmv.fsm.bddFsm import BddFsm
-
-from pynusmv.init.init import init_nusmv, deinit_nusmv
+from pynusmv.init import init_nusmv, deinit_nusmv
 
 class TestMC(unittest.TestCase):
     

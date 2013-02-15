@@ -1,13 +1,12 @@
 import unittest
 import sys
 
-from pynusmv.nusmv.cinit import cinit
 from pynusmv.nusmv.cmd import cmd
 
 from pynusmv.prop.propDb import PropDb
 from pynusmv.glob import glob
 
-from pynusmv.init.init import init_nusmv, deinit_nusmv
+from pynusmv.init import init_nusmv, deinit_nusmv
 
 class TestPropDb(unittest.TestCase):
     

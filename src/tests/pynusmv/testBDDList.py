@@ -10,7 +10,7 @@ from pynusmv.dd.bddlist import BDDList
 from pynusmv.prop.propDb import PropDb
 from pynusmv.glob import glob
 
-from pynusmv.init.init import init_nusmv, deinit_nusmv
+from pynusmv.init import init_nusmv, deinit_nusmv
 
 class TestBDDList(unittest.TestCase):
     

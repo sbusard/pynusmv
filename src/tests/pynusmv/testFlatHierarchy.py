@@ -1,6 +1,6 @@
 import unittest
 
-from pynusmv.init.init import init_nusmv, deinit_nusmv
+from pynusmv.init import init_nusmv, deinit_nusmv
 from pynusmv.fsm.bddFsm import BddFsm
 from pynusmv.trans.trans import BddTrans
 from pynusmv.dd.bdd import BDD

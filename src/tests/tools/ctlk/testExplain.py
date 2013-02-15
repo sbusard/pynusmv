@@ -1,6 +1,6 @@
 import unittest
 
-from pynusmv.init.init import init_nusmv, deinit_nusmv
+from pynusmv.init import init_nusmv, deinit_nusmv
 from pynusmv.mc.mc import eval_simple_expression
 
 from tools.ctlk import glob

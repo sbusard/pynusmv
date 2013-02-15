@@ -2,7 +2,7 @@ import unittest
 
 from pynusmv.fsm.bddFsm import BddFsm
 from pynusmv.dd.bdd import BDD
-from pynusmv.init.init import init_nusmv, deinit_nusmv
+from pynusmv.init import init_nusmv, deinit_nusmv
 
 from tools.arctl.parsing import parseArctl
 from tools.arctl.ast import (Atom, Not, And, Or, Implies, Iff,

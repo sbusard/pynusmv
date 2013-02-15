@@ -4,7 +4,7 @@ from pynusmv.nusmv.cinit import cinit
 from pynusmv.nusmv.cmd import cmd
 
 from pynusmv.fsm.bddFsm import BddFsm
-from pynusmv.init.init import init_nusmv, deinit_nusmv
+from pynusmv.init import init_nusmv, deinit_nusmv
 
 
 from pynusmv.mc.mc import eval_ctl_spec, eval_simple_expression

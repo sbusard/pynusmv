@@ -16,7 +16,7 @@ any pointer is wrapped by only one PointerWrapper (or subclass of it)
 if the pointer have to be freed.
 """
 
-from pynusmv.init.init import register_wrapper
+from pynusmv.init import register_wrapper
 
 class PointerWrapper:
     """Wrapper for a NuSMV pointer."""

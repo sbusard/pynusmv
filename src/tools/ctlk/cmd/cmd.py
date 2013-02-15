@@ -7,7 +7,7 @@ import argparse
 from collections import namedtuple
 from pyparsing import ParseException
 
-from pynusmv.init.init import init_nusmv, deinit_nusmv, reset_nusmv
+from pynusmv.init import init_nusmv, deinit_nusmv, reset_nusmv
 from pynusmv.utils.exception import PyNuSMVError
 
 from .lazyExplainShell import LazyCTLK_explain_shell

@@ -9,7 +9,7 @@ from pynusmv.nusmv.fsm.bdd import bdd as nsfsm
 
 from pynusmv.fsm.bddFsm import BddFsm
 
-from pynusmv.init.init import init_nusmv, deinit_nusmv
+from pynusmv.init import init_nusmv, deinit_nusmv
 
 class TestBuildModel(unittest.TestCase):
     

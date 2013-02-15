@@ -6,7 +6,7 @@ from pynusmv.nusmv.parser import parser as nsparser
 
 from pynusmv.parser.parser import *
 from pynusmv.utils.exception import NuSMVParsingError
-from pynusmv.init.init import init_nusmv, deinit_nusmv
+from pynusmv.init import init_nusmv, deinit_nusmv
 
 class TestPyNuSMVParsing(unittest.TestCase):
     
