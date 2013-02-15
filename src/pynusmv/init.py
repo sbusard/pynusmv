@@ -4,6 +4,9 @@ Provide functions to initialize and quit NuSMV.
 init_nusmv should be called before any other call to pynusmv functions.
 deinit_nusmv should be called after using pynusmv.
 """
+
+__all__ = ['init_nusmv', 'deinit_nusmv_', 'reset_nusmv', 'register_wrapper']
+
 import weakref
 import gc
 from .nusmv.cinit import cinit as nscinit
