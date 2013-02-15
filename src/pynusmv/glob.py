@@ -19,7 +19,7 @@ from .nusmv.fsm.bdd import bdd as nsbddfsm
 from .nusmv.trace import trace as nstrace
 from .nusmv.trace.exec import exec as nstraceexec
 
-from .enc.enc import BddEnc
+from .enc import BddEnc
 from .symb_table.symb_table import SymbTable
 from .parser.parser import Error, NuSMVParsingError
 from .prop.propDb import PropDb

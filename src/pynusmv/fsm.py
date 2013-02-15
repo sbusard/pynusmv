@@ -5,7 +5,7 @@ from .nusmv.enc.bdd import bdd as bddEnc
 from .nusmv.cmd import cmd as nscmd
 from .nusmv.trans.bdd import bdd as nsbddtrans
      
-from .enc.enc import BddEnc
+from .enc import BddEnc
 from .dd.bdd import BDD
 from .dd.state import State
 from .dd.inputs import Inputs
