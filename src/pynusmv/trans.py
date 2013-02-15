@@ -1,8 +1,10 @@
-from ..utils.pointerwrapper import PointerWrapper
-from ..dd.bdd import BDD
+__all__ = ['BddTrans']
 
-from ..nusmv.trans.bdd import bdd as nsbddtrans
-from ..nusmv.enc.bdd import bdd as nsbddenc
+from .utils.pointerwrapper import PointerWrapper
+from .dd.bdd import BDD
+     
+from .nusmv.trans.bdd import bdd as nsbddtrans
+from .nusmv.enc.bdd import bdd as nsbddenc
 
 class BddTrans(PointerWrapper):
     """

@@ -11,7 +11,7 @@ from .dd.state import State
 from .dd.inputs import Inputs
 from .utils.pointerwrapper import PointerWrapper
 from .utils.misc import fixpoint
-from .trans.trans import BddTrans
+from .trans import BddTrans
 from .utils.exception import NuSMVBddPickingError
 
 class BddFsm(PointerWrapper):
