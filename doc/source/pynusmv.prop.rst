@@ -1,6 +1,14 @@
 prop Package
 ============
 
+:mod:`prop` Package
+-------------------
+
+.. automodule:: pynusmv.prop
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 :mod:`prop` Module
 ------------------
 

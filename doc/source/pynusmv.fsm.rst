@@ -1,6 +1,14 @@
 fsm Package
 ===========
 
+:mod:`fsm` Package
+------------------
+
+.. automodule:: pynusmv.fsm
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 :mod:`bddFsm` Module
 --------------------
 

@@ -1,6 +1,14 @@
 utils Package
 =============
 
+:mod:`utils` Package
+--------------------
+
+.. automodule:: pynusmv.utils
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 :mod:`exception` Module
 -----------------------
 

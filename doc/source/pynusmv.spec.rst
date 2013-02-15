@@ -1,6 +1,14 @@
 spec Package
 ============
 
+:mod:`spec` Package
+-------------------
+
+.. automodule:: pynusmv.spec
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 :mod:`spec` Module
 ------------------
 
