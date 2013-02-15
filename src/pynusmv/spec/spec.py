@@ -190,7 +190,7 @@ def atom(strrep):
     proposition.
     """
     
-    from ..glob import glob
+    from .. import glob
     
     # Parsing
     node = parser.parse_simple_expression(strrep)

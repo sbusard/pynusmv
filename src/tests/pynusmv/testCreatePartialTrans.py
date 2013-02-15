@@ -6,7 +6,7 @@ from pynusmv.dd.bdd import BDD
 from pynusmv.mc.mc import eval_simple_expression as evalSexp
 
 from pynusmv.prop.propDb import PropDb
-from pynusmv.glob import glob
+from pynusmv import glob
 from pynusmv.trans.trans import BddTrans
 
 

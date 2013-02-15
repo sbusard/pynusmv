@@ -14,7 +14,7 @@ from pynusmv.spec.spec import (true as sptrue, false as spfalse, imply, iff,
                                ex, eg, ef, eu, ew, ax, ag, af, au, aw, atom)
                               
 from pynusmv.init import init_nusmv, deinit_nusmv
-from pynusmv.glob import glob
+from pynusmv import glob
 
 class TestExplain(unittest.TestCase):
     

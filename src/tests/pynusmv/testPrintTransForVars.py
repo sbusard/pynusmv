@@ -4,7 +4,7 @@ from pynusmv.init import init_nusmv, deinit_nusmv
 from pynusmv.fsm.bddFsm import BddFsm
 
 from pynusmv.prop.propDb import PropDb
-from pynusmv.glob import glob
+from pynusmv import glob
 
 
 from pynusmv.nusmv.prop import prop as nsprop

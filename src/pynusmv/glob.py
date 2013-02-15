@@ -1,25 +1,25 @@
-from ..nusmv.parser import parser as nsparser
-from ..nusmv.opt import opt as nsopt
-from ..nusmv.node import node as nsnode
-from ..nusmv.compile import compile as nscompile
-from ..nusmv.enc import enc as nsenc
-from ..nusmv.enc.bool import bool as nsboolenc
-from ..nusmv.enc.bdd import bdd as nsbddenc
-from ..nusmv.enc.base import base as nsbaseenc
-from ..nusmv.prop import prop as nsprop
-from ..nusmv.compile.symb_table import symb_table as nssymb_table
-from ..nusmv.fsm import fsm as nsfsm
-from ..nusmv.set import set as nsset
-from ..nusmv.opt import opt as nsopt
-from ..nusmv.fsm.bdd import bdd as nsbddfsm
-from ..nusmv.trace import trace as nstrace
-from ..nusmv.trace.exec import exec as nstraceexec
+from .nusmv.parser import parser as nsparser
+from .nusmv.opt import opt as nsopt
+from .nusmv.node import node as nsnode
+from .nusmv.compile import compile as nscompile
+from .nusmv.enc import enc as nsenc
+from .nusmv.enc.bool import bool as nsboolenc
+from .nusmv.enc.bdd import bdd as nsbddenc
+from .nusmv.enc.base import base as nsbaseenc
+from .nusmv.prop import prop as nsprop
+from .nusmv.compile.symb_table import symb_table as nssymb_table
+from .nusmv.fsm import fsm as nsfsm
+from .nusmv.set import set as nsset
+from .nusmv.opt import opt as nsopt
+from .nusmv.fsm.bdd import bdd as nsbddfsm
+from .nusmv.trace import trace as nstrace
+from .nusmv.trace.exec import exec as nstraceexec
 
-from ..enc.enc import BddEnc
-from ..symb_table.symb_table import SymbTable
-from ..parser.parser import Error, NuSMVParsingError
-from ..prop.propDb import PropDb
-from ..utils.exception import (NuSMVLexerError,
+from .enc.enc import BddEnc
+from .symb_table.symb_table import SymbTable
+from .parser.parser import Error, NuSMVParsingError
+from .prop.propDb import PropDb
+from .utils.exception import (NuSMVLexerError,
                                NuSMVNoReadFileError,
                                NuSMVModelAlreadyReadError,
                                NuSMVCannotFlattenError,

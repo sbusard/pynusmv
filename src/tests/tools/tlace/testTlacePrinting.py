@@ -6,7 +6,7 @@ from pynusmv.nusmv.enc.bdd import bdd as bddEnc
 
 from pynusmv.fsm.bddFsm import BddFsm
 from pynusmv.prop.propDb import PropDb
-from pynusmv.glob import glob
+from pynusmv import glob
 
 from tools.tlace.check import check
 from tools.tlace.xml import xml_representation

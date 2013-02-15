@@ -249,7 +249,7 @@ class BddFsm(PointerWrapper):
         
         This function modifies the global environment of NuSMV.
         """
-        from ..glob import glob
+        from .. import glob
         glob.load_from_file(filepath)
         glob.compute_model()
         propDb = glob.prop_database()

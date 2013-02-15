@@ -10,7 +10,7 @@ from pynusmv.spec.spec import Spec
 from pynusmv.prop.propDb import PropDb
 
 from pynusmv.init import init_nusmv, deinit_nusmv
-from pynusmv.glob import glob
+from pynusmv import glob
 
 class TestParser(unittest.TestCase):
     

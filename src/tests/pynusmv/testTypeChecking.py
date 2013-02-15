@@ -1,7 +1,7 @@
 import unittest
 
 from pynusmv.init import init_nusmv, deinit_nusmv
-from pynusmv.glob import glob
+from pynusmv import glob
 from pynusmv.parser.parser import parse_simple_expression
 
 from pynusmv.nusmv.compile.symb_table import symb_table as nssymb_table

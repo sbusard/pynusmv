@@ -4,7 +4,7 @@ from pynusmv.nusmv.cmd import cmd
 
 from pynusmv.fsm.bddFsm import BddFsm
 from pynusmv.prop.propDb import PropDb
-from pynusmv.glob import glob
+from pynusmv import glob
 
 from tools.tlace.check import check
 
