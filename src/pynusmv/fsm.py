@@ -1,16 +1,18 @@
-from ..nusmv.fsm.bdd import bdd as bddFsm
-from ..nusmv.enc.bdd import bdd as bddEnc
-from ..nusmv.cmd import cmd as nscmd
-from ..nusmv.trans.bdd import bdd as nsbddtrans
+__all__ = ['BddFsm']
 
-from ..enc.enc import BddEnc
-from ..dd.bdd import BDD
-from ..dd.state import State
-from ..dd.inputs import Inputs
-from ..utils.pointerwrapper import PointerWrapper
-from ..utils.misc import fixpoint
-from ..trans.trans import BddTrans
-from ..utils.exception import NuSMVBddPickingError
+from .nusmv.fsm.bdd import bdd as bddFsm
+from .nusmv.enc.bdd import bdd as bddEnc
+from .nusmv.cmd import cmd as nscmd
+from .nusmv.trans.bdd import bdd as nsbddtrans
+     
+from .enc.enc import BddEnc
+from .dd.bdd import BDD
+from .dd.state import State
+from .dd.inputs import Inputs
+from .utils.pointerwrapper import PointerWrapper
+from .utils.misc import fixpoint
+from .trans.trans import BddTrans
+from .utils.exception import NuSMVBddPickingError
 
 class BddFsm(PointerWrapper):
     """
@@ -249,7 +251,7 @@ class BddFsm(PointerWrapper):
         
         This function modifies the global environment of NuSMV.
         """
-        from .. import glob
+        from . import glob
         glob.load_from_file(filepath)
         glob.compute_model()
         propDb = glob.prop_database()

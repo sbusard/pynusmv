@@ -7,7 +7,7 @@ from pynusmv.nusmv.parser import parser
 from pynusmv.nusmv.prop import prop
 from pynusmv.nusmv.fsm.bdd import bdd as nsfsm
 
-from pynusmv.fsm.bddFsm import BddFsm
+from pynusmv.fsm import BddFsm
 
 from pynusmv.init import init_nusmv, deinit_nusmv
 

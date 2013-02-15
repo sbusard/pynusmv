@@ -2,7 +2,7 @@ import unittest
 
 from pynusmv.nusmv.cmd import cmd
 
-from pynusmv.fsm.bddFsm import BddFsm
+from pynusmv.fsm import BddFsm
 from pynusmv.prop.propDb import PropDb
 from pynusmv import glob
 

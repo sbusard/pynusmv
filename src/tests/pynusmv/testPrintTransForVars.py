@@ -1,7 +1,7 @@
 import unittest
 
 from pynusmv.init import init_nusmv, deinit_nusmv
-from pynusmv.fsm.bddFsm import BddFsm
+from pynusmv.fsm import BddFsm
 
 from pynusmv.prop.propDb import PropDb
 from pynusmv import glob

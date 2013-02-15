@@ -1,5 +1,5 @@
 from pynusmv.dd.bdd import BDD
-from pynusmv.fsm.bddFsm import BddFsm
+from pynusmv.fsm import BddFsm
 from pynusmv.nusmv.node import node as nsnode
 from pynusmv.nusmv.parser import parser as nsparser
 from .exception import UnknownAgentError

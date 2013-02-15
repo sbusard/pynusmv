@@ -3,7 +3,7 @@ import unittest
 from pynusmv.nusmv.cinit import cinit
 from pynusmv.nusmv.cmd import cmd
 
-from pynusmv.fsm.bddFsm import BddFsm
+from pynusmv.fsm import BddFsm
 from pynusmv.init import init_nusmv, deinit_nusmv
 
 

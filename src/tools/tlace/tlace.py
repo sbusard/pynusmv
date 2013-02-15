@@ -5,7 +5,7 @@ from pynusmv.prop.propDb import PropDb
 from pynusmv.prop.prop import propTypes
 from pynusmv.init import init_nusmv, deinit_nusmv
 from pynusmv import glob
-from pynusmv.fsm.bddFsm import BddFsm
+from pynusmv.fsm import BddFsm
 
 from tools.tlace.check import check as check_ctl_spec
 from tools.tlace.xml import xml_representation
