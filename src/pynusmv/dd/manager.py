@@ -1,4 +1,4 @@
-from ..utils.pointerwrapper import PointerWrapper
+from ..utils import PointerWrapper
     
 
 class DDManager(PointerWrapper):

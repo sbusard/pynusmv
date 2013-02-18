@@ -8,7 +8,7 @@ from .nusmv.compile.symb_table import symb_table as nssymb_table
      
 from . import parser
      
-from .utils.pointerwrapper import PointerWrapper
+from .utils import PointerWrapper
 from .utils.exception import NuSMVParserError, NuSMVTypeCheckingError
 
 

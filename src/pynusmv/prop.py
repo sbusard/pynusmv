@@ -4,7 +4,7 @@ from .nusmv.prop import prop as nsprop
 
 from .fsm import BddFsm
 from .spec import Spec
-from .utils.pointerwrapper import PointerWrapper
+from .utils import PointerWrapper
 
 propTypes = {
              'NoType' :      nsprop.Prop_NoType,

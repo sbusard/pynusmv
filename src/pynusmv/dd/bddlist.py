@@ -1,7 +1,7 @@
 from ..nusmv.node import node as nsnode
 from ..nusmv.dd import dd as nsdd
 
-from ..utils.pointerwrapper import PointerWrapper
+from ..utils import PointerWrapper
 from .bdd import BDD
 
 class BDDList(PointerWrapper):

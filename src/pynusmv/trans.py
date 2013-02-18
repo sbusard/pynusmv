@@ -1,6 +1,6 @@
 __all__ = ['BddTrans']
 
-from .utils.pointerwrapper import PointerWrapper
+from .utils import PointerWrapper
 from .dd.bdd import BDD
      
 from .nusmv.trans.bdd import bdd as nsbddtrans

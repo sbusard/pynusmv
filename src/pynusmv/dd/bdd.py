@@ -1,5 +1,5 @@
 from ..nusmv.dd import dd
-from ..utils.pointerwrapper import PointerWrapper
+from ..utils import PointerWrapper
 from ..utils.exception import MissingManagerError
 
 class BDD(PointerWrapper):
