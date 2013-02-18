@@ -3,7 +3,7 @@ import unittest
 from pynusmv.nusmv.cmd import cmd
 
 from pynusmv.fsm import BddFsm
-from pynusmv.prop.propDb import PropDb
+from pynusmv.prop import PropDb
 from pynusmv import glob
 
 from tools.tlace.check import check

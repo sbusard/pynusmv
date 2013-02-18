@@ -7,7 +7,7 @@ from pynusmv.nusmv.parser import parser
 
 from pynusmv.dd.bdd import BDD
 from pynusmv.dd.bddlist import BDDList
-from pynusmv.prop.propDb import PropDb
+from pynusmv.prop import PropDb
 from pynusmv import glob
 
 from pynusmv.init import init_nusmv, deinit_nusmv

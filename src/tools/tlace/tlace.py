@@ -1,8 +1,8 @@
 import sys
 import argparse
 
-from pynusmv.prop.propDb import PropDb
-from pynusmv.prop.prop import propTypes
+from pynusmv.prop import PropDb
+from pynusmv.prop import propTypes
 from pynusmv.init import init_nusmv, deinit_nusmv
 from pynusmv import glob
 from pynusmv.fsm import BddFsm
