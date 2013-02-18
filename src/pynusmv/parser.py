@@ -2,6 +2,9 @@
 Provide functions to parse strings and return corresponding ASTs.
 """
 
+__all__ = ['parse_simple_expression', 'parse_next_expression',
+           'parse_identifier']
+
 from .utils.exception import NuSMVParsingError, Error
      
 from .nusmv.parser import parser as nsparser

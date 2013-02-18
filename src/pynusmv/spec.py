@@ -1,3 +1,6 @@
+__all__ = ['Spec', 'true', 'false', 'nott', 'andd', 'orr', 'imply', 'iff',
+           'ex', 'eg', 'ef', 'eu', 'ew', 'ax', 'ag', 'af', 'au', 'aw', 'atom']
+
 from .nusmv.parser import parser as nsparser
 from .nusmv.node import node as nsnode
 from .nusmv.compile.type_checking import type_checking as nstype_checking
