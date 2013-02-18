@@ -9,6 +9,14 @@ pynusmv Package
     :undoc-members:
     :show-inheritance:
 
+:mod:`dd` Module
+----------------
+
+.. automodule:: pynusmv.dd
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 :mod:`fsm` Module
 -----------------
 
@@ -57,36 +65,11 @@ pynusmv Package
     :undoc-members:
     :show-inheritance:
 
-:mod:`spec` Module
-------------------
-
-.. automodule:: pynusmv.spec
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-:mod:`symb_table` Module
-------------------------
-
-.. automodule:: pynusmv.symb_table
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-:mod:`trans` Module
--------------------
-
-.. automodule:: pynusmv.trans
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
 Subpackages
 -----------
 
 .. toctree::
 
-    pynusmv.dd
     pynusmv.nusmv
     pynusmv.utils
 
