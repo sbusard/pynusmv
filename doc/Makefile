@@ -155,4 +155,5 @@ doctest:
 api:
 	sphinx-apidoc -f -o source ../src/pynusmv `pwd`/../src/pynusmv/nusmv
 	rm source/modules.rst
+	patch source/pynusmv.rst < pynusmv.patch
 	make html

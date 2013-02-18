@@ -81,10 +81,3 @@ pynusmv Package
     :undoc-members:
     :show-inheritance:
 
-Subpackages
------------
-
-.. toctree::
-
-    pynusmv.nusmv
-
