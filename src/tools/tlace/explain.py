@@ -3,7 +3,7 @@ from .tlacebranch import Tlacebranch
 
 from pynusmv.nusmv.parser import parser
 
-from pynusmv.spec import (true as sptrue, false as spfalse, imply, iff,
+from pynusmv.prop import (true as sptrue, false as spfalse, imply, iff,
                                ex, eg, ef, eu, ew, ax, ag, af, au, aw)
 from pynusmv.mc import eval_ctl_spec, explainEX, explainEG, explainEU
 

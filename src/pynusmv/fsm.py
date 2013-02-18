@@ -1,4 +1,4 @@
-__all__ = ['BddFsm', 'BddEnc']
+__all__ = ['BddFsm', 'BddEnc', 'SymbTable', 'BddTrans']
 
 from .nusmv.fsm.bdd import bdd as bddFsm
 from .nusmv.enc.bdd import bdd as bddEnc

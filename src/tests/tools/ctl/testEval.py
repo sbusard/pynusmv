@@ -4,7 +4,7 @@ from pynusmv.fsm import BddFsm
 from pynusmv.dd.bdd import BDD
 from pynusmv.init import init_nusmv, deinit_nusmv
 from pynusmv.parser import parse_simple_expression as parseSexp
-from pynusmv.spec import Spec
+from pynusmv.prop import Spec
 
 from tools.ctl.eval import eval_ctl
 

@@ -6,7 +6,7 @@ from pynusmv.nusmv.cmd import cmd
 from pynusmv.nusmv.parser import parser
 from pynusmv.nusmv.node import node as nsnode
 
-from pynusmv.spec import Spec
+from pynusmv.prop import Spec
 from pynusmv.prop import PropDb
 
 from pynusmv.init import init_nusmv, deinit_nusmv

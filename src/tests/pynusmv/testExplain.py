@@ -9,8 +9,8 @@ from pynusmv.dd.bdd import BDD
 from pynusmv.dd.bddlist import BDDList
 from pynusmv.prop import PropDb
 from pynusmv.mc import eval_ctl_spec, explainEX, explainEU, explainEG
-from pynusmv.spec import Spec
-from pynusmv.spec import (true as sptrue, false as spfalse, imply, iff,
+from pynusmv.prop import Spec
+from pynusmv.prop import (true as sptrue, false as spfalse, imply, iff,
                                ex, eg, ef, eu, ew, ax, ag, af, au, aw, atom)
                               
 from pynusmv.init import init_nusmv, deinit_nusmv
