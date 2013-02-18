@@ -1,7 +1,7 @@
 from ..nusmv.prop import prop as nsprop
 
 from ..fsm import BddFsm
-from ..spec.spec import Spec
+from ..spec import Spec
 from ..utils.pointerwrapper import PointerWrapper
 
 propTypes = {

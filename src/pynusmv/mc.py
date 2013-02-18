@@ -17,7 +17,7 @@ from .dd.bdd import BDD
 from .dd.state import State
 from .dd.inputs import Inputs
 from .dd.bddlist import BDDList
-from .spec.spec import atom
+from .spec import atom
 
 
 def eval_simple_expression(fsm, sexp):

@@ -1,12 +1,12 @@
-from ..nusmv.parser import parser as nsparser
-from ..nusmv.node import node as nsnode
-from ..nusmv.compile.type_checking import type_checking as nstype_checking
-from ..nusmv.compile.symb_table import symb_table as nssymb_table
-
-from .. import parser
-
-from ..utils.pointerwrapper import PointerWrapper
-from ..utils.exception import NuSMVParserError, NuSMVTypeCheckingError
+from .nusmv.parser import parser as nsparser
+from .nusmv.node import node as nsnode
+from .nusmv.compile.type_checking import type_checking as nstype_checking
+from .nusmv.compile.symb_table import symb_table as nssymb_table
+     
+from . import parser
+     
+from .utils.pointerwrapper import PointerWrapper
+from .utils.exception import NuSMVParserError, NuSMVTypeCheckingError
 
 
 class Spec(PointerWrapper):
@@ -190,7 +190,7 @@ def atom(strrep):
     proposition.
     """
     
-    from .. import glob
+    from . import glob
     
     # Parsing
     node = parser.parse_simple_expression(strrep)

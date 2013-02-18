@@ -4,8 +4,8 @@ from pynusmv.nusmv.cinit import cinit
 from pynusmv.nusmv.cmd import cmd
 from pynusmv.nusmv.parser import parser
 
-from pynusmv.spec.spec import Spec
-from pynusmv.spec.spec import (true as sptrue, false as spfalse, imply, iff,
+from pynusmv.spec import Spec
+from pynusmv.spec import (true as sptrue, false as spfalse, imply, iff,
                                ex, eg, ef, eu, ew, ax, ag, af, au, aw, atom)
 
 from pynusmv.init import init_nusmv, deinit_nusmv

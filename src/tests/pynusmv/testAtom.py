@@ -8,7 +8,7 @@ from pynusmv.init import init_nusmv, deinit_nusmv
 
 
 from pynusmv.mc import eval_ctl_spec, eval_simple_expression
-from pynusmv.spec.spec import atom, NuSMVTypeCheckingError
+from pynusmv.spec import atom, NuSMVTypeCheckingError
 from pynusmv.prop.propDb import PropDb
 
 class TestAtom(unittest.TestCase):

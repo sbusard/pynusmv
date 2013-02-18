@@ -1,6 +1,5 @@
 from pynusmv.nusmv.parser import parser
 from pynusmv.dd.bdd import BDD
-from pynusmv.spec import spec as SPEC
 from pynusmv.mc import eval_ctl_spec
 
 from pynusmv.nusmv.fsm.bdd import bdd as nsBddFsm
