@@ -1,9 +1,6 @@
 pynusmv Package
 ===============
 
-:mod:`pynusmv` Package
-----------------------
-
 .. automodule:: pynusmv.__init__
     :members:
     :undoc-members:

@@ -1,5 +1,5 @@
-PyNuSMV package
-===============
+PyNuSMV API
+===========
 
 .. toctree::
    :maxdepth: 4
