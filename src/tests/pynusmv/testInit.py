@@ -1,7 +1,7 @@
 import unittest
 
 from pynusmv.init import (init_nusmv, deinit_nusmv, reset_nusmv)
-from pynusmv.utils.exception import NuSMVInitError
+from pynusmv.exception import NuSMVInitError
 from pynusmv.fsm import BddFsm
 
 class TestInit(unittest.TestCase):

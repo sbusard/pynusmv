@@ -6,6 +6,16 @@ of the class PyNuSMVError, such that one can catch all PyNuSMV while letting
 the other go by catching PyNuSMVError exceptions.
 """
 
+__all__ = ['PyNuSMVError', 'MissingManagerError', 'NuSMVLexerError',
+           'NuSMVNoReadFileError', 'NuSMVModelAlreadyReadError',
+           'NuSMVCannotFlattenError', 'NuSMVModelAlreadyFlattenedError',
+           'NuSMVNeedFlatHierarchyError', 'NuSMVModelAlreadyEncodedError',
+           'NuSMVFlatModelAlreadyBuiltError', 'NuSMVNeedFlatModelError',
+           'NuSMVModelAlreadyBuiltError', 'NuSMVNeedVariablesEncodedError',
+           'NuSMVInitError', 'NuSMVParserError', 'NuSMVTypeCheckingError',
+           'NuSMVFlatteningError', 'NuSMVBddPickingError', 'Error',
+           'NuSMVParsingError']
+
 from collections import namedtuple
 
 

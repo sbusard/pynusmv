@@ -5,7 +5,7 @@ from pynusmv.nusmv.cmd import cmd as nscmd
 
 from pynusmv.init import init_nusmv, deinit_nusmv
 from pynusmv import glob
-from pynusmv.utils.exception import (NuSMVNoReadFileError,
+from pynusmv.exception import (NuSMVNoReadFileError,
                                      NuSMVCannotFlattenError,
                                      NuSMVModelAlreadyFlattenedError,
                                      NuSMVNeedFlatModelError,

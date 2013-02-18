@@ -13,7 +13,7 @@ from .nusmv.cinit import cinit as nscinit
 from .nusmv.opt import opt as nsopt
 from .nusmv.cmd import cmd as nscmd
 
-from .utils.exception import NuSMVInitError
+from .exception import NuSMVInitError
 
 # Set of pointer wrappers to collect when deiniting NuSMV
 __collector = None

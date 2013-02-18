@@ -1,10 +1,10 @@
 import cmd
 
 from pynusmv.mc import eval_simple_expression
-from pynusmv.utils.exception import PyNuSMVError
+from pynusmv.exception import PyNuSMVError
 from ..util.nonExitingArgumentParser import (NonExitingArgumentParser,
                                              ArgumentParsingError)
-from pynusmv.utils.exception import NuSMVBddPickingError
+from pynusmv.exception import NuSMVBddPickingError
 
 def choose_one_state(fsm, BDD, bound=10):
     """

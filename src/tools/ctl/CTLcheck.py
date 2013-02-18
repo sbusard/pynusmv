@@ -5,7 +5,7 @@ from pynusmv.prop import propTypes
 from pynusmv.init import init_nusmv, deinit_nusmv
 from pynusmv import glob
 from pynusmv.fsm import BddFsm
-from pynusmv.utils.exception import PyNuSMVError
+from pynusmv.exception import PyNuSMVError
 
 from .eval import eval_ctl
 

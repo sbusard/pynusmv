@@ -9,8 +9,8 @@ from .dd import BDD
 from .dd import State
 from .dd import Inputs
 from .utils import PointerWrapper
-from .utils.misc import fixpoint
-from .utils.exception import NuSMVBddPickingError
+from .utils import fixpoint
+from .exception import NuSMVBddPickingError
 
 from .nusmv.enc.base import base as baseEnc
 from .dd import DDManager

@@ -1,4 +1,4 @@
-__all__ = ['exception', 'misc', 'PointerWrapper']
+__all__ = ['PointerWrapper', 'fixpoint']
 
 from pynusmv.init import register_wrapper
 
@@ -40,3 +40,19 @@ class PointerWrapper:
     def __del__(self):
         if self._freeit and self._ptr is not None:
             self._free()
+
+
+def fixpoint(funct, start):
+    """
+    Return the fixpoint of funct, as a BDD, starting with start BDD.
+    
+    μZ.f(Z) least fixpoint is implemented with _fp(funct, false).
+    νZ.f(Z) greatest fixpoint is implemented with _fp(funct, true).
+    """
+    
+    old = start
+    new = funct(start)
+    while old != new:
+        old = new
+        new = funct(old)
+    return old

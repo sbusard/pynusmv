@@ -4,7 +4,7 @@ from pynusmv.init import init_nusmv, deinit_nusmv
 from pynusmv.fsm import BddFsm
 from pynusmv.dd import BDD
 from pynusmv.mc import eval_simple_expression as evalSexp
-from pynusmv.utils.exception import NuSMVBddPickingError
+from pynusmv.exception import NuSMVBddPickingError
 
 class TestFsm(unittest.TestCase):
     

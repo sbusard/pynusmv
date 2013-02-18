@@ -23,7 +23,7 @@ from .fsm import BddEnc
 from .fsm import SymbTable
 from .parser import Error, NuSMVParsingError
 from .prop import PropDb
-from .utils.exception import (NuSMVLexerError,
+from .exception import (NuSMVLexerError,
                                NuSMVNoReadFileError,
                                NuSMVModelAlreadyReadError,
                                NuSMVCannotFlattenError,

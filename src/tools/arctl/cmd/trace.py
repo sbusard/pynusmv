@@ -7,7 +7,7 @@ import argparse
 
 from pynusmv.init import init_nusmv, deinit_nusmv, reset_nusmv
 from pynusmv.fsm import BddFsm
-from pynusmv.utils.exception import PyNuSMVError
+from pynusmv.exception import PyNuSMVError
 
 from tools.arctl.parsing import parseArctl
 from tools.arctl.check import checkArctl

@@ -14,7 +14,7 @@ from .nusmv.compile.symb_table import symb_table as nssymb_table
      
 from . import parser
 
-from .utils.exception import NuSMVParserError, NuSMVTypeCheckingError
+from .exception import NuSMVParserError, NuSMVTypeCheckingError
 
 propTypes = {
              'NoType' :      nsprop.Prop_NoType,

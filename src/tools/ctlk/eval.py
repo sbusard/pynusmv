@@ -4,7 +4,7 @@ CTLK evaluation functions.
 
 from pynusmv.dd import BDD
 from pynusmv.mc import eval_simple_expression
-from pynusmv.utils.misc import fixpoint as fp
+from pynusmv.utils import fixpoint as fp
 
 from .ast import (TrueExp, FalseExp, Init, Reachable,
                   Atom, Not, And, Or, Implies, Iff, 
