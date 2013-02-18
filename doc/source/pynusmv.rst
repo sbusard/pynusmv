@@ -17,6 +17,14 @@ pynusmv Package
     :undoc-members:
     :show-inheritance:
 
+:mod:`exception` Module
+-----------------------
+
+.. automodule:: pynusmv.exception
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 :mod:`fsm` Module
 -----------------
 
@@ -65,11 +73,18 @@ pynusmv Package
     :undoc-members:
     :show-inheritance:
 
+:mod:`utils` Module
+-------------------
+
+.. automodule:: pynusmv.utils
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 Subpackages
 -----------
 
 .. toctree::
 
     pynusmv.nusmv
-    pynusmv.utils
 
