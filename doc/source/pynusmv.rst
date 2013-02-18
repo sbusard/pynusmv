@@ -9,14 +9,6 @@ pynusmv Package
     :undoc-members:
     :show-inheritance:
 
-:mod:`enc` Module
------------------
-
-.. automodule:: pynusmv.enc
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
 :mod:`fsm` Module
 -----------------
 

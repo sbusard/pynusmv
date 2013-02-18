@@ -25,11 +25,3 @@ utils Package
     :undoc-members:
     :show-inheritance:
 
-:mod:`pointerwrapper` Module
-----------------------------
-
-.. automodule:: pynusmv.utils.pointerwrapper
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
