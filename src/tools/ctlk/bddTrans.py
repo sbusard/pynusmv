@@ -2,7 +2,7 @@ from pynusmv.fsm import BddTrans as SuperBddTrans
 from pynusmv.parser import (parse_next_expression, parse_identifier,
                                    parse_simple_expression)
 from pynusmv.utils.exception import NuSMVTypeCheckingError, NuSMVFlatteningError
-from pynusmv.dd.bdd import BDD
+from pynusmv.dd import BDD
 
 from pynusmv.nusmv.compile import compile as nscompile
 from pynusmv.nusmv.fsm import fsm as nsfsm

@@ -1,7 +1,7 @@
 import unittest
 
 from pynusmv.fsm import BddFsm
-from pynusmv.dd.bdd import BDD
+from pynusmv.dd import BDD
 from pynusmv.init import init_nusmv, deinit_nusmv
 
 from tools.arctl.parsing import parseArctl

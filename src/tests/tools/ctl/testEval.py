@@ -1,7 +1,7 @@
 import unittest
 
 from pynusmv.fsm import BddFsm
-from pynusmv.dd.bdd import BDD
+from pynusmv.dd import BDD
 from pynusmv.init import init_nusmv, deinit_nusmv
 from pynusmv.parser import parse_simple_expression as parseSexp
 from pynusmv.prop import Spec

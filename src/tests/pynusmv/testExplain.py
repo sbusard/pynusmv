@@ -5,8 +5,8 @@ from pynusmv.nusmv.cmd import cmd
 from pynusmv.nusmv.node import node as nsnode
 from pynusmv.nusmv.parser import parser
 
-from pynusmv.dd.bdd import BDD
-from pynusmv.dd.bddlist import BDDList
+from pynusmv.dd import BDD
+from pynusmv.dd import BDDList
 from pynusmv.prop import PropDb
 from pynusmv.mc import eval_ctl_spec, explainEX, explainEU, explainEG
 from pynusmv.prop import Spec

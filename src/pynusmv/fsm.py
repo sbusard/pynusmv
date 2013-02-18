@@ -5,15 +5,15 @@ from .nusmv.enc.bdd import bdd as bddEnc
 from .nusmv.cmd import cmd as nscmd
 from .nusmv.trans.bdd import bdd as nsbddtrans
 
-from .dd.bdd import BDD
-from .dd.state import State
-from .dd.inputs import Inputs
+from .dd import BDD
+from .dd import State
+from .dd import Inputs
 from .utils import PointerWrapper
 from .utils.misc import fixpoint
 from .utils.exception import NuSMVBddPickingError
 
 from .nusmv.enc.base import base as baseEnc
-from .dd.manager import DDManager
+from .dd import DDManager
 
 from .utils import PointerWrapper
 

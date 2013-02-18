@@ -2,7 +2,7 @@ import unittest
 
 from pynusmv.init import init_nusmv, deinit_nusmv
 from pynusmv.fsm import BddFsm
-from pynusmv.dd.bdd import BDD
+from pynusmv.dd import BDD
 from pynusmv.mc import eval_simple_expression as evalSexp
 
 from pynusmv.prop import PropDb

@@ -2,7 +2,7 @@
 Extract simple path from a model to explain particular CTLK operators.
 """
 
-from pynusmv.dd.bdd import BDD
+from pynusmv.dd import BDD
 
 from .eval import eg, ex, eu, nk, ne, nc, nd
 

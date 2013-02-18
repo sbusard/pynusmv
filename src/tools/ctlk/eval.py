@@ -2,7 +2,7 @@
 CTLK evaluation functions.
 """
 
-from pynusmv.dd.bdd import BDD
+from pynusmv.dd import BDD
 from pynusmv.mc import eval_simple_expression
 from pynusmv.utils.misc import fixpoint as fp
 

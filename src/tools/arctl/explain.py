@@ -2,7 +2,7 @@
 ARCTL explain functions.
 """
 
-from pynusmv.dd.bdd import BDD
+from pynusmv.dd import BDD
 from .eval import _ex, eag, _eu, eau, eax, evalArctl
 from .ast import (TrueExp, FalseExp, Atom, Not, And, Or, Implies, Iff,
                   AaF, AaG, AaX, AaU, AaW, EaF, EaG, EaX, EaU, EaW)

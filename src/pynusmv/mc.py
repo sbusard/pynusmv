@@ -13,10 +13,10 @@ from .nusmv.node import node as nsnode
 from .nusmv.dd import dd as nsdd
      
 from .fsm import BddFsm
-from .dd.bdd import BDD
-from .dd.state import State
-from .dd.inputs import Inputs
-from .dd.bddlist import BDDList
+from .dd import BDD
+from .dd import State
+from .dd import Inputs
+from .dd import BDDList
 from .prop import atom
 
 
