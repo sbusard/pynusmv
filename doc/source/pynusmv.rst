@@ -57,6 +57,14 @@ pynusmv Package
     :undoc-members:
     :show-inheritance:
 
+:mod:`prop` Module
+------------------
+
+.. automodule:: pynusmv.prop
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 :mod:`spec` Module
 ------------------
 
@@ -88,6 +96,5 @@ Subpackages
 
     pynusmv.dd
     pynusmv.nusmv
-    pynusmv.prop
     pynusmv.utils
 
