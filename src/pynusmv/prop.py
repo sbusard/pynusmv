@@ -1,7 +1,7 @@
-__all__ = ['propTypes', 'Prop', 'ProbDb']
+__all__ = ['propTypes', 'Prop', 'PropDb']
 
 from .nusmv.prop import prop as nsprop
-     
+
 from .fsm import BddFsm
 from .spec import Spec
 from .utils.pointerwrapper import PointerWrapper
@@ -15,7 +15,7 @@ propTypes = {
              'Compute' :     nsprop.Prop_Compute,
              'Comparison' :  nsprop.Prop_CompId
             }
-            
+
 
 class Prop(PointerWrapper):
     """
@@ -56,7 +56,7 @@ class Prop(PointerWrapper):
     def bddFsm(self):
         """The fsm of this prop, into BddFsm format."""
         return BddFsm(nsprop.Prop_get_bdd_fsm(self._ptr))
-        
+
 
 class PropDb(PointerWrapper):
     """
@@ -67,19 +67,19 @@ class PropDb(PointerWrapper):
     
     PropDb do not have to be freed.
     """
-        
+    
     
     @property
     def master(self):
         """The master property of this database."""
         return Prop(nsprop.PropDb_get_master(self._ptr))
-        
+    
     
     def get_prop_at_index(self, index):
         """Return the prop stored at index."""
         return Prop(nsprop.PropDb_get_prop_at_index(self._ptr, index))
-
-        
+    
+    
     def get_size(self):
         """Return the size of this database."""
         return nsprop.PropDb_get_size(self._ptr)
