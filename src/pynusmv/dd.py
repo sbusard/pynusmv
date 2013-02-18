@@ -1,46 +1,64 @@
+"""
+:mod:`pynusmv.dd` package provides some BDD-related structures. This includes:
+
+* :class:`BDD` represents a BDD.
+* :class:`BDDList` represents a list of BDDs.
+* :class:`Inputs` represents input variables values,
+  i.e. a particular action of the model.
+* :class:`State` represents a particular state of the model.
+* :class:`DDManager` represents a NuSMV DD manager.
+
+"""
+
+
 __all__ = ['BDD', 'BDDList', 'Inputs', 'DDManager', 'State']
 
+
 from .nusmv.dd import dd as nsdd
-from .utils import PointerWrapper
-from .exception import MissingManagerError
-     
 from .nusmv.node import node as nsnode
 from .nusmv.dd import dd as nsdd
-     
-from .nusmv.compile.symb_table import symb_table
-from .nusmv.enc.bdd import bdd as bddEnc
+from .nusmv.compile.symb_table import symb_table as nssymb_table
+from .nusmv.enc.bdd import bdd as nsbddEnc
 from .nusmv.utils import utils as nsutils
+
+from .utils import PointerWrapper
+from .exception import MissingManagerError
+
 
 class BDD(PointerWrapper):
     """
     Python class for BDD structure.
     
-    The BDD class contains a pointer to a BDD in NuSMV (a bdd_ptr)
-    and provides a set of operations on this BDD.
+    The BDD represents a BDD in NuSMV and provides a set of operations on this 
+    BDD.
     Thanks to operator overloading, it is possible to write compact expressions
-    on BDDs. Available operations:
-        a + b, a | b compute bdd_or(a,b)
-        a * b, a & b compute bdd_and(a,b)
-        ~a, -a, compute bdd_not(a)
-        a - b computes (a and not b)
-        a ^ b computes bdd_xor(a,b)
-        a <= b computes bdd_leq(a,b)
-        a < b, a > b, a >= b derive from a <= b
-        a == b compares pointers.
+    on BDDs. The available operations are:
     
-    A BDD operation raises a MissingManagerError whenever the manager
+    * ``a + b`` and ``a | b`` compute the disjunction of ``a`` and ``b``
+    * ``a * b`` and ``a & b`` compute the conjunction of ``a`` and ``b``
+    * ``~a`` and ``-a`` compute the negation of ``a``
+    * ``a - b`` computes ``a & ~b``
+    * ``a ^ b`` computes the exclusive-OR (XOR) of ``a`` and ``b``
+    * ``a == b``, ``a <= b``, ``a < b``, ``a > b`` and ``a >= b`` compare ``a`` 
+      and ``b``
+    
+    Any BDD operation raises a :exc:`MissingManagerError <pynusmv.exception.MissingManagerError>` whenever the manager
     of the BDD is None and a manager is needed to perform the operation.
     
-    All BDDs are freed by default. Every operation on BDDs that return a new
-    BDD uses bdd_dup to ensure that the new BDD wraps a pointer to free.
     """
+#    All BDDs are freed by default. Every operation on BDDs that return a new
+#    BDD uses bdd_dup to ensure that the new BDD wraps a pointer to free.
     
-    def __init__(self, ptr, dd_manager=None, freeit = True):
+    def __init__(self, ptr, dd_manager=None, freeit=True):
         """
         Create a new BDD with ptr.
         
-        ptr -- the pointer to the NuSMV BDD.
-        dd_manager -- the DD manager for this BDD.
+        :param ptr: the pointer to the NuSMV BDD
+        :type ptr: NuSMV ``bdd_ptr``
+        :param dd_manager: the DD manager for this BDD
+        :type dd_manager: :class:`DDManager`
+        :param freeit: whether the pointer must be freed with the BDD, or not.
+        
         """
         super().__init__(ptr, freeit)
         self._manager = dd_manager
@@ -53,7 +71,12 @@ class BDD(PointerWrapper):
             
 
     def equal(self, other):
-        """Return whether self and other are the same BDD."""
+        """
+        Determine whether this BDD is equal to ``other`` or not.
+        
+        :param other: the BDD to compare
+        :type other: :class:`BDD`
+        """
         if nsdd.bdd_equal(self._ptr, other._ptr):
             return True
         else:
@@ -66,21 +89,21 @@ class BDD(PointerWrapper):
     
     def dup(self):
         """
-        Creates a copy of a BDD node.
-    
-        The reference count is increased by one unit.
-    
-        bdd_ptr bdd_dup (bdd_ptr);
+        Return a copy of this BDD.
+        
         """
+        # Call to bdd_ptr bdd_dup (bdd_ptr);
+        
         return BDD(nsdd.bdd_dup(self._ptr), self._manager, freeit = True)
 
 
     def is_true(self):
         """
-        Check if the BDD is true.
+        Determine whether this BDD is true or not.
         
-        int bdd_is_true (DdManager *, bdd_ptr);
         """
+        # Call to int bdd_is_true (DdManager *, bdd_ptr);
+        
         if self._manager is None:
             raise MissingManagerError()
             
@@ -92,10 +115,11 @@ class BDD(PointerWrapper):
     
     def is_false(self):
         """
-        Check if the BDD is false.
+        Determine whether this BDD is false or not.
         
-        int bdd_is_false (DdManager *, bdd_ptr);
         """
+        # Call to int bdd_is_false (DdManager *, bdd_ptr);
+        
         if self._manager is None:
             raise MissingManagerError()
             
@@ -107,10 +131,11 @@ class BDD(PointerWrapper):
         
     def isnot_true(self):
         """
-        Check if the BDD is not true.
+        Determine whether this BDD is not true.
         
-        int bdd_isnot_true (DdManager *, bdd_ptr);
         """
+        # Call to int bdd_isnot_true (DdManager *, bdd_ptr);
+        
         if self._manager is None:
             raise MissingManagerError()
             
@@ -122,10 +147,11 @@ class BDD(PointerWrapper):
     
     def isnot_false(self):
         """
-        Check if the BDD is not false.
+        Determine whether this BDD is not false.
         
-        int bdd_isnot_false (DdManager *, bdd_ptr);
         """
+        # int bdd_isnot_false (DdManager *, bdd_ptr);
+        
         if self._manager is None:
             raise MissingManagerError()
             
@@ -137,10 +163,13 @@ class BDD(PointerWrapper):
     
     def entailed(self, other):
         """
-        Determines whether self is less than or equal to other.
+        Determine whether this BDD is included in ``other`` or not.
         
-        int bdd_entailed (DdManager * dd, bdd_ptr f, bdd_ptr g);
+        :param other: the BDD to compare
+        :type other: :class:`BDD`
         """
+        # Call to int bdd_entailed (DdManager * dd, bdd_ptr f, bdd_ptr g);
+        
         if self._manager is None:
             raise MissingManagerError()
             
@@ -152,10 +181,15 @@ class BDD(PointerWrapper):
         
     def intersected(self, other):
         """
-        Determines whether an intersection between self and other is not empty.
+        Determine whether the intersection between this BDD
+        and ``other`` is not empty.
         
-        int bdd_intersected (DdManager * dd, bdd_ptr f, bdd_ptr g);
+        :param other: the BDD to compare
+        :type other: :class:`BDD`
+        
         """
+        # Call to int bdd_intersected (DdManager * dd, bdd_ptr f, bdd_ptr g);
+        
         if self._manager is None:
             raise MissingManagerError()
             
@@ -167,10 +201,14 @@ class BDD(PointerWrapper):
 
     def leq(self, other):
         """
-        Determines whether self is less than or equal to other.
+        Determine whether this BDD is less than or equal to ``other``.
         
-        int bdd_leq (DdManager * dd, bdd_ptr f, bdd_ptr g);
+        :param other: the BDD to compare
+        :type other: :class:`BDD`
+        
         """
+        # int bdd_leq (DdManager * dd, bdd_ptr f, bdd_ptr g);
+        
         if self._manager is None:
             raise MissingManagerError()
             
@@ -182,10 +220,11 @@ class BDD(PointerWrapper):
         
     def nott(self):
         """
-        Applies NOT to the corresponding discriminant of f.
+        Compute the complement of this BDD.
         
-        bdd_ptr bdd_not (DdManager *, bdd_ptr);
         """
+        # Call to bdd_ptr bdd_not (DdManager *, bdd_ptr);
+        
         if self._manager is None:
             raise MissingManagerError()
         return BDD(nsdd.bdd_not(self._manager._ptr, self._ptr), self._manager,
@@ -194,10 +233,14 @@ class BDD(PointerWrapper):
     
     def andd(self, other):
         """
-        Applies AND to the corresponding discriminants of self and other.
+        Compute the conjunction of this BDD and ``other``.
         
-        bdd_ptr bdd_and (DdManager *, bdd_ptr, bdd_ptr);
+        :param other: the other BDD
+        :type other: :class:`BDD`
+        
         """
+        # Call to bdd_ptr bdd_and (DdManager *, bdd_ptr, bdd_ptr);
+        
         if self._manager is None:
             raise MissingManagerError()
         return BDD(nsdd.bdd_and(self._manager._ptr, self._ptr, other._ptr),
@@ -206,10 +249,14 @@ class BDD(PointerWrapper):
 
     def orr(self, other):
         """
-        Applies OR to the corresponding discriminants of self and other.
+        Compute the conjunction of this BDD and ``other``.
         
-        bdd_ptr bdd_or (DdManager *, bdd_ptr, bdd_ptr);
+        :param other: the other BDD
+        :type other: :class:`BDD`
+        
         """
+        # Call to bdd_ptr bdd_or (DdManager *, bdd_ptr, bdd_ptr);
+        
         if self._manager is None:
             raise MissingManagerError()
         return BDD(nsdd.bdd_or(self._manager._ptr, self._ptr, other._ptr),
@@ -218,10 +265,14 @@ class BDD(PointerWrapper):
 
     def xor(self, other):
         """
-        Applies XOR to the corresponding discriminants of self and other.
+        Compute the exclusive-OR of this BDD and ``other``.
         
-        bdd_ptr bdd_xor (DdManager *, bdd_ptr, bdd_ptr);
+        :param other: the other BDD
+        :type other: :class:`BDD`
+        
         """
+        # Call to bdd_ptr bdd_xor (DdManager *, bdd_ptr, bdd_ptr);
+        
         if self._manager is None:
             raise MissingManagerError()
         return BDD(nsdd.bdd_xor(self._manager._ptr, self._ptr, other._ptr),
@@ -230,10 +281,14 @@ class BDD(PointerWrapper):
         
     def iff(self, other):
         """
-        Applies IFF to the corresponding discriminants of self and other.
+        Compute the IFF operation on this BDD and ``other``.
         
-        bdd_ptr bdd_iff (DdManager *, bdd_ptr, bdd_ptr);
+        :param other: the other BDD
+        :type other: :class:`BDD`
+        
         """
+        # Call to bdd_ptr bdd_iff (DdManager *, bdd_ptr, bdd_ptr);
+        
         if self._manager is None:
             raise MissingManagerError()
         return BDD(nsdd.bdd_iff(self._manager._ptr, self._ptr, other._ptr),
@@ -242,10 +297,14 @@ class BDD(PointerWrapper):
 
     def imply(self, other):
         """
-        Applies IMPLY to the corresponding discriminants of self and other.
+        Compute the IMPLY operation on this BDD and ``other``.
         
-        bdd_ptr bdd_imply (DdManager *, bdd_ptr, bdd_ptr);
+        :param other: the other BDD
+        :type other: :class:`BDD`
+        
         """
+        # Call to bdd_ptr bdd_imply (DdManager *, bdd_ptr, bdd_ptr);
+        
         if self._manager is None:
             raise MissingManagerError()
         return BDD(nsdd.bdd_imply(self._manager._ptr, self._ptr, other._ptr),
@@ -254,10 +313,14 @@ class BDD(PointerWrapper):
         
     def forsome(self, cube):
         """
-        Existentially abstracts all the variables in cube from self.
+        Existentially abstract all the variables in cube from this BDD.
         
-        bdd_ptr bdd_forsome (DdManager *, bdd_ptr, bdd_ptr);
+        :param cube: the cube
+        :type cube: :class:`BDD`
+        
         """
+        # Call to bdd_ptr bdd_forsome (DdManager *, bdd_ptr, bdd_ptr);
+        
         if self._manager is None:
             raise MissingManagerError()
         return BDD(nsdd.bdd_forsome(self._manager._ptr, self._ptr, cube._ptr),
@@ -266,10 +329,14 @@ class BDD(PointerWrapper):
         
     def forall(self, cube):
         """
-        Universally abstracts all the variables in cube from self.
+        Universally abstract all the variables in cube from this BDD.
         
-        bdd_ptr bdd_forall (DdManager *, bdd_ptr, bdd_ptr);
+        :param cube: the cube
+        :type cube: :class:`BDD`
+        
         """
+        # Call to bdd_ptr bdd_forall (DdManager *, bdd_ptr, bdd_ptr);
+        
         if self._manager is None:
             raise MissingManagerError()
         return BDD(nsdd.bdd_forall(self._manager._ptr, self._ptr, cube._ptr),
@@ -337,23 +404,31 @@ class BDD(PointerWrapper):
     # ===== Static methods =====================================================
     # ==========================================================================
     
+    @staticmethod
     def true(manager):
         """
         Return the TRUE BDD.
         
-        manager -- a DDManager.
+        :param manager: the manager of the returned BDD
+        :type manager: :class:`DDManager`
         
-        bdd_ptr bdd_true (DdManager *);
         """
+        # Call to bdd_ptr bdd_true (DdManager *);
+        
         return BDD(nsdd.bdd_true(manager._ptr), manager, freeit = True)
         
         
+    @staticmethod
     def false(manager):
         """
         Return the FALSE BDD.
         
-        bdd_ptr bdd_false (DdManager *);
+        :param manager: the manager of the returned BDD
+        :type manager: :class:`DDManager`
+        
         """
+        # Call to bdd_ptr bdd_false (DdManager *);
+        
         return BDD(nsdd.bdd_false(manager._ptr), manager, freeit = True)
     
 
@@ -361,12 +436,13 @@ class BDDList(PointerWrapper):
     """
     A BDD list stored as NuSMV nodes.
     
-    The BDDList class implements a NuSMV nodes-based BDD list.
+    The BDDList class implements a NuSMV nodes-based BDD list and can be used as 
+    any Python list.
     
-    BDDLists are freed when destroyed, as well as the content.
-    When getting elements or tuple from a BDDList, copies of BDDs are made
-    and returned.
     """
+    # BDDLists are freed when destroyed, as well as the content.
+    # When getting elements or tuple from a BDDList, copies of BDDs are made
+    # and returned.
     
     
     def __init__(self, ptr, ddmanager = None, freeit = True):
@@ -403,9 +479,9 @@ class BDDList(PointerWrapper):
         """
         Return the BDD stored at val.
         
-        val -- the index requested OR a slice.
+        :param val: the index requested OR a slice.
         
-        Note: cannot access elements with negative indices.
+        .. note:: cannot access elements with negative indices.
         """
         if type(val) is int:
             if val < 0:
@@ -447,8 +523,7 @@ class BDDList(PointerWrapper):
             
     def to_tuple(self):
         """
-        Return a tuple containing all BDDs of self.
-        
+        Return a tuple containing all BDDs of self.       
         The returned BDDs are copies of the ones of self.
         """
         l = []
@@ -461,29 +536,26 @@ class BDDList(PointerWrapper):
     # ===== Class methods ======================================================
     # ==========================================================================                                        
     
-    def from_tuple(l):
+    @staticmethod
+    def from_tuple(bddtuple):
         """
-        Create a node-based list from the Python tuple l.
+        Create a node-based list from the Python tuple ``bddtuple``.
         
-        l -- a Python tuple of BDDs.
+        :param bddtuple: a Python tuple of BDDs
         
-        Return a BDDList n representing the given tuple, using NuSMV nodes.
-        The nodes are created using new_node, so no node is stored
-        in the NuSMV hash table.
-        
+        Return a :class:`BDDList` representing the given tuple,
+        using NuSMV nodes.
         All BDDs are assumed from the same DD manager;
-        the created list contains the DD manager of the first non-None BDD.
-        If all elements of l are None,
-        the manager of the created BDDList is None.
-        
-        All BDDs are duplicated before stored.
+        the created list contains the DD manager of the first non-``None`` BDD.
+        If all elements of ``bddtuple`` are ``None``,
+        the manager of the created :class:`BDDList` is ``None``.
         """
         
         # Reverse tuple before, because we build the list reversely.
-        l = l[::-1]
+        bddtuple = bddtuple[::-1]
         n = None
         manager = None
-        for elem in l:
+        for elem in bddtuple:
             if elem:
                 e = nsnode.bdd2node(nsdd.bdd_dup(elem._ptr))
                 if manager is None:
@@ -498,8 +570,9 @@ class Inputs(BDD):
     """
     Python class for inputs structure.
     
-    The Inputs class contains a pointer to a BDD in NuSMV (a bdd_ptr)
-    representing inputs of an FSM.
+    An Inputs is a :class:`BDD` representing a single valuation of the inputs
+    variables of the model, i.e. an action of the model.
+    
     """
     
     def __init__(self, ptr, fsm, freeit = True):
@@ -511,18 +584,19 @@ class Inputs(BDD):
         """
         Return a dictionary of the (variable, value) pairs of these Inputs.
         
-        The returned values are strings.
+        :rtype: a dictionary of pairs of strings.
+        
         """
         enc = self._fsm.bddEnc
         # Get symb table from enc (BaseEnc)
         table = enc.symbTable
 
         # Get symbols (SymbTable) for inputs
-        layers = symb_table.SymbTable_get_class_layer_names(table._ptr, None)
-        symbols = symb_table.SymbTable_get_layers_i_symbols(table._ptr, layers)
+        layers = nssymb_table.SymbTable_get_class_layer_names(table._ptr, None)
+        symbols = nssymb_table.SymbTable_get_layers_i_symbols(table._ptr, layers)
 
         # Get assign symbols (BddEnc)
-        assignList = bddEnc.BddEnc_assign_symbols(enc._ptr,self._ptr,
+        assignList = nsbddEnc.BddEnc_assign_symbols(enc._ptr,self._ptr,
                                                   symbols, 0, None)
 
         values = {}
@@ -546,16 +620,25 @@ class Inputs(BDD):
     # ===== Static methods =====================================================
     # ==========================================================================
     
+    @staticmethod
     def from_bdd(bdd, fsm):
-        """Return a new Inputs of fsm from bdd."""
+        """
+        Return a new Inputs of fsm from bdd.
+        
+        :param bdd: a BDD representing a single inputs variables 
+                    valuation
+        :type bdd: :class:`BDD`
+        :param fsm: the FSM from which the BDD comes from
+        :type fsm: :class:`BddFsm <pynusmv.fsm.BddFsm>`
+        
+        """
         return Inputs(nsdd.bdd_dup(bdd._ptr), fsm)
 
 
 class DDManager(PointerWrapper):
     """
-    Python class for BDD Manager.
+    Python class for NuSMV BDD managers.
     
-    Note: dd managers are never freed. NuSMV takes care of it.
     """
     pass
     
@@ -564,8 +647,8 @@ class State(BDD):
     """
     Python class for State structure.
     
-    The State class contains a pointer to a BDD in NuSMV (a bdd_ptr)
-    representing a state of an FSM.
+    A State is a :class:`BDD` representing a single state of the model.
+    
     """
     
     def __init__(self, ptr, fsm, freeit = True):
@@ -577,18 +660,19 @@ class State(BDD):
         """
         Return a dictionary of the (variable, value) pairs of this State.
         
-        The returned values are strings.
+        :rtype: a dictionary of pairs of strings.
+        
         """
         enc = self._fsm.bddEnc
         # Get symb table from enc (BaseEnc)
         table = enc.symbTable
 
         # Get symbols (SymbTable) for states
-        layers = symb_table.SymbTable_get_class_layer_names(table._ptr, None)
-        symbols = symb_table.SymbTable_get_layers_sf_symbols(table._ptr, layers)
+        layers = nssymb_table.SymbTable_get_class_layer_names(table._ptr, None)
+        symbols = nssymb_table.SymbTable_get_layers_sf_symbols(table._ptr, layers)
         
         # Get assign symbols (BddEnc)
-        assignList = bddEnc.BddEnc_assign_symbols(enc._ptr,self._ptr,
+        assignList = nsbddEnc.BddEnc_assign_symbols(enc._ptr,self._ptr,
                                                   symbols, 0, None)
 
         values = {}
@@ -612,6 +696,15 @@ class State(BDD):
     # ===== Static methods =====================================================
     # ==========================================================================
     
+    @staticmethod
     def from_bdd(bdd, fsm):
-        """Return a new State of fsm from bdd."""
+        """
+        Return a new State of fsm from bdd.
+        
+        :param bdd: a BDD representing a single state
+        :type bdd: :class:`BDD`
+        :param fsm: the FSM from which the BDD comes from
+        :type fsm: :class:`BddFsm <pynusmv.fsm.BddFsm>`
+        
+        """
         return State(nsdd.bdd_dup(bdd._ptr), fsm)
