@@ -5,7 +5,7 @@ from pynusmv.dd.bdd import BDD
 from pynusmv.mc import eval_simple_expression as evalSexp
 
 from pynusmv.prop import PropDb
-from pynusmv.trans import BddTrans
+from pynusmv.fsm import BddTrans
 
 
 from pynusmv.nusmv.compile import compile as nscompile
