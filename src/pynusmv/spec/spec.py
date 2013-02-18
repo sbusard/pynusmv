@@ -3,7 +3,7 @@ from ..nusmv.node import node as nsnode
 from ..nusmv.compile.type_checking import type_checking as nstype_checking
 from ..nusmv.compile.symb_table import symb_table as nssymb_table
 
-from ..parser import parser
+from .. import parser
 
 from ..utils.pointerwrapper import PointerWrapper
 from ..utils.exception import NuSMVParserError, NuSMVTypeCheckingError

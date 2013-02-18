@@ -4,7 +4,7 @@ import sys
 from pynusmv.nusmv.node import node as nsnode
 from pynusmv.nusmv.parser import parser as nsparser
 
-from pynusmv.parser.parser import *
+from pynusmv.parser import *
 from pynusmv.utils.exception import NuSMVParsingError
 from pynusmv.init import init_nusmv, deinit_nusmv
 

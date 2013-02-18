@@ -10,7 +10,7 @@ from pynusmv.utils.exception import (NuSMVNoReadFileError,
                                      NuSMVModelAlreadyFlattenedError,
                                      NuSMVNeedFlatModelError,
                                      NuSMVNeedFlatHierarchyError)
-from pynusmv.parser.parser import parse_simple_expression
+from pynusmv.parser import parse_simple_expression
 
 class Testglob(unittest.TestCase):
     

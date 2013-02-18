@@ -1,5 +1,5 @@
 from pynusmv.trans import BddTrans as SuperBddTrans
-from pynusmv.parser.parser import (parse_next_expression, parse_identifier,
+from pynusmv.parser import (parse_next_expression, parse_identifier,
                                    parse_simple_expression)
 from pynusmv.utils.exception import NuSMVTypeCheckingError, NuSMVFlatteningError
 from pynusmv.dd.bdd import BDD

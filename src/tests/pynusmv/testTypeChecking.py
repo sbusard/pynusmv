@@ -2,7 +2,7 @@ import unittest
 
 from pynusmv.init import init_nusmv, deinit_nusmv
 from pynusmv import glob
-from pynusmv.parser.parser import parse_simple_expression
+from pynusmv.parser import parse_simple_expression
 
 from pynusmv.nusmv.compile.symb_table import symb_table as nssymb_table
 from pynusmv.nusmv.compile.type_checking import type_checking as nstype_checking

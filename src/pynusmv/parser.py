@@ -2,10 +2,10 @@
 Provide functions to parse strings and return corresponding ASTs.
 """
 
-from ..utils.exception import NuSMVParsingError, Error
-
-from ..nusmv.parser import parser as nsparser
-from ..nusmv.node import node as nsnode
+from .utils.exception import NuSMVParsingError, Error
+     
+from .nusmv.parser import parser as nsparser
+from .nusmv.node import node as nsnode
 
 def parse_simple_expression(expression):
     """
