@@ -153,7 +153,6 @@ doctest:
 	      "results in $(BUILDDIR)/doctest/output.txt."
 
 api:
-	sphinx-apidoc -o source ../src/pynusmv -f
-	rm source/pynusmv.nusmv.*
+	sphinx-apidoc -f -o source ../src/pynusmv `pwd`/../src/pynusmv/nusmv
 	rm source/modules.rst
 	make html
