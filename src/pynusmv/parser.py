@@ -1,23 +1,32 @@
 """
-Provide functions to parse strings and return corresponding ASTs.
+The :mod:`pynusmv.parser` module provides functions to parse strings
+and return corresponding ASTs.
+
 """
+
 
 __all__ = ['parse_simple_expression', 'parse_next_expression',
            'parse_identifier']
+
 
 from .exception import NuSMVParsingError, Error
      
 from .nusmv.parser import parser as nsparser
 from .nusmv.node import node as nsnode
 
+
 def parse_simple_expression(expression):
     """
     Parse a simple expression.
     
-    Returned value is a SWIG wrapper for the NuSMV node_ptr.
-    It is the responsibility of the caller to manage it.
+    :param string expression: the expression to parse
+    :raise: a :exc:`NuSMVParsingError
+            <pynusmv.exception.NuSMVParsingError>`
+            if a parsing error occurs
     
-    Throw a NuSMVParsingException if a parsing error occurs.
+    .. warning:: Returned value is a SWIG wrapper for the NuSMV node_ptr.
+       It is the responsibility of the caller to manage it.
+    
     """
     node, err = nsparser.ReadSimpExprFromString(expression)
     if err:
@@ -35,12 +44,16 @@ def parse_simple_expression(expression):
         
 def parse_next_expression(expression):
     """
-    Parse a next expression.
+    Parse a "next" expression.
     
-    Returned value is a SWIG wrapper for the NuSMV node_ptr.
-    It is the responsibility of the caller to manage it.
+    :param string expression: the expression to parse
+    :raise: a :exc:`NuSMVParsingError
+            <pynusmv.exception.NuSMVParsingError>`
+            if a parsing error occurs
     
-    Throw a NUSMVParsingException if a parsing error occurs.
+    .. warning:: Returned value is a SWIG wrapper for the NuSMV node_ptr.
+       It is the responsibility of the caller to manage it.
+    
     """
     node, err = nsparser.ReadNextExprFromString(expression)
     if err:
@@ -58,12 +71,16 @@ def parse_next_expression(expression):
         
 def parse_identifier(expression):
     """
-    Parse an identifier.
+    Parse an identifier
     
-    Returned value is a SWIG wrapper for the NuSMV node_ptr.
-    It is the responsibility of the caller to manage it.
+    :param string expression: the identifier to parse
+    :raise: a :exc:`NuSMVParsingError
+            <pynusmv.exception.NuSMVParsingError>`
+            if a parsing error occurs
     
-    Throw a NUSMVParsingException if a parsing error occurs.
+    .. warning:: Returned value is a SWIG wrapper for the NuSMV node_ptr.
+       It is the responsibility of the caller to manage it.
+    
     """
     node, err = nsparser.ReadIdentifierExprFromString(expression)
     if err:
