@@ -1,6 +1,6 @@
 __all__ = ['PointerWrapper', 'fixpoint']
 
-from pynusmv.init import register_wrapper
+from pynusmv.init import _register_wrapper
 
 class PointerWrapper:
     """
@@ -29,7 +29,7 @@ class PointerWrapper:
         """
         self._ptr = pointer
         self._freeit = freeit
-        register_wrapper(self)
+        _register_wrapper(self)
         
     
     def _free(self):
