@@ -1,5 +1,6 @@
 """
-:mod:`pynusmv.dd` package provides some BDD-related structures. This includes:
+The :mod:`pynusmv.dd` module provides some BDD-related structures.
+This includes:
 
 * :class:`BDD` represents a BDD.
 * :class:`BDDList` represents a list of BDDs.
