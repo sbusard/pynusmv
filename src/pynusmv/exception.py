@@ -1,10 +1,11 @@
 """
-Provide all the exceptions used in PyNuSMV.
-
+The :mod:`pynusmv.exception` module provides all the exceptions used in PyNuSMV.
 Every particular exception raised by a PyNuSMV function is a sub-class
-of the class PyNuSMVError, such that one can catch all PyNuSMV while letting
-the other go by catching PyNuSMVError exceptions.
+of the :class:`PyNuSMVError` class, such that one can catch all PyNuSMV by
+catching :class:`PyNuSMVError` exceptions.
+
 """
+
 
 __all__ = ['PyNuSMVError', 'MissingManagerError', 'NuSMVLexerError',
            'NuSMVNoReadFileError', 'NuSMVModelAlreadyReadError',
@@ -16,100 +17,150 @@ __all__ = ['PyNuSMVError', 'MissingManagerError', 'NuSMVLexerError',
            'NuSMVFlatteningError', 'NuSMVBddPickingError', 'Error',
            'NuSMVParsingError']
 
+
 from collections import namedtuple
 
 
 class PyNuSMVError(Exception):
-    """A generic PyNuSMV Error, superclass of all PyNuSMV Errors."""
+    """
+    A generic PyNuSMV Error, superclass of all PyNuSMV Errors.
+    
+    """
     pass
 
 class MissingManagerError(PyNuSMVError):
-    """Error for missing BDD manager."""
+    """
+    Exception for missing BDD manager.
+    
+    """
     pass
     
 class NuSMVLexerError(PyNuSMVError):
-    """An error with NuSMV lexer."""
+    """
+    Exception for NuSMV lexer error.
+    
+    """
     pass
 
 class NuSMVNoReadFileError(PyNuSMVError):
-    """No SMV model has been read yet."""
+    """
+    Exception raised when no SMV model has been read yet.
+    
+    """
     pass
     
 class NuSMVModelAlreadyReadError(PyNuSMVError):
-    """A model is already read."""
+    """
+    Exception raised when a model is already read.
+    
+    """
     pass
 
 class NuSMVCannotFlattenError(PyNuSMVError):
-    """No SMV model has been read yet."""
+    """
+    Exception raised when no SMV model has been read yet.
+    
+    """
     pass
 
 class NuSMVModelAlreadyFlattenedError(PyNuSMVError):
-    """The model is already flattened."""
+    """
+    Exception raised when the model is already flattened.
+    
+    """
     pass
     
 class NuSMVNeedFlatHierarchyError(PyNuSMVError):
-    """The model must be flattened."""
+    """
+    Exception raised when the model must be flattened.
+    
+    """
     pass
     
 class NuSMVModelAlreadyEncodedError(PyNuSMVError):
-    """The model is already encoded."""
+    """
+    Exception raised when the model is already encoded.
+    
+    """
     pass
     
 class NuSMVFlatModelAlreadyBuiltError(PyNuSMVError):
-    """The flat model is already built."""
+    """
+    Exception raised when the flat model is already built.
+    
+    """
     pass
     
 class NuSMVNeedFlatModelError(PyNuSMVError):
-    """The model must be simplified."""
+    """
+    Exception raised when the model must be flattened.
+    
+    """
     pass
     
 class NuSMVModelAlreadyBuiltError(PyNuSMVError):
-    """The BDD model is already built."""
+    """
+    Exception raised when the BDD model is already built.
+    
+    """
     pass
     
 class NuSMVNeedVariablesEncodedError(PyNuSMVError):
-    """The variables of the model must be encoded."""
+    """
+    Exception raised when the variables of the model must be encoded.
+    
+    """
     pass
     
 class NuSMVInitError(PyNuSMVError):
-    """NuSMV initialisation-related exception."""
+    """
+    NuSMV initialisation-related exception.
+    
+    """
     pass
 
 class NuSMVParserError(PyNuSMVError):
-    """An error occured while parsing a string with NuSMV."""
+    """
+    Exception raised when an error occured while parsing a string with NuSMV.
+    
+    """
     pass
 
 class NuSMVTypeCheckingError(PyNuSMVError):
-    """An expression is wrongly typed."""
+    """
+    Exception raised when an expression is wrongly typed.
+    
+    """
     pass
     
 class NuSMVFlatteningError(PyNuSMVError):
-    """An error occured while flattening some expression."""
+    """
+    Exception raised when an error occured while flattening some expression.
+    
+    """
     pass
     
 class NuSMVBddPickingError(PyNuSMVError):
-    """An error occured while picking a state/inputs from a BDD."""
-    pass
+    """
+    Exception raised when an error occured while picking a state/inputs
+    from a BDD.
     
-        
-Error = namedtuple('Error', ('line', 'token', 'message'))
-Error.__str__ = lambda self: "Error at line {}, token '{}': {}".format(
-                            *self)
-Error.__repr__ = lambda self: "Error at line {}, token '{}': {}".format(
-                            *self)    
+    """
+    pass
     
 class NuSMVParsingError(PyNuSMVError):
     """
-    A parsing exception. Contains several errors accessible through
-    the "errors" attribute.
+    A :class:`NuSMVParsingError` is a NuSMV parsing exception. Contains several
+    errors accessible through the "errors" attribute.
+    
     """
     
     def __init__(self, errors):
         """
         Initialize this exception with errors.
         
-        errors -- a tuple of errors. An error is
-                  an Error(filename, line number, token, message).
+        :param errors: a tuple of errors
+        :type errors: tuple(:class:`Error`)
         """
         super().__init__(self)
         self._errors = errors
@@ -123,4 +174,17 @@ class NuSMVParsingError(PyNuSMVError):
         
     @property
     def errors(self):
+        """
+        The tuple of errors of this exception.
+        
+        """
         return self._errors
+
+
+Error = namedtuple('Error', ('line', 'token', 'message'))
+"""
+An :class:`Error` is a single parsing error generated by NuSMV parser.
+
+"""
+Error.__str__ = lambda self: "Error at line {}, token '{}': {}".format(*self)
+Error.__repr__ = lambda self: "Error at line {}, token '{}': {}".format(*self)
