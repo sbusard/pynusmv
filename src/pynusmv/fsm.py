@@ -47,6 +47,7 @@ class BddFsm(PointerWrapper):
         
         :param ptr: the pointer of the NuSMV FSM
         :param boolean freeit: whether or not free the pointer
+        
         """
         super().__init__(ptr, freeit = freeit)
         self._reachable = None
@@ -230,6 +231,7 @@ class BddFsm(PointerWrapper):
         :param current: the destination states
         :type current: :class:`BDD <pynusmv.dd.BDD>`
         :rtype: :class:`BDD <pynusmv.dd.BDD>`
+        
         """
         inputs = bddFsm.BddFsm_states_to_states_get_inputs(self._ptr,
                                                            current._ptr,
@@ -338,51 +340,74 @@ class BddFsm(PointerWrapper):
     @staticmethod
     def from_filename(filepath):
         """
-        Return the FSM corresponding to the model in filepath.
+        Return the FSM corresponding to the model in `filepath`.
         
-        This function modifies the global environment of NuSMV.
+        :param filepath: the path to the SMV model
+        
         """
+        # This function modifies the global environment of NuSMV.
         from . import glob
         glob.load_from_file(filepath)
         glob.compute_model()
         propDb = glob.prop_database()
         return propDb.master.bddFsm
         # TODO Remove this and use glob module instead
-        
-        
+
+
 class BddEnc(PointerWrapper):
     """
-    Python class for BddEnc structure.
+    Python class for BDD encoding.
     
-    The BddEnc class contains a pointer to a BddEnc in NuSMV and provides a set
-    of operations on this BDD encoding.
-    
-    BddEnc do not have to be freed.
+    A BddEnc provides some basic functionalities like getting the DD manager
+    used to manage BDDs, the symbols table or the state and inputs masks.
     """
-        
+    # BddEnc do not have to be freed.
+    
     @property
     def DDmanager(self):
-        """The DD manager of this encoding."""
+        """
+        The DD manager of this encoding.
+        
+        :rtype: :class:`DDManager <pynusmv.dd.DDManager>`
+        
+        """
         return DDManager(bddEnc.BddEnc_get_dd_manager(self._ptr))
         
     
     @property
     def symbTable(self):
-        """Return the NuSMV symb table of this enc."""
+        """
+        The symbols table of this encoding.
+        
+        :rtype: :class:`SymbTable`
+        
+        """
         base_enc = bddEnc.bddenc2baseenc(self._ptr)
         return SymbTable(nsbaseEnc.BaseEnc_get_symb_table(base_enc))
         
     
     @property    
     def statesMask(self):
-        """Return a BDD representing a mask for all state variables."""
+        """
+        The mask for all state variables, represented as a BDD.
+        
+        :rtype: :class:`BDD <pynusmv.dd.BDD>`
+        
+        """
+        
         return BDD(bddEnc.BddEnc_get_state_frozen_vars_mask_bdd(self._ptr),
                    self.DDmanager, freeit = True)
                    
     
     @property               
     def inputsMask(self):
-        """Return a BDD representing a mask for all inputs variables."""
+        """
+        The mask for all input variables, represented as a BDD.
+        
+        :rtype: :class:`BDD <pynusmv.dd.BDD>`
+        
+        """
+    
         return BDD(bddEnc.BddEnc_get_input_vars_mask_bdd(self._ptr),
                    self.DDmanager, freeit = True)
         
@@ -391,21 +416,32 @@ class SymbTable(PointerWrapper):
     """
     Python class for symbols table.
     
-    Note: symbols tables are never freed. NuSMV takes care of it.
     """
+    # Symbols tables are never freed. NuSMV takes care of it.
     pass
     
     
 class BddTrans(PointerWrapper):
     """
-    Python class for BddTrans structure.
+    Python class for transition relation encoded with BDDs.
     
-    The BddTrans class contains a pointer to a BddTrans in NuSMV,
-    a Bdd encoding and a DD manager,
-    and provides a set of operations on this transition relation.
+    A BddTrans represents a transition relation and provides pre and post
+    operations on BDDs, possibly restricted to given actions.
+    
     """
     
     def __init__(self, ptr, enc = None, manager = None, freeit = True):
+        """
+        Create a new BddTrans.
+        
+        :param ptr: a NuSMV pointer to a BddTrans
+        :param enc: the BDD encoding of the transition relation
+        :type enc: :class:`BddEnc`
+        :param manager: the DD manager of the BDDs used to encode the relation
+        :type manager: :class:`DDManager <pynusmv.dd.DDManager>`
+        :param freeit: whether or not freeing the pointer
+        
+        """
         super().__init__(ptr, freeit)
         self._enc = enc
         self._manager = manager
@@ -414,9 +450,10 @@ class BddTrans(PointerWrapper):
     @property
     def monolithic(self):
         """
-        BDD representing this transition as one monolithic BDD.
+        This transition relation represented as a monolithic BDD.
         
-        Returned BDD has no DD manager!
+        :rtype: :class:`BDD <pynusmv.dd.BDD>`
+        
         """
         ptr = nsbddtrans.BddTrans_get_monolithic_bdd(self._ptr) 
         return BDD(ptr, self._manager, freeit = True)
@@ -424,7 +461,14 @@ class BddTrans(PointerWrapper):
         
     def pre(self, states, inputs=None):
         """
-        Compute the pre-image of states, through inputs if not None.
+        Compute the pre-image of `states`, through `inputs` if not `None`.
+        
+        :param states: the concerned states
+        :type states: :class:`BDD <pynusmv.dd.BDD>`
+        :param inputs: possible inputs
+        :type inputs: :class:`BDD <pynusmv.dd.BDD>`
+        :rtype: :class:`BDD <pynusmv.dd.BDD>`
+        
         """
         nexts = BDD(
             bddEnc.BddEnc_state_var_to_next_state_var(self._enc._ptr,
@@ -440,7 +484,14 @@ class BddTrans(PointerWrapper):
     
     def post(self, states, inputs=None):
         """
-        Compute the post-image of states, through inputs if not None.
+        Compute the post-image of `states`, through `inputs` if not `None`.
+        
+        :param states: the concerned states
+        :type states: :class:`BDD <pynusmv.dd.BDD>`
+        :param inputs: possible inputs
+        :type inputs: :class:`BDD <pynusmv.dd.BDD>`
+        :rtype: :class:`BDD <pynusmv.dd.BDD>`
+        
         """
         if inputs is not None:
             states = states & inputs
