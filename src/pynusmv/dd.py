@@ -1,6 +1,5 @@
 """
-The :mod:`pynusmv.dd` module provides some BDD-related structures.
-This includes:
+The :mod:`pynusmv.dd` module provides some BDD-related structures:
 
 * :class:`BDD` represents a BDD.
 * :class:`BDDList` represents a list of BDDs.
@@ -52,7 +51,7 @@ class BDD(PointerWrapper):
     
     def __init__(self, ptr, dd_manager=None, freeit=True):
         """
-        Create a new BDD with ptr.
+        Create a new BDD with `ptr`.
         
         :param ptr: the pointer to the NuSMV BDD
         :type ptr: NuSMV ``bdd_ptr``
@@ -73,7 +72,7 @@ class BDD(PointerWrapper):
 
     def equal(self, other):
         """
-        Determine whether this BDD is equal to ``other`` or not.
+        Determine whether this BDD is equal to `other` or not.
         
         :param other: the BDD to compare
         :type other: :class:`BDD`
@@ -164,7 +163,7 @@ class BDD(PointerWrapper):
     
     def entailed(self, other):
         """
-        Determine whether this BDD is included in ``other`` or not.
+        Determine whether this BDD is included in `other` or not.
         
         :param other: the BDD to compare
         :type other: :class:`BDD`
@@ -183,7 +182,7 @@ class BDD(PointerWrapper):
     def intersected(self, other):
         """
         Determine whether the intersection between this BDD
-        and ``other`` is not empty.
+        and `other` is not empty.
         
         :param other: the BDD to compare
         :type other: :class:`BDD`
@@ -202,7 +201,7 @@ class BDD(PointerWrapper):
 
     def leq(self, other):
         """
-        Determine whether this BDD is less than or equal to ``other``.
+        Determine whether this BDD is less than or equal to `other`.
         
         :param other: the BDD to compare
         :type other: :class:`BDD`
@@ -234,7 +233,7 @@ class BDD(PointerWrapper):
     
     def andd(self, other):
         """
-        Compute the conjunction of this BDD and ``other``.
+        Compute the conjunction of this BDD and `other`.
         
         :param other: the other BDD
         :type other: :class:`BDD`
@@ -250,7 +249,7 @@ class BDD(PointerWrapper):
 
     def orr(self, other):
         """
-        Compute the conjunction of this BDD and ``other``.
+        Compute the conjunction of this BDD and `other`.
         
         :param other: the other BDD
         :type other: :class:`BDD`
@@ -266,7 +265,7 @@ class BDD(PointerWrapper):
 
     def xor(self, other):
         """
-        Compute the exclusive-OR of this BDD and ``other``.
+        Compute the exclusive-OR of this BDD and `other`.
         
         :param other: the other BDD
         :type other: :class:`BDD`
@@ -282,7 +281,7 @@ class BDD(PointerWrapper):
         
     def iff(self, other):
         """
-        Compute the IFF operation on this BDD and ``other``.
+        Compute the IFF operation on this BDD and `other`.
         
         :param other: the other BDD
         :type other: :class:`BDD`
@@ -298,7 +297,7 @@ class BDD(PointerWrapper):
 
     def imply(self, other):
         """
-        Compute the IMPLY operation on this BDD and ``other``.
+        Compute the IMPLY operation on this BDD and `other`.
         
         :param other: the other BDD
         :type other: :class:`BDD`
@@ -540,16 +539,16 @@ class BDDList(PointerWrapper):
     @staticmethod
     def from_tuple(bddtuple):
         """
-        Create a node-based list from the Python tuple ``bddtuple``.
+        Create a node-based list from the Python tuple `bddtuple`.
         
         :param bddtuple: a Python tuple of BDDs
         
         Return a :class:`BDDList` representing the given tuple,
         using NuSMV nodes.
         All BDDs are assumed from the same DD manager;
-        the created list contains the DD manager of the first non-``None`` BDD.
-        If all elements of ``bddtuple`` are ``None``,
-        the manager of the created :class:`BDDList` is ``None``.
+        the created list contains the DD manager of the first non-`None` BDD.
+        If all elements of `bddtuple` are `None`,
+        the manager of the created :class:`BDDList` is `None`.
         """
         
         # Reverse tuple before, because we build the list reversely.
