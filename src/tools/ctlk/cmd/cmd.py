@@ -468,7 +468,7 @@ agent being an atom and group a comma-separated list of agents.""")
         self.model = None
         self.last = None
         self.paths = []
-        glob.reset_globals()
+        glob._reset_globals()
         reset_nusmv()
     
     

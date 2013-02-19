@@ -1,6 +1,19 @@
-__all__ = ['reset_globals', 'load_from_file', 'flatten_hierarchy', 'symb_table',
+"""
+The :mod:`pynusmv.glob` module provide some functions to access global NuSMV
+functionalities. These functions are used to feed an SMV model to NuSMV and
+build the different structures representing the model, like flattening the 
+model, building its BDD encoding and getting the BDD-encoded FSM.
+
+Besides the functions, this module provides an access to main globally stored
+data structures like the flat hierarchy, the BDD encoding, the symbols table
+and the propositions database.
+
+"""
+
+__all__ = ['load_from_file', 'flatten_hierarchy', 'symb_table',
            'encode_variables', 'bdd_encoding', 'build_flat_model',
            'build_model', 'prop_database', 'compute_model']
+
 
 from .nusmv.parser import parser as nsparser
 from .nusmv.opt import opt as nsopt
@@ -19,34 +32,35 @@ from .nusmv.fsm.bdd import bdd as nsbddfsm
 from .nusmv.trace import trace as nstrace
 from .nusmv.trace.exec import exec as nstraceexec
 
-from .fsm import BddEnc
-from .fsm import SymbTable
+from .fsm import BddEnc, SymbTable
 from .parser import Error, NuSMVParsingError
 from .prop import PropDb
 from .exception import (NuSMVLexerError,
-                               NuSMVNoReadFileError,
-                               NuSMVModelAlreadyReadError,
-                               NuSMVCannotFlattenError,
-                               NuSMVModelAlreadyFlattenedError,
-                               NuSMVNeedFlatHierarchyError,
-                               NuSMVModelAlreadyEncodedError,
-                               NuSMVFlatModelAlreadyBuiltError,
-                               NuSMVNeedFlatModelError,
-                               NuSMVModelAlreadyBuiltError,
-                               NuSMVNeedVariablesEncodedError)
+                        NuSMVNoReadFileError,
+                        NuSMVModelAlreadyReadError,
+                        NuSMVCannotFlattenError,
+                        NuSMVModelAlreadyFlattenedError,
+                        NuSMVNeedFlatHierarchyError,
+                        NuSMVModelAlreadyEncodedError,
+                        NuSMVFlatModelAlreadyBuiltError,
+                        NuSMVNeedFlatModelError,
+                        NuSMVModelAlreadyBuiltError,
+                        NuSMVNeedVariablesEncodedError)
                                
 import os
 
-"""Provide some functions to access global fsm-related structures."""
 
 _bdd_encoding = None
 _prop_database = None
 _symb_table = None
 
 
-def reset_globals():
-    """Reset the globals"""
+def _reset_globals():
+    """
+    Reset the global variables of the module, keeping track of global data
+    structures.
     
+    """    
     global _bdd_encoding, _prop_database, _symb_table
     _bdd_encoding = None
     _prop_database = None
@@ -57,8 +71,12 @@ def reset_globals():
 
 
 def load_from_file(filepath):
-    """Load a model from an SMV file."""
+    """
+    Load a model from an SMV file and store it in global data structures.
     
+    :param filepath: the path to the SMV file
+    
+    """
     # Check file
     if not os.path.exists(filepath):
         raise IOError("File {} does not exist".format(filepath))
@@ -101,15 +119,21 @@ def load_from_file(filepath):
     
 def flatten_hierarchy():
     """
-    Flatten the read model.
+    Flatten the read model and store it in global data structures.
     
-    If no model is read, raise a NuSMVNoReadFileError.
-    If an error occured during flattening,
-        raise a NuSMVCannotFlattenError.
-    If the model is already flattened, raise a NuSMVModelAlreadyFlattenedError.
+    * Raise a :exc:`NuSMVNoReadFileError
+      <pynusmv.exception.NuSMVNoReadFileError>` if no model is read yet;
+    * Raise a :exc:`NuSMVCannotFlattenError 
+      <pynusmv.exception.NuSMVCannotFlattenError>` if an error occurred during
+      flattening;
+    * Raise a :exc:`NuSMVModelAlreadyFlattenedError 
+      <pynusmv.exception.NuSMVModelAlreadyFlattenedError>` if the model is
+      already flattened.
         
-    In case of type checking errors, a message is printed at stderr and
-    a NuSMVCannotFlattenError is raised.
+    .. warning:: In case of type checking errors, a message is printed at stderr
+       and a :exc:`NuSMVCannotFlattenError 
+       <pynusmv.exception.NuSMVCannotFlattenError>` is raised.
+    
     """
     
     # Check cmps
@@ -132,8 +156,10 @@ def flatten_hierarchy():
     
 def symb_table():
     """
-    Compute (if needed) and return the main symbols table
-    of the current model.
+    Return the main symbols table of the current model.
+    
+    :rtype: :class:`SymbTable <pynusmv.fsm.SymbTable>`
+    
     """
     # Flatten hierarchy if needed
     global _symb_table
@@ -147,10 +173,16 @@ def symb_table():
     
 def encode_variables():
     """
-    Encode the BDD variables of the current model.
+    Encode the BDD variables of the current model and store it in global data
+    structures.
     
-    If the model is not flattened, raise a NuSMVNeedFlatHierarchyError;
-    if the variables are already encoded, raise a NuSMVModelAlreadyEncodedError.
+    * Raise a :exc:`NuSMVNeedFlatHierarchyError 
+      <pynusmv.exception.NuSMVNeedFlatHierarchyError>` if the model is not
+      flattened;
+    * Raise a :exc:`NuSMVModelAlreadyEncodedError
+      <pynusmv.exception.NuSMVModelAlreadyEncodedError>`
+      if the variables are already encoded.
+      
     """
     # Check cmps
     if not nscompile.cmp_struct_get_flatten_hrc(nscompile.cvar.cmps):
@@ -180,8 +212,10 @@ def encode_variables():
 
 def bdd_encoding():
     """
-    Compute (if needed) and return the main bdd encoding
-    of the current model.
+    Return the main bdd encoding of the current model.
+    
+    :rtype: :class:`BddEnc <pynusmv.dd.BddEnc>`
+    
     """
     # Encode variables if needed
     global _bdd_encoding
@@ -195,10 +229,16 @@ def bdd_encoding():
 
 def build_flat_model():
     """
-    Build the Sexp FSM of the current model.
+    Build the Sexp FSM (Simple Expression FSM) of the current model and store it
+    in global data structures.
     
-    If the model is not flattened, raise a NuSMVNeedFlatHierarchyError;
-    if the Sexp FSM is already built, raise a NuSMVFlatModelAlreadyBuiltError.
+    * Raise a :exc:`NuSMVNeedFlatHierarchyError
+      <pynusmv.exception.NuSMVNeedFlatHierarchyError>` if the model is not
+      flattened;
+    * Raise a :exc:`NuSMVFlatModelAlreadyBuiltError
+      <pynusmv.exception.NuSMVFlatModelAlreadyBuiltError>` if the Sexp FSM is
+      already built.
+       
     """
     # Check cmps
     if not nscompile.cmp_struct_get_flatten_hrc(nscompile.cvar.cmps):
@@ -230,16 +270,20 @@ def build_flat_model():
 
 def build_model():
     """
-    Build the BDD FSM of the current model.
+    Build the BDD FSM of the current model and store it in global data
+    structures.
     
-    If the Sexp FSM of the model is not built yet,
-        raise a NuSMVNeedFlatModelError;
-    if the variables of the model are not encoded yet,
-        raise a NuSMVNeedVariablesEncodedError;
-    if the BDD FSM of the model is already built,
-        raise a NuSMVModelAlreadyBuiltError
+    * Raise a :exc:`NuSMVNeedFlatModelError
+      <pynusmv.exception.NuSMVNeedFlatModelError>` if the Sexp FSM of the model
+      is not built yet;
+    * Raise a :exc:`NuSMVNeedVariablesEncodedError
+      <pynusmv.exception.NuSMVNeedVariablesEncodedError>` if the variables of
+      the model are not encoded yet;
+    * Raise a :exc:`NuSMVModelAlreadyBuiltError
+      <pynusmv.exception.NuSMVModelAlreadyBuiltError>` if the BDD FSM
+      of the model is already built.
+        
     """
-    
     # Check cmps
     if not nscompile.cmp_struct_get_build_flat_model(nscompile.cvar.cmps):
         raise NuSMVNeedFlatModelError("Need flat model.")
@@ -284,6 +328,9 @@ def build_model():
 def prop_database():
     """
     Return the global properties database.
+    
+    :rtype: :class:`PropDb <pynusmv.prop.PropDb>`
+    
     """
     if not nscompile.cmp_struct_get_flatten_hrc(nscompile.cvar.cmps):
         # Need a flat hierarchy
@@ -296,12 +343,11 @@ def prop_database():
 
 def compute_model():
     """
-    Compute the read model.
+    Compute the read model and store its parts in global data structures.
+    This function is a shortcut for calling all the steps of the model building
+    that are not yet performed.
     
-    Perform all the steps that are not yet performed:
-    flattening, encoding, building flat model, building model.
     """
-    
     if not nscompile.cmp_struct_get_read_model(nscompile.cvar.cmps):
         raise NuSMVNoReadFileError("No read file.")
     

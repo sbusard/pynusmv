@@ -6,10 +6,10 @@ from pynusmv.nusmv.cmd import cmd as nscmd
 from pynusmv.init import init_nusmv, deinit_nusmv
 from pynusmv import glob
 from pynusmv.exception import (NuSMVNoReadFileError,
-                                     NuSMVCannotFlattenError,
-                                     NuSMVModelAlreadyFlattenedError,
-                                     NuSMVNeedFlatModelError,
-                                     NuSMVNeedFlatHierarchyError)
+                               NuSMVCannotFlattenError,
+                               NuSMVModelAlreadyFlattenedError,
+                               NuSMVNeedFlatModelError,
+                               NuSMVNeedFlatHierarchyError)
 from pynusmv.parser import parse_simple_expression
 
 class Testglob(unittest.TestCase):

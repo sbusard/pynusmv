@@ -16,7 +16,7 @@ class TestVariables(unittest.TestCase):
         init_nusmv()
         
     def tearDown(self):
-        glob.reset_globals()
+        glob._reset_globals()
         deinit_nusmv()
         
     def test_fsm(self):

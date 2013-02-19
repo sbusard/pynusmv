@@ -56,7 +56,7 @@ def deinit_nusmv():
     """
     
     from . import glob
-    glob.reset_globals()    
+    glob._reset_globals()    
     
     global __collector
     if __collector is None:
