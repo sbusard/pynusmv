@@ -189,10 +189,11 @@ class BddFsm(PointerWrapper):
         """
         Return a BDD representing a state of `bdd`.
         
-        If `bdd` is false or an error occurs while picking one state
-        (for example if the bdd does not contain any state but inputs),
-        a :exc:`NuSMVBddPickingError <pynusmv.exception.NuSMVBddPickingError>`
-        is raised.
+        :rtype: :class:`State <pynusmv.dd.State>`
+        :raise: a :exc:`NuSMVBddPickingError 
+                <pynusmv.exception.NuSMVBddPickingError>`
+                if `bdd` is false or an error occurs while picking one state
+                (for example if the bdd does not contain any state but inputs)
         
         """
         if bdd.is_false():
@@ -207,10 +208,11 @@ class BddFsm(PointerWrapper):
         """
         Return a BDD representing an inputs of `bdd`.
         
-        If `bdd` is false or an error occurs while picking one inputs
-        (for example if the bdd does not contain any inputs but states),
-        a :exc:`NuSMVBddPickingError <pynusmv.exception.NuSMVBddPickingError>`
-        is raised.
+        :rtype: :class:`Inputs <pynusmv.dd.Inputs>`
+        :raise: a :exc:`NuSMVBddPickingError 
+                <pynusmv.exception.NuSMVBddPickingError>`
+                if `bdd` is false or an error occurs while picking one inputs
+                (for example if the bdd does not contain any inputs but states)
         
         """
         if bdd.is_false():
@@ -267,14 +269,14 @@ class BddFsm(PointerWrapper):
         
     def pick_all_states(self, bdd):
         """
-        Return a tuple of all states belonging to `bdd`.        
-        Raise a
-        :exc:`NuSMVBddPickingError <pynusmv.exception.NuSMVBddPickingError>`
-        if something is wrong.
+        Return a tuple of all states belonging to `bdd`.
         
         :param bdd: the concerned BDD
         :type bdd: :class:`BDD <pynusmv.dd.BDD>`
         :rtype: tuple(:class:`State <pynusmv.dd.State>`)
+        :raise: a :exc:`NuSMVBddPickingError
+                <pynusmv.exception.NuSMVBddPickingError>`
+                if something is wrong
         
         """
         # FIXME Still get segmentation faults. Need investigation.
@@ -292,14 +294,14 @@ class BddFsm(PointerWrapper):
             
     def pick_all_inputs(self, bdd):
         """
-        Return a tuple of all inputs belonging to `bdd`.        
-        Raise a
-        :exc:`NuSMVBddPickingError <pynusmv.exception.NuSMVBddPickingError>`
-        if something is wrong.
+        Return a tuple of all inputs belonging to `bdd`.
         
         :param bdd: the concerned BDD
         :type bdd: :class:`BDD <pynusmv.dd.BDD>`
         :rtype: tuple(:class:`Inputs <pynusmv.dd.Inputs>`)
+        :raise: a :exc:`NuSMVBddPickingError
+                <pynusmv.exception.NuSMVBddPickingError>`
+                if something is wrong
         
         """
         # FIXME Still get segmentation faults. Need investigation.

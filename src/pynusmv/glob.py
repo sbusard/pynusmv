@@ -121,14 +121,14 @@ def flatten_hierarchy():
     """
     Flatten the read model and store it in global data structures.
     
-    * Raise a :exc:`NuSMVNoReadFileError
-      <pynusmv.exception.NuSMVNoReadFileError>` if no model is read yet;
-    * Raise a :exc:`NuSMVCannotFlattenError 
-      <pynusmv.exception.NuSMVCannotFlattenError>` if an error occurred during
-      flattening;
-    * Raise a :exc:`NuSMVModelAlreadyFlattenedError 
-      <pynusmv.exception.NuSMVModelAlreadyFlattenedError>` if the model is
-      already flattened.
+    :raise: a :exc:`NuSMVNoReadFileError
+            <pynusmv.exception.NuSMVNoReadFileError>` if no model is read yet
+    :raise: a :exc:`NuSMVCannotFlattenError 
+            <pynusmv.exception.NuSMVCannotFlattenError>` if an error occurred
+            during flattening
+    :raise: a :exc:`NuSMVModelAlreadyFlattenedError 
+            <pynusmv.exception.NuSMVModelAlreadyFlattenedError>` if the model is
+            already flattened
         
     .. warning:: In case of type checking errors, a message is printed at stderr
        and a :exc:`NuSMVCannotFlattenError 
@@ -176,12 +176,12 @@ def encode_variables():
     Encode the BDD variables of the current model and store it in global data
     structures.
     
-    * Raise a :exc:`NuSMVNeedFlatHierarchyError 
-      <pynusmv.exception.NuSMVNeedFlatHierarchyError>` if the model is not
-      flattened;
-    * Raise a :exc:`NuSMVModelAlreadyEncodedError
-      <pynusmv.exception.NuSMVModelAlreadyEncodedError>`
-      if the variables are already encoded.
+    :raise: a :exc:`NuSMVNeedFlatHierarchyError 
+            <pynusmv.exception.NuSMVNeedFlatHierarchyError>` if the model is not
+            flattened
+    :raise: a :exc:`NuSMVModelAlreadyEncodedError
+            <pynusmv.exception.NuSMVModelAlreadyEncodedError>`
+            if the variables are already encoded
       
     """
     # Check cmps
@@ -232,12 +232,12 @@ def build_flat_model():
     Build the Sexp FSM (Simple Expression FSM) of the current model and store it
     in global data structures.
     
-    * Raise a :exc:`NuSMVNeedFlatHierarchyError
-      <pynusmv.exception.NuSMVNeedFlatHierarchyError>` if the model is not
-      flattened;
-    * Raise a :exc:`NuSMVFlatModelAlreadyBuiltError
-      <pynusmv.exception.NuSMVFlatModelAlreadyBuiltError>` if the Sexp FSM is
-      already built.
+    :raise: a :exc:`NuSMVNeedFlatHierarchyError
+            <pynusmv.exception.NuSMVNeedFlatHierarchyError>` if the model is not
+            flattened
+    :raise: a :exc:`NuSMVFlatModelAlreadyBuiltError
+            <pynusmv.exception.NuSMVFlatModelAlreadyBuiltError>` if the Sexp FSM
+            isalready built
        
     """
     # Check cmps
@@ -273,15 +273,15 @@ def build_model():
     Build the BDD FSM of the current model and store it in global data
     structures.
     
-    * Raise a :exc:`NuSMVNeedFlatModelError
-      <pynusmv.exception.NuSMVNeedFlatModelError>` if the Sexp FSM of the model
-      is not built yet;
-    * Raise a :exc:`NuSMVNeedVariablesEncodedError
-      <pynusmv.exception.NuSMVNeedVariablesEncodedError>` if the variables of
-      the model are not encoded yet;
-    * Raise a :exc:`NuSMVModelAlreadyBuiltError
-      <pynusmv.exception.NuSMVModelAlreadyBuiltError>` if the BDD FSM
-      of the model is already built.
+    :raise: a :exc:`NuSMVNeedFlatModelError
+            <pynusmv.exception.NuSMVNeedFlatModelError>` if the Sexp FSM
+            of the model is not built yet
+    :raise: a :exc:`NuSMVNeedVariablesEncodedError
+            <pynusmv.exception.NuSMVNeedVariablesEncodedError>` if the variables
+            of the model are not encoded yet
+    :raise: a :exc:`NuSMVModelAlreadyBuiltError
+            <pynusmv.exception.NuSMVModelAlreadyBuiltError>` if the BDD FSM
+            of the model is already built
         
     """
     # Check cmps
