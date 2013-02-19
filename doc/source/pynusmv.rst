@@ -2,7 +2,7 @@ pynusmv Package
 ===============
 
 .. automodule:: pynusmv.__init__
-    :members:
+..    :members:
     :undoc-members:
     :show-inheritance:
 
