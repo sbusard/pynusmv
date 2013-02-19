@@ -98,7 +98,8 @@ To avoid this error, modify
 DOCUMENTATION
 -------------
 
-No documentation of PyNuSMV is currently provided. To get more insight, read the (documented) Python code.
+The full API of (the upper interface of) PyNuSMV is provided
+in the doc/html/index.html page.
 
 
 -------
@@ -111,6 +112,7 @@ This package contains
 - LGPL-2.1 : a copy of the LGPLv2 License;
 - TOOLS : notes about the tools provided with PyNuSMV;
 - dep/ : a directory containing some tools on which PyNuSMV depends;
+- doc/ : a directory containing PyNuSMV documentation;
 - src/ : PyNuSMV sources
 
     - build_libnusmv.sh : NuSMV shared library building script;
