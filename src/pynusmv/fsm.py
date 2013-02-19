@@ -1,38 +1,52 @@
+"""
+The :mod:`pynusmv.fsm` module provides some functionalities about FSMs
+represented and stored by NuSMV:
+
+* :class:`BddFsm` represents the model encoded into BDDs. This gives access
+  to elements of the FSM like BDD encoding, initial states, reachable states,
+  transition relation, pre and post operations, etc.
+* :class:`BddEnc` represents the BDD encoding, with some functionalities like
+  getting the state mask or the input variables mask.
+* :class:`SymbTable` represents the symbols table of the model.
+* :class:`BddTrans` represents a transition relation encoded with BDDs. It
+  provides access to pre and post operations.
+
+"""
+
+
 __all__ = ['BddFsm', 'BddEnc', 'SymbTable', 'BddTrans']
+
 
 from .nusmv.fsm.bdd import bdd as bddFsm
 from .nusmv.enc.bdd import bdd as bddEnc
+from .nusmv.enc.base import base as nsbaseEnc
 from .nusmv.cmd import cmd as nscmd
 from .nusmv.trans.bdd import bdd as nsbddtrans
 
-from .dd import BDD
-from .dd import State
-from .dd import Inputs
-from .utils import PointerWrapper
-from .utils import fixpoint
+from .dd import BDD, State, Inputs, DDManager
+from .utils import PointerWrapper, fixpoint
 from .exception import NuSMVBddPickingError
 
-from .nusmv.enc.base import base as baseEnc
-from .dd import DDManager
-
-from .utils import PointerWrapper
 
 class BddFsm(PointerWrapper):
     """
-    Python class for BddFsm structure.
+    Python class for FSM structure, encoded into BDDs.
     
-    The BddFsm class contains a pointer to a BddFsm in NuSMV and provides a set
-    of operations on this FSM.
+    The BddFsm provides some functionalities on the FSM: getting initial and 
+    reachable states as a BDD, getting or replacing the transition relation,
+    getting fairness, state and inputs constraints, getting pre and post images
+    of BDDs, possibly through particular actions, picking and counting states
+    and actions of given BDDs.
     
-    BddFsm do not have to be freed.
     """
+    # BddFsm do not have to be freed.
     
     def __init__(self, ptr, freeit = False):
         """
         Create a new BddFsm.
         
-        ptr -- the pointer of the NuSMV FSM
-        freeit -- whether or not free the pointer
+        :param ptr: the pointer of the NuSMV FSM
+        :param boolean freeit: whether or not free the pointer
         """
         super().__init__(ptr, freeit = freeit)
         self._reachable = None
@@ -40,20 +54,30 @@ class BddFsm(PointerWrapper):
         
     @property
     def bddEnc(self):
-        """The BDD encoding of this FSM."""
+        """
+        The BDD encoding of this FSM.
+        
+        """
         return BddEnc(bddFsm.BddFsm_get_bdd_encoding(self._ptr))
         
     
     @property
     def init(self):
-        """The BDD of initial states of this FSM."""
+        """
+        The BDD of initial states of this FSM.
+        
+        """
         return BDD(bddFsm.BddFsm_get_init(self._ptr), self.bddEnc.DDmanager,
                    freeit = True)
                    
                    
     @property
     def trans(self):
-        """The transition relation of this FSM."""
+        """
+        The transition relation (:class:`BddTrans`) of this FSM.
+        Can also be replaced.
+        
+        """
         # Do not free the trans, this FSM is the owner of it
         return BddTrans(bddFsm.BddFsm_get_trans(self._ptr),
                         self.bddEnc,
@@ -62,7 +86,10 @@ class BddFsm(PointerWrapper):
         
     @trans.setter
     def trans(self, new_trans):
-        """Set this FSM transition to new_trans."""
+        """
+        Set this FSM transition to `new_trans`.
+        
+        """
         # Copy the transition such that this FSM is the owner
         new_trans_ptr = nsbddtrans.BddTrans_copy(new_trans._ptr)
         # Get old trans
@@ -75,21 +102,30 @@ class BddFsm(PointerWrapper):
                    
     @property
     def state_constraints(self):
-        """The BDD of states satisfying the invariants of the FSM."""
+        """
+        The BDD of states satisfying the invariants of the FSM.
+        
+        """
         return BDD(bddFsm.BddFsm_get_state_constraints(self._ptr),
                    self.bddEnc.DDmanager, freeit = True)
                    
                    
     @property
     def inputs_constraints(self):
-        """The BDD of inputs satisfying the invariants of the FSM."""
+        """
+        The BDD of inputs satisfying the invariants of the FSM.
+        
+        """
         return BDD(bddFsm.BddFsm_get_input_constraints(self._ptr),
                    self.bddEnc.DDmanager, freeit = True)
                    
                    
     @property
     def fairness_constraints(self):
-        """The list of fairness constraints, as BDDs."""
+        """
+        The list of fairness constraints, as BDDs.
+        
+        """
         justiceList = bddFsm.BddFsm_get_justice(self._ptr)
         fairnessList = bddFsm.justiceList2fairnessList(justiceList)
         
@@ -106,10 +142,16 @@ class BddFsm(PointerWrapper):
                    
     def pre(self, states, inputs = None):
         """
-        Return the pre-image of states in this FSM.
+        Return the pre-image of `states` in this FSM.
+        If `inputs` is not `None`, it is used as constraints to get
+        pre-states that are reachable through these inputs.
         
-        If inputs is not None, it is used as constraints to get pre-states
-        that are reachable through these inputs.
+        :param states: the states from which getting the pre-image
+        :type states: :class:`BDD <pynusmv.dd.BDD>`
+        :param inputs: the inputs through which getting the pre-image
+        :type inputs: :class:`BDD <pynusmv.dd.BDD>`
+        :rtype: :class:`BDD <pynusmv.dd.BDD>`
+        
         """
         if inputs is None:
             return BDD(bddFsm.BddFsm_get_backward_image(self._ptr, states._ptr),
@@ -122,10 +164,16 @@ class BddFsm(PointerWrapper):
         
     def post(self, states, inputs = None):
         """
-        Return the post-image of states in this FSM.
+        Return the post-image of `states` in this FSM.
+        If `inputs` is not `None`, it is used as constraints to get
+        post-states that are reachable through these inputs.
         
-        If inputs is not None, it is used as constraints to get post-states
-        that are reachable through these inputs.
+        :param states: the states from which getting the post-image
+        :type states: :class:`BDD <pynusmv.dd.BDD>`
+        :param inputs: the inputs through which getting the post-image
+        :type inputs: :class:`BDD <pynusmv.dd.BDD>`
+        :rtype: :class:`BDD <pynusmv.dd.BDD>`
+        
         """
         if inputs is None:
             return BDD(bddFsm.BddFsm_get_forward_image(self._ptr, states._ptr),
@@ -138,11 +186,13 @@ class BddFsm(PointerWrapper):
         
     def pick_one_state(self, bdd):
         """
-        Return a BDD representing a state of bdd.
+        Return a BDD representing a state of `bdd`.
         
-        If bdd is false or an error occurs while picking one state (for example
-        if the bdd does not contain any state but inputs),
-        a NuSMVBddPickingError occurs.
+        If `bdd` is false or an error occurs while picking one state
+        (for example if the bdd does not contain any state but inputs),
+        a :exc:`NuSMVBddPickingError <pynusmv.exception.NuSMVBddPickingError>`
+        is raised.
+        
         """
         if bdd.is_false():
             raise NuSMVBddPickingError("Cannot pick state from false BDD.")
@@ -154,11 +204,13 @@ class BddFsm(PointerWrapper):
     
     def pick_one_inputs(self, bdd):
         """
-        Return a BDD representing a possible inputs of bdd.
+        Return a BDD representing an inputs of `bdd`.
         
-        If bdd is false or an error occurs while picking one inputs (for example
-        if the bdd does not contain any inputs but states),
-        a NuSMVBddPickingError occurs.
+        If `bdd` is false or an error occurs while picking one inputs
+        (for example if the bdd does not contain any inputs but states),
+        a :exc:`NuSMVBddPickingError <pynusmv.exception.NuSMVBddPickingError>`
+        is raised.
+        
         """
         if bdd.is_false():
             raise NuSMVBddPickingError("Cannot pick inputs from false BDD.")
@@ -170,8 +222,14 @@ class BddFsm(PointerWrapper):
     
     def get_inputs_between_states(self, current, next):
         """
-        Return the BDD representing the possible inputs
-        between current and next.
+        Return the BDD representing the possible inputs between `current` and
+        `next`.
+        
+        :param current: the source states
+        :type current: :class:`BDD <pynusmv.dd.BDD>`
+        :param current: the destination states
+        :type current: :class:`BDD <pynusmv.dd.BDD>`
+        :rtype: :class:`BDD <pynusmv.dd.BDD>`
         """
         inputs = bddFsm.BddFsm_states_to_states_get_inputs(self._ptr,
                                                            current._ptr,
@@ -180,14 +238,26 @@ class BddFsm(PointerWrapper):
         
         
     def count_states(self, bdd):
-        """Return the number of states of the given BDD, as a double."""
+        """
+        Return the number of states of the given BDD.
+        
+        :param bdd: the concerned BDD
+        :type bdd: :class:`BDD <pynusmv.dd.BDD>`
+                
+        """
         # Apply mask before counting states
         bdd = bdd & self.bddEnc.statesMask
         return bddEnc.BddEnc_count_states_of_bdd(self.bddEnc._ptr, bdd._ptr)
         
         
     def count_inputs(self, bdd):
-        """Return the number of inputs of the given BDD, as a double."""
+        """
+        Return the number of inputs of the given BDD
+        
+        :param bdd: the concerned BDD
+        :type bdd: :class:`BDD <pynusmv.dd.BDD>`
+        
+        """
         # Apply mask before counting inputs
         bdd = bdd & self.bddEnc.inputsMask
         return bddEnc.BddEnc_count_inputs_of_bdd(self.bddEnc._ptr, bdd._ptr)
@@ -195,9 +265,15 @@ class BddFsm(PointerWrapper):
         
     def pick_all_states(self, bdd):
         """
-        Return a tuple of all states belonging to bdd.
+        Return a tuple of all states belonging to `bdd`.        
+        Raise a
+        :exc:`NuSMVBddPickingError <pynusmv.exception.NuSMVBddPickingError>`
+        if something is wrong.
         
-        Raise a NuSMVBddPickingError if something is wrong.
+        :param bdd: the concerned BDD
+        :type bdd: :class:`BDD <pynusmv.dd.BDD>`
+        :rtype: tuple(:class:`State <pynusmv.dd.State>`)
+        
         """
         # FIXME Still get segmentation faults. Need investigation.
         # tests/pynusmv/testFsm.py seems to raise segmentation faults
@@ -214,9 +290,15 @@ class BddFsm(PointerWrapper):
             
     def pick_all_inputs(self, bdd):
         """
-        Return a tuple of all inputs belonging to bdd.
+        Return a tuple of all inputs belonging to `bdd`.        
+        Raise a
+        :exc:`NuSMVBddPickingError <pynusmv.exception.NuSMVBddPickingError>`
+        if something is wrong.
         
-        Raise a NuSMVBddPickingError if something is wrong.
+        :param bdd: the concerned BDD
+        :type bdd: :class:`BDD <pynusmv.dd.BDD>`
+        :rtype: tuple(:class:`Inputs <pynusmv.dd.Inputs>`)
+        
         """
         # FIXME Still get segmentation faults. Need investigation.
         # tests/pynusmv/testFsm.py seems to raise segmentation faults
@@ -235,7 +317,12 @@ class BddFsm(PointerWrapper):
         
     @property    
     def reachable_states(self):
-        """Return a BDD representing the set of reachable states of the FSM."""
+        """
+        Return a the set of reachable states of this FSM, represented as a BDD.
+        
+        :rtype: :class:`BDD <pynusmv.dd.BDD>`
+        
+        """
         if self._reachable is None:
             #self._reachable = fixpoint(lambda Z: (self.init | self.post(Z)),
             #                           BDD.false(self.bddEnc.DDmanager))
@@ -248,6 +335,7 @@ class BddFsm(PointerWrapper):
     # ===== Static methods =====================================================
     # ==========================================================================
     
+    @staticmethod
     def from_filename(filepath):
         """
         Return the FSM corresponding to the model in filepath.
@@ -282,7 +370,7 @@ class BddEnc(PointerWrapper):
     def symbTable(self):
         """Return the NuSMV symb table of this enc."""
         base_enc = bddEnc.bddenc2baseenc(self._ptr)
-        return SymbTable(baseEnc.BaseEnc_get_symb_table(base_enc))
+        return SymbTable(nsbaseEnc.BaseEnc_get_symb_table(base_enc))
         
     
     @property    
