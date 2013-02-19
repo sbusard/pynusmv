@@ -1,0 +1,597 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>pynusmv.fsm &mdash; PyNuSMV 0.6 documentation</title>
+    
+    <link rel="stylesheet" href="../../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '0.6',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="top" title="PyNuSMV 0.6 documentation" href="../../index.html" />
+    <link rel="up" title="Module code" href="../index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../index.html">PyNuSMV 0.6 documentation</a> &raquo;</li>
+          <li><a href="../index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for pynusmv.fsm</h1><div class="highlight"><pre>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">The :mod:`pynusmv.fsm` module provides some functionalities about FSMs</span>
+<span class="sd">represented and stored by NuSMV:</span>
+
+<span class="sd">* :class:`BddFsm` represents the model encoded into BDDs. This gives access</span>
+<span class="sd">  to elements of the FSM like BDD encoding, initial states, reachable states,</span>
+<span class="sd">  transition relation, pre and post operations, etc.</span>
+<span class="sd">* :class:`BddEnc` represents the BDD encoding, with some functionalities like</span>
+<span class="sd">  getting the state mask or the input variables mask.</span>
+<span class="sd">* :class:`SymbTable` represents the symbols table of the model.</span>
+<span class="sd">* :class:`BddTrans` represents a transition relation encoded with BDDs. It</span>
+<span class="sd">  provides access to pre and post operations.</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;BddFsm&#39;</span><span class="p">,</span> <span class="s">&#39;BddEnc&#39;</span><span class="p">,</span> <span class="s">&#39;SymbTable&#39;</span><span class="p">,</span> <span class="s">&#39;BddTrans&#39;</span><span class="p">]</span>
+
+
+<span class="kn">from</span> <span class="nn">.nusmv.fsm.bdd</span> <span class="kn">import</span> <span class="n">bdd</span> <span class="k">as</span> <span class="n">bddFsm</span>
+<span class="kn">from</span> <span class="nn">.nusmv.enc.bdd</span> <span class="kn">import</span> <span class="n">bdd</span> <span class="k">as</span> <span class="n">bddEnc</span>
+<span class="kn">from</span> <span class="nn">.nusmv.enc.base</span> <span class="kn">import</span> <span class="n">base</span> <span class="k">as</span> <span class="n">nsbaseEnc</span>
+<span class="kn">from</span> <span class="nn">.nusmv.cmd</span> <span class="kn">import</span> <span class="n">cmd</span> <span class="k">as</span> <span class="n">nscmd</span>
+<span class="kn">from</span> <span class="nn">.nusmv.trans.bdd</span> <span class="kn">import</span> <span class="n">bdd</span> <span class="k">as</span> <span class="n">nsbddtrans</span>
+
+<span class="kn">from</span> <span class="nn">.dd</span> <span class="kn">import</span> <span class="n">BDD</span><span class="p">,</span> <span class="n">State</span><span class="p">,</span> <span class="n">Inputs</span><span class="p">,</span> <span class="n">DDManager</span>
+<span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">PointerWrapper</span><span class="p">,</span> <span class="n">fixpoint</span>
+<span class="kn">from</span> <span class="nn">.exception</span> <span class="kn">import</span> <span class="n">NuSMVBddPickingError</span>
+
+
+<div class="viewcode-block" id="BddFsm"><a class="viewcode-back" href="../../pynusmv.html#pynusmv.fsm.BddFsm">[docs]</a><span class="k">class</span> <span class="nc">BddFsm</span><span class="p">(</span><span class="n">PointerWrapper</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Python class for FSM structure, encoded into BDDs.</span>
+<span class="sd">    </span>
+<span class="sd">    The BddFsm provides some functionalities on the FSM: getting initial and </span>
+<span class="sd">    reachable states as a BDD, getting or replacing the transition relation,</span>
+<span class="sd">    getting fairness, state and inputs constraints, getting pre and post images</span>
+<span class="sd">    of BDDs, possibly through particular actions, picking and counting states</span>
+<span class="sd">    and actions of given BDDs.</span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c"># BddFsm do not have to be freed.</span>
+    
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ptr</span><span class="p">,</span> <span class="n">freeit</span> <span class="o">=</span> <span class="bp">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Create a new BddFsm.</span>
+<span class="sd">        </span>
+<span class="sd">        :param ptr: the pointer of the NuSMV FSM</span>
+<span class="sd">        :param boolean freeit: whether or not free the pointer</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">ptr</span><span class="p">,</span> <span class="n">freeit</span> <span class="o">=</span> <span class="n">freeit</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_reachable</span> <span class="o">=</span> <span class="bp">None</span>
+    
+        
+    <span class="nd">@property</span>
+<div class="viewcode-block" id="BddFsm.bddEnc"><a class="viewcode-back" href="../../pynusmv.html#pynusmv.fsm.BddFsm.bddEnc">[docs]</a>    <span class="k">def</span> <span class="nf">bddEnc</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        The BDD encoding of this FSM.</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">BddEnc</span><span class="p">(</span><span class="n">bddFsm</span><span class="o">.</span><span class="n">BddFsm_get_bdd_encoding</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_ptr</span><span class="p">))</span>
+        
+    </div>
+    <span class="nd">@property</span>
+<div class="viewcode-block" id="BddFsm.init"><a class="viewcode-back" href="../../pynusmv.html#pynusmv.fsm.BddFsm.init">[docs]</a>    <span class="k">def</span> <span class="nf">init</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        The BDD of initial states of this FSM.</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">BDD</span><span class="p">(</span><span class="n">bddFsm</span><span class="o">.</span><span class="n">BddFsm_get_init</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_ptr</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">bddEnc</span><span class="o">.</span><span class="n">DDmanager</span><span class="p">,</span>
+                   <span class="n">freeit</span> <span class="o">=</span> <span class="bp">True</span><span class="p">)</span>
+                   
+                   </div>
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">trans</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        The transition relation (:class:`BddTrans`) of this FSM.</span>
+<span class="sd">        Can also be replaced.</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c"># Do not free the trans, this FSM is the owner of it</span>
+        <span class="k">return</span> <span class="n">BddTrans</span><span class="p">(</span><span class="n">bddFsm</span><span class="o">.</span><span class="n">BddFsm_get_trans</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_ptr</span><span class="p">),</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">bddEnc</span><span class="p">,</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">bddEnc</span><span class="o">.</span><span class="n">DDmanager</span><span class="p">,</span>
+                        <span class="n">freeit</span> <span class="o">=</span> <span class="bp">False</span><span class="p">)</span>
+        
+    <span class="nd">@trans.setter</span>
+<div class="viewcode-block" id="BddFsm.trans"><a class="viewcode-back" href="../../pynusmv.html#pynusmv.fsm.BddFsm.trans">[docs]</a>    <span class="k">def</span> <span class="nf">trans</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">new_trans</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Set this FSM transition to `new_trans`.</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c"># Copy the transition such that this FSM is the owner</span>
+        <span class="n">new_trans_ptr</span> <span class="o">=</span> <span class="n">nsbddtrans</span><span class="o">.</span><span class="n">BddTrans_copy</span><span class="p">(</span><span class="n">new_trans</span><span class="o">.</span><span class="n">_ptr</span><span class="p">)</span>
+        <span class="c"># Get old trans</span>
+        <span class="n">old_trans_ptr</span> <span class="o">=</span> <span class="n">bddFsm</span><span class="o">.</span><span class="n">BddFsm_get_trans</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_ptr</span><span class="p">)</span>
+        <span class="c"># Set the new trans</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_ptr</span><span class="o">.</span><span class="n">trans</span> <span class="o">=</span> <span class="n">new_trans_ptr</span>
+        <span class="c"># Free old trans</span>
+        <span class="n">nsbddtrans</span><span class="o">.</span><span class="n">BddTrans_free</span><span class="p">(</span><span class="n">old_trans_ptr</span><span class="p">)</span>
+        
+                   </div>
+    <span class="nd">@property</span>
+<div class="viewcode-block" id="BddFsm.state_constraints"><a class="viewcode-back" href="../../pynusmv.html#pynusmv.fsm.BddFsm.state_constraints">[docs]</a>    <span class="k">def</span> <span class="nf">state_constraints</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        The BDD of states satisfying the invariants of the FSM.</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">BDD</span><span class="p">(</span><span class="n">bddFsm</span><span class="o">.</span><span class="n">BddFsm_get_state_constraints</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_ptr</span><span class="p">),</span>
+                   <span class="bp">self</span><span class="o">.</span><span class="n">bddEnc</span><span class="o">.</span><span class="n">DDmanager</span><span class="p">,</span> <span class="n">freeit</span> <span class="o">=</span> <span class="bp">True</span><span class="p">)</span>
+                   
+                   </div>
+    <span class="nd">@property</span>
+<div class="viewcode-block" id="BddFsm.inputs_constraints"><a class="viewcode-back" href="../../pynusmv.html#pynusmv.fsm.BddFsm.inputs_constraints">[docs]</a>    <span class="k">def</span> <span class="nf">inputs_constraints</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        The BDD of inputs satisfying the invariants of the FSM.</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">BDD</span><span class="p">(</span><span class="n">bddFsm</span><span class="o">.</span><span class="n">BddFsm_get_input_constraints</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_ptr</span><span class="p">),</span>
+                   <span class="bp">self</span><span class="o">.</span><span class="n">bddEnc</span><span class="o">.</span><span class="n">DDmanager</span><span class="p">,</span> <span class="n">freeit</span> <span class="o">=</span> <span class="bp">True</span><span class="p">)</span>
+                   
+                   </div>
+    <span class="nd">@property</span>
+<div class="viewcode-block" id="BddFsm.fairness_constraints"><a class="viewcode-back" href="../../pynusmv.html#pynusmv.fsm.BddFsm.fairness_constraints">[docs]</a>    <span class="k">def</span> <span class="nf">fairness_constraints</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        The list of fairness constraints, as BDDs.</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">justiceList</span> <span class="o">=</span> <span class="n">bddFsm</span><span class="o">.</span><span class="n">BddFsm_get_justice</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_ptr</span><span class="p">)</span>
+        <span class="n">fairnessList</span> <span class="o">=</span> <span class="n">bddFsm</span><span class="o">.</span><span class="n">justiceList2fairnessList</span><span class="p">(</span><span class="n">justiceList</span><span class="p">)</span>
+        
+        <span class="n">ite</span> <span class="o">=</span> <span class="n">bddFsm</span><span class="o">.</span><span class="n">FairnessList_begin</span><span class="p">(</span><span class="n">fairnessList</span><span class="p">)</span>
+        <span class="n">fairBdds</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">while</span> <span class="ow">not</span> <span class="n">bddFsm</span><span class="o">.</span><span class="n">FairnessListIterator_is_end</span><span class="p">(</span><span class="n">ite</span><span class="p">):</span>
+            <span class="n">fairBdds</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="n">BDD</span><span class="p">(</span><span class="n">bddFsm</span><span class="o">.</span><span class="n">JusticeList_get_p</span><span class="p">(</span><span class="n">justiceList</span><span class="p">,</span> <span class="n">ite</span><span class="p">),</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">bddEnc</span><span class="o">.</span><span class="n">DDmanager</span><span class="p">,</span> <span class="n">freeit</span> <span class="o">=</span> <span class="bp">True</span><span class="p">))</span>
+            <span class="n">ite</span> <span class="o">=</span> <span class="n">bddFsm</span><span class="o">.</span><span class="n">FairnessListIterator_next</span><span class="p">(</span><span class="n">ite</span><span class="p">)</span>
+            
+        <span class="k">return</span> <span class="n">fairBdds</span>
+                   
+                   </div>
+<div class="viewcode-block" id="BddFsm.pre"><a class="viewcode-back" href="../../pynusmv.html#pynusmv.fsm.BddFsm.pre">[docs]</a>    <span class="k">def</span> <span class="nf">pre</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">states</span><span class="p">,</span> <span class="n">inputs</span> <span class="o">=</span> <span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return the pre-image of `states` in this FSM.</span>
+<span class="sd">        If `inputs` is not `None`, it is used as constraints to get</span>
+<span class="sd">        pre-states that are reachable through these inputs.</span>
+<span class="sd">        </span>
+<span class="sd">        :param states: the states from which getting the pre-image</span>
+<span class="sd">        :type states: :class:`BDD &lt;pynusmv.dd.BDD&gt;`</span>
+<span class="sd">        :param inputs: the inputs through which getting the pre-image</span>
+<span class="sd">        :type inputs: :class:`BDD &lt;pynusmv.dd.BDD&gt;`</span>
+<span class="sd">        :rtype: :class:`BDD &lt;pynusmv.dd.BDD&gt;`</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">inputs</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">BDD</span><span class="p">(</span><span class="n">bddFsm</span><span class="o">.</span><span class="n">BddFsm_get_backward_image</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_ptr</span><span class="p">,</span> <span class="n">states</span><span class="o">.</span><span class="n">_ptr</span><span class="p">),</span>
+                       <span class="bp">self</span><span class="o">.</span><span class="n">bddEnc</span><span class="o">.</span><span class="n">DDmanager</span><span class="p">,</span> <span class="n">freeit</span> <span class="o">=</span> <span class="bp">True</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">BDD</span><span class="p">(</span><span class="n">bddFsm</span><span class="o">.</span><span class="n">BddFsm_get_constrained_backward_image</span><span class="p">(</span>
+                            <span class="bp">self</span><span class="o">.</span><span class="n">_ptr</span><span class="p">,</span> <span class="n">states</span><span class="o">.</span><span class="n">_ptr</span><span class="p">,</span> <span class="n">inputs</span><span class="o">.</span><span class="n">_ptr</span><span class="p">),</span>
+                       <span class="bp">self</span><span class="o">.</span><span class="n">bddEnc</span><span class="o">.</span><span class="n">DDmanager</span><span class="p">,</span> <span class="n">freeit</span> <span class="o">=</span> <span class="bp">True</span><span class="p">)</span>
+        
+        </div>
+<div class="viewcode-block" id="BddFsm.post"><a class="viewcode-back" href="../../pynusmv.html#pynusmv.fsm.BddFsm.post">[docs]</a>    <span class="k">def</span> <span class="nf">post</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">states</span><span class="p">,</span> <span class="n">inputs</span> <span class="o">=</span> <span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return the post-image of `states` in this FSM.</span>
+<span class="sd">        If `inputs` is not `None`, it is used as constraints to get</span>
+<span class="sd">        post-states that are reachable through these inputs.</span>
+<span class="sd">        </span>
+<span class="sd">        :param states: the states from which getting the post-image</span>
+<span class="sd">        :type states: :class:`BDD &lt;pynusmv.dd.BDD&gt;`</span>
+<span class="sd">        :param inputs: the inputs through which getting the post-image</span>
+<span class="sd">        :type inputs: :class:`BDD &lt;pynusmv.dd.BDD&gt;`</span>
+<span class="sd">        :rtype: :class:`BDD &lt;pynusmv.dd.BDD&gt;`</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">inputs</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">BDD</span><span class="p">(</span><span class="n">bddFsm</span><span class="o">.</span><span class="n">BddFsm_get_forward_image</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_ptr</span><span class="p">,</span> <span class="n">states</span><span class="o">.</span><span class="n">_ptr</span><span class="p">),</span>
+                       <span class="bp">self</span><span class="o">.</span><span class="n">bddEnc</span><span class="o">.</span><span class="n">DDmanager</span><span class="p">,</span> <span class="n">freeit</span> <span class="o">=</span> <span class="bp">True</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">BDD</span><span class="p">(</span><span class="n">bddFsm</span><span class="o">.</span><span class="n">BddFsm_get_constrained_forward_image</span><span class="p">(</span>
+                            <span class="bp">self</span><span class="o">.</span><span class="n">_ptr</span><span class="p">,</span> <span class="n">states</span><span class="o">.</span><span class="n">_ptr</span><span class="p">,</span> <span class="n">inputs</span><span class="o">.</span><span class="n">_ptr</span><span class="p">),</span>
+                       <span class="bp">self</span><span class="o">.</span><span class="n">bddEnc</span><span class="o">.</span><span class="n">DDmanager</span><span class="p">,</span> <span class="n">freeit</span> <span class="o">=</span> <span class="bp">True</span><span class="p">)</span>
+        
+        </div>
+<div class="viewcode-block" id="BddFsm.pick_one_state"><a class="viewcode-back" href="../../pynusmv.html#pynusmv.fsm.BddFsm.pick_one_state">[docs]</a>    <span class="k">def</span> <span class="nf">pick_one_state</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bdd</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return a BDD representing a state of `bdd`.</span>
+<span class="sd">        </span>
+<span class="sd">        :rtype: :class:`State &lt;pynusmv.dd.State&gt;`</span>
+<span class="sd">        :raise: a :exc:`NuSMVBddPickingError </span>
+<span class="sd">                &lt;pynusmv.exception.NuSMVBddPickingError&gt;`</span>
+<span class="sd">                if `bdd` is false or an error occurs while picking one state</span>
+<span class="sd">                (for example if the bdd does not contain any state but inputs)</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">bdd</span><span class="o">.</span><span class="n">is_false</span><span class="p">():</span>
+            <span class="k">raise</span> <span class="n">NuSMVBddPickingError</span><span class="p">(</span><span class="s">&quot;Cannot pick state from false BDD.&quot;</span><span class="p">)</span>
+        <span class="n">state</span> <span class="o">=</span> <span class="n">bddEnc</span><span class="o">.</span><span class="n">pick_one_state</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">bddEnc</span><span class="o">.</span><span class="n">_ptr</span><span class="p">,</span> <span class="n">bdd</span><span class="o">.</span><span class="n">_ptr</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">state</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">NuSMVBddPickingError</span><span class="p">(</span><span class="s">&quot;Cannot pick state from BDD.&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">State</span><span class="p">(</span><span class="n">state</span><span class="p">,</span> <span class="bp">self</span><span class="p">,</span> <span class="n">freeit</span> <span class="o">=</span> <span class="bp">True</span><span class="p">)</span>
+
+    </div>
+<div class="viewcode-block" id="BddFsm.pick_one_inputs"><a class="viewcode-back" href="../../pynusmv.html#pynusmv.fsm.BddFsm.pick_one_inputs">[docs]</a>    <span class="k">def</span> <span class="nf">pick_one_inputs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bdd</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return a BDD representing an inputs of `bdd`.</span>
+<span class="sd">        </span>
+<span class="sd">        :rtype: :class:`Inputs &lt;pynusmv.dd.Inputs&gt;`</span>
+<span class="sd">        :raise: a :exc:`NuSMVBddPickingError </span>
+<span class="sd">                &lt;pynusmv.exception.NuSMVBddPickingError&gt;`</span>
+<span class="sd">                if `bdd` is false or an error occurs while picking one inputs</span>
+<span class="sd">                (for example if the bdd does not contain any inputs but states)</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">bdd</span><span class="o">.</span><span class="n">is_false</span><span class="p">():</span>
+            <span class="k">raise</span> <span class="n">NuSMVBddPickingError</span><span class="p">(</span><span class="s">&quot;Cannot pick inputs from false BDD.&quot;</span><span class="p">)</span>
+        <span class="n">inputs</span> <span class="o">=</span> <span class="n">bddEnc</span><span class="o">.</span><span class="n">pick_one_input</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">bddEnc</span><span class="o">.</span><span class="n">_ptr</span><span class="p">,</span> <span class="n">bdd</span><span class="o">.</span><span class="n">_ptr</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">inputs</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">NuSMVBddPickingError</span><span class="p">(</span><span class="s">&quot;Cannot pick inputs from BDD.&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">Inputs</span><span class="p">(</span><span class="n">inputs</span><span class="p">,</span> <span class="bp">self</span><span class="p">,</span> <span class="n">freeit</span> <span class="o">=</span> <span class="bp">True</span><span class="p">)</span>
+        
+    </div>
+<div class="viewcode-block" id="BddFsm.get_inputs_between_states"><a class="viewcode-back" href="../../pynusmv.html#pynusmv.fsm.BddFsm.get_inputs_between_states">[docs]</a>    <span class="k">def</span> <span class="nf">get_inputs_between_states</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">current</span><span class="p">,</span> <span class="nb">next</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return the BDD representing the possible inputs between `current` and</span>
+<span class="sd">        `next`.</span>
+<span class="sd">        </span>
+<span class="sd">        :param current: the source states</span>
+<span class="sd">        :type current: :class:`BDD &lt;pynusmv.dd.BDD&gt;`</span>
+<span class="sd">        :param current: the destination states</span>
+<span class="sd">        :type current: :class:`BDD &lt;pynusmv.dd.BDD&gt;`</span>
+<span class="sd">        :rtype: :class:`BDD &lt;pynusmv.dd.BDD&gt;`</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">inputs</span> <span class="o">=</span> <span class="n">bddFsm</span><span class="o">.</span><span class="n">BddFsm_states_to_states_get_inputs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_ptr</span><span class="p">,</span>
+                                                           <span class="n">current</span><span class="o">.</span><span class="n">_ptr</span><span class="p">,</span>
+                                                           <span class="nb">next</span><span class="o">.</span><span class="n">_ptr</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">Inputs</span><span class="p">(</span><span class="n">inputs</span><span class="p">,</span> <span class="bp">self</span><span class="p">,</span> <span class="n">freeit</span> <span class="o">=</span> <span class="bp">True</span><span class="p">)</span>
+        
+        </div>
+<div class="viewcode-block" id="BddFsm.count_states"><a class="viewcode-back" href="../../pynusmv.html#pynusmv.fsm.BddFsm.count_states">[docs]</a>    <span class="k">def</span> <span class="nf">count_states</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bdd</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return the number of states of the given BDD.</span>
+<span class="sd">        </span>
+<span class="sd">        :param bdd: the concerned BDD</span>
+<span class="sd">        :type bdd: :class:`BDD &lt;pynusmv.dd.BDD&gt;`</span>
+<span class="sd">                </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c"># Apply mask before counting states</span>
+        <span class="n">bdd</span> <span class="o">=</span> <span class="n">bdd</span> <span class="o">&amp;</span> <span class="bp">self</span><span class="o">.</span><span class="n">bddEnc</span><span class="o">.</span><span class="n">statesMask</span>
+        <span class="k">return</span> <span class="n">bddEnc</span><span class="o">.</span><span class="n">BddEnc_count_states_of_bdd</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">bddEnc</span><span class="o">.</span><span class="n">_ptr</span><span class="p">,</span> <span class="n">bdd</span><span class="o">.</span><span class="n">_ptr</span><span class="p">)</span>
+        
+        </div>
+<div class="viewcode-block" id="BddFsm.count_inputs"><a class="viewcode-back" href="../../pynusmv.html#pynusmv.fsm.BddFsm.count_inputs">[docs]</a>    <span class="k">def</span> <span class="nf">count_inputs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bdd</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return the number of inputs of the given BDD</span>
+<span class="sd">        </span>
+<span class="sd">        :param bdd: the concerned BDD</span>
+<span class="sd">        :type bdd: :class:`BDD &lt;pynusmv.dd.BDD&gt;`</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c"># Apply mask before counting inputs</span>
+        <span class="n">bdd</span> <span class="o">=</span> <span class="n">bdd</span> <span class="o">&amp;</span> <span class="bp">self</span><span class="o">.</span><span class="n">bddEnc</span><span class="o">.</span><span class="n">inputsMask</span>
+        <span class="k">return</span> <span class="n">bddEnc</span><span class="o">.</span><span class="n">BddEnc_count_inputs_of_bdd</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">bddEnc</span><span class="o">.</span><span class="n">_ptr</span><span class="p">,</span> <span class="n">bdd</span><span class="o">.</span><span class="n">_ptr</span><span class="p">)</span>
+        
+        </div>
+<div class="viewcode-block" id="BddFsm.pick_all_states"><a class="viewcode-back" href="../../pynusmv.html#pynusmv.fsm.BddFsm.pick_all_states">[docs]</a>    <span class="k">def</span> <span class="nf">pick_all_states</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bdd</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return a tuple of all states belonging to `bdd`.</span>
+<span class="sd">        </span>
+<span class="sd">        :param bdd: the concerned BDD</span>
+<span class="sd">        :type bdd: :class:`BDD &lt;pynusmv.dd.BDD&gt;`</span>
+<span class="sd">        :rtype: tuple(:class:`State &lt;pynusmv.dd.State&gt;`)</span>
+<span class="sd">        :raise: a :exc:`NuSMVBddPickingError</span>
+<span class="sd">                &lt;pynusmv.exception.NuSMVBddPickingError&gt;`</span>
+<span class="sd">                if something is wrong</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c"># FIXME Still get segmentation faults. Need investigation.</span>
+        <span class="c"># tests/pynusmv/testFsm.py seems to raise segmentation faults</span>
+        
+        <span class="c"># Apply mask</span>
+        <span class="n">bdd</span> <span class="o">=</span> <span class="n">bdd</span> <span class="o">&amp;</span> <span class="bp">self</span><span class="o">.</span><span class="n">bddEnc</span><span class="o">.</span><span class="n">statesMask</span>
+        <span class="c"># Get all states</span>
+        <span class="p">(</span><span class="n">err</span><span class="p">,</span> <span class="n">t</span><span class="p">)</span> <span class="o">=</span> <span class="n">bddEnc</span><span class="o">.</span><span class="n">pick_all_terms_states</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">bddEnc</span><span class="o">.</span><span class="n">_ptr</span><span class="p">,</span> <span class="n">bdd</span><span class="o">.</span><span class="n">_ptr</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">err</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">NuSMVBddPickingError</span><span class="p">(</span><span class="s">&quot;Cannot pick all states.&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">State</span><span class="p">(</span><span class="n">te</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span> <span class="k">for</span> <span class="n">te</span> <span class="ow">in</span> <span class="n">t</span><span class="p">)</span>
+            
+            </div>
+<div class="viewcode-block" id="BddFsm.pick_all_inputs"><a class="viewcode-back" href="../../pynusmv.html#pynusmv.fsm.BddFsm.pick_all_inputs">[docs]</a>    <span class="k">def</span> <span class="nf">pick_all_inputs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bdd</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return a tuple of all inputs belonging to `bdd`.</span>
+<span class="sd">        </span>
+<span class="sd">        :param bdd: the concerned BDD</span>
+<span class="sd">        :type bdd: :class:`BDD &lt;pynusmv.dd.BDD&gt;`</span>
+<span class="sd">        :rtype: tuple(:class:`Inputs &lt;pynusmv.dd.Inputs&gt;`)</span>
+<span class="sd">        :raise: a :exc:`NuSMVBddPickingError</span>
+<span class="sd">                &lt;pynusmv.exception.NuSMVBddPickingError&gt;`</span>
+<span class="sd">                if something is wrong</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c"># FIXME Still get segmentation faults. Need investigation.</span>
+        <span class="c"># tests/pynusmv/testFsm.py seems to raise segmentation faults</span>
+        
+        <span class="n">mask</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">bddEnc</span><span class="o">.</span><span class="n">inputsMask</span>
+        
+        <span class="c"># Apply mask</span>
+        <span class="n">bdd</span> <span class="o">=</span> <span class="n">bdd</span> <span class="o">&amp;</span> <span class="n">mask</span>
+        <span class="c"># Get all states</span>
+        <span class="p">(</span><span class="n">err</span><span class="p">,</span> <span class="n">t</span><span class="p">)</span> <span class="o">=</span> <span class="n">bddEnc</span><span class="o">.</span><span class="n">pick_all_terms_inputs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">bddEnc</span><span class="o">.</span><span class="n">_ptr</span><span class="p">,</span> <span class="n">bdd</span><span class="o">.</span><span class="n">_ptr</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">err</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">NuSMVBddPickingError</span><span class="p">(</span><span class="s">&quot;Cannot pick all inputs.&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">Inputs</span><span class="p">(</span><span class="n">te</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span> <span class="k">for</span> <span class="n">te</span> <span class="ow">in</span> <span class="n">t</span><span class="p">)</span>
+        
+        </div>
+    <span class="nd">@property</span>    
+<div class="viewcode-block" id="BddFsm.reachable_states"><a class="viewcode-back" href="../../pynusmv.html#pynusmv.fsm.BddFsm.reachable_states">[docs]</a>    <span class="k">def</span> <span class="nf">reachable_states</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return a the set of reachable states of this FSM, represented as a BDD.</span>
+<span class="sd">        </span>
+<span class="sd">        :rtype: :class:`BDD &lt;pynusmv.dd.BDD&gt;`</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_reachable</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="c">#self._reachable = fixpoint(lambda Z: (self.init | self.post(Z)),</span>
+            <span class="c">#                           BDD.false(self.bddEnc.DDmanager))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_reachable</span> <span class="o">=</span> <span class="n">BDD</span><span class="p">(</span><span class="n">bddFsm</span><span class="o">.</span><span class="n">BddFsm_get_reachable_states</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_ptr</span><span class="p">),</span>
+                                  <span class="bp">self</span><span class="o">.</span><span class="n">bddEnc</span><span class="o">.</span><span class="n">DDmanager</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_reachable</span>
+        
+        
+    <span class="c"># ==========================================================================</span>
+    <span class="c"># ===== Static methods =====================================================</span>
+    <span class="c"># ==========================================================================</span>
+    </div>
+    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="BddFsm.from_filename"><a class="viewcode-back" href="../../pynusmv.html#pynusmv.fsm.BddFsm.from_filename">[docs]</a>    <span class="k">def</span> <span class="nf">from_filename</span><span class="p">(</span><span class="n">filepath</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return the FSM corresponding to the model in `filepath`.</span>
+<span class="sd">        </span>
+<span class="sd">        :param filepath: the path to the SMV model</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c"># This function modifies the global environment of NuSMV.</span>
+        <span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">glob</span>
+        <span class="n">glob</span><span class="o">.</span><span class="n">load_from_file</span><span class="p">(</span><span class="n">filepath</span><span class="p">)</span>
+        <span class="n">glob</span><span class="o">.</span><span class="n">compute_model</span><span class="p">()</span>
+        <span class="n">propDb</span> <span class="o">=</span> <span class="n">glob</span><span class="o">.</span><span class="n">prop_database</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">propDb</span><span class="o">.</span><span class="n">master</span><span class="o">.</span><span class="n">bddFsm</span>
+        <span class="c"># TODO Remove this and use glob module instead</span>
+
+</div></div>
+<div class="viewcode-block" id="BddEnc"><a class="viewcode-back" href="../../pynusmv.html#pynusmv.fsm.BddEnc">[docs]</a><span class="k">class</span> <span class="nc">BddEnc</span><span class="p">(</span><span class="n">PointerWrapper</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Python class for BDD encoding.</span>
+<span class="sd">    </span>
+<span class="sd">    A BddEnc provides some basic functionalities like getting the DD manager</span>
+<span class="sd">    used to manage BDDs, the symbols table or the state and inputs masks.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c"># BddEnc do not have to be freed.</span>
+    
+    <span class="nd">@property</span>
+<div class="viewcode-block" id="BddEnc.DDmanager"><a class="viewcode-back" href="../../pynusmv.html#pynusmv.fsm.BddEnc.DDmanager">[docs]</a>    <span class="k">def</span> <span class="nf">DDmanager</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        The DD manager of this encoding.</span>
+<span class="sd">        </span>
+<span class="sd">        :rtype: :class:`DDManager &lt;pynusmv.dd.DDManager&gt;`</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">DDManager</span><span class="p">(</span><span class="n">bddEnc</span><span class="o">.</span><span class="n">BddEnc_get_dd_manager</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_ptr</span><span class="p">))</span>
+        
+    </div>
+    <span class="nd">@property</span>
+<div class="viewcode-block" id="BddEnc.symbTable"><a class="viewcode-back" href="../../pynusmv.html#pynusmv.fsm.BddEnc.symbTable">[docs]</a>    <span class="k">def</span> <span class="nf">symbTable</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        The symbols table of this encoding.</span>
+<span class="sd">        </span>
+<span class="sd">        :rtype: :class:`SymbTable`</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">base_enc</span> <span class="o">=</span> <span class="n">bddEnc</span><span class="o">.</span><span class="n">bddenc2baseenc</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_ptr</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">SymbTable</span><span class="p">(</span><span class="n">nsbaseEnc</span><span class="o">.</span><span class="n">BaseEnc_get_symb_table</span><span class="p">(</span><span class="n">base_enc</span><span class="p">))</span>
+        
+    </div>
+    <span class="nd">@property</span>    
+<div class="viewcode-block" id="BddEnc.statesMask"><a class="viewcode-back" href="../../pynusmv.html#pynusmv.fsm.BddEnc.statesMask">[docs]</a>    <span class="k">def</span> <span class="nf">statesMask</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        The mask for all state variables, represented as a BDD.</span>
+<span class="sd">        </span>
+<span class="sd">        :rtype: :class:`BDD &lt;pynusmv.dd.BDD&gt;`</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        
+        <span class="k">return</span> <span class="n">BDD</span><span class="p">(</span><span class="n">bddEnc</span><span class="o">.</span><span class="n">BddEnc_get_state_frozen_vars_mask_bdd</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_ptr</span><span class="p">),</span>
+                   <span class="bp">self</span><span class="o">.</span><span class="n">DDmanager</span><span class="p">,</span> <span class="n">freeit</span> <span class="o">=</span> <span class="bp">True</span><span class="p">)</span>
+                   
+    </div>
+    <span class="nd">@property</span>               
+<div class="viewcode-block" id="BddEnc.inputsMask"><a class="viewcode-back" href="../../pynusmv.html#pynusmv.fsm.BddEnc.inputsMask">[docs]</a>    <span class="k">def</span> <span class="nf">inputsMask</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        The mask for all input variables, represented as a BDD.</span>
+<span class="sd">        </span>
+<span class="sd">        :rtype: :class:`BDD &lt;pynusmv.dd.BDD&gt;`</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+    
+        <span class="k">return</span> <span class="n">BDD</span><span class="p">(</span><span class="n">bddEnc</span><span class="o">.</span><span class="n">BddEnc_get_input_vars_mask_bdd</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_ptr</span><span class="p">),</span>
+                   <span class="bp">self</span><span class="o">.</span><span class="n">DDmanager</span><span class="p">,</span> <span class="n">freeit</span> <span class="o">=</span> <span class="bp">True</span><span class="p">)</span>
+        
+                   </div></div>
+<div class="viewcode-block" id="SymbTable"><a class="viewcode-back" href="../../pynusmv.html#pynusmv.fsm.SymbTable">[docs]</a><span class="k">class</span> <span class="nc">SymbTable</span><span class="p">(</span><span class="n">PointerWrapper</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Python class for symbols table.</span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c"># Symbols tables are never freed. NuSMV takes care of it.</span>
+    <span class="k">pass</span>
+    
+    </div>
+<div class="viewcode-block" id="BddTrans"><a class="viewcode-back" href="../../pynusmv.html#pynusmv.fsm.BddTrans">[docs]</a><span class="k">class</span> <span class="nc">BddTrans</span><span class="p">(</span><span class="n">PointerWrapper</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Python class for transition relation encoded with BDDs.</span>
+<span class="sd">    </span>
+<span class="sd">    A BddTrans represents a transition relation and provides pre and post</span>
+<span class="sd">    operations on BDDs, possibly restricted to given actions.</span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ptr</span><span class="p">,</span> <span class="n">enc</span> <span class="o">=</span> <span class="bp">None</span><span class="p">,</span> <span class="n">manager</span> <span class="o">=</span> <span class="bp">None</span><span class="p">,</span> <span class="n">freeit</span> <span class="o">=</span> <span class="bp">True</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Create a new BddTrans.</span>
+<span class="sd">        </span>
+<span class="sd">        :param ptr: a NuSMV pointer to a BddTrans</span>
+<span class="sd">        :param enc: the BDD encoding of the transition relation</span>
+<span class="sd">        :type enc: :class:`BddEnc`</span>
+<span class="sd">        :param manager: the DD manager of the BDDs used to encode the relation</span>
+<span class="sd">        :type manager: :class:`DDManager &lt;pynusmv.dd.DDManager&gt;`</span>
+<span class="sd">        :param freeit: whether or not freeing the pointer</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">ptr</span><span class="p">,</span> <span class="n">freeit</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_enc</span> <span class="o">=</span> <span class="n">enc</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_manager</span> <span class="o">=</span> <span class="n">manager</span>
+    
+    
+    <span class="nd">@property</span>
+<div class="viewcode-block" id="BddTrans.monolithic"><a class="viewcode-back" href="../../pynusmv.html#pynusmv.fsm.BddTrans.monolithic">[docs]</a>    <span class="k">def</span> <span class="nf">monolithic</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This transition relation represented as a monolithic BDD.</span>
+<span class="sd">        </span>
+<span class="sd">        :rtype: :class:`BDD &lt;pynusmv.dd.BDD&gt;`</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">ptr</span> <span class="o">=</span> <span class="n">nsbddtrans</span><span class="o">.</span><span class="n">BddTrans_get_monolithic_bdd</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_ptr</span><span class="p">)</span> 
+        <span class="k">return</span> <span class="n">BDD</span><span class="p">(</span><span class="n">ptr</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_manager</span><span class="p">,</span> <span class="n">freeit</span> <span class="o">=</span> <span class="bp">True</span><span class="p">)</span>
+        
+        </div>
+<div class="viewcode-block" id="BddTrans.pre"><a class="viewcode-back" href="../../pynusmv.html#pynusmv.fsm.BddTrans.pre">[docs]</a>    <span class="k">def</span> <span class="nf">pre</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">states</span><span class="p">,</span> <span class="n">inputs</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Compute the pre-image of `states`, through `inputs` if not `None`.</span>
+<span class="sd">        </span>
+<span class="sd">        :param states: the concerned states</span>
+<span class="sd">        :type states: :class:`BDD &lt;pynusmv.dd.BDD&gt;`</span>
+<span class="sd">        :param inputs: possible inputs</span>
+<span class="sd">        :type inputs: :class:`BDD &lt;pynusmv.dd.BDD&gt;`</span>
+<span class="sd">        :rtype: :class:`BDD &lt;pynusmv.dd.BDD&gt;`</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">nexts</span> <span class="o">=</span> <span class="n">BDD</span><span class="p">(</span>
+            <span class="n">bddEnc</span><span class="o">.</span><span class="n">BddEnc_state_var_to_next_state_var</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_enc</span><span class="o">.</span><span class="n">_ptr</span><span class="p">,</span>
+                                                            <span class="n">states</span><span class="o">.</span><span class="n">_ptr</span><span class="p">),</span>
+            <span class="n">states</span><span class="o">.</span><span class="n">_manager</span><span class="p">,</span> <span class="n">freeit</span> <span class="o">=</span> <span class="bp">True</span><span class="p">)</span>
+            
+        <span class="k">if</span> <span class="n">inputs</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">nexts</span> <span class="o">=</span> <span class="n">nexts</span> <span class="o">&amp;</span> <span class="n">inputs</span>
+        <span class="n">img</span> <span class="o">=</span> <span class="n">nsbddtrans</span><span class="o">.</span><span class="n">BddTrans_get_backward_image_state</span><span class="p">(</span>
+                                                          <span class="bp">self</span><span class="o">.</span><span class="n">_ptr</span><span class="p">,</span> <span class="n">nexts</span><span class="o">.</span><span class="n">_ptr</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">BDD</span><span class="p">(</span><span class="n">img</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_manager</span><span class="p">,</span> <span class="n">freeit</span> <span class="o">=</span> <span class="bp">True</span><span class="p">)</span>
+        
+    </div>
+<div class="viewcode-block" id="BddTrans.post"><a class="viewcode-back" href="../../pynusmv.html#pynusmv.fsm.BddTrans.post">[docs]</a>    <span class="k">def</span> <span class="nf">post</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">states</span><span class="p">,</span> <span class="n">inputs</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Compute the post-image of `states`, through `inputs` if not `None`.</span>
+<span class="sd">        </span>
+<span class="sd">        :param states: the concerned states</span>
+<span class="sd">        :type states: :class:`BDD &lt;pynusmv.dd.BDD&gt;`</span>
+<span class="sd">        :param inputs: possible inputs</span>
+<span class="sd">        :type inputs: :class:`BDD &lt;pynusmv.dd.BDD&gt;`</span>
+<span class="sd">        :rtype: :class:`BDD &lt;pynusmv.dd.BDD&gt;`</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">inputs</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">states</span> <span class="o">=</span> <span class="n">states</span> <span class="o">&amp;</span> <span class="n">inputs</span>
+        <span class="n">img</span> <span class="o">=</span> <span class="n">nsbddtrans</span><span class="o">.</span><span class="n">BddTrans_get_forward_image_state</span><span class="p">(</span>
+                                                         <span class="bp">self</span><span class="o">.</span><span class="n">_ptr</span><span class="p">,</span> <span class="n">states</span><span class="o">.</span><span class="n">_ptr</span><span class="p">)</span>
+        <span class="n">img</span> <span class="o">=</span> <span class="n">bddEnc</span><span class="o">.</span><span class="n">BddEnc_next_state_var_to_state_var</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_enc</span><span class="o">.</span><span class="n">_ptr</span><span class="p">,</span> <span class="n">img</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">BDD</span><span class="p">(</span><span class="n">img</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_manager</span><span class="p">,</span> <span class="n">freeit</span> <span class="o">=</span> <span class="bp">True</span><span class="p">)</span></div></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../index.html">PyNuSMV 0.6 documentation</a> &raquo;</li>
+          <li><a href="../index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2013, Simon Busard.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

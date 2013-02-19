@@ -1,0 +1,273 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>pynusmv.mc &mdash; PyNuSMV 0.6 documentation</title>
+    
+    <link rel="stylesheet" href="../../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '0.6',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="top" title="PyNuSMV 0.6 documentation" href="../../index.html" />
+    <link rel="up" title="Module code" href="../index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../index.html">PyNuSMV 0.6 documentation</a> &raquo;</li>
+          <li><a href="../index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for pynusmv.mc</h1><div class="highlight"><pre>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">The :mod:`pynusmv.mc` module provides some functions of NuSMV dealing with model</span>
+<span class="sd">checking, like CTL model checking.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;eval_simple_expression&#39;</span><span class="p">,</span> <span class="s">&#39;eval_ctl_spec&#39;</span><span class="p">,</span> <span class="s">&#39;explainEX&#39;</span><span class="p">,</span> <span class="s">&#39;explainEU&#39;</span><span class="p">,</span>
+           <span class="s">&#39;explainEG&#39;</span><span class="p">]</span>
+
+
+<span class="kn">from</span> <span class="nn">.nusmv.node</span> <span class="kn">import</span> <span class="n">node</span> <span class="k">as</span> <span class="n">nsnode</span>
+<span class="kn">from</span> <span class="nn">.nusmv.dd</span> <span class="kn">import</span> <span class="n">dd</span> <span class="k">as</span> <span class="n">nsdd</span>
+<span class="kn">from</span> <span class="nn">.nusmv.mc</span> <span class="kn">import</span> <span class="n">mc</span>
+     
+<span class="kn">from</span> <span class="nn">.fsm</span> <span class="kn">import</span> <span class="n">BddFsm</span>
+<span class="kn">from</span> <span class="nn">.dd</span> <span class="kn">import</span> <span class="n">BDD</span><span class="p">,</span> <span class="n">State</span><span class="p">,</span> <span class="n">Inputs</span><span class="p">,</span> <span class="n">BDDList</span>
+<span class="kn">from</span> <span class="nn">.prop</span> <span class="kn">import</span> <span class="n">atom</span>
+
+
+<div class="viewcode-block" id="eval_simple_expression"><a class="viewcode-back" href="../../pynusmv.html#pynusmv.mc.eval_simple_expression">[docs]</a><span class="k">def</span> <span class="nf">eval_simple_expression</span><span class="p">(</span><span class="n">fsm</span><span class="p">,</span> <span class="n">sexp</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Return the set of states of `fsm` satisfying `sexp`, as a BDD.</span>
+<span class="sd">    `sexp` is first parsed, then evaluated on `fsm`.</span>
+<span class="sd">    </span>
+<span class="sd">    :param fsm: the concerned FSM</span>
+<span class="sd">    :type fsm: :class:`BddFsm &lt;pynusmv.fsm.BddFsm&gt;`</span>
+<span class="sd">    :param sexp: a simple expression, as a string</span>
+<span class="sd">    :rtype: :class:`BDD &lt;pynusmv.dd.BDD&gt;`</span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">eval_ctl_spec</span><span class="p">(</span><span class="n">fsm</span><span class="p">,</span> <span class="n">atom</span><span class="p">(</span><span class="n">sexp</span><span class="p">))</span>
+    
+</div>
+<div class="viewcode-block" id="eval_ctl_spec"><a class="viewcode-back" href="../../pynusmv.html#pynusmv.mc.eval_ctl_spec">[docs]</a><span class="k">def</span> <span class="nf">eval_ctl_spec</span><span class="p">(</span><span class="n">fsm</span><span class="p">,</span> <span class="n">spec</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Return the set of states of `fsm` satisfying `spec` in `context`, as a BDD.</span>
+<span class="sd">    </span>
+<span class="sd">    :param fsm: the concerned FSM</span>
+<span class="sd">    :type fsm: :class:`BddFsm &lt;pynusmv.fsm.BddFsm&gt;`</span>
+<span class="sd">    :param spec: a specification about `fsm`</span>
+<span class="sd">    :type spec: :class:`Spec &lt;pynusmv.prop.Spec&gt;`</span>
+<span class="sd">    :param context: the context in which evaluate `spec`</span>
+<span class="sd">    :type context: :class:`Spec &lt;pynusmv.prop.Spec&gt;`</span>
+<span class="sd">    :rtype: :class:`BDD &lt;pynusmv.dd.BDD&gt;`</span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">enc</span> <span class="o">=</span> <span class="n">fsm</span><span class="o">.</span><span class="n">bddEnc</span>
+    <span class="n">specbdd</span> <span class="o">=</span> <span class="n">BDD</span><span class="p">(</span><span class="n">mc</span><span class="o">.</span><span class="n">eval_ctl_spec</span><span class="p">(</span><span class="n">fsm</span><span class="o">.</span><span class="n">_ptr</span><span class="p">,</span> <span class="n">enc</span><span class="o">.</span><span class="n">_ptr</span><span class="p">,</span>
+                                   <span class="n">spec</span><span class="o">.</span><span class="n">_ptr</span><span class="p">,</span>
+                                   <span class="n">context</span> <span class="ow">and</span> <span class="n">context</span><span class="o">.</span><span class="n">_ptr</span> <span class="ow">or</span> <span class="bp">None</span><span class="p">),</span>
+                  <span class="n">enc</span><span class="o">.</span><span class="n">DDmanager</span><span class="p">,</span> <span class="n">freeit</span> <span class="o">=</span> <span class="bp">True</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">specbdd</span>
+    
+    </div>
+<div class="viewcode-block" id="explainEX"><a class="viewcode-back" href="../../pynusmv.html#pynusmv.mc.explainEX">[docs]</a><span class="k">def</span> <span class="nf">explainEX</span><span class="p">(</span><span class="n">fsm</span><span class="p">,</span> <span class="n">state</span><span class="p">,</span> <span class="n">a</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Explain why `state` of `fsm` satisfies `EX phi`, where `a` is</span>
+<span class="sd">    the set of states of `fsm` satisfying `phi`, represented by a BDD.</span>
+<span class="sd">    </span>
+<span class="sd">    :param fsm: the system</span>
+<span class="sd">    :type fsm: :class:`BddFsm &lt;pynusmv.fsm.BddFsm&gt;`</span>
+<span class="sd">    :param state: a state of `fsm`</span>
+<span class="sd">    :type state: :class:`State &lt;pynusmv.dd.State&gt;`</span>
+<span class="sd">    :param a: the set of states of `fsm` satisfying `phi`</span>
+<span class="sd">    :type a: :class:`BDD &lt;pynusmv.dd.BDD&gt;`</span>
+<span class="sd">    </span>
+<span class="sd">    Return `(s, i, s&#39;)` tuple where `s` (:class:`State &lt;pynusmv.dd.State&gt;`)</span>
+<span class="sd">    is the given state, `s&#39;` (:class:`State &lt;pynusmv.dd.State&gt;`) is a successor</span>
+<span class="sd">    of `s` belonging to `a` and `i` (:class:`Inputs &lt;pynusmv.dd.Inputs&gt;`)</span>
+<span class="sd">    is the inputs to go from `s` to `s&#39;` in `fsm`.</span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">enc</span> <span class="o">=</span> <span class="n">fsm</span><span class="o">.</span><span class="n">bddEnc</span>
+    <span class="n">manager</span> <span class="o">=</span> <span class="n">enc</span><span class="o">.</span><span class="n">DDmanager</span>
+    <span class="n">path</span> <span class="o">=</span> <span class="n">nsnode</span><span class="o">.</span><span class="n">cons</span><span class="p">(</span><span class="n">nsnode</span><span class="o">.</span><span class="n">bdd2node</span><span class="p">(</span><span class="n">nsdd</span><span class="o">.</span><span class="n">bdd_dup</span><span class="p">(</span><span class="n">state</span><span class="o">.</span><span class="n">_ptr</span><span class="p">)),</span> <span class="bp">None</span><span class="p">)</span>
+    <span class="n">bddlist</span> <span class="o">=</span> <span class="n">BDDList</span><span class="p">(</span><span class="n">mc</span><span class="o">.</span><span class="n">ex_explain</span><span class="p">(</span><span class="n">fsm</span><span class="o">.</span><span class="n">_ptr</span><span class="p">,</span> <span class="n">enc</span><span class="o">.</span><span class="n">_ptr</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">a</span><span class="o">.</span><span class="n">_ptr</span><span class="p">),</span>
+                       <span class="n">manager</span><span class="p">)</span>
+    
+    <span class="c"># bddlist is reversed!</span>
+    <span class="n">statep</span> <span class="o">=</span> <span class="n">State</span><span class="o">.</span><span class="n">from_bdd</span><span class="p">(</span><span class="n">bddlist</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">fsm</span><span class="p">)</span>
+    <span class="n">inputs</span> <span class="o">=</span> <span class="n">Inputs</span><span class="o">.</span><span class="n">from_bdd</span><span class="p">(</span><span class="n">bddlist</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">fsm</span><span class="p">)</span>
+    <span class="n">state</span> <span class="o">=</span> <span class="n">State</span><span class="o">.</span><span class="n">from_bdd</span><span class="p">(</span><span class="n">bddlist</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">fsm</span><span class="p">)</span>
+    
+    <span class="k">return</span> <span class="p">(</span><span class="n">state</span><span class="p">,</span> <span class="n">inputs</span><span class="p">,</span> <span class="n">statep</span><span class="p">)</span>
+
+</div>
+<div class="viewcode-block" id="explainEU"><a class="viewcode-back" href="../../pynusmv.html#pynusmv.mc.explainEU">[docs]</a><span class="k">def</span> <span class="nf">explainEU</span><span class="p">(</span><span class="n">fsm</span><span class="p">,</span> <span class="n">state</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Explain why `state` of `fsm` satisfies `E[phi U psi]`,</span>
+<span class="sd">    where `a is the set of states of `fsm` satisfying `phi`</span>
+<span class="sd">    and `b` is the set of states of `fsm` satisfying `psi`, both represented</span>
+<span class="sd">    by BDDs.</span>
+<span class="sd">    </span>
+<span class="sd">    :param fsm: the system</span>
+<span class="sd">    :type fsm: :class:`BddFsm &lt;pynusmv.fsm.BddFsm&gt;`</span>
+<span class="sd">    :param state: a state of `fsm`</span>
+<span class="sd">    :type state: :class:`State &lt;pynusmv.dd.State&gt;`</span>
+<span class="sd">    :param a: the set of states of `fsm` satisfying `phi`</span>
+<span class="sd">    :type a: :class:`BDD &lt;pynusmv.dd.BDD&gt;`</span>
+<span class="sd">    :param b: the set of states of `fsm` satisfying `psi`</span>
+<span class="sd">    :type b: :class:`BDD &lt;pynusmv.dd.BDD&gt;`</span>
+<span class="sd">    </span>
+<span class="sd">    Return a tuple `t` composed of states (:class:`State &lt;pynusmv.dd.State&gt;`)</span>
+<span class="sd">    and inputs (:class:`Inputs &lt;pynusmv.dd.Inputs&gt;`),</span>
+<span class="sd">    such that `t[0]` is `state`, `t[-1]` belongs to `b`, and every other state</span>
+<span class="sd">    of `t` belongs to `a`. The states of `t` are separated by inputs.</span>
+<span class="sd">    Furthermore, `t` represents a path in `fsm`.</span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    
+    <span class="n">enc</span> <span class="o">=</span> <span class="n">fsm</span><span class="o">.</span><span class="n">bddEnc</span>
+    <span class="n">manager</span> <span class="o">=</span> <span class="n">enc</span><span class="o">.</span><span class="n">DDmanager</span>
+    <span class="n">path</span> <span class="o">=</span> <span class="n">nsnode</span><span class="o">.</span><span class="n">cons</span><span class="p">(</span><span class="n">nsnode</span><span class="o">.</span><span class="n">bdd2node</span><span class="p">(</span><span class="n">nsdd</span><span class="o">.</span><span class="n">bdd_dup</span><span class="p">(</span><span class="n">state</span><span class="o">.</span><span class="n">_ptr</span><span class="p">)),</span> <span class="bp">None</span><span class="p">)</span>
+    <span class="n">bddlist</span> <span class="o">=</span> <span class="n">BDDList</span><span class="p">(</span><span class="n">mc</span><span class="o">.</span><span class="n">eu_explain</span><span class="p">(</span><span class="n">fsm</span><span class="o">.</span><span class="n">_ptr</span><span class="p">,</span> <span class="n">enc</span><span class="o">.</span><span class="n">_ptr</span><span class="p">,</span>
+                                    <span class="n">path</span><span class="p">,</span> <span class="n">a</span><span class="o">.</span><span class="n">_ptr</span><span class="p">,</span> <span class="n">b</span><span class="o">.</span><span class="n">_ptr</span><span class="p">),</span> <span class="n">manager</span><span class="p">)</span>
+    <span class="n">bddlist</span> <span class="o">=</span> <span class="n">bddlist</span><span class="o">.</span><span class="n">to_tuple</span><span class="p">()</span>
+    
+    <span class="n">path</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">path</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">State</span><span class="o">.</span><span class="n">from_bdd</span><span class="p">(</span><span class="n">bddlist</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">fsm</span><span class="p">))</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">bddlist</span><span class="p">),</span> <span class="mi">2</span><span class="p">):</span>
+        <span class="n">inputs</span> <span class="o">=</span> <span class="n">Inputs</span><span class="o">.</span><span class="n">from_bdd</span><span class="p">(</span><span class="n">bddlist</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">fsm</span><span class="p">)</span>
+        <span class="n">state</span> <span class="o">=</span> <span class="n">State</span><span class="o">.</span><span class="n">from_bdd</span><span class="p">(</span><span class="n">bddlist</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">],</span> <span class="n">fsm</span><span class="p">)</span>
+        
+        <span class="n">path</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">inputs</span><span class="p">)</span>
+        <span class="n">path</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">state</span><span class="p">)</span>
+    
+    <span class="k">return</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+    
+</div>
+<div class="viewcode-block" id="explainEG"><a class="viewcode-back" href="../../pynusmv.html#pynusmv.mc.explainEG">[docs]</a><span class="k">def</span> <span class="nf">explainEG</span><span class="p">(</span><span class="n">fsm</span><span class="p">,</span> <span class="n">state</span><span class="p">,</span> <span class="n">a</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Explain why `state` of `fsm` satisfies `EG phi`,</span>
+<span class="sd">    where `a` the set of states of `fsm` satisfying `phi`, represented by a BDD.</span>
+<span class="sd">    </span>
+<span class="sd">    :param fsm: the system</span>
+<span class="sd">    :type fsm: :class:`BddFsm &lt;pynusmv.fsm.BddFsm&gt;`</span>
+<span class="sd">    :param state: a state of `fsm`</span>
+<span class="sd">    :type state: :class:`State &lt;pynusmv.dd.State&gt;`</span>
+<span class="sd">    :param a: the set of states of `fsm` satisfying `phi`</span>
+<span class="sd">    :type a: :class:`BDD &lt;pynusmv.dd.BDD&gt;`</span>
+<span class="sd">    </span>
+<span class="sd">    Return a tuple `(t, (i, loop))`</span>
+<span class="sd">    where `t` is a tuple composed of states (:class:`State &lt;pynusmv.dd.State&gt;`)</span>
+<span class="sd">    and inputs (:class:`Inputs &lt;pynusmv.dd.Inputs&gt;`),</span>
+<span class="sd">    such that `t[0]` is state and every other state of `t`</span>
+<span class="sd">    belongs to `a`. The states of `t` are separated by inputs.</span>
+<span class="sd">    Furthermore, `t` represents a path in `fsm`.</span>
+<span class="sd">    `loop` represents the start of the loop contained in `t`,</span>
+<span class="sd">    i.e. `t[-1]` can lead to `loop` through `i`, and `loop` is a state of `t`.</span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    
+    <span class="n">enc</span> <span class="o">=</span> <span class="n">fsm</span><span class="o">.</span><span class="n">bddEnc</span>
+    <span class="n">manager</span> <span class="o">=</span> <span class="n">enc</span><span class="o">.</span><span class="n">DDmanager</span>
+    <span class="n">path</span> <span class="o">=</span> <span class="n">nsnode</span><span class="o">.</span><span class="n">cons</span><span class="p">(</span><span class="n">nsnode</span><span class="o">.</span><span class="n">bdd2node</span><span class="p">(</span><span class="n">nsdd</span><span class="o">.</span><span class="n">bdd_dup</span><span class="p">(</span><span class="n">state</span><span class="o">.</span><span class="n">_ptr</span><span class="p">)),</span> <span class="bp">None</span><span class="p">)</span>
+    <span class="n">bddlist</span> <span class="o">=</span> <span class="n">BDDList</span><span class="p">(</span><span class="n">mc</span><span class="o">.</span><span class="n">eg_explain</span><span class="p">(</span><span class="n">fsm</span><span class="o">.</span><span class="n">_ptr</span><span class="p">,</span> <span class="n">enc</span><span class="o">.</span><span class="n">_ptr</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">a</span><span class="o">.</span><span class="n">_ptr</span><span class="p">),</span>
+                      <span class="n">manager</span><span class="p">)</span>
+    <span class="n">bddlist</span> <span class="o">=</span> <span class="n">bddlist</span><span class="o">.</span><span class="n">to_tuple</span><span class="p">()</span>
+    
+    <span class="n">path</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="c"># Discard last state and input, store them as loop indicators</span>
+    <span class="n">loopstate</span> <span class="o">=</span> <span class="n">State</span><span class="o">.</span><span class="n">from_bdd</span><span class="p">(</span><span class="n">bddlist</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">fsm</span><span class="p">)</span>
+    <span class="n">loopinputs</span> <span class="o">=</span> <span class="n">Inputs</span><span class="o">.</span><span class="n">from_bdd</span><span class="p">(</span><span class="n">bddlist</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">fsm</span><span class="p">)</span>
+    
+    <span class="c"># Consume first state</span>
+    <span class="n">curstate</span> <span class="o">=</span> <span class="n">State</span><span class="o">.</span><span class="n">from_bdd</span><span class="p">(</span><span class="n">bddlist</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">fsm</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">curstate</span><span class="o">.</span><span class="n">_ptr</span> <span class="o">==</span> <span class="n">loopstate</span><span class="o">.</span><span class="n">_ptr</span><span class="p">:</span>
+        <span class="n">loopstate</span> <span class="o">=</span> <span class="n">curstate</span>
+    
+    <span class="n">path</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">curstate</span><span class="p">)</span>
+    
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">bddlist</span><span class="p">),</span> <span class="mi">2</span><span class="p">):</span>
+        <span class="n">inputs</span> <span class="o">=</span> <span class="n">Inputs</span><span class="o">.</span><span class="n">from_bdd</span><span class="p">(</span><span class="n">bddlist</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">fsm</span><span class="p">)</span>
+        <span class="n">curstate</span> <span class="o">=</span> <span class="n">State</span><span class="o">.</span><span class="n">from_bdd</span><span class="p">(</span><span class="n">bddlist</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">],</span> <span class="n">fsm</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">curstate</span><span class="o">.</span><span class="n">_ptr</span> <span class="o">==</span> <span class="n">loopstate</span><span class="o">.</span><span class="n">_ptr</span><span class="p">:</span>
+            <span class="n">loopstate</span> <span class="o">=</span> <span class="n">curstate</span>
+        
+        <span class="n">path</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">inputs</span><span class="p">)</span>
+        <span class="n">path</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">curstate</span><span class="p">)</span>
+    <span class="k">return</span> <span class="p">(</span><span class="nb">tuple</span><span class="p">(</span><span class="n">path</span><span class="p">),</span> <span class="p">(</span><span class="n">loopinputs</span><span class="p">,</span> <span class="n">loopstate</span><span class="p">))</span></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../index.html">PyNuSMV 0.6 documentation</a> &raquo;</li>
+          <li><a href="../index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2013, Simon Busard.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

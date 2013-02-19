@@ -1,0 +1,804 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>pynusmv.dd &mdash; PyNuSMV 0.6 documentation</title>
+    
+    <link rel="stylesheet" href="../../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '0.6',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="top" title="PyNuSMV 0.6 documentation" href="../../index.html" />
+    <link rel="up" title="Module code" href="../index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../index.html">PyNuSMV 0.6 documentation</a> &raquo;</li>
+          <li><a href="../index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for pynusmv.dd</h1><div class="highlight"><pre>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">The :mod:`pynusmv.dd` module provides some BDD-related structures:</span>
+
+<span class="sd">* :class:`BDD` represents a BDD.</span>
+<span class="sd">* :class:`BDDList` represents a list of BDDs.</span>
+<span class="sd">* :class:`Inputs` represents input variables values,</span>
+<span class="sd">  i.e. a particular action of the model.</span>
+<span class="sd">* :class:`State` represents a particular state of the model.</span>
+<span class="sd">* :class:`DDManager` represents a NuSMV DD manager.</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;BDD&#39;</span><span class="p">,</span> <span class="s">&#39;BDDList&#39;</span><span class="p">,</span> <span class="s">&#39;Inputs&#39;</span><span class="p">,</span> <span class="s">&#39;DDManager&#39;</span><span class="p">,</span> <span class="s">&#39;State&#39;</span><span class="p">]</span>
+
+
+<span class="kn">from</span> <span class="nn">.nusmv.dd</span> <span class="kn">import</span> <span class="n">dd</span> <span class="k">as</span> <span class="n">nsdd</span>
+<span class="kn">from</span> <span class="nn">.nusmv.node</span> <span class="kn">import</span> <span class="n">node</span> <span class="k">as</span> <span class="n">nsnode</span>
+<span class="kn">from</span> <span class="nn">.nusmv.dd</span> <span class="kn">import</span> <span class="n">dd</span> <span class="k">as</span> <span class="n">nsdd</span>
+<span class="kn">from</span> <span class="nn">.nusmv.compile.symb_table</span> <span class="kn">import</span> <span class="n">symb_table</span> <span class="k">as</span> <span class="n">nssymb_table</span>
+<span class="kn">from</span> <span class="nn">.nusmv.enc.bdd</span> <span class="kn">import</span> <span class="n">bdd</span> <span class="k">as</span> <span class="n">nsbddEnc</span>
+<span class="kn">from</span> <span class="nn">.nusmv.utils</span> <span class="kn">import</span> <span class="n">utils</span> <span class="k">as</span> <span class="n">nsutils</span>
+
+<span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">PointerWrapper</span>
+<span class="kn">from</span> <span class="nn">.exception</span> <span class="kn">import</span> <span class="n">MissingManagerError</span>
+
+
+<div class="viewcode-block" id="BDD"><a class="viewcode-back" href="../../pynusmv.html#pynusmv.dd.BDD">[docs]</a><span class="k">class</span> <span class="nc">BDD</span><span class="p">(</span><span class="n">PointerWrapper</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Python class for BDD structure.</span>
+<span class="sd">    </span>
+<span class="sd">    The BDD represents a BDD in NuSMV and provides a set of operations on this </span>
+<span class="sd">    BDD.</span>
+<span class="sd">    Thanks to operator overloading, it is possible to write compact expressions</span>
+<span class="sd">    on BDDs. The available operations are:</span>
+<span class="sd">    </span>
+<span class="sd">    * ``a + b`` and ``a | b`` compute the disjunction of ``a`` and ``b``</span>
+<span class="sd">    * ``a * b`` and ``a &amp; b`` compute the conjunction of ``a`` and ``b``</span>
+<span class="sd">    * ``~a`` and ``-a`` compute the negation of ``a``</span>
+<span class="sd">    * ``a - b`` computes ``a &amp; ~b``</span>
+<span class="sd">    * ``a ^ b`` computes the exclusive-OR (XOR) of ``a`` and ``b``</span>
+<span class="sd">    * ``a == b``, ``a &lt;= b``, ``a &lt; b``, ``a &gt; b`` and ``a &gt;= b`` compare ``a`` </span>
+<span class="sd">      and ``b``</span>
+<span class="sd">    </span>
+<span class="sd">    Any BDD operation raises a :exc:`MissingManagerError &lt;pynusmv.exception.MissingManagerError&gt;` whenever the manager</span>
+<span class="sd">    of the BDD is None and a manager is needed to perform the operation.</span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+<span class="c">#    All BDDs are freed by default. Every operation on BDDs that return a new</span>
+<span class="c">#    BDD uses bdd_dup to ensure that the new BDD wraps a pointer to free.</span>
+    
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ptr</span><span class="p">,</span> <span class="n">dd_manager</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">freeit</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Create a new BDD with `ptr`.</span>
+<span class="sd">        </span>
+<span class="sd">        :param ptr: the pointer to the NuSMV BDD</span>
+<span class="sd">        :type ptr: NuSMV ``bdd_ptr``</span>
+<span class="sd">        :param dd_manager: the DD manager for this BDD</span>
+<span class="sd">        :type dd_manager: :class:`DDManager`</span>
+<span class="sd">        :param freeit: whether the pointer must be freed with the BDD, or not.</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">ptr</span><span class="p">,</span> <span class="n">freeit</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_manager</span> <span class="o">=</span> <span class="n">dd_manager</span>
+    
+        
+    <span class="k">def</span> <span class="nf">_free</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_freeit</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ptr</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">nsdd</span><span class="o">.</span><span class="n">bdd_free</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_manager</span><span class="o">.</span><span class="n">_ptr</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ptr</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_freeit</span> <span class="o">=</span> <span class="bp">False</span>
+            
+
+<div class="viewcode-block" id="BDD.equal"><a class="viewcode-back" href="../../pynusmv.html#pynusmv.dd.BDD.equal">[docs]</a>    <span class="k">def</span> <span class="nf">equal</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Determine whether this BDD is equal to `other` or not.</span>
+<span class="sd">        </span>
+<span class="sd">        :param other: the BDD to compare</span>
+<span class="sd">        :type other: :class:`BDD`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">nsdd</span><span class="o">.</span><span class="n">bdd_equal</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_ptr</span><span class="p">,</span> <span class="n">other</span><span class="o">.</span><span class="n">_ptr</span><span class="p">):</span>
+            <span class="k">return</span> <span class="bp">True</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">False</span>
+        
+        
+    <span class="c"># ==========================================================================</span>
+    <span class="c"># ===== BDD operations =====================================================</span>
+    <span class="c"># ==========================================================================</span>
+    </div>
+<div class="viewcode-block" id="BDD.dup"><a class="viewcode-back" href="../../pynusmv.html#pynusmv.dd.BDD.dup">[docs]</a>    <span class="k">def</span> <span class="nf">dup</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return a copy of this BDD.</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c"># Call to bdd_ptr bdd_dup (bdd_ptr);</span>
+        
+        <span class="k">return</span> <span class="n">BDD</span><span class="p">(</span><span class="n">nsdd</span><span class="o">.</span><span class="n">bdd_dup</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_ptr</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">_manager</span><span class="p">,</span> <span class="n">freeit</span> <span class="o">=</span> <span class="bp">True</span><span class="p">)</span>
+
+</div>
+<div class="viewcode-block" id="BDD.is_true"><a class="viewcode-back" href="../../pynusmv.html#pynusmv.dd.BDD.is_true">[docs]</a>    <span class="k">def</span> <span class="nf">is_true</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Determine whether this BDD is true or not.</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c"># Call to int bdd_is_true (DdManager *, bdd_ptr);</span>
+        
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_manager</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">MissingManagerError</span><span class="p">()</span>
+            
+        <span class="k">if</span> <span class="n">nsdd</span><span class="o">.</span><span class="n">bdd_is_true</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_manager</span><span class="o">.</span><span class="n">_ptr</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ptr</span><span class="p">):</span>
+            <span class="k">return</span> <span class="bp">True</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">False</span>
+        
+    </div>
+<div class="viewcode-block" id="BDD.is_false"><a class="viewcode-back" href="../../pynusmv.html#pynusmv.dd.BDD.is_false">[docs]</a>    <span class="k">def</span> <span class="nf">is_false</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Determine whether this BDD is false or not.</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c"># Call to int bdd_is_false (DdManager *, bdd_ptr);</span>
+        
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_manager</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">MissingManagerError</span><span class="p">()</span>
+            
+        <span class="k">if</span> <span class="n">nsdd</span><span class="o">.</span><span class="n">bdd_is_false</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_manager</span><span class="o">.</span><span class="n">_ptr</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ptr</span><span class="p">):</span>
+            <span class="k">return</span> <span class="bp">True</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">False</span>
+        
+        </div>
+<div class="viewcode-block" id="BDD.isnot_true"><a class="viewcode-back" href="../../pynusmv.html#pynusmv.dd.BDD.isnot_true">[docs]</a>    <span class="k">def</span> <span class="nf">isnot_true</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Determine whether this BDD is not true.</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c"># Call to int bdd_isnot_true (DdManager *, bdd_ptr);</span>
+        
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_manager</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">MissingManagerError</span><span class="p">()</span>
+            
+        <span class="k">if</span> <span class="n">nsdd</span><span class="o">.</span><span class="n">bdd_isnot_true</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_manager</span><span class="o">.</span><span class="n">_ptr</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ptr</span><span class="p">):</span>
+            <span class="k">return</span> <span class="bp">True</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">False</span>
+        
+    </div>
+<div class="viewcode-block" id="BDD.isnot_false"><a class="viewcode-back" href="../../pynusmv.html#pynusmv.dd.BDD.isnot_false">[docs]</a>    <span class="k">def</span> <span class="nf">isnot_false</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Determine whether this BDD is not false.</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c"># int bdd_isnot_false (DdManager *, bdd_ptr);</span>
+        
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_manager</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">MissingManagerError</span><span class="p">()</span>
+            
+        <span class="k">if</span> <span class="n">nsdd</span><span class="o">.</span><span class="n">bdd_isnot_false</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_manager</span><span class="o">.</span><span class="n">_ptr</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ptr</span><span class="p">):</span>
+            <span class="k">return</span> <span class="bp">True</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">False</span>
+    
+    </div>
+<div class="viewcode-block" id="BDD.entailed"><a class="viewcode-back" href="../../pynusmv.html#pynusmv.dd.BDD.entailed">[docs]</a>    <span class="k">def</span> <span class="nf">entailed</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Determine whether this BDD is included in `other` or not.</span>
+<span class="sd">        </span>
+<span class="sd">        :param other: the BDD to compare</span>
+<span class="sd">        :type other: :class:`BDD`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c"># Call to int bdd_entailed (DdManager * dd, bdd_ptr f, bdd_ptr g);</span>
+        
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_manager</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">MissingManagerError</span><span class="p">()</span>
+            
+        <span class="k">if</span> <span class="n">nsdd</span><span class="o">.</span><span class="n">bdd_entailed</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_manager</span><span class="o">.</span><span class="n">_ptr</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ptr</span><span class="p">,</span> <span class="n">other</span><span class="o">.</span><span class="n">_ptr</span><span class="p">):</span>
+            <span class="k">return</span> <span class="bp">True</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">False</span>
+        
+        </div>
+<div class="viewcode-block" id="BDD.intersected"><a class="viewcode-back" href="../../pynusmv.html#pynusmv.dd.BDD.intersected">[docs]</a>    <span class="k">def</span> <span class="nf">intersected</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Determine whether the intersection between this BDD</span>
+<span class="sd">        and `other` is not empty.</span>
+<span class="sd">        </span>
+<span class="sd">        :param other: the BDD to compare</span>
+<span class="sd">        :type other: :class:`BDD`</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c"># Call to int bdd_intersected (DdManager * dd, bdd_ptr f, bdd_ptr g);</span>
+        
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_manager</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">MissingManagerError</span><span class="p">()</span>
+            
+        <span class="k">if</span> <span class="n">nsdd</span><span class="o">.</span><span class="n">bdd_intersected</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_manager</span><span class="o">.</span><span class="n">_ptr</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ptr</span><span class="p">,</span> <span class="n">other</span><span class="o">.</span><span class="n">_ptr</span><span class="p">):</span>
+            <span class="k">return</span> <span class="bp">True</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">False</span>
+
+</div>
+<div class="viewcode-block" id="BDD.leq"><a class="viewcode-back" href="../../pynusmv.html#pynusmv.dd.BDD.leq">[docs]</a>    <span class="k">def</span> <span class="nf">leq</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Determine whether this BDD is less than or equal to `other`.</span>
+<span class="sd">        </span>
+<span class="sd">        :param other: the BDD to compare</span>
+<span class="sd">        :type other: :class:`BDD`</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c"># int bdd_leq (DdManager * dd, bdd_ptr f, bdd_ptr g);</span>
+        
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_manager</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">MissingManagerError</span><span class="p">()</span>
+            
+        <span class="k">if</span> <span class="n">nsdd</span><span class="o">.</span><span class="n">bdd_leq</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_manager</span><span class="o">.</span><span class="n">_ptr</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ptr</span><span class="p">,</span> <span class="n">other</span><span class="o">.</span><span class="n">_ptr</span><span class="p">):</span>
+            <span class="k">return</span> <span class="bp">True</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">False</span>
+        
+        </div>
+<div class="viewcode-block" id="BDD.nott"><a class="viewcode-back" href="../../pynusmv.html#pynusmv.dd.BDD.nott">[docs]</a>    <span class="k">def</span> <span class="nf">nott</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Compute the complement of this BDD.</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c"># Call to bdd_ptr bdd_not (DdManager *, bdd_ptr);</span>
+        
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_manager</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">MissingManagerError</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">BDD</span><span class="p">(</span><span class="n">nsdd</span><span class="o">.</span><span class="n">bdd_not</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_manager</span><span class="o">.</span><span class="n">_ptr</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ptr</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">_manager</span><span class="p">,</span>
+                   <span class="n">freeit</span> <span class="o">=</span> <span class="bp">True</span><span class="p">)</span>
+        
+    </div>
+<div class="viewcode-block" id="BDD.andd"><a class="viewcode-back" href="../../pynusmv.html#pynusmv.dd.BDD.andd">[docs]</a>    <span class="k">def</span> <span class="nf">andd</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Compute the conjunction of this BDD and `other`.</span>
+<span class="sd">        </span>
+<span class="sd">        :param other: the other BDD</span>
+<span class="sd">        :type other: :class:`BDD`</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c"># Call to bdd_ptr bdd_and (DdManager *, bdd_ptr, bdd_ptr);</span>
+        
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_manager</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">MissingManagerError</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">BDD</span><span class="p">(</span><span class="n">nsdd</span><span class="o">.</span><span class="n">bdd_and</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_manager</span><span class="o">.</span><span class="n">_ptr</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ptr</span><span class="p">,</span> <span class="n">other</span><span class="o">.</span><span class="n">_ptr</span><span class="p">),</span>
+                   <span class="bp">self</span><span class="o">.</span><span class="n">_manager</span><span class="p">,</span> <span class="n">freeit</span> <span class="o">=</span> <span class="bp">True</span><span class="p">)</span>
+        
+</div>
+<div class="viewcode-block" id="BDD.orr"><a class="viewcode-back" href="../../pynusmv.html#pynusmv.dd.BDD.orr">[docs]</a>    <span class="k">def</span> <span class="nf">orr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Compute the conjunction of this BDD and `other`.</span>
+<span class="sd">        </span>
+<span class="sd">        :param other: the other BDD</span>
+<span class="sd">        :type other: :class:`BDD`</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c"># Call to bdd_ptr bdd_or (DdManager *, bdd_ptr, bdd_ptr);</span>
+        
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_manager</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">MissingManagerError</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">BDD</span><span class="p">(</span><span class="n">nsdd</span><span class="o">.</span><span class="n">bdd_or</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_manager</span><span class="o">.</span><span class="n">_ptr</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ptr</span><span class="p">,</span> <span class="n">other</span><span class="o">.</span><span class="n">_ptr</span><span class="p">),</span>
+                   <span class="bp">self</span><span class="o">.</span><span class="n">_manager</span><span class="p">,</span> <span class="n">freeit</span> <span class="o">=</span> <span class="bp">True</span><span class="p">)</span>
+        
+</div>
+<div class="viewcode-block" id="BDD.xor"><a class="viewcode-back" href="../../pynusmv.html#pynusmv.dd.BDD.xor">[docs]</a>    <span class="k">def</span> <span class="nf">xor</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Compute the exclusive-OR of this BDD and `other`.</span>
+<span class="sd">        </span>
+<span class="sd">        :param other: the other BDD</span>
+<span class="sd">        :type other: :class:`BDD`</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c"># Call to bdd_ptr bdd_xor (DdManager *, bdd_ptr, bdd_ptr);</span>
+        
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_manager</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">MissingManagerError</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">BDD</span><span class="p">(</span><span class="n">nsdd</span><span class="o">.</span><span class="n">bdd_xor</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_manager</span><span class="o">.</span><span class="n">_ptr</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ptr</span><span class="p">,</span> <span class="n">other</span><span class="o">.</span><span class="n">_ptr</span><span class="p">),</span>
+                   <span class="bp">self</span><span class="o">.</span><span class="n">_manager</span><span class="p">,</span> <span class="n">freeit</span> <span class="o">=</span> <span class="bp">True</span><span class="p">)</span>
+        
+        </div>
+<div class="viewcode-block" id="BDD.iff"><a class="viewcode-back" href="../../pynusmv.html#pynusmv.dd.BDD.iff">[docs]</a>    <span class="k">def</span> <span class="nf">iff</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Compute the IFF operation on this BDD and `other`.</span>
+<span class="sd">        </span>
+<span class="sd">        :param other: the other BDD</span>
+<span class="sd">        :type other: :class:`BDD`</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c"># Call to bdd_ptr bdd_iff (DdManager *, bdd_ptr, bdd_ptr);</span>
+        
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_manager</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">MissingManagerError</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">BDD</span><span class="p">(</span><span class="n">nsdd</span><span class="o">.</span><span class="n">bdd_iff</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_manager</span><span class="o">.</span><span class="n">_ptr</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ptr</span><span class="p">,</span> <span class="n">other</span><span class="o">.</span><span class="n">_ptr</span><span class="p">),</span>
+                   <span class="bp">self</span><span class="o">.</span><span class="n">_manager</span><span class="p">,</span> <span class="n">freeit</span> <span class="o">=</span> <span class="bp">True</span><span class="p">)</span>
+        
+</div>
+<div class="viewcode-block" id="BDD.imply"><a class="viewcode-back" href="../../pynusmv.html#pynusmv.dd.BDD.imply">[docs]</a>    <span class="k">def</span> <span class="nf">imply</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Compute the IMPLY operation on this BDD and `other`.</span>
+<span class="sd">        </span>
+<span class="sd">        :param other: the other BDD</span>
+<span class="sd">        :type other: :class:`BDD`</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c"># Call to bdd_ptr bdd_imply (DdManager *, bdd_ptr, bdd_ptr);</span>
+        
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_manager</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">MissingManagerError</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">BDD</span><span class="p">(</span><span class="n">nsdd</span><span class="o">.</span><span class="n">bdd_imply</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_manager</span><span class="o">.</span><span class="n">_ptr</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ptr</span><span class="p">,</span> <span class="n">other</span><span class="o">.</span><span class="n">_ptr</span><span class="p">),</span>
+                   <span class="bp">self</span><span class="o">.</span><span class="n">_manager</span><span class="p">,</span> <span class="n">freeit</span> <span class="o">=</span> <span class="bp">True</span><span class="p">)</span>
+        
+        </div>
+<div class="viewcode-block" id="BDD.forsome"><a class="viewcode-back" href="../../pynusmv.html#pynusmv.dd.BDD.forsome">[docs]</a>    <span class="k">def</span> <span class="nf">forsome</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cube</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Existentially abstract all the variables in cube from this BDD.</span>
+<span class="sd">        </span>
+<span class="sd">        :param cube: the cube</span>
+<span class="sd">        :type cube: :class:`BDD`</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c"># Call to bdd_ptr bdd_forsome (DdManager *, bdd_ptr, bdd_ptr);</span>
+        
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_manager</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">MissingManagerError</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">BDD</span><span class="p">(</span><span class="n">nsdd</span><span class="o">.</span><span class="n">bdd_forsome</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_manager</span><span class="o">.</span><span class="n">_ptr</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ptr</span><span class="p">,</span> <span class="n">cube</span><span class="o">.</span><span class="n">_ptr</span><span class="p">),</span>
+                   <span class="bp">self</span><span class="o">.</span><span class="n">_manager</span><span class="p">,</span> <span class="n">freeit</span> <span class="o">=</span> <span class="bp">True</span><span class="p">)</span>
+        
+        </div>
+<div class="viewcode-block" id="BDD.forall"><a class="viewcode-back" href="../../pynusmv.html#pynusmv.dd.BDD.forall">[docs]</a>    <span class="k">def</span> <span class="nf">forall</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cube</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Universally abstract all the variables in cube from this BDD.</span>
+<span class="sd">        </span>
+<span class="sd">        :param cube: the cube</span>
+<span class="sd">        :type cube: :class:`BDD`</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c"># Call to bdd_ptr bdd_forall (DdManager *, bdd_ptr, bdd_ptr);</span>
+        
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_manager</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">MissingManagerError</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">BDD</span><span class="p">(</span><span class="n">nsdd</span><span class="o">.</span><span class="n">bdd_forall</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_manager</span><span class="o">.</span><span class="n">_ptr</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ptr</span><span class="p">,</span> <span class="n">cube</span><span class="o">.</span><span class="n">_ptr</span><span class="p">),</span>
+                   <span class="bp">self</span><span class="o">.</span><span class="n">_manager</span><span class="p">,</span> <span class="n">freeit</span> <span class="o">=</span> <span class="bp">True</span><span class="p">)</span>
+        
+
+
+    <span class="c"># ==========================================================================</span>
+    <span class="c"># ===== Built-in BDD operations ============================================</span>
+    <span class="c"># ==========================================================================</span>
+    
+    </div>
+    <span class="k">def</span> <span class="nf">__lt__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">(</span><span class="bp">self</span> <span class="o">&lt;=</span> <span class="n">other</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="p">(</span><span class="bp">self</span> <span class="o">==</span> <span class="n">other</span><span class="p">)</span>
+        
+    <span class="k">def</span> <span class="nf">__le__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">leq</span><span class="p">(</span><span class="n">other</span><span class="p">)</span>
+        
+    <span class="k">def</span> <span class="nf">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">equal</span><span class="p">(</span><span class="n">other</span><span class="p">)</span>
+        
+    <span class="k">def</span> <span class="nf">__ne__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="k">return</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">equal</span><span class="p">(</span><span class="n">other</span><span class="p">)</span>
+        
+    <span class="k">def</span> <span class="nf">__gt__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">other</span><span class="o">.</span><span class="n">__lt__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        
+    <span class="k">def</span> <span class="nf">__ge__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">other</span><span class="o">.</span><span class="n">__le__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+    
+    
+    
+    <span class="k">def</span> <span class="nf">__add__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">orr</span><span class="p">(</span><span class="n">other</span><span class="p">)</span>
+        
+    <span class="k">def</span> <span class="nf">__or__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">orr</span><span class="p">(</span><span class="n">other</span><span class="p">)</span>
+    
+    
+    <span class="k">def</span> <span class="nf">__mul__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">andd</span><span class="p">(</span><span class="n">other</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__and__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">andd</span><span class="p">(</span><span class="n">other</span><span class="p">)</span>    
+    
+    
+    <span class="k">def</span> <span class="nf">__sub__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span> <span class="o">&amp;</span> <span class="o">~</span><span class="p">(</span><span class="n">other</span><span class="p">)</span>
+    
+    
+    
+    <span class="k">def</span> <span class="nf">__xor__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">xor</span><span class="p">(</span><span class="n">other</span><span class="p">)</span>
+    
+    
+    
+    <span class="k">def</span> <span class="nf">__neg__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">nott</span><span class="p">()</span>
+    
+    <span class="k">def</span> <span class="nf">__invert__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">nott</span><span class="p">()</span>
+    
+    
+    <span class="c"># ==========================================================================</span>
+    <span class="c"># ===== Static methods =====================================================</span>
+    <span class="c"># ==========================================================================</span>
+    
+    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="BDD.true"><a class="viewcode-back" href="../../pynusmv.html#pynusmv.dd.BDD.true">[docs]</a>    <span class="k">def</span> <span class="nf">true</span><span class="p">(</span><span class="n">manager</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return the TRUE BDD.</span>
+<span class="sd">        </span>
+<span class="sd">        :param manager: the manager of the returned BDD</span>
+<span class="sd">        :type manager: :class:`DDManager`</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c"># Call to bdd_ptr bdd_true (DdManager *);</span>
+        
+        <span class="k">return</span> <span class="n">BDD</span><span class="p">(</span><span class="n">nsdd</span><span class="o">.</span><span class="n">bdd_true</span><span class="p">(</span><span class="n">manager</span><span class="o">.</span><span class="n">_ptr</span><span class="p">),</span> <span class="n">manager</span><span class="p">,</span> <span class="n">freeit</span> <span class="o">=</span> <span class="bp">True</span><span class="p">)</span>
+        
+        </div>
+    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="BDD.false"><a class="viewcode-back" href="../../pynusmv.html#pynusmv.dd.BDD.false">[docs]</a>    <span class="k">def</span> <span class="nf">false</span><span class="p">(</span><span class="n">manager</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return the FALSE BDD.</span>
+<span class="sd">        </span>
+<span class="sd">        :param manager: the manager of the returned BDD</span>
+<span class="sd">        :type manager: :class:`DDManager`</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c"># Call to bdd_ptr bdd_false (DdManager *);</span>
+        
+        <span class="k">return</span> <span class="n">BDD</span><span class="p">(</span><span class="n">nsdd</span><span class="o">.</span><span class="n">bdd_false</span><span class="p">(</span><span class="n">manager</span><span class="o">.</span><span class="n">_ptr</span><span class="p">),</span> <span class="n">manager</span><span class="p">,</span> <span class="n">freeit</span> <span class="o">=</span> <span class="bp">True</span><span class="p">)</span>
+    
+</div></div>
+<div class="viewcode-block" id="BDDList"><a class="viewcode-back" href="../../pynusmv.html#pynusmv.dd.BDDList">[docs]</a><span class="k">class</span> <span class="nc">BDDList</span><span class="p">(</span><span class="n">PointerWrapper</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A BDD list stored as NuSMV nodes.</span>
+<span class="sd">    </span>
+<span class="sd">    The BDDList class implements a NuSMV nodes-based BDD list and can be used as </span>
+<span class="sd">    any Python list.</span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c"># BDDLists are freed when destroyed, as well as the content.</span>
+    <span class="c"># When getting elements or tuple from a BDDList, copies of BDDs are made</span>
+    <span class="c"># and returned.</span>
+    
+    
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ptr</span><span class="p">,</span> <span class="n">ddmanager</span> <span class="o">=</span> <span class="bp">None</span><span class="p">,</span> <span class="n">freeit</span> <span class="o">=</span> <span class="bp">True</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">ptr</span><span class="p">,</span> <span class="n">freeit</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_manager</span> <span class="o">=</span> <span class="n">ddmanager</span>
+        
+          
+    <span class="k">def</span> <span class="nf">_free</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_freeit</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ptr</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="c"># Free content</span>
+            <span class="n">ptr</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ptr</span>
+            <span class="k">while</span> <span class="n">ptr</span><span class="p">:</span>
+                <span class="c"># Free BDD</span>
+                <span class="n">bdd_ptr</span> <span class="o">=</span> <span class="n">nsnode</span><span class="o">.</span><span class="n">node2bdd</span><span class="p">(</span><span class="n">nsnode</span><span class="o">.</span><span class="n">car</span><span class="p">(</span><span class="n">ptr</span><span class="p">))</span>
+                <span class="k">if</span> <span class="n">bdd_ptr</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+                    <span class="n">nsdd</span><span class="o">.</span><span class="n">bdd_free</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_manager</span><span class="o">.</span><span class="n">_ptr</span><span class="p">,</span> <span class="n">bdd_ptr</span><span class="p">)</span>
+                <span class="n">ptr</span> <span class="o">=</span> <span class="n">nsnode</span><span class="o">.</span><span class="n">cdr</span><span class="p">(</span><span class="n">ptr</span><span class="p">)</span>
+            
+            <span class="c"># Free list</span>
+            <span class="n">nsnode</span><span class="o">.</span><span class="n">free_list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_ptr</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_freeit</span> <span class="o">=</span> <span class="bp">False</span>
+        
+    
+    <span class="k">def</span> <span class="nf">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">ptr</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ptr</span>
+        <span class="n">l</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">while</span> <span class="n">ptr</span><span class="p">:</span>
+            <span class="n">l</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="n">ptr</span> <span class="o">=</span> <span class="n">nsnode</span><span class="o">.</span><span class="n">cdr</span><span class="p">(</span><span class="n">ptr</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">l</span>
+        
+    
+    <span class="k">def</span> <span class="nf">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">val</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return the BDD stored at val.</span>
+<span class="sd">        </span>
+<span class="sd">        :param val: the index requested OR a slice.</span>
+<span class="sd">        </span>
+<span class="sd">        .. note:: cannot access elements with negative indices.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">val</span><span class="p">)</span> <span class="ow">is</span> <span class="nb">int</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">val</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">IndexError</span><span class="p">(</span><span class="s">&quot;BDDList index out of range&quot;</span><span class="p">)</span>
+            <span class="n">ptr</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ptr</span>
+            <span class="k">while</span> <span class="n">val</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">ptr</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="ne">IndexError</span><span class="p">(</span><span class="s">&quot;BDDList index out of range&quot;</span><span class="p">)</span>
+                <span class="n">val</span> <span class="o">-=</span> <span class="mi">1</span>
+                <span class="n">ptr</span> <span class="o">=</span> <span class="n">nsnode</span><span class="o">.</span><span class="n">cdr</span><span class="p">(</span><span class="n">ptr</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">ptr</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="ne">IndexError</span><span class="p">(</span><span class="s">&quot;BDDList index out of range&quot;</span><span class="p">)</span>
+            <span class="n">bdd_ptr</span> <span class="o">=</span>  <span class="n">nsnode</span><span class="o">.</span><span class="n">node2bdd</span><span class="p">(</span><span class="n">nsnode</span><span class="o">.</span><span class="n">car</span><span class="p">(</span><span class="n">ptr</span><span class="p">))</span>
+            <span class="k">if</span> <span class="n">bdd_ptr</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">BDD</span><span class="p">(</span><span class="n">nsdd</span><span class="o">.</span><span class="n">bdd_dup</span><span class="p">(</span><span class="n">bdd_ptr</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">_manager</span><span class="p">,</span>
+                           <span class="n">freeit</span> <span class="o">=</span> <span class="bp">True</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">return</span> <span class="bp">None</span>
+        
+        <span class="k">elif</span> <span class="nb">type</span><span class="p">(</span><span class="n">val</span><span class="p">)</span> <span class="ow">is</span> <span class="nb">slice</span><span class="p">:</span>
+            <span class="c"># TODO Implement slicing</span>
+            <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s">&quot;BDDList slice not implemented&quot;</span><span class="p">)</span>
+            
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">IndexError</span><span class="p">(</span><span class="s">&quot;BDDList index wrong type&quot;</span><span class="p">)</span>
+        
+        
+    <span class="k">def</span> <span class="nf">__iter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">ptr</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ptr</span>
+        <span class="k">while</span> <span class="n">ptr</span><span class="p">:</span>
+            <span class="c"># Yield BDD copy</span>
+            <span class="n">bdd_ptr</span> <span class="o">=</span> <span class="n">nsnode</span><span class="o">.</span><span class="n">node2bdd</span><span class="p">(</span><span class="n">nsnode</span><span class="o">.</span><span class="n">car</span><span class="p">(</span><span class="n">ptr</span><span class="p">))</span>
+            <span class="k">if</span> <span class="n">bdd_ptr</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+                <span class="k">yield</span> <span class="n">BDD</span><span class="p">(</span><span class="n">nsdd</span><span class="o">.</span><span class="n">bdd_dup</span><span class="p">(</span><span class="n">bdd_ptr</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">_manager</span><span class="p">,</span> <span class="n">freeit</span> <span class="o">=</span> <span class="bp">True</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">yield</span> <span class="bp">None</span>
+            <span class="n">ptr</span> <span class="o">=</span> <span class="n">nsnode</span><span class="o">.</span><span class="n">cdr</span><span class="p">(</span><span class="n">ptr</span><span class="p">)</span>
+            
+            
+<div class="viewcode-block" id="BDDList.to_tuple"><a class="viewcode-back" href="../../pynusmv.html#pynusmv.dd.BDDList.to_tuple">[docs]</a>    <span class="k">def</span> <span class="nf">to_tuple</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return a tuple containing all BDDs of self.       </span>
+<span class="sd">        The returned BDDs are copies of the ones of self.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">l</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">elem</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">:</span>
+            <span class="n">l</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">elem</span><span class="p">)</span>
+        <span class="k">return</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">l</span><span class="p">)</span>
+            
+            
+    <span class="c"># ==========================================================================</span>
+    <span class="c"># ===== Class methods ======================================================</span>
+    <span class="c"># ==========================================================================                                        </span>
+    </div>
+    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="BDDList.from_tuple"><a class="viewcode-back" href="../../pynusmv.html#pynusmv.dd.BDDList.from_tuple">[docs]</a>    <span class="k">def</span> <span class="nf">from_tuple</span><span class="p">(</span><span class="n">bddtuple</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Create a node-based list from the Python tuple `bddtuple`.</span>
+<span class="sd">        </span>
+<span class="sd">        :param bddtuple: a Python tuple of BDDs</span>
+<span class="sd">        </span>
+<span class="sd">        Return a :class:`BDDList` representing the given tuple,</span>
+<span class="sd">        using NuSMV nodes.</span>
+<span class="sd">        All BDDs are assumed from the same DD manager;</span>
+<span class="sd">        the created list contains the DD manager of the first non-`None` BDD.</span>
+<span class="sd">        If all elements of `bddtuple` are `None`,</span>
+<span class="sd">        the manager of the created :class:`BDDList` is `None`.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        
+        <span class="c"># Reverse tuple before, because we build the list reversely.</span>
+        <span class="n">bddtuple</span> <span class="o">=</span> <span class="n">bddtuple</span><span class="p">[::</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">n</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="n">manager</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="k">for</span> <span class="n">elem</span> <span class="ow">in</span> <span class="n">bddtuple</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">elem</span><span class="p">:</span>
+                <span class="n">e</span> <span class="o">=</span> <span class="n">nsnode</span><span class="o">.</span><span class="n">bdd2node</span><span class="p">(</span><span class="n">nsdd</span><span class="o">.</span><span class="n">bdd_dup</span><span class="p">(</span><span class="n">elem</span><span class="o">.</span><span class="n">_ptr</span><span class="p">))</span>
+                <span class="k">if</span> <span class="n">manager</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+                    <span class="n">manager</span> <span class="o">=</span> <span class="n">elem</span><span class="o">.</span><span class="n">_manager</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">e</span> <span class="o">=</span> <span class="n">elem</span>
+            <span class="n">n</span> <span class="o">=</span> <span class="n">nsnode</span><span class="o">.</span><span class="n">cons</span><span class="p">(</span><span class="n">e</span><span class="p">,</span> <span class="n">n</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">BDDList</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">manager</span><span class="p">,</span> <span class="n">freeit</span> <span class="o">=</span> <span class="bp">True</span><span class="p">)</span>
+        
+</div></div>
+<div class="viewcode-block" id="Inputs"><a class="viewcode-back" href="../../pynusmv.html#pynusmv.dd.Inputs">[docs]</a><span class="k">class</span> <span class="nc">Inputs</span><span class="p">(</span><span class="n">BDD</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Python class for inputs structure.</span>
+<span class="sd">    </span>
+<span class="sd">    An Inputs is a :class:`BDD` representing a single valuation of the inputs</span>
+<span class="sd">    variables of the model, i.e. an action of the model.</span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ptr</span><span class="p">,</span> <span class="n">fsm</span><span class="p">,</span> <span class="n">freeit</span> <span class="o">=</span> <span class="bp">True</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">ptr</span><span class="p">,</span> <span class="n">fsm</span><span class="o">.</span><span class="n">bddEnc</span><span class="o">.</span><span class="n">DDmanager</span><span class="p">,</span> <span class="n">freeit</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_fsm</span> <span class="o">=</span> <span class="n">fsm</span>
+
+    
+<div class="viewcode-block" id="Inputs.get_str_values"><a class="viewcode-back" href="../../pynusmv.html#pynusmv.dd.Inputs.get_str_values">[docs]</a>    <span class="k">def</span> <span class="nf">get_str_values</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return a dictionary of the (variable, value) pairs of these Inputs.</span>
+<span class="sd">        </span>
+<span class="sd">        :rtype: a dictionary of pairs of strings.</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">enc</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fsm</span><span class="o">.</span><span class="n">bddEnc</span>
+        <span class="c"># Get symb table from enc (BaseEnc)</span>
+        <span class="n">table</span> <span class="o">=</span> <span class="n">enc</span><span class="o">.</span><span class="n">symbTable</span>
+
+        <span class="c"># Get symbols (SymbTable) for inputs</span>
+        <span class="n">layers</span> <span class="o">=</span> <span class="n">nssymb_table</span><span class="o">.</span><span class="n">SymbTable_get_class_layer_names</span><span class="p">(</span><span class="n">table</span><span class="o">.</span><span class="n">_ptr</span><span class="p">,</span> <span class="bp">None</span><span class="p">)</span>
+        <span class="n">symbols</span> <span class="o">=</span> <span class="n">nssymb_table</span><span class="o">.</span><span class="n">SymbTable_get_layers_i_symbols</span><span class="p">(</span><span class="n">table</span><span class="o">.</span><span class="n">_ptr</span><span class="p">,</span> <span class="n">layers</span><span class="p">)</span>
+
+        <span class="c"># Get assign symbols (BddEnc)</span>
+        <span class="n">assignList</span> <span class="o">=</span> <span class="n">nsbddEnc</span><span class="o">.</span><span class="n">BddEnc_assign_symbols</span><span class="p">(</span><span class="n">enc</span><span class="o">.</span><span class="n">_ptr</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">_ptr</span><span class="p">,</span>
+                                                  <span class="n">symbols</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="bp">None</span><span class="p">)</span>
+
+        <span class="n">values</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="c"># Traverse the symbols to print variables of the state</span>
+        <span class="n">asList_ptr</span> <span class="o">=</span> <span class="n">assignList</span>
+        <span class="k">while</span> <span class="n">asList_ptr</span><span class="p">:</span>
+            <span class="n">assignment</span> <span class="o">=</span> <span class="n">nsnode</span><span class="o">.</span><span class="n">car</span><span class="p">(</span><span class="n">asList_ptr</span><span class="p">)</span>
+            <span class="n">var</span> <span class="o">=</span> <span class="n">nsnode</span><span class="o">.</span><span class="n">car</span><span class="p">(</span><span class="n">assignment</span><span class="p">)</span>
+            <span class="n">val</span> <span class="o">=</span> <span class="n">nsnode</span><span class="o">.</span><span class="n">cdr</span><span class="p">(</span><span class="n">assignment</span><span class="p">)</span>
+            <span class="n">values</span><span class="p">[</span><span class="n">nsnode</span><span class="o">.</span><span class="n">sprint_node</span><span class="p">(</span><span class="n">var</span><span class="p">)]</span> <span class="o">=</span> <span class="n">nsnode</span><span class="o">.</span><span class="n">sprint_node</span><span class="p">(</span><span class="n">val</span><span class="p">)</span>
+            <span class="n">asList_ptr</span> <span class="o">=</span> <span class="n">nsnode</span><span class="o">.</span><span class="n">cdr</span><span class="p">(</span><span class="n">asList_ptr</span><span class="p">)</span>
+            
+        <span class="n">nsnode</span><span class="o">.</span><span class="n">free_list</span><span class="p">(</span><span class="n">assignList</span><span class="p">)</span>
+        
+        <span class="n">nsutils</span><span class="o">.</span><span class="n">NodeList_destroy</span><span class="p">(</span><span class="n">symbols</span><span class="p">)</span>
+            
+        <span class="k">return</span> <span class="n">values</span>
+        
+
+    <span class="c"># ==========================================================================</span>
+    <span class="c"># ===== Static methods =====================================================</span>
+    <span class="c"># ==========================================================================</span>
+    </div>
+    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="Inputs.from_bdd"><a class="viewcode-back" href="../../pynusmv.html#pynusmv.dd.Inputs.from_bdd">[docs]</a>    <span class="k">def</span> <span class="nf">from_bdd</span><span class="p">(</span><span class="n">bdd</span><span class="p">,</span> <span class="n">fsm</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return a new Inputs of fsm from bdd.</span>
+<span class="sd">        </span>
+<span class="sd">        :param bdd: a BDD representing a single inputs variables </span>
+<span class="sd">                    valuation</span>
+<span class="sd">        :type bdd: :class:`BDD`</span>
+<span class="sd">        :param fsm: the FSM from which the BDD comes from</span>
+<span class="sd">        :type fsm: :class:`BddFsm &lt;pynusmv.fsm.BddFsm&gt;`</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">Inputs</span><span class="p">(</span><span class="n">nsdd</span><span class="o">.</span><span class="n">bdd_dup</span><span class="p">(</span><span class="n">bdd</span><span class="o">.</span><span class="n">_ptr</span><span class="p">),</span> <span class="n">fsm</span><span class="p">)</span>
+
+</div></div>
+<div class="viewcode-block" id="DDManager"><a class="viewcode-back" href="../../pynusmv.html#pynusmv.dd.DDManager">[docs]</a><span class="k">class</span> <span class="nc">DDManager</span><span class="p">(</span><span class="n">PointerWrapper</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Python class for NuSMV BDD managers.</span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">pass</span>
+    
+    </div>
+<div class="viewcode-block" id="State"><a class="viewcode-back" href="../../pynusmv.html#pynusmv.dd.State">[docs]</a><span class="k">class</span> <span class="nc">State</span><span class="p">(</span><span class="n">BDD</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Python class for State structure.</span>
+<span class="sd">    </span>
+<span class="sd">    A State is a :class:`BDD` representing a single state of the model.</span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ptr</span><span class="p">,</span> <span class="n">fsm</span><span class="p">,</span> <span class="n">freeit</span> <span class="o">=</span> <span class="bp">True</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">ptr</span><span class="p">,</span> <span class="n">fsm</span><span class="o">.</span><span class="n">bddEnc</span><span class="o">.</span><span class="n">DDmanager</span><span class="p">,</span> <span class="n">freeit</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_fsm</span> <span class="o">=</span> <span class="n">fsm</span>
+
+    
+<div class="viewcode-block" id="State.get_str_values"><a class="viewcode-back" href="../../pynusmv.html#pynusmv.dd.State.get_str_values">[docs]</a>    <span class="k">def</span> <span class="nf">get_str_values</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return a dictionary of the (variable, value) pairs of this State.</span>
+<span class="sd">        </span>
+<span class="sd">        :rtype: a dictionary of pairs of strings.</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">enc</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fsm</span><span class="o">.</span><span class="n">bddEnc</span>
+        <span class="c"># Get symb table from enc (BaseEnc)</span>
+        <span class="n">table</span> <span class="o">=</span> <span class="n">enc</span><span class="o">.</span><span class="n">symbTable</span>
+
+        <span class="c"># Get symbols (SymbTable) for states</span>
+        <span class="n">layers</span> <span class="o">=</span> <span class="n">nssymb_table</span><span class="o">.</span><span class="n">SymbTable_get_class_layer_names</span><span class="p">(</span><span class="n">table</span><span class="o">.</span><span class="n">_ptr</span><span class="p">,</span> <span class="bp">None</span><span class="p">)</span>
+        <span class="n">symbols</span> <span class="o">=</span> <span class="n">nssymb_table</span><span class="o">.</span><span class="n">SymbTable_get_layers_sf_symbols</span><span class="p">(</span><span class="n">table</span><span class="o">.</span><span class="n">_ptr</span><span class="p">,</span> <span class="n">layers</span><span class="p">)</span>
+        
+        <span class="c"># Get assign symbols (BddEnc)</span>
+        <span class="n">assignList</span> <span class="o">=</span> <span class="n">nsbddEnc</span><span class="o">.</span><span class="n">BddEnc_assign_symbols</span><span class="p">(</span><span class="n">enc</span><span class="o">.</span><span class="n">_ptr</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">_ptr</span><span class="p">,</span>
+                                                  <span class="n">symbols</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="bp">None</span><span class="p">)</span>
+
+        <span class="n">values</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="c"># Traverse the symbols to print variables of the state</span>
+        <span class="n">asList_ptr</span> <span class="o">=</span> <span class="n">assignList</span>
+        <span class="k">while</span> <span class="n">asList_ptr</span><span class="p">:</span>
+            <span class="n">assignment</span> <span class="o">=</span> <span class="n">nsnode</span><span class="o">.</span><span class="n">car</span><span class="p">(</span><span class="n">asList_ptr</span><span class="p">)</span>
+            <span class="n">var</span> <span class="o">=</span> <span class="n">nsnode</span><span class="o">.</span><span class="n">car</span><span class="p">(</span><span class="n">assignment</span><span class="p">)</span>
+            <span class="n">val</span> <span class="o">=</span> <span class="n">nsnode</span><span class="o">.</span><span class="n">cdr</span><span class="p">(</span><span class="n">assignment</span><span class="p">)</span>
+            <span class="n">values</span><span class="p">[</span><span class="n">nsnode</span><span class="o">.</span><span class="n">sprint_node</span><span class="p">(</span><span class="n">var</span><span class="p">)]</span> <span class="o">=</span> <span class="n">nsnode</span><span class="o">.</span><span class="n">sprint_node</span><span class="p">(</span><span class="n">val</span><span class="p">)</span>
+            <span class="n">asList_ptr</span> <span class="o">=</span> <span class="n">nsnode</span><span class="o">.</span><span class="n">cdr</span><span class="p">(</span><span class="n">asList_ptr</span><span class="p">)</span>
+            
+        <span class="n">nsnode</span><span class="o">.</span><span class="n">free_list</span><span class="p">(</span><span class="n">assignList</span><span class="p">)</span>
+        
+        <span class="n">nsutils</span><span class="o">.</span><span class="n">NodeList_destroy</span><span class="p">(</span><span class="n">symbols</span><span class="p">)</span>
+            
+        <span class="k">return</span> <span class="n">values</span>
+        
+        
+    <span class="c"># ==========================================================================</span>
+    <span class="c"># ===== Static methods =====================================================</span>
+    <span class="c"># ==========================================================================</span>
+    </div>
+    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="State.from_bdd"><a class="viewcode-back" href="../../pynusmv.html#pynusmv.dd.State.from_bdd">[docs]</a>    <span class="k">def</span> <span class="nf">from_bdd</span><span class="p">(</span><span class="n">bdd</span><span class="p">,</span> <span class="n">fsm</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return a new State of fsm from bdd.</span>
+<span class="sd">        </span>
+<span class="sd">        :param bdd: a BDD representing a single state</span>
+<span class="sd">        :type bdd: :class:`BDD`</span>
+<span class="sd">        :param fsm: the FSM from which the BDD comes from</span>
+<span class="sd">        :type fsm: :class:`BddFsm &lt;pynusmv.fsm.BddFsm&gt;`</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">State</span><span class="p">(</span><span class="n">nsdd</span><span class="o">.</span><span class="n">bdd_dup</span><span class="p">(</span><span class="n">bdd</span><span class="o">.</span><span class="n">_ptr</span><span class="p">),</span> <span class="n">fsm</span><span class="p">)</span></div></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../index.html">PyNuSMV 0.6 documentation</a> &raquo;</li>
+          <li><a href="../index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2013, Simon Busard.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>
