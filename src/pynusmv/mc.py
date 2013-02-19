@@ -1,45 +1,47 @@
 """
-mc provides some functions of NuSMV dealing with model checking, like CTL
-model checking.
+The :mod:`pynusmv.mc` module provides some functions of NuSMV dealing with model
+checking, like CTL model checking.
 """
 
 __all__ = ['eval_simple_expression', 'eval_ctl_spec', 'explainEX', 'explainEU',
            'explainEG']
 
+
 from .nusmv.node import node as nsnode
 from .nusmv.dd import dd as nsdd
 from .nusmv.mc import mc
-from .nusmv.node import node as nsnode
-from .nusmv.dd import dd as nsdd
      
 from .fsm import BddFsm
-from .dd import BDD
-from .dd import State
-from .dd import Inputs
-from .dd import BDDList
+from .dd import BDD, State, Inputs, BDDList
 from .prop import atom
 
 
 def eval_simple_expression(fsm, sexp):
     """
-    Return a BDD representing the states of fsm satisfying sexp.
+    Return the set of states of `fsm` satisfying `sexp`, as a BDD.
+    `sexp` is first parsed, then evaluated on `fsm`.
     
-    fsm -- the FSM;
-    sexp -- a string representing a simple expression.
+    :param fsm: the concerned FSM
+    :type fsm: :class:`BddFsm <pynusmv.fsm.BddFsm>`
+    :param sexp: a simple expression, as a string
+    :rtype: :class:`BDD <pynusmv.dd.BDD>`
     
-    Nothing checks whether sexp is really a simple expression.
     """
     return eval_ctl_spec(fsm, atom(sexp))
     
 
 def eval_ctl_spec(fsm, spec, context=None):
     """
-    Return the BDD representing the set of states of fsm satisfying spec
-    in context.
+    Return the set of states of `fsm` satisfying `spec` in `context`, as a BDD.
     
-    fsm -- a pynusmv.fsm.fsm.BddFsm representing the system.
-    spec -- a pynusmv.node.node.Node representing the formula.
-    context -- a pynusmv.node.node.Node representing the context of spec.
+    :param fsm: the concerned FSM
+    :type fsm: :class:`BddFsm <pynusmv.fsm.BddFsm>`
+    :param spec: a specification about `fsm`
+    :type spec: :class:`Spec <pynusmv.prop.Spec>`
+    :param context: the context in which evaluate `spec`
+    :type context: :class:`Spec <pynusmv.prop.Spec>`
+    :rtype: :class:`BDD <pynusmv.dd.BDD>`
+    
     """
     enc = fsm.bddEnc
     specbdd = BDD(mc.eval_ctl_spec(fsm._ptr, enc._ptr,
@@ -51,20 +53,22 @@ def eval_ctl_spec(fsm, spec, context=None):
     
 def explainEX(fsm, state, a):
     """
-    Explain why state of fsm satisfies EX a.
+    Explain why `state` of `fsm` satisfies `EX phi`, where `a` is
+    the set of states of `fsm` satisfying `phi`, represented by a BDD.
     
-    Explain why state of fsm satisfies EX phi, where a is a BDD representing
-    the set of states of fsm satisfying phi.
+    :param fsm: the system
+    :type fsm: :class:`BddFsm <pynusmv.fsm.BddFsm>`
+    :param state: a state of `fsm`
+    :type state: :class:`State <pynusmv.dd.State>`
+    :param a: the set of states of `fsm` satisfying `phi`
+    :type a: :class:`BDD <pynusmv.dd.BDD>`
     
-    fsm -- a pynusmv.fsm.BddFsm representing the system.
-    state -- a pynusmv.dd.BDD representing a state of fsm.
-    a -- a pynusmv.dd.BDD representing the set of states of fsm satisfying phi.
+    Return `(s, i, s')` tuple where `s` (:class:`State <pynusmv.dd.State>`)
+    is the given state, `s'` (:class:`State <pynusmv.dd.State>`) is a successor
+    of `s` belonging to `a` and `i` (:class:`Inputs <pynusmv.dd.Inputs>`)
+    is the inputs to go from `s` to `s'` in `fsm`.
     
-    Return (state, inputs, state') where state is the given state,
-    state' is a successor of state belonging to a and inputs is a BDD
-    representing the inputs to go from state to state' in fsm.
     """
-    
     enc = fsm.bddEnc
     manager = enc.DDmanager
     path = nsnode.cons(nsnode.bdd2node(nsdd.bdd_dup(state._ptr)), None)
@@ -81,20 +85,26 @@ def explainEX(fsm, state, a):
 
 def explainEU(fsm, state, a, b):
     """
-    Explain why state of fsm satisfies E[a U b].
+    Explain why `state` of `fsm` satisfies `E[phi U psi]`,
+    where `a is the set of states of `fsm` satisfying `phi`
+    and `b` is the set of states of `fsm` satisfying `psi`, both represented
+    by BDDs.
     
-    Explain why state of fsm satisfies E[phi U psi],
-    where a is a BDD representing the set of states of fsm satisfying phi
-    and b is a BDD representing the set of states of fsm satisfying psi.
+    :param fsm: the system
+    :type fsm: :class:`BddFsm <pynusmv.fsm.BddFsm>`
+    :param state: a state of `fsm`
+    :type state: :class:`State <pynusmv.dd.State>`
+    :param a: the set of states of `fsm` satisfying `phi`
+    :type a: :class:`BDD <pynusmv.dd.BDD>`
+    :param b: the set of states of `fsm` satisfying `psi`
+    :type b: :class:`BDD <pynusmv.dd.BDD>`
     
-    fsm -- a pynusmv.fsm.BddFsm representing the system.
-    state -- a pynusmv.dd.BDD representing a state of fsm.
-    a -- a pynusmv.dd.BDD representing the set of states of fsm satisfying phi.
-    b -- a pynusmv.dd.BDD representing the set of states of fsm satisfying psi.
+    Return a tuple `t` composed of states (:class:`State <pynusmv.dd.State>`)
+    and inputs (:class:`Inputs <pynusmv.dd.Inputs>`),
+    such that `t[0]` is `state`, `t[-1]` belongs to `b`, and every other state
+    of `t` belongs to `a`. The states of `t` are separated by inputs.
+    Furthermore, `t` represents a path in `fsm`.
     
-    Return a tuple t composed of states and inputs, all represented by BDDs,
-    such that t[0] is state, t[-1] belongs to b, and every other state of t
-    belongs to a. Furthermore, t represents a path in fsm.
     """
     
     enc = fsm.bddEnc
@@ -118,21 +128,25 @@ def explainEU(fsm, state, a, b):
 
 def explainEG(fsm, state, a):
     """
-    Explain why state of fsm satisfies EG a.
+    Explain why `state` of `fsm` satisfies `EG phi`,
+    where `a` the set of states of `fsm` satisfying `phi`, represented by a BDD.
     
-    Explain why state of fsm satisfies EG phi,
-    where a is a BDD representing the set of states of fsm satisfying phi.
+    :param fsm: the system
+    :type fsm: :class:`BddFsm <pynusmv.fsm.BddFsm>`
+    :param state: a state of `fsm`
+    :type state: :class:`State <pynusmv.dd.State>`
+    :param a: the set of states of `fsm` satisfying `phi`
+    :type a: :class:`BDD <pynusmv.dd.BDD>`
     
-    fsm -- a pynusmv.fsm.BddFsm representing the system.
-    state -- a pynusmv.dd.BDD representing a state of fsm.
-    a -- a pynusmv.dd.BDD representing the set of states of fsm satisfying phi.
+    Return a tuple `(t, (i, loop))`
+    where `t` is a tuple composed of states (:class:`State <pynusmv.dd.State>`)
+    and inputs (:class:`Inputs <pynusmv.dd.Inputs>`),
+    such that `t[0]` is state and every other state of `t`
+    belongs to `a`. The states of `t` are separated by inputs.
+    Furthermore, `t` represents a path in `fsm`.
+    `loop` represents the start of the loop contained in `t`,
+    i.e. `t[-1]` can lead to `loop` through `i`, and `loop` is a state of `t`.
     
-    Return a (t, (inputs, loop))
-    where t is a tuple composed of states and inputs, all represented by BDDs,
-    such that t[0] is stateand every other state of t
-    belongs to a. Furthermore, t represents a path in fsm.
-    loop represents the sstart of the loop contained in t,
-    i.e. t[-1] can lead to loop through inputs, and loop is a state of t.
     """
     
     enc = fsm.bddEnc
