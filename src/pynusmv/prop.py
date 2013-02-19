@@ -1,20 +1,26 @@
+"""
+The :mod:`pynusmv.prop` module contains classes and functions dealing with
+properties and specifications of models.
+
+"""
+
+
 __all__ = ['propTypes', 'Prop', 'PropDb','Spec', 'true', 'false', 'nott',
            'andd', 'orr', 'imply', 'iff', 'ex', 'eg', 'ef', 'eu', 'ew',
            'ax', 'ag', 'af', 'au', 'aw', 'atom']
 
+
 from .nusmv.prop import prop as nsprop
-
-from .fsm import BddFsm
-from .utils import PointerWrapper
-
 from .nusmv.parser import parser as nsparser
 from .nusmv.node import node as nsnode
 from .nusmv.compile.type_checking import type_checking as nstype_checking
 from .nusmv.compile.symb_table import symb_table as nssymb_table
-     
-from . import parser
 
+from .fsm import BddFsm
+from .utils import PointerWrapper     
+from . import parser
 from .exception import NuSMVParserError, NuSMVTypeCheckingError
+
 
 propTypes = {
              'NoType' :      nsprop.Prop_NoType,
@@ -25,86 +31,123 @@ propTypes = {
              'Compute' :     nsprop.Prop_Compute,
              'Comparison' :  nsprop.Prop_CompId
             }
+"""
+The possible types of properties. This gives access to NuSMV internal types
+without dealing with `pynusmv.nusmv` modules.
+
+"""
 
 
 class Prop(PointerWrapper):
     """
-    Python class for prop structure.
+    Python class for properties.
     
-    The Prop class contains a pointer to a prop in NuSMV and provides a set
-    of operations on this prop.
+    Properties are NuSMV data structures containing specifications but also
+    pointers to models (FSM) and other things.
     
-    Prop do not have to be freed since they come from PropDb.
     """
+    # Prop do not have to be freed since they come from PropDb.
         
     @property
     def type(self):
         """
-        The type of this prop.
+        The type of this property. It is one element of :data:`propTypes`.
         
-        To compare with pynusmv.nusmv.prop.prop.Prop_X for type X.
-        Types are NoType, Ctl, Ltl, Psl, Invar, Compute, CompId
         """
         return nsprop.Prop_get_type(self._ptr)
         
     @property
     def name(self):
-        """The name of this prop, as a string."""
+        """
+        The name of this property, as a string.
+        
+        """
         return nsprop.Prop_get_name_as_string(self._ptr)
         
     @property
     def expr(self):
-        """The expression of this prop, as a Spec."""
+        """
+        The expression of this property.
+        
+        :rtype: :class:`Spec`
+        
+        """
         return Spec(nsprop.Prop_get_expr(self._ptr))
         
     @property
     def exprcore(self):
-        """The core expression of this prop, as a Spec."""
+        """
+        The core expression of this property
+        
+        :rtype: :class:`Spec`
+        
+        """
         return Spec(nsprop.Prop_get_expr_core(self._ptr))
         
     @property
     def bddFsm(self):
-        """The fsm of this prop, into BddFsm format."""
+        """
+        The BDD-encoded FSM of this property.
+        
+        :rtype: :class:`BddFsm <pynusmv.fsm.BddFsm>`
+        
+        """
         return BddFsm(nsprop.Prop_get_bdd_fsm(self._ptr))
 
 
 class PropDb(PointerWrapper):
     """
-    Python class for PropDb structure.
+    Python class for property database.
     
-    The PropDb class contains a pointer to a propDb in NuSMV and provides a set
-    of operations on this prop database.
-    
-    PropDb do not have to be freed.
+    A property database is just a list of properties (:class:`Prop`).
+    Any PropDb can be used as a Python list.
     """
+    # PropDb do not have to be freed.
     
     
     @property
     def master(self):
-        """The master property of this database."""
+        """
+        The master property of this database.
+        
+        :rtype: :class:`Prop`
+        
+        """
         return Prop(nsprop.PropDb_get_master(self._ptr))
     
     
     def get_prop_at_index(self, index):
-        """Return the prop stored at index."""
+        """
+        Return the property stored at `index`.
+        
+        :rtype: :class:`Prop`
+        
+        """
         return Prop(nsprop.PropDb_get_prop_at_index(self._ptr, index))
     
     
     def get_size(self):
-        """Return the size of this database."""
+        """
+        Return the number of properties stored in this database.
+        
+        """
         return nsprop.PropDb_get_size(self._ptr)
         
     
     def __len__(self):
-        """Return the length of this propDb."""
+        """
+        Return the length of this database.
+        
+        """
         return self.get_size()
         
     
     def __getitem__(self, index):
         """
-        Return the indexth property.
+        Return the `index`th property.
         
-        Throw a IndexError if index < -len(self) or index >= len(self) 
+        :raise: a :exc:`IndexError` if `index` is not in the bounds
+        
         """
         if index < -len(self) or index >= len(self):
             raise IndexError("PropDb index out of range")
@@ -114,35 +157,52 @@ class PropDb(PointerWrapper):
         
     
     def __iter__(self):
-        """Return an iterator on this propDb."""
+        """
+        Return an iterator on this database.
+        
+        """
         for i in range(len(self)):
             yield self[i]
             
 
 class Spec(PointerWrapper):
     """
-    A specification stored as NuSMV nodes.
+    A CTL specification.
     
     The Spec class implements a NuSMV nodes-based specification.
-    
     No check is made to insure that the node is effectively a specification,
     i.e. the stored pointer is not checked against spec types.
     
-    Specs do not have to be freed.
     """
+    # Specs do not have to be freed.
     
     def __init__(self, ptr, freeit = False):
+        """
+        Create a new Spec.
+        
+        :param ptr: the pointer of the specification as a NuSMV node
+        :param boolean freeit: whether or not the pointer has to be freed
+        
+        """
         super().__init__(ptr, freeit = freeit)
         
         
     @property
     def type(self):
-        """The type of this spec node."""
+        """
+        The type of this specification.
+        
+        """
         return self._ptr.type
     
     @property
     def car(self):
-        """The left Spec-typed child of this node."""
+        """
+        The left child of this specification.
+        
+        :rtype: :class:`Spec`
+        
+        """
         left = nsnode.car(self._ptr)
         if left:
             return Spec(left, freeit = self._freeit)
@@ -151,7 +211,12 @@ class Spec(PointerWrapper):
         
     @property
     def cdr(self):
-        """The right Spec-typed child of this node."""
+        """
+        The right child of this specification.
+        
+        :rtype: :class:`Spec`
+        
+        """
         right = nsnode.cdr(self._ptr)
         if right:
             return Spec(right, freeit = self._freeit)
@@ -159,132 +224,238 @@ class Spec(PointerWrapper):
             return None
             
     def __str__(self):
+        """
+        Return a string representation of this specification.
+        
+        """
         return nsnode.sprint_node(self._ptr)
 
     def __or__(self, other):
+        """
+        Return the specification `self OR other`.
+        
+        :rtype: :class:`Spec`
+        
+        """
         if other is None:
             raise ValueError()
         return Spec(nsnode.find_node(nsparser.OR, self._ptr, other._ptr))
         
     def __and__(self, other):
+        """
+        Return the specification `self AND other`.
+        
+        :rtype: :class:`Spec`
+        
+        """
         if other is None:
             raise ValueError()
         return Spec(nsnode.find_node(nsparser.AND, self._ptr, other._ptr))
         
     def __invert__(self):
+        """
+        Return the specification `NOT self`.
+        
+        :rtype: :class:`Spec`
+        
+        """
         return Spec(nsnode.find_node(nsparser.NOT, self._ptr, None))
         
 
 def true():
-    """Return a new Spec corresponding to TRUE"""
+    """
+    Return a new specification corresponding to `TRUE`.
+    
+    :rtype: :class:`Spec`
+    
+    """
     return Spec(nsnode.find_node(nsparser.TRUEEXP, None, None))
     
 
 def false():
-    """Return a new Spec corresponding to FALSE"""
+    """
+    Return a new specification corresponding to `FALSE`.
+    
+    :rtype: :class:`Spec`
+    
+    """
     return Spec(nsnode.find_node(nsparser.FALSEEXP, None, None))
     
     
 def nott(spec):
-    """Return a new Spec corresponding to NOT spec"""
+    """Return a new specification corresponding to `NOT spec`.
+    
+    :rtype: :class:`Spec`
+    
+    """
     if spec is None:
         raise ValueError()
     return Spec(nsnode.find_node(nsparser.NOT, spec._ptr, None))
     
 
 def andd(left, right):
-    """Return a new Spec corresponding to left AND right"""
+    """
+    Return a new specification corresponding to `left AND right`.
+    
+    :rtype: :class:`Spec`
+    
+    """
     if left is None or right is None:
         raise ValueError()
     return Spec(nsnode.find_node(nsparser.AND, left._ptr, right._ptr))
     
 
 def orr(left, right):
-    """Return a new Spec corresponding to left OR right"""
+    """
+    Return a new specification corresponding to `left OR right`.
+    
+    :rtype: :class:`Spec`
+    
+    """
     if left is None or right is None:
         raise ValueError()
     return Spec(nsnode.find_node(nsparser.OR, left._ptr, right._ptr))
        
 
 def imply(left, right):
-    """Return a new Spec corresponding to (left IMPLIES right)"""
+    """
+    Return a new specification corresponding to `left IMPLIES right`.
+    
+    :rtype: :class:`Spec`
+    
+    """
     if left is None or right is None:
         raise ValueError()
     return Spec(nsnode.find_node(nsparser.IMPLIES, left._ptr, right._ptr))
     
 
 def iff(left, right):
-    """Return a new Spec corresponding to (left IFF right)"""
+    """
+    Return a new specification corresponding to `left IFF right`.
+    
+    :rtype: :class:`Spec`
+    
+    """
     if left is None or right is None:
         raise ValueError()
     return Spec(nsnode.find_node(nsparser.IFF, left._ptr, right._ptr))
     
     
 def ex(spec):
-    """Return a new Spec corresponding to EX spec"""
+    """
+    Return a new specification corresponding to `EX spec`.
+    
+    :rtype: :class:`Spec`
+    
+    """
     if spec is None:
         raise ValueError()
     return Spec(nsnode.find_node(nsparser.EX, spec._ptr, None))
     
 
 def eg(spec):
-    """Return a new Spec corresponding to EG spec"""
+    """
+    Return a new specification corresponding to `EG spec`.
+    
+    :rtype: :class:`Spec`
+    
+    """
     if spec is None:
         raise ValueError()
     return Spec(nsnode.find_node(nsparser.EG, spec._ptr, None))
     
     
 def ef(spec):
-    """Return a new Spec corresponding to EF spec"""
+    """
+    Return a new specification corresponding to `EF spec`.
+    
+    :rtype: :class:`Spec`
+    
+    """
     if spec is None:
         raise ValueError()
     return Spec(nsnode.find_node(nsparser.EF, spec._ptr, None))
     
     
 def eu(left, right):
-    """Return a new Spec corresponding to EU[left U right]"""
+    """
+    Return a new specification corresponding to `E[left U right]`.
+    
+    :rtype: :class:`Spec`
+    
+    """
     if left is None or right is None:
         raise ValueError()
     return Spec(nsnode.find_node(nsparser.EU, left._ptr, right._ptr))
     
     
 def ew(left, right):
-    """Return a new Spec corresponding to EW[left U right]"""
+    """
+    Return a new specification corresponding to `E[left W right]`.
+    
+    :rtype: :class:`Spec`
+    
+    """
     if left is None or right is None:
         raise ValueError()
     return Spec(nsnode.find_node(nsparser.EW, left._ptr, right._ptr))
     
     
 def ax(spec):
-    """Return a new Spec corresponding to AX spec"""
+    """
+    Return a new specification corresponding to `AX spec`.
+    
+    :rtype: :class:`Spec`
+    
+    """
     if spec is None:
         raise ValueError()
     return Spec(nsnode.find_node(nsparser.AX, spec._ptr, None))
     
 
 def ag(spec):
-    """Return a new Spec corresponding to AG spec"""
+    """
+    Return a new specification corresponding to `AG spec`.
+    
+    :rtype: :class:`Spec`
+    
+    """
     if spec is None:
         raise ValueError()
     return Spec(nsnode.find_node(nsparser.AG, spec._ptr, None))
     
     
 def af(spec):
-    """Return a new Spec corresponding to AF spec"""
+    """
+    Return a new specification corresponding to `AF spec`.
+    
+    :rtype: :class:`Spec`
+    
+    """
     if spec is None:
         raise ValueError()
     return Spec(nsnode.find_node(nsparser.AF, spec._ptr, None))
     
     
 def au(left, right):
-    """Return a new Spec corresponding to AU[left U right]"""
+    """
+    Return a new specification corresponding to `A[left U right]`.
+    
+    :rtype: :class:`Spec`
+    
+    """
     if left is None or right is None:
         raise ValueError()
     return Spec(nsnode.find_node(nsparser.AU, left._ptr, right._ptr))
     
     
 def aw(left, right):
-    """Return a new Spec corresponding to AW[left U right]"""
+    """
+    Return a new specification corresponding to `A[left W right]`.
+    
+    :rtype: :class:`Spec`
+    
+    """
     if left is None or right is None:
         raise ValueError()
     return Spec(nsnode.find_node(nsparser.AW, left._ptr, right._ptr))
@@ -292,12 +463,13 @@ def aw(left, right):
 
 def atom(strrep):
     """
-    Return a new Spec corresponding to the given atom.
-    
-    Parse strrep and provide a new Spec representing this atom.
-    The parsed spec is type checked on the current model. A model needs to be
+    Return a new specification corresponding to the given atom.
+    `strrep` is parsed type checked on the current model. A model needs to be
     read and with variables encoded to be able to type check the atomic
     proposition.
+    
+    :rtype: :class:`Spec`
+    
     """
     
     from . import glob
