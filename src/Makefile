@@ -41,7 +41,7 @@ nusmv: cudd
 	@if [ ! -f nusmv/NuSMV ]; then \
 		cd nusmv; \
 		if [ ! -f Makefile ]; then \
-			./configure; \
+			./configure CFLAGS="-fPIC"; \
 		fi; \
 		make; \
 	fi
