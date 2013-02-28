@@ -4,7 +4,7 @@ all: swig pyparsing
 
 PYTHON3=python3
 SWIG=$(shell which swig)
-PYPARSING=$(shell $(PYTHON3) -c "import pyparsing" &> /dev/null; echo $$?)
+PYPARSING=$(`shell $(PYTHON3) -c "import pyparsing" &> /dev/null; echo $$?`)
 
 swig:
 ifeq ($(SWIG),) # SWIG must be built
