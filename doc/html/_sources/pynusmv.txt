@@ -1,5 +1,7 @@
-pynusmv Package
-===============
+.. _pynusmv-api:
+
+PyNuSMV Reference
+*****************
 
 .. automodule:: pynusmv.__init__
 ..    :members:
