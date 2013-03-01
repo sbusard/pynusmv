@@ -118,9 +118,9 @@ and <tt class="docutils literal"><span class="pre">b</span></tt></li>
 </ul>
 <p>Any BDD operation raises a <a class="reference internal" href="#pynusmv.exception.MissingManagerError" title="pynusmv.exception.MissingManagerError"><tt class="xref py py-exc docutils literal"><span class="pre">MissingManagerError</span></tt></a> whenever the manager
 of the BDD is None and a manager is needed to perform the operation.</p>
-<dl class="method">
+<dl class="function">
 <dt id="pynusmv.dd.BDD.andd">
-<tt class="descname">andd</tt><big>(</big><em>other</em><big>)</big><a class="reference internal" href="_modules/pynusmv/dd.html#BDD.andd"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynusmv.dd.BDD.andd" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">andd</tt><big>(</big><em>self</em>, <em>other</em><big>)</big><a class="reference internal" href="_modules/pynusmv/dd.html#BDD.andd"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynusmv.dd.BDD.andd" title="Permalink to this definition">¶</a></dt>
 <dd><p>Compute the conjunction of this BDD and <cite>other</cite>.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -132,15 +132,15 @@ of the BDD is None and a manager is needed to perform the operation.</p>
 </table>
 </dd></dl>
 
-<dl class="method">
+<dl class="function">
 <dt id="pynusmv.dd.BDD.dup">
-<tt class="descname">dup</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/pynusmv/dd.html#BDD.dup"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynusmv.dd.BDD.dup" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">dup</tt><big>(</big><em>self</em><big>)</big><a class="reference internal" href="_modules/pynusmv/dd.html#BDD.dup"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynusmv.dd.BDD.dup" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return a copy of this BDD.</p>
 </dd></dl>
 
-<dl class="method">
+<dl class="function">
 <dt id="pynusmv.dd.BDD.entailed">
-<tt class="descname">entailed</tt><big>(</big><em>other</em><big>)</big><a class="reference internal" href="_modules/pynusmv/dd.html#BDD.entailed"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynusmv.dd.BDD.entailed" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">entailed</tt><big>(</big><em>self</em>, <em>other</em><big>)</big><a class="reference internal" href="_modules/pynusmv/dd.html#BDD.entailed"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynusmv.dd.BDD.entailed" title="Permalink to this definition">¶</a></dt>
 <dd><p>Determine whether this BDD is included in <cite>other</cite> or not.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -152,9 +152,9 @@ of the BDD is None and a manager is needed to perform the operation.</p>
 </table>
 </dd></dl>
 
-<dl class="method">
+<dl class="function">
 <dt id="pynusmv.dd.BDD.equal">
-<tt class="descname">equal</tt><big>(</big><em>other</em><big>)</big><a class="reference internal" href="_modules/pynusmv/dd.html#BDD.equal"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynusmv.dd.BDD.equal" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">equal</tt><big>(</big><em>self</em>, <em>other</em><big>)</big><a class="reference internal" href="_modules/pynusmv/dd.html#BDD.equal"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynusmv.dd.BDD.equal" title="Permalink to this definition">¶</a></dt>
 <dd><p>Determine whether this BDD is equal to <cite>other</cite> or not.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -166,9 +166,9 @@ of the BDD is None and a manager is needed to perform the operation.</p>
 </table>
 </dd></dl>
 
-<dl class="staticmethod">
+<dl class="function">
 <dt id="pynusmv.dd.BDD.false">
-<em class="property">static </em><tt class="descname">false</tt><big>(</big><em>manager</em><big>)</big><a class="reference internal" href="_modules/pynusmv/dd.html#BDD.false"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynusmv.dd.BDD.false" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">false</tt><big>(</big><em>manager</em><big>)</big><a class="reference internal" href="_modules/pynusmv/dd.html#BDD.false"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynusmv.dd.BDD.false" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the FALSE BDD.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -180,9 +180,9 @@ of the BDD is None and a manager is needed to perform the operation.</p>
 </table>
 </dd></dl>
 
-<dl class="method">
+<dl class="function">
 <dt id="pynusmv.dd.BDD.forall">
-<tt class="descname">forall</tt><big>(</big><em>cube</em><big>)</big><a class="reference internal" href="_modules/pynusmv/dd.html#BDD.forall"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynusmv.dd.BDD.forall" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">forall</tt><big>(</big><em>self</em>, <em>cube</em><big>)</big><a class="reference internal" href="_modules/pynusmv/dd.html#BDD.forall"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynusmv.dd.BDD.forall" title="Permalink to this definition">¶</a></dt>
 <dd><p>Universally abstract all the variables in cube from this BDD.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -194,9 +194,9 @@ of the BDD is None and a manager is needed to perform the operation.</p>
 </table>
 </dd></dl>
 
-<dl class="method">
+<dl class="function">
 <dt id="pynusmv.dd.BDD.forsome">
-<tt class="descname">forsome</tt><big>(</big><em>cube</em><big>)</big><a class="reference internal" href="_modules/pynusmv/dd.html#BDD.forsome"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynusmv.dd.BDD.forsome" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">forsome</tt><big>(</big><em>self</em>, <em>cube</em><big>)</big><a class="reference internal" href="_modules/pynusmv/dd.html#BDD.forsome"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynusmv.dd.BDD.forsome" title="Permalink to this definition">¶</a></dt>
 <dd><p>Existentially abstract all the variables in cube from this BDD.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -208,9 +208,9 @@ of the BDD is None and a manager is needed to perform the operation.</p>
 </table>
 </dd></dl>
 
-<dl class="method">
+<dl class="function">
 <dt id="pynusmv.dd.BDD.iff">
-<tt class="descname">iff</tt><big>(</big><em>other</em><big>)</big><a class="reference internal" href="_modules/pynusmv/dd.html#BDD.iff"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynusmv.dd.BDD.iff" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">iff</tt><big>(</big><em>self</em>, <em>other</em><big>)</big><a class="reference internal" href="_modules/pynusmv/dd.html#BDD.iff"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynusmv.dd.BDD.iff" title="Permalink to this definition">¶</a></dt>
 <dd><p>Compute the IFF operation on this BDD and <cite>other</cite>.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -222,9 +222,9 @@ of the BDD is None and a manager is needed to perform the operation.</p>
 </table>
 </dd></dl>
 
-<dl class="method">
+<dl class="function">
 <dt id="pynusmv.dd.BDD.imply">
-<tt class="descname">imply</tt><big>(</big><em>other</em><big>)</big><a class="reference internal" href="_modules/pynusmv/dd.html#BDD.imply"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynusmv.dd.BDD.imply" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">imply</tt><big>(</big><em>self</em>, <em>other</em><big>)</big><a class="reference internal" href="_modules/pynusmv/dd.html#BDD.imply"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynusmv.dd.BDD.imply" title="Permalink to this definition">¶</a></dt>
 <dd><p>Compute the IMPLY operation on this BDD and <cite>other</cite>.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -236,9 +236,9 @@ of the BDD is None and a manager is needed to perform the operation.</p>
 </table>
 </dd></dl>
 
-<dl class="method">
+<dl class="function">
 <dt id="pynusmv.dd.BDD.intersected">
-<tt class="descname">intersected</tt><big>(</big><em>other</em><big>)</big><a class="reference internal" href="_modules/pynusmv/dd.html#BDD.intersected"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynusmv.dd.BDD.intersected" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">intersected</tt><big>(</big><em>self</em>, <em>other</em><big>)</big><a class="reference internal" href="_modules/pynusmv/dd.html#BDD.intersected"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynusmv.dd.BDD.intersected" title="Permalink to this definition">¶</a></dt>
 <dd><p>Determine whether the intersection between this BDD
 and <cite>other</cite> is not empty.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -251,33 +251,33 @@ and <cite>other</cite> is not empty.</p>
 </table>
 </dd></dl>
 
-<dl class="method">
+<dl class="function">
 <dt id="pynusmv.dd.BDD.is_false">
-<tt class="descname">is_false</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/pynusmv/dd.html#BDD.is_false"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynusmv.dd.BDD.is_false" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">is_false</tt><big>(</big><em>self</em><big>)</big><a class="reference internal" href="_modules/pynusmv/dd.html#BDD.is_false"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynusmv.dd.BDD.is_false" title="Permalink to this definition">¶</a></dt>
 <dd><p>Determine whether this BDD is false or not.</p>
 </dd></dl>
 
-<dl class="method">
+<dl class="function">
 <dt id="pynusmv.dd.BDD.is_true">
-<tt class="descname">is_true</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/pynusmv/dd.html#BDD.is_true"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynusmv.dd.BDD.is_true" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">is_true</tt><big>(</big><em>self</em><big>)</big><a class="reference internal" href="_modules/pynusmv/dd.html#BDD.is_true"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynusmv.dd.BDD.is_true" title="Permalink to this definition">¶</a></dt>
 <dd><p>Determine whether this BDD is true or not.</p>
 </dd></dl>
 
-<dl class="method">
+<dl class="function">
 <dt id="pynusmv.dd.BDD.isnot_false">
-<tt class="descname">isnot_false</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/pynusmv/dd.html#BDD.isnot_false"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynusmv.dd.BDD.isnot_false" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">isnot_false</tt><big>(</big><em>self</em><big>)</big><a class="reference internal" href="_modules/pynusmv/dd.html#BDD.isnot_false"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynusmv.dd.BDD.isnot_false" title="Permalink to this definition">¶</a></dt>
 <dd><p>Determine whether this BDD is not false.</p>
 </dd></dl>
 
-<dl class="method">
+<dl class="function">
 <dt id="pynusmv.dd.BDD.isnot_true">
-<tt class="descname">isnot_true</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/pynusmv/dd.html#BDD.isnot_true"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynusmv.dd.BDD.isnot_true" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">isnot_true</tt><big>(</big><em>self</em><big>)</big><a class="reference internal" href="_modules/pynusmv/dd.html#BDD.isnot_true"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynusmv.dd.BDD.isnot_true" title="Permalink to this definition">¶</a></dt>
 <dd><p>Determine whether this BDD is not true.</p>
 </dd></dl>
 
-<dl class="method">
+<dl class="function">
 <dt id="pynusmv.dd.BDD.leq">
-<tt class="descname">leq</tt><big>(</big><em>other</em><big>)</big><a class="reference internal" href="_modules/pynusmv/dd.html#BDD.leq"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynusmv.dd.BDD.leq" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">leq</tt><big>(</big><em>self</em>, <em>other</em><big>)</big><a class="reference internal" href="_modules/pynusmv/dd.html#BDD.leq"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynusmv.dd.BDD.leq" title="Permalink to this definition">¶</a></dt>
 <dd><p>Determine whether this BDD is less than or equal to <cite>other</cite>.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -289,15 +289,15 @@ and <cite>other</cite> is not empty.</p>
 </table>
 </dd></dl>
 
-<dl class="method">
+<dl class="function">
 <dt id="pynusmv.dd.BDD.nott">
-<tt class="descname">nott</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/pynusmv/dd.html#BDD.nott"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynusmv.dd.BDD.nott" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">nott</tt><big>(</big><em>self</em><big>)</big><a class="reference internal" href="_modules/pynusmv/dd.html#BDD.nott"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynusmv.dd.BDD.nott" title="Permalink to this definition">¶</a></dt>
 <dd><p>Compute the complement of this BDD.</p>
 </dd></dl>
 
-<dl class="method">
+<dl class="function">
 <dt id="pynusmv.dd.BDD.orr">
-<tt class="descname">orr</tt><big>(</big><em>other</em><big>)</big><a class="reference internal" href="_modules/pynusmv/dd.html#BDD.orr"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynusmv.dd.BDD.orr" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">orr</tt><big>(</big><em>self</em>, <em>other</em><big>)</big><a class="reference internal" href="_modules/pynusmv/dd.html#BDD.orr"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynusmv.dd.BDD.orr" title="Permalink to this definition">¶</a></dt>
 <dd><p>Compute the conjunction of this BDD and <cite>other</cite>.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -309,9 +309,9 @@ and <cite>other</cite> is not empty.</p>
 </table>
 </dd></dl>
 
-<dl class="staticmethod">
+<dl class="function">
 <dt id="pynusmv.dd.BDD.true">
-<em class="property">static </em><tt class="descname">true</tt><big>(</big><em>manager</em><big>)</big><a class="reference internal" href="_modules/pynusmv/dd.html#BDD.true"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynusmv.dd.BDD.true" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">true</tt><big>(</big><em>manager</em><big>)</big><a class="reference internal" href="_modules/pynusmv/dd.html#BDD.true"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynusmv.dd.BDD.true" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the TRUE BDD.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -323,9 +323,9 @@ and <cite>other</cite> is not empty.</p>
 </table>
 </dd></dl>
 
-<dl class="method">
+<dl class="function">
 <dt id="pynusmv.dd.BDD.xor">
-<tt class="descname">xor</tt><big>(</big><em>other</em><big>)</big><a class="reference internal" href="_modules/pynusmv/dd.html#BDD.xor"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynusmv.dd.BDD.xor" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">xor</tt><big>(</big><em>self</em>, <em>other</em><big>)</big><a class="reference internal" href="_modules/pynusmv/dd.html#BDD.xor"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynusmv.dd.BDD.xor" title="Permalink to this definition">¶</a></dt>
 <dd><p>Compute the exclusive-OR of this BDD and <cite>other</cite>.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -346,9 +346,9 @@ and <cite>other</cite> is not empty.</p>
 <p>A BDD list stored as NuSMV nodes.</p>
 <p>The BDDList class implements a NuSMV nodes-based BDD list and can be used as 
 any Python list.</p>
-<dl class="staticmethod">
+<dl class="function">
 <dt id="pynusmv.dd.BDDList.from_tuple">
-<em class="property">static </em><tt class="descname">from_tuple</tt><big>(</big><em>bddtuple</em><big>)</big><a class="reference internal" href="_modules/pynusmv/dd.html#BDDList.from_tuple"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynusmv.dd.BDDList.from_tuple" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">from_tuple</tt><big>(</big><em>bddtuple</em><big>)</big><a class="reference internal" href="_modules/pynusmv/dd.html#BDDList.from_tuple"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynusmv.dd.BDDList.from_tuple" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create a node-based list from the Python tuple <cite>bddtuple</cite>.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -366,9 +366,9 @@ If all elements of <cite>bddtuple</cite> are <cite>None</cite>,
 the manager of the created <a class="reference internal" href="#pynusmv.dd.BDDList" title="pynusmv.dd.BDDList"><tt class="xref py py-class docutils literal"><span class="pre">BDDList</span></tt></a> is <cite>None</cite>.</p>
 </dd></dl>
 
-<dl class="method">
+<dl class="function">
 <dt id="pynusmv.dd.BDDList.to_tuple">
-<tt class="descname">to_tuple</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/pynusmv/dd.html#BDDList.to_tuple"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynusmv.dd.BDDList.to_tuple" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">to_tuple</tt><big>(</big><em>self</em><big>)</big><a class="reference internal" href="_modules/pynusmv/dd.html#BDDList.to_tuple"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynusmv.dd.BDDList.to_tuple" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return a tuple containing all BDDs of self.       
 The returned BDDs are copies of the ones of self.</p>
 </dd></dl>
@@ -382,9 +382,9 @@ The returned BDDs are copies of the ones of self.</p>
 <p>Python class for inputs structure.</p>
 <p>An Inputs is a <a class="reference internal" href="#pynusmv.dd.BDD" title="pynusmv.dd.BDD"><tt class="xref py py-class docutils literal"><span class="pre">BDD</span></tt></a> representing a single valuation of the inputs
 variables of the model, i.e. an action of the model.</p>
-<dl class="staticmethod">
+<dl class="function">
 <dt id="pynusmv.dd.Inputs.from_bdd">
-<em class="property">static </em><tt class="descname">from_bdd</tt><big>(</big><em>bdd</em>, <em>fsm</em><big>)</big><a class="reference internal" href="_modules/pynusmv/dd.html#Inputs.from_bdd"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynusmv.dd.Inputs.from_bdd" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">from_bdd</tt><big>(</big><em>bdd</em>, <em>fsm</em><big>)</big><a class="reference internal" href="_modules/pynusmv/dd.html#Inputs.from_bdd"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynusmv.dd.Inputs.from_bdd" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return a new Inputs of fsm from bdd.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -401,9 +401,9 @@ valuation</li>
 </table>
 </dd></dl>
 
-<dl class="method">
+<dl class="function">
 <dt id="pynusmv.dd.Inputs.get_str_values">
-<tt class="descname">get_str_values</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/pynusmv/dd.html#Inputs.get_str_values"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynusmv.dd.Inputs.get_str_values" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">get_str_values</tt><big>(</big><em>self</em><big>)</big><a class="reference internal" href="_modules/pynusmv/dd.html#Inputs.get_str_values"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynusmv.dd.Inputs.get_str_values" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return a dictionary of the (variable, value) pairs of these Inputs.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -430,9 +430,9 @@ valuation</li>
 <dd><p>Bases: <a class="reference internal" href="#pynusmv.dd.BDD" title="pynusmv.dd.BDD"><tt class="xref py py-class docutils literal"><span class="pre">pynusmv.dd.BDD</span></tt></a></p>
 <p>Python class for State structure.</p>
 <p>A State is a <a class="reference internal" href="#pynusmv.dd.BDD" title="pynusmv.dd.BDD"><tt class="xref py py-class docutils literal"><span class="pre">BDD</span></tt></a> representing a single state of the model.</p>
-<dl class="staticmethod">
+<dl class="function">
 <dt id="pynusmv.dd.State.from_bdd">
-<em class="property">static </em><tt class="descname">from_bdd</tt><big>(</big><em>bdd</em>, <em>fsm</em><big>)</big><a class="reference internal" href="_modules/pynusmv/dd.html#State.from_bdd"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynusmv.dd.State.from_bdd" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">from_bdd</tt><big>(</big><em>bdd</em>, <em>fsm</em><big>)</big><a class="reference internal" href="_modules/pynusmv/dd.html#State.from_bdd"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynusmv.dd.State.from_bdd" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return a new State of fsm from bdd.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -448,9 +448,9 @@ valuation</li>
 </table>
 </dd></dl>
 
-<dl class="method">
+<dl class="function">
 <dt id="pynusmv.dd.State.get_str_values">
-<tt class="descname">get_str_values</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/pynusmv/dd.html#State.get_str_values"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynusmv.dd.State.get_str_values" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">get_str_values</tt><big>(</big><em>self</em><big>)</big><a class="reference internal" href="_modules/pynusmv/dd.html#State.get_str_values"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynusmv.dd.State.get_str_values" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return a dictionary of the (variable, value) pairs of this State.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -668,9 +668,9 @@ and actions of given BDDs.</p>
 <dd><p>The BDD encoding of this FSM.</p>
 </dd></dl>
 
-<dl class="method">
+<dl class="function">
 <dt id="pynusmv.fsm.BddFsm.count_inputs">
-<tt class="descname">count_inputs</tt><big>(</big><em>bdd</em><big>)</big><a class="reference internal" href="_modules/pynusmv/fsm.html#BddFsm.count_inputs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynusmv.fsm.BddFsm.count_inputs" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">count_inputs</tt><big>(</big><em>self</em>, <em>bdd</em><big>)</big><a class="reference internal" href="_modules/pynusmv/fsm.html#BddFsm.count_inputs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynusmv.fsm.BddFsm.count_inputs" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the number of inputs of the given BDD</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -682,9 +682,9 @@ and actions of given BDDs.</p>
 </table>
 </dd></dl>
 
-<dl class="method">
+<dl class="function">
 <dt id="pynusmv.fsm.BddFsm.count_states">
-<tt class="descname">count_states</tt><big>(</big><em>bdd</em><big>)</big><a class="reference internal" href="_modules/pynusmv/fsm.html#BddFsm.count_states"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynusmv.fsm.BddFsm.count_states" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">count_states</tt><big>(</big><em>self</em>, <em>bdd</em><big>)</big><a class="reference internal" href="_modules/pynusmv/fsm.html#BddFsm.count_states"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynusmv.fsm.BddFsm.count_states" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the number of states of the given BDD.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -702,9 +702,9 @@ and actions of given BDDs.</p>
 <dd><p>The list of fairness constraints, as BDDs.</p>
 </dd></dl>
 
-<dl class="staticmethod">
+<dl class="function">
 <dt id="pynusmv.fsm.BddFsm.from_filename">
-<em class="property">static </em><tt class="descname">from_filename</tt><big>(</big><em>filepath</em><big>)</big><a class="reference internal" href="_modules/pynusmv/fsm.html#BddFsm.from_filename"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynusmv.fsm.BddFsm.from_filename" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">from_filename</tt><big>(</big><em>filepath</em><big>)</big><a class="reference internal" href="_modules/pynusmv/fsm.html#BddFsm.from_filename"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynusmv.fsm.BddFsm.from_filename" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the FSM corresponding to the model in <cite>filepath</cite>.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -716,9 +716,9 @@ and actions of given BDDs.</p>
 </table>
 </dd></dl>
 
-<dl class="method">
+<dl class="function">
 <dt id="pynusmv.fsm.BddFsm.get_inputs_between_states">
-<tt class="descname">get_inputs_between_states</tt><big>(</big><em>current</em>, <em>next</em><big>)</big><a class="reference internal" href="_modules/pynusmv/fsm.html#BddFsm.get_inputs_between_states"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynusmv.fsm.BddFsm.get_inputs_between_states" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">get_inputs_between_states</tt><big>(</big><em>self</em>, <em>current</em>, <em>next</em><big>)</big><a class="reference internal" href="_modules/pynusmv/fsm.html#BddFsm.get_inputs_between_states"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynusmv.fsm.BddFsm.get_inputs_between_states" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the BDD representing the possible inputs between <cite>current</cite> and
 <cite>next</cite>.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -750,9 +750,9 @@ and actions of given BDDs.</p>
 <dd><p>The BDD of inputs satisfying the invariants of the FSM.</p>
 </dd></dl>
 
-<dl class="method">
+<dl class="function">
 <dt id="pynusmv.fsm.BddFsm.pick_all_inputs">
-<tt class="descname">pick_all_inputs</tt><big>(</big><em>bdd</em><big>)</big><a class="reference internal" href="_modules/pynusmv/fsm.html#BddFsm.pick_all_inputs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynusmv.fsm.BddFsm.pick_all_inputs" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">pick_all_inputs</tt><big>(</big><em>self</em>, <em>bdd</em><big>)</big><a class="reference internal" href="_modules/pynusmv/fsm.html#BddFsm.pick_all_inputs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynusmv.fsm.BddFsm.pick_all_inputs" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return a tuple of all inputs belonging to <cite>bdd</cite>.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -769,9 +769,9 @@ if something is wrong</td>
 </table>
 </dd></dl>
 
-<dl class="method">
+<dl class="function">
 <dt id="pynusmv.fsm.BddFsm.pick_all_states">
-<tt class="descname">pick_all_states</tt><big>(</big><em>bdd</em><big>)</big><a class="reference internal" href="_modules/pynusmv/fsm.html#BddFsm.pick_all_states"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynusmv.fsm.BddFsm.pick_all_states" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">pick_all_states</tt><big>(</big><em>self</em>, <em>bdd</em><big>)</big><a class="reference internal" href="_modules/pynusmv/fsm.html#BddFsm.pick_all_states"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynusmv.fsm.BddFsm.pick_all_states" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return a tuple of all states belonging to <cite>bdd</cite>.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -788,9 +788,9 @@ if something is wrong</td>
 </table>
 </dd></dl>
 
-<dl class="method">
+<dl class="function">
 <dt id="pynusmv.fsm.BddFsm.pick_one_inputs">
-<tt class="descname">pick_one_inputs</tt><big>(</big><em>bdd</em><big>)</big><a class="reference internal" href="_modules/pynusmv/fsm.html#BddFsm.pick_one_inputs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynusmv.fsm.BddFsm.pick_one_inputs" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">pick_one_inputs</tt><big>(</big><em>self</em>, <em>bdd</em><big>)</big><a class="reference internal" href="_modules/pynusmv/fsm.html#BddFsm.pick_one_inputs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynusmv.fsm.BddFsm.pick_one_inputs" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return a BDD representing an inputs of <cite>bdd</cite>.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -806,9 +806,9 @@ if <cite>bdd</cite> is false or an error occurs while picking one inputs
 </table>
 </dd></dl>
 
-<dl class="method">
+<dl class="function">
 <dt id="pynusmv.fsm.BddFsm.pick_one_state">
-<tt class="descname">pick_one_state</tt><big>(</big><em>bdd</em><big>)</big><a class="reference internal" href="_modules/pynusmv/fsm.html#BddFsm.pick_one_state"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynusmv.fsm.BddFsm.pick_one_state" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">pick_one_state</tt><big>(</big><em>self</em>, <em>bdd</em><big>)</big><a class="reference internal" href="_modules/pynusmv/fsm.html#BddFsm.pick_one_state"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynusmv.fsm.BddFsm.pick_one_state" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return a BDD representing a state of <cite>bdd</cite>.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -824,9 +824,9 @@ if <cite>bdd</cite> is false or an error occurs while picking one state
 </table>
 </dd></dl>
 
-<dl class="method">
+<dl class="function">
 <dt id="pynusmv.fsm.BddFsm.post">
-<tt class="descname">post</tt><big>(</big><em>states</em>, <em>inputs=None</em><big>)</big><a class="reference internal" href="_modules/pynusmv/fsm.html#BddFsm.post"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynusmv.fsm.BddFsm.post" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">post</tt><big>(</big><em>self</em>, <em>states</em>, <em>inputs=None</em><big>)</big><a class="reference internal" href="_modules/pynusmv/fsm.html#BddFsm.post"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynusmv.fsm.BddFsm.post" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the post-image of <cite>states</cite> in this FSM.
 If <cite>inputs</cite> is not <cite>None</cite>, it is used as constraints to get
 post-states that are reachable through these inputs.</p>
@@ -847,9 +847,9 @@ post-states that are reachable through these inputs.</p>
 </table>
 </dd></dl>
 
-<dl class="method">
+<dl class="function">
 <dt id="pynusmv.fsm.BddFsm.pre">
-<tt class="descname">pre</tt><big>(</big><em>states</em>, <em>inputs=None</em><big>)</big><a class="reference internal" href="_modules/pynusmv/fsm.html#BddFsm.pre"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynusmv.fsm.BddFsm.pre" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">pre</tt><big>(</big><em>self</em>, <em>states</em>, <em>inputs=None</em><big>)</big><a class="reference internal" href="_modules/pynusmv/fsm.html#BddFsm.pre"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynusmv.fsm.BddFsm.pre" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the pre-image of <cite>states</cite> in this FSM.
 If <cite>inputs</cite> is not <cite>None</cite>, it is used as constraints to get
 pre-states that are reachable through these inputs.</p>
@@ -992,9 +992,9 @@ operations on BDDs, possibly restricted to given actions.</p>
 </table>
 </dd></dl>
 
-<dl class="method">
+<dl class="function">
 <dt id="pynusmv.fsm.BddTrans.post">
-<tt class="descname">post</tt><big>(</big><em>states</em>, <em>inputs=None</em><big>)</big><a class="reference internal" href="_modules/pynusmv/fsm.html#BddTrans.post"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynusmv.fsm.BddTrans.post" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">post</tt><big>(</big><em>self</em>, <em>states</em>, <em>inputs=None</em><big>)</big><a class="reference internal" href="_modules/pynusmv/fsm.html#BddTrans.post"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynusmv.fsm.BddTrans.post" title="Permalink to this definition">¶</a></dt>
 <dd><p>Compute the post-image of <cite>states</cite>, through <cite>inputs</cite> if not <cite>None</cite>.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -1013,9 +1013,9 @@ operations on BDDs, possibly restricted to given actions.</p>
 </table>
 </dd></dl>
 
-<dl class="method">
+<dl class="function">
 <dt id="pynusmv.fsm.BddTrans.pre">
-<tt class="descname">pre</tt><big>(</big><em>states</em>, <em>inputs=None</em><big>)</big><a class="reference internal" href="_modules/pynusmv/fsm.html#BddTrans.pre"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynusmv.fsm.BddTrans.pre" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">pre</tt><big>(</big><em>self</em>, <em>states</em>, <em>inputs=None</em><big>)</big><a class="reference internal" href="_modules/pynusmv/fsm.html#BddTrans.pre"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynusmv.fsm.BddTrans.pre" title="Permalink to this definition">¶</a></dt>
 <dd><p>Compute the pre-image of <cite>states</cite>, through <cite>inputs</cite> if not <cite>None</cite>.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -1432,7 +1432,7 @@ It is the responsibility of the caller to manage it.</p>
 properties and specifications of models.</p>
 <dl class="data">
 <dt id="pynusmv.prop.propTypes">
-<tt class="descclassname">pynusmv.prop.</tt><tt class="descname">propTypes</tt><em class="property"> = {'LTL': 103, 'NoType': 101, 'Compute': 106, 'PSL': 104, 'Comparison': 107, 'Invariant': 105, 'CTL': 102}</em><a class="headerlink" href="#pynusmv.prop.propTypes" title="Permalink to this definition">¶</a></dt>
+<tt class="descclassname">pynusmv.prop.</tt><tt class="descname">propTypes</tt><em class="property"> = {'NoType': 101, 'CTL': 102, 'PSL': 104, 'Comparison': 107, 'LTL': 103, 'Invariant': 105, 'Compute': 106}</em><a class="headerlink" href="#pynusmv.prop.propTypes" title="Permalink to this definition">¶</a></dt>
 <dd><p>The possible types of properties. This gives access to NuSMV internal types
 without dealing with <cite>pynusmv.nusmv</cite> modules.</p>
 </dd></dl>
@@ -1507,9 +1507,9 @@ pointers to models (FSM) and other things.</p>
 <p>Python class for property database.</p>
 <p>A property database is just a list of properties (<a class="reference internal" href="#pynusmv.prop.Prop" title="pynusmv.prop.Prop"><tt class="xref py py-class docutils literal"><span class="pre">Prop</span></tt></a>).
 Any PropDb can be used as a Python list.</p>
-<dl class="method">
+<dl class="function">
 <dt id="pynusmv.prop.PropDb.get_prop_at_index">
-<tt class="descname">get_prop_at_index</tt><big>(</big><em>index</em><big>)</big><a class="reference internal" href="_modules/pynusmv/prop.html#PropDb.get_prop_at_index"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynusmv.prop.PropDb.get_prop_at_index" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">get_prop_at_index</tt><big>(</big><em>self</em>, <em>index</em><big>)</big><a class="reference internal" href="_modules/pynusmv/prop.html#PropDb.get_prop_at_index"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynusmv.prop.PropDb.get_prop_at_index" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the property stored at <cite>index</cite>.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -1521,9 +1521,9 @@ Any PropDb can be used as a Python list.</p>
 </table>
 </dd></dl>
 
-<dl class="method">
+<dl class="function">
 <dt id="pynusmv.prop.PropDb.get_size">
-<tt class="descname">get_size</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/pynusmv/prop.html#PropDb.get_size"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynusmv.prop.PropDb.get_size" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">get_size</tt><big>(</big><em>self</em><big>)</big><a class="reference internal" href="_modules/pynusmv/prop.html#PropDb.get_size"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynusmv.prop.PropDb.get_size" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the number of properties stored in this database.</p>
 </dd></dl>
 

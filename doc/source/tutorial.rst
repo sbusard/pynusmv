@@ -52,4 +52,4 @@ AF c1.c = stop - 1
 >>> pynusmv.init.deinit_nusmv()
 
 
-This (very) short tutorial showed the main functionalities of PyNuSMV. More of them are available (to parse and evaluate a simple expression, to build new CTL specifications or to perform operations on BDDs); the full reference of the library is given beside this tutorial.
+This (very) short tutorial showed the main functionalities of PyNuSMV. More of them are available (to parse and evaluate a simple expression, to build new CTL specifications or to perform operations on BDDs); the :ref:`full reference <pynusmv-api>` of the library is given beside this tutorial.

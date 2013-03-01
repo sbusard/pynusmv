@@ -29,7 +29,7 @@ PyNuSMV is composed of three main layers. The first layer is NuSMV. The second l
 
 .. figure:: images/architecture.*
     :align: center
-    :scale: 50 %
+    :width: 12cm
     
     PyNuSMV three-layer architecture
       
