@@ -7,6 +7,10 @@ SPHINXBUILD   = sphinx-build
 PAPER         =
 BUILDDIR      = .
 
+# Update paths to find and run pynusmv
+DYLD_LIBRARY_PATH=../src/lib
+export DYLD_LIBRARY_PATH
+
 # Internal variables.
 PAPEROPT_a4     = -D latex_paper_size=a4
 PAPEROPT_letter = -D latex_paper_size=letter
