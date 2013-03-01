@@ -1,0 +1,184 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Getting started &mdash; PyNuSMV 0.6 documentation</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '0.6',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="PyNuSMV 0.6 documentation" href="index.html" />
+    <link rel="next" title="Presentation of PyNuSMV" href="overview.html" />
+    <link rel="prev" title="PyNuSMV" href="index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="overview.html" title="Presentation of PyNuSMV"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="index.html" title="PyNuSMV"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">PyNuSMV 0.6 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="getting-started">
+<span id="tutorial"></span><h1>Getting started<a class="headerlink" href="#getting-started" title="Permalink to this headline">¶</a></h1>
+<p>This page presents a short overview of PyNuSMV capabilities with a small example.
+Let&#8217;s consider the following SMV model. This model is composed of two counters, incrementing from 0 to 3, and looping. They run asynchronously and the running one is defined at each step by the <tt class="docutils literal"><span class="pre">run</span></tt> action.</p>
+<div class="highlight-python"><pre>MODULE counter(run, start, stop)
+    -- A modulo counter
+    -- Go from start (inclusive) to stop (exclusive) by 1-increments
+    -- Run only when run is true
+    
+    VAR c : start..stop;
+    INIT c = start
+    TRANS next(c) = case    run : case  c + 1 = stop : start;
+                                        TRUE : c + 1; esac;
+                            !run: c;
+                    esac
+                        
+MODULE main
+
+    IVAR
+        run : {rc1, rc2};
+    VAR
+        c1 : counter(run = rc1, start, stop);
+        c2 : counter(run = rc2, start, stop);
+    DEFINE
+        start := 0;
+        stop := 3;
+        
+        
+SPEC AF c1.c = stop - 1</pre>
+</div>
+<p>Considering that the model is saved in the <tt class="docutils literal"><span class="pre">counters.smv</span></tt> file in the current directory, we can now run Python.
+The following Python session shows the basics of PyNuSMV. After importing pynusmv, the function <a class="reference internal" href="pynusmv.html#pynusmv.init.init_nusmv" title="pynusmv.init.init_nusmv"><tt class="xref py py-func docutils literal"><span class="pre">init_nusmv</span></tt></a> <strong>must</strong> be called before calling any other PyNuSMV functionality. The function <a class="reference internal" href="pynusmv.html#pynusmv.init.deinit_nusmv" title="pynusmv.init.deinit_nusmv"><tt class="xref py py-func docutils literal"><span class="pre">deinit_nusmv</span></tt></a> must also be called after using PyNuSMV to release all resources hold by NuSMV. After initializing PyNuSMV, the model is read with the function <a class="reference internal" href="pynusmv.html#pynusmv.glob.load_from_file" title="pynusmv.glob.load_from_file"><tt class="xref py py-func docutils literal"><span class="pre">load_from_file</span></tt></a> and the model is computed, that is, flattened and encoded into BDDs, with the function <a class="reference internal" href="pynusmv.html#pynusmv.glob.compute_model" title="pynusmv.glob.compute_model"><tt class="xref py py-func docutils literal"><span class="pre">compute_model</span></tt></a>.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">pynusmv</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">pynusmv</span><span class="o">.</span><span class="n">init</span><span class="o">.</span><span class="n">init_nusmv</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">pynusmv</span><span class="o">.</span><span class="n">glob</span><span class="o">.</span><span class="n">load_from_file</span><span class="p">(</span><span class="s">&quot;counters.smv&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">pynusmv</span><span class="o">.</span><span class="n">glob</span><span class="o">.</span><span class="n">compute_model</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">pynusmv</span><span class="o">.</span><span class="n">init</span><span class="o">.</span><span class="n">deinit_nusmv</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>The next Python session shows functionalities of FSMs, access to specifications of the model, calls to CTL model checking and manipulation of BDDs. First, NuSMV is initialized and the model is read. Then the model encoded with BDDs is retrieved from the main propositions database. The first (and only) proposition is then retrieved from the same database, and the specification of this proposition is isolated.</p>
+<p>From the BDD-encoded FSM <tt class="docutils literal"><span class="pre">fsm</span></tt> and the specification <tt class="docutils literal"><span class="pre">spec</span></tt>, we call the <a class="reference internal" href="pynusmv.html#pynusmv.mc.eval_ctl_spec" title="pynusmv.mc.eval_ctl_spec"><tt class="xref py py-func docutils literal"><span class="pre">eval_ctl_spec</span></tt></a> function to get all the states of <tt class="docutils literal"><span class="pre">fsm</span></tt> satisfying <tt class="docutils literal"><span class="pre">spec</span></tt>. Conjuncted with the set of reachables states of the model, we get <tt class="docutils literal"><span class="pre">bdd</span></tt>, a BDD representing all the reachable states of <tt class="docutils literal"><span class="pre">fsm</span></tt> satisfying <tt class="docutils literal"><span class="pre">spec</span></tt>. Finally, from this BDD we extract all the single states and display them, that is, we display, for each of them, the value of each state variable of the model.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">pynusmv</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">pynusmv</span><span class="o">.</span><span class="n">init</span><span class="o">.</span><span class="n">init_nusmv</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">pynusmv</span><span class="o">.</span><span class="n">glob</span><span class="o">.</span><span class="n">load_from_file</span><span class="p">(</span><span class="s">&quot;counters.smv&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">pynusmv</span><span class="o">.</span><span class="n">glob</span><span class="o">.</span><span class="n">compute_model</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">fsm</span> <span class="o">=</span> <span class="n">pynusmv</span><span class="o">.</span><span class="n">glob</span><span class="o">.</span><span class="n">prop_database</span><span class="p">()</span><span class="o">.</span><span class="n">master</span><span class="o">.</span><span class="n">bddFsm</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">fsm</span>
+<span class="go">&lt;pynusmv.fsm.BddFsm object at 0x1016d9e90&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">prop</span> <span class="o">=</span> <span class="n">pynusmv</span><span class="o">.</span><span class="n">glob</span><span class="o">.</span><span class="n">prop_database</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">prop</span>
+<span class="go">&lt;pynusmv.prop.Prop object at 0x101770250&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">spec</span> <span class="o">=</span> <span class="n">prop</span><span class="o">.</span><span class="n">expr</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span><span class="p">(</span><span class="n">spec</span><span class="p">)</span>
+<span class="go">AF c1.c = stop - 1</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">bdd</span> <span class="o">=</span> <span class="n">pynusmv</span><span class="o">.</span><span class="n">mc</span><span class="o">.</span><span class="n">eval_ctl_spec</span><span class="p">(</span><span class="n">fsm</span><span class="p">,</span> <span class="n">spec</span><span class="p">)</span> <span class="o">&amp;</span> <span class="n">fsm</span><span class="o">.</span><span class="n">reachable_states</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">bdd</span>
+<span class="go">&lt;pynusmv.dd.BDD object at 0x101765a90&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">satstates</span> <span class="o">=</span> <span class="n">fsm</span><span class="o">.</span><span class="n">pick_all_states</span><span class="p">(</span><span class="n">bdd</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">for</span> <span class="n">state</span> <span class="ow">in</span> <span class="n">satstates</span><span class="p">:</span>
+<span class="gp">... </span>    <span class="k">print</span><span class="p">(</span><span class="n">state</span><span class="o">.</span><span class="n">get_str_values</span><span class="p">())</span>
+<span class="gp">...</span>
+<span class="go">{&#39;c1.c&#39;: &#39;2&#39;, &#39;c2.c&#39;: &#39;2&#39;, &#39;stop&#39;: &#39;3&#39;, &#39;start&#39;: &#39;0&#39;}</span>
+<span class="go">{&#39;c1.c&#39;: &#39;2&#39;, &#39;c2.c&#39;: &#39;0&#39;, &#39;stop&#39;: &#39;3&#39;, &#39;start&#39;: &#39;0&#39;}</span>
+<span class="go">{&#39;c1.c&#39;: &#39;2&#39;, &#39;c2.c&#39;: &#39;1&#39;, &#39;stop&#39;: &#39;3&#39;, &#39;start&#39;: &#39;0&#39;}</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">pynusmv</span><span class="o">.</span><span class="n">init</span><span class="o">.</span><span class="n">deinit_nusmv</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>This (very) short tutorial showed the main functionalities of PyNuSMV. More of them are available (to parse and evaluate a simple expression, to build new CTL specifications or to perform operations on BDDs); the full reference of the library is given beside this tutorial.</p>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="index.html"
+                        title="previous chapter">PyNuSMV</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="overview.html"
+                        title="next chapter">Presentation of PyNuSMV</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/tutorial.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="overview.html" title="Presentation of PyNuSMV"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="index.html" title="PyNuSMV"
+             >previous</a> |</li>
+        <li><a href="index.html">PyNuSMV 0.6 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2013, Simon Busard.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

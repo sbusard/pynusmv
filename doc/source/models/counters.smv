@@ -1,0 +1,25 @@
+MODULE counter(run, start, stop)
+    -- A modulo counter
+    -- Go from start (inclusive) to stop (exclusive) by 1-increments
+    -- Run only when run is true
+    
+    VAR c : start..stop;
+    INIT c = start
+    TRANS next(c) = case    run : case  c + 1 = stop : start;
+                                        TRUE : c + 1; esac;
+                            !run: c;
+                    esac
+                        
+MODULE main
+
+    IVAR
+        run : {rc1, rc2};
+    VAR
+        c1 : counter(run = rc1, start, stop);
+        c2 : counter(run = rc2, start, stop);
+    DEFINE
+        start := 0;
+        stop := 3;
+        
+        
+SPEC AF c1.c = stop - 1

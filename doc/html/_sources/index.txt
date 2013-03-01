@@ -7,6 +7,7 @@ PyNuSMV is a Python framework for prototyping and experimenting with BDD-based m
 .. toctree::
     :maxdepth: 1
     
+    tutorial
     overview
     pynusmv
 
