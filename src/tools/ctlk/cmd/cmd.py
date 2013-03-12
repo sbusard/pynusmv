@@ -15,7 +15,7 @@ from .explainShell import CTLK_explain_shell
 
 from ..util.nonExitingArgumentParser import (NonExitingArgumentParser,
                                              ArgumentParsingError)
-from .. import glob
+from tools.mas import glob
 from ..parsing import parseCTLK
 from ..tlace.check import checkCTLK
 from ..tlace.xml import xml_witness, xml_countex
@@ -468,6 +468,7 @@ agent being an atom and group a comma-separated list of agents.""")
         self.model = None
         self.last = None
         self.paths = []
+        glob.reset_globals()
         reset_nusmv()
     
     
@@ -532,9 +533,10 @@ agent being an atom and group a comma-separated list of agents.""")
             prev = None
         for (inputs, state) in zip(path[1::2], path[2::2]):
             # Show inputs
-            header = " Inputs "
-            print(header.center(40, "-"))
-            show_elem(inputs)
+            if inputs is not None:
+                header = " Inputs "
+                print(header.center(40, "-"))
+                show_elem(inputs)
             
             # Show state
             i += 1

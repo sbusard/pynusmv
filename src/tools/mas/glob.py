@@ -29,7 +29,7 @@ _mas = None
 
 def reset_globals():
     """
-    Reset ctlk.glob related global variables.
+    Reset mas.glob related global variables.
     
     Must be called whenever (and before) pynusmv.init.init.deinit_nusmv
     is called.    

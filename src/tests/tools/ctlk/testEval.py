@@ -3,7 +3,7 @@ import unittest
 from pynusmv.init import init_nusmv, deinit_nusmv
 from pynusmv.mc import eval_simple_expression
 
-from tools.ctlk import glob
+from tools.mas import glob
 from tools.ctlk.eval import evalCTLK
 from tools.ctlk.parsing import parseCTLK
 

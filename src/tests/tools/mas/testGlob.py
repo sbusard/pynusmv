@@ -2,7 +2,7 @@ import unittest
 
 from pynusmv.init import init_nusmv, deinit_nusmv
 
-from tools.ctlk import glob
+from tools.mas import glob
 
 class TestGlob(unittest.TestCase):
     

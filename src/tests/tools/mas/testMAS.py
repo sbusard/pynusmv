@@ -4,7 +4,7 @@ from pynusmv.init import init_nusmv, deinit_nusmv
 from pynusmv.mc import eval_simple_expression
 from pynusmv.dd import BDD
 
-from tools.ctlk import glob
+from tools.mas import glob
 
 class TestMAS(unittest.TestCase):
     
