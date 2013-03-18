@@ -191,7 +191,8 @@ class TestFsm(unittest.TestCase):
         self.assertEqual(fsm.count_states(false), 0)
         self.assertEqual(fsm.count_states(p), 2)
         
-        self.assertEqual(fsm.count_states(p & q & a), 0) # WHY ?
+        self.assertEqual(fsm.count_states(~p & q & ~a), 0) # WHY ?
+        # Because it is not a full state? (but more than a state?)
     
     
     def test_count_inputs(self):

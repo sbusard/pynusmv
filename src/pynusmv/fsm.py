@@ -412,6 +412,31 @@ class BddEnc(PointerWrapper):
     
         return BDD(bddEnc.BddEnc_get_input_vars_mask_bdd(self._ptr),
                    self.DDmanager, freeit = True)
+                   
+    @property    
+    def statesCube(self):
+        """
+        The cube for all state variables, represented as a BDD.
+        
+        :rtype: :class:`BDD <pynusmv.dd.BDD>`
+        
+        """
+        
+        return BDD(bddEnc.BddEnc_get_state_frozen_vars_cube(self._ptr),
+                   self.DDmanager, freeit = True)
+                   
+    
+    @property               
+    def inputsCube(self):
+        """
+        The cube for all input variables, represented as a BDD.
+        
+        :rtype: :class:`BDD <pynusmv.dd.BDD>`
+        
+        """
+    
+        return BDD(bddEnc.BddEnc_get_input_vars_cube(self._ptr),
+                   self.DDmanager, freeit = True)
         
                    
 class SymbTable(PointerWrapper):
