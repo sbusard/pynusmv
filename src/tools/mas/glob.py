@@ -117,7 +117,7 @@ def _get_variables_by_instances(agents):
     while not nsutils.ListIter_is_end(ite):
         var = nsutils.NodeList_get_elem_at(varlist, ite)
         varname = nsnode.sprint_node(var)
-        isVar = nssymb_table.SymbTable_is_symbol_var(st._ptr, var)
+        isVar = nssymb_table.SymbTable_is_symbol_state_var(st._ptr, var)
         if isVar:
             # Put the var in the variables dictionary, under the right instance
             topcontext = varname.partition(".")[0]
@@ -126,6 +126,37 @@ def _get_variables_by_instances(agents):
         ite = nsutils.ListIter_get_next(ite)
         
     return variables
+    
+
+def _get_input_vars_by_instances(agents):
+    """
+    Return a dictionary of instance->list of input variables
+    """
+    st = symb_table()
+    flatHierarchy = nscompile.cvar.mainFlatHierarchy
+    
+    # Populate variables with instances
+    variables = {}
+    for agent in agents:
+        variables[agent] = []
+    
+    varset = nscompile.FlatHierarchy_get_vars(flatHierarchy)
+    varlist = nsset.Set_Set2List(varset)
+    
+    ite = nsutils.NodeList_get_first_iter(varlist)
+    while not nsutils.ListIter_is_end(ite):
+        var = nsutils.NodeList_get_elem_at(varlist, ite)
+        varname = nsnode.sprint_node(var)
+        isVar = nssymb_table.SymbTable_is_symbol_input_var(st._ptr, var)
+        if isVar:
+            # Put the var in the variables dictionary, under the right instance
+            topcontext = varname.partition(".")[0]
+            if topcontext in variables:
+                variables[topcontext].append(var)                    
+        ite = nsutils.ListIter_get_next(ite)
+        
+    return variables
+    
         
         
 def _get_epistemic_trans(variable):
@@ -173,6 +204,7 @@ def mas():
         # Get agents observable variables (locals + module parameters)
         localvars = _get_variables_by_instances(agents)
         #localvars is a dict instancename(str)->listofvars(node)
+        inputvars = _get_input_vars_by_instances(agents)
         
         # Merge instance variable arguments and local variables
         variables = {key: ((key in argvars and argvars[key] or []) + 
@@ -189,8 +221,16 @@ def mas():
                                              transexpr)
             singletrans[agent] = transexpr           
         
+        # Process variables to get strings instead of nodes
+        localvars = {ag: {nsnode.sprint_node(v).partition('.')[2]
+                          for v in localvars[ag]}
+                     for ag in localvars.keys()}
+        inputvars = {ag: {nsnode.sprint_node(v).partition('.')[2]
+                          for v in inputvars[ag]}
+                     for ag in inputvars.keys()}
+        
         # Create the MAS
         fsm = _prop_database().master.bddFsm
-        _mas = MAS(fsm._ptr, singletrans, freeit = False)
+        _mas = MAS(fsm._ptr, localvars, inputvars, singletrans, freeit = False)
         
     return _mas

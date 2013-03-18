@@ -16,18 +16,41 @@ class MAS(BddFsm):
     epistemic -- a dictionary of agent->the NuSMV node-based TRANS of the agent.
     """
     
-    def __init__(self, ptr, epistemic = None, freeit = False):
+    def __init__(self, ptr, variables, inputvars,
+                 epistemic = None, freeit = False):
         """
         Create a new MAS.
         
         ptr -- the pointer of the NuSMV FSM
+        variables -- a dictionary of agents' variables (agent->Set of vars)
+        inputvars -- a dictionary of agents' input variables
+                     (agent->Set of input vars)
         epistemic -- a dictionary of epistemic relations (agent->EPISTEMIC)
         freeit -- whether or not free the pointer
         """
         super().__init__(ptr, freeit = freeit)
         self._epistemic = epistemic and epistemic or {}
         self._epistemic_trans = {}
-        self._reachable = None
+        self._agents_variables = variables
+        self._agents_inputvars = inputvars
+        
+    
+    @property
+    def agents(self):
+        """The list of names of the agents of the system."""
+        return set(self._epistemic.keys())
+        
+    
+    @property
+    def agents_variables(self):
+        """The state variables of each agent (as a dictionary)."""
+        return self._agents_variables
+        
+    
+    @property
+    def agents_inputvars(self):
+        """The input variables of each agent (as a dictionary)."""
+        return self._agents_inputvars
         
         
     def _compute_epistemic_trans(self, agents):
@@ -66,3 +89,16 @@ class MAS(BddFsm):
         
         # Apply constraints on result
         return result & self.state_constraints
+        
+        
+    def pre_strat(self, states, agents):
+        """
+        Return the set of states s of this MAS such that there exists values
+        of input variables of the agents such that for all values of input
+        variables of the other agents, all successors of s belong to states.
+        
+        states -- a BDD representing a set of states of this MAS;
+        agents -- a set of agents names, agents of this MAS.
+        """
+        pass
+        

@@ -16,7 +16,7 @@ class TestMAS(unittest.TestCase):
         deinit_nusmv()
         
     def model(self):
-        glob.load_from_file("tests/tools/ctlk/dining-crypto.smv")
+        glob.load_from_file("tests/tools/mas/dining-crypto.smv")
         fsm = glob.mas()
         self.assertIsNotNone(fsm)
         return fsm
@@ -166,3 +166,28 @@ class TestMAS(unittest.TestCase):
             tmp -= s
         
         self.assertTrue((fsm.reachable_states & (c1p & c2p)).is_false())
+        
+        
+    def test_agents(self):
+        fsm = self.model()
+        self.assertSetEqual({'c1','c2','c3'}, fsm.agents)
+        
+    
+    def test_variables(self):
+        fsm = self.model()
+        
+        self.assertSetEqual({'c1','c2','c3'}, set(fsm.agents_variables.keys()))
+        
+        self.assertSetEqual(fsm.agents_variables['c1'], {'coin', 'payer'})
+        self.assertSetEqual(fsm.agents_variables['c2'], {'coin', 'payer'})
+        self.assertSetEqual(fsm.agents_variables['c3'], {'coin', 'payer'})
+        
+        
+    def test_input_variables(self):
+        fsm = self.model()
+        
+        self.assertSetEqual({'c1','c2','c3'}, set(fsm.agents_inputvars.keys()))
+        
+        self.assertSetEqual(fsm.agents_inputvars['c1'], {'say'})
+        self.assertSetEqual(fsm.agents_inputvars['c2'], {'say'})
+        self.assertSetEqual(fsm.agents_inputvars['c3'], {'say'})
