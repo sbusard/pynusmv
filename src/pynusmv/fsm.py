@@ -22,10 +22,15 @@ from .nusmv.enc.bdd import bdd as bddEnc
 from .nusmv.enc.base import base as nsbaseEnc
 from .nusmv.cmd import cmd as nscmd
 from .nusmv.trans.bdd import bdd as nsbddtrans
+from .nusmv.set import set as nsset
+from .nusmv.compile.symb_table import symb_table as nssymbtable
+from .nusmv.compile import compile as nscompile
+from .nusmv.node import node as nsnode
 
 from .dd import BDD, State, Inputs, DDManager
 from .utils import PointerWrapper, fixpoint
 from .exception import NuSMVBddPickingError
+from .parser import parse_simple_expression
 
 
 class BddFsm(PointerWrapper):
@@ -161,6 +166,22 @@ class BddFsm(PointerWrapper):
             return BDD(bddFsm.BddFsm_get_constrained_backward_image(
                             self._ptr, states._ptr, inputs._ptr),
                        self.bddEnc.DDmanager, freeit = True)
+                       
+    
+    def weak_pre(self, states):
+        """
+        Return the weak pre-image of `states` in this FSM. This means that it
+        returns a BDD representing the set of states with corresponding inputs
+        <s,i> such that there is a state in `state` reachable from s through i.
+        
+        :param states: the states from which getting the weak pre-image
+        :type states: :class:`BDD <pynusmv.dd.BDD>`
+        :rtype: :class:`BDD <pynusmv.dd.BDD>`
+        
+        """
+        return BDD(bddFsm.BddFsm_get_weak_backward_image(self._ptr, 
+                                                         states._ptr),
+                   self.bddEnc.DDmanager, freeit = True)
         
         
     def post(self, states, inputs = None):
@@ -437,6 +458,37 @@ class BddEnc(PointerWrapper):
     
         return BDD(bddEnc.BddEnc_get_input_vars_cube(self._ptr),
                    self.DDmanager, freeit = True)
+                   
+                   
+    def cube_for_inputs_vars(self, variables):
+        """
+        Return the cube for the given input variables.
+        
+        :param variables: a list of input variable names
+        :rtype: :class:`BDD <pynusmv.dd.BDD>`
+        
+        """
+        
+        inputs = nscompile.FlatHierarchy_get_input(
+                    nscompile.cvar.mainFlatHierarchy)
+        var_nodes = {}
+        while inputs is not None:
+            var_node = nsnode.car(inputs)
+            for var in variables:
+                if(nsnode.sprint_node(var_node) == var):
+                    var_nodes.add(var_node)
+            inputs = nsnode.cdr(inputs)
+        
+        varset = nsset.Set_MakeEmpty()
+        for var in var_nodes:
+            varset = nsset.Set_AddMember(varset, parse_simple_expression(var))
+        
+        cube_ptr = bddEnc.BddEnc_get_vars_cube(self._ptr, varset, 
+                                               nssymbtable.VFT_INPUT)
+                        
+        nsset.Set_ReleaseSet(varset)
+        
+        return BDD(cube_ptr, self.DDmanager, freeit=True)
         
                    
 class SymbTable(PointerWrapper):

@@ -56,6 +56,18 @@ class TestFsm(unittest.TestCase):
         self.assertEqual(q, fsm.pre(~p & q))
         self.assertEqual(p & q, fsm.pre(~p & q, a))
         
+    
+    def test_weak_pre(self): 
+        fsm = self.model()
+        
+        p = evalSexp(fsm, "p")
+        q = evalSexp(fsm, "q")
+        a = evalSexp(fsm, "a")
+        
+        self.assertTrue(p & ~q & a <= fsm.weak_pre(p & ~q))
+        self.assertTrue(p & q & ~a <= fsm.weak_pre(p & ~q))
+        self.assertEqual(p & (~q & a | q & ~a), fsm.weak_pre(p & ~q))
+        
         
     def test_post_counters(self):
         fsm = BddFsm.from_filename("tests/pynusmv/models/counters.smv")

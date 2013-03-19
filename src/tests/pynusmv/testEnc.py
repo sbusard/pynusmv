@@ -65,3 +65,14 @@ class TestFsm(unittest.TestCase):
         
         self.assertTrue(a <= enc.inputsCube)
         self.assertFalse(p & q <= enc.inputsCube)
+        
+    
+    def test_inputs_vars_cube(self):
+        fsm = self.model()
+        enc = fsm.bddEnc
+        
+        p = evalSexp(fsm, "p")
+        q = evalSexp(fsm, "q")
+        a = evalSexp(fsm, "a")
+        
+        self.assertTrue(a <= enc.cube_for_inputs_vars({'a'}))        

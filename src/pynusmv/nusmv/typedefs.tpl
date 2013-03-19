@@ -153,3 +153,5 @@ typedef bdd_ptr BddStatesInputs;
 typedef bdd_ptr BddStatesInputsNexts;
 typedef bdd_ptr BddInvarStates;
 typedef bdd_ptr BddInvarInputs;
+
+typedef enum SymbFilterType_TAG SymbFilterType;
