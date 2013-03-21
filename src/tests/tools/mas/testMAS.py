@@ -21,6 +21,20 @@ class TestMAS(unittest.TestCase):
         self.assertIsNotNone(fsm)
         return fsm
         
+    
+    def cardgame(self):
+        glob.load_from_file("tests/tools/mas/cardgame.smv")
+        fsm = glob.mas()
+        self.assertIsNotNone(fsm)
+        return fsm
+        
+        
+    def simple(self):
+        glob.load_from_file("tests/tools/mas/simple.smv")
+        fsm = glob.mas()
+        self.assertIsNotNone(fsm)
+        return fsm
+        
         
     def test_pre(self):
         fsm = self.model()
@@ -191,3 +205,74 @@ class TestMAS(unittest.TestCase):
         self.assertSetEqual(fsm.agents_inputvars['c1'], {'say'})
         self.assertSetEqual(fsm.agents_inputvars['c2'], {'say'})
         self.assertSetEqual(fsm.agents_inputvars['c3'], {'say'})
+        
+        
+    def test_protocol(self):
+        fsm = self.cardgame()
+        
+        s0 = eval_simple_expression(fsm, "step = 0")
+        s1 = eval_simple_expression(fsm, "step = 1")
+        s2 = eval_simple_expression(fsm, "step = 2")
+        pa = eval_simple_expression(fsm, "pcard = Ac")
+        pk = eval_simple_expression(fsm, "pcard = K")
+        pq = eval_simple_expression(fsm, "pcard = Q")
+        da = eval_simple_expression(fsm, "dcard = Ac")
+        dk = eval_simple_expression(fsm, "dcard = K")
+        dq = eval_simple_expression(fsm, "dcard = Q")
+        dda = eval_simple_expression(fsm, "ddcard = Ac")
+        ddk = eval_simple_expression(fsm, "ddcard = K")
+        ddq = eval_simple_expression(fsm, "ddcard = Q")
+        win = eval_simple_expression(fsm, "win")
+        lose = eval_simple_expression(fsm, "lose")
+        true = eval_simple_expression(fsm, "TRUE")
+        false = eval_simple_expression(fsm, "FALSE")
+        dak = eval_simple_expression(fsm, "dealer.action = dealAK")
+        dn = eval_simple_expression(fsm, "dealer.action = none")
+        
+        self.assertTrue((s0 & dak & fsm.protocol({"dealer"})).isnot_false())
+        # FIXME Understand and compute protocol
+    
+    
+    def test_pre_strat(self):
+        fsm = self.cardgame()
+        
+        s0 = eval_simple_expression(fsm, "step = 0")
+        s1 = eval_simple_expression(fsm, "step = 1")
+        s2 = eval_simple_expression(fsm, "step = 2")
+        pa = eval_simple_expression(fsm, "pcard = Ac")
+        pk = eval_simple_expression(fsm, "pcard = K")
+        pq = eval_simple_expression(fsm, "pcard = Q")
+        da = eval_simple_expression(fsm, "dcard = Ac")
+        dk = eval_simple_expression(fsm, "dcard = K")
+        dq = eval_simple_expression(fsm, "dcard = Q")
+        dda = eval_simple_expression(fsm, "ddcard = Ac")
+        ddk = eval_simple_expression(fsm, "ddcard = K")
+        ddq = eval_simple_expression(fsm, "ddcard = Q")
+        win = eval_simple_expression(fsm, "win")
+        lose = eval_simple_expression(fsm, "lose")
+        true = eval_simple_expression(fsm, "TRUE")
+        false = eval_simple_expression(fsm, "FALSE")
+        
+        self.assertTrue(pa & dq & s2 & fsm.reachable_states <= fsm.pre_strat(pa & dq & s2 & fsm.reachable_states, {'player'}))
+        self.assertTrue(pa & dq & s1 & fsm.reachable_states <= fsm.pre_strat(pa & dq & s2 & fsm.reachable_states, {'player'}))
+        self.assertTrue(pk & dq & s1 & fsm.reachable_states <= fsm.pre_strat(pa & dq & s2 & fsm.reachable_states, {'player'}))
+        self.assertFalse(pk & da & s1 & fsm.reachable_states <= fsm.pre_strat(pa & dq & s2 & fsm.reachable_states, {'player'}))
+        
+        self.assertTrue(s1 & fsm.reachable_states <=
+                        fsm.pre_strat(win & fsm.reachable_states, {'player'}))
+        self.assertTrue(s1 & fsm.reachable_states <=
+                                                fsm.pre_strat(lose, {'player'}))
+        
+        self.assertTrue(fsm.init <= fsm.pre_strat(s1, {'dealer'}))
+        self.assertTrue(fsm.init <= fsm.pre_strat(s1 & pq & da, {'dealer'}))
+        
+        self.assertFalse(fsm.init <= fsm.pre_strat(s1 & pq & da, {'player'}))
+        
+    
+    def test_simple(self):
+        mas = self.simple()
+        s4 = eval_simple_expression(mas, "s = 4")
+        ac = mas.bddEnc.cube_for_inputs_vars("a")
+        bc = mas.bddEnc.cube_for_inputs_vars("b")
+        self.assertTrue((~(mas.weak_pre(~s4).forsome(bc)) &     
+                        mas.weak_pre(s4)).forsome(mas.bddEnc.inputsCube))

@@ -1,0 +1,41 @@
+--- Simple model
+---
+--- Simon Busard <simon.busard@uclouvain.be>, 21/03/13
+
+MODULE main
+
+    VAR s : 0..5;
+    
+    IVAR a : 0..1;
+         b : 0..1;
+         
+    INIT s = 0
+    
+    TRANS
+    a in case s = 0 : {0};
+              s = 1 : {1};
+              s = 2 : {0};
+              s = 3 : {0,1};
+              s = 4 : {0};
+              s = 5 : {0}; esac
+              
+    TRANS
+    b in case s = 0 : {0};
+              s = 1 : {1};
+              s = 2 : {0,1};
+              s = 3 : {0};
+              s = 4 : {0};
+              s = 5 : {0}; esac
+    
+    TRANS
+    next(s) in case
+               s = 0 : {1,2,3};
+               s = 1 & a = 1 & b = 1 : {4};
+               s = 2 & a = 0 & b = 0 : {4};
+               s = 2 & a = 0 & b = 1 : {5};
+               s = 3 & a = 1 & b = 0 : {4};
+               s = 3 & a = 0 & b = 0 : {5};
+               s = 4 : {5};
+               s = 5 : {5};
+               TRUE : s;
+               esac

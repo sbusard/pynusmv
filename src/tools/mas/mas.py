@@ -2,6 +2,7 @@ from pynusmv.dd import BDD
 from pynusmv.fsm import BddFsm
 from pynusmv.nusmv.node import node as nsnode
 from pynusmv.nusmv.parser import parser as nsparser
+from pynusmv.nusmv.dd import dd as nsdd
 from .exception import UnknownAgentError
 from .glob import symb_table
 from .bddTrans import BddTrans
@@ -68,7 +69,8 @@ class MAS(BddFsm):
     def equivalent_states(self, states, agents):
         """
         Return the BDD representing the set of states epistemically equivalent
-        to states through the epistemic relation of agents. agents is a set of agents name.
+        to states through the epistemic relation of agents. agents is a set of
+        agents name.
         
         states -- a BDD of states of self
         agents -- a set of agents names.
@@ -90,6 +92,31 @@ class MAS(BddFsm):
         # Apply constraints on result
         return result & self.state_constraints
         
+    
+    def protocol(self, agents):
+        """
+        Return the protocol for the given set of agents.
+        
+        agents -- a set of agent names
+        
+        The returned value is a BDD representing state-input pairs, such that
+        for every state, the given inputs (for agents only) are the ones
+        available in the state, i.e. for a state s, <s,a_gamma> is
+        in the returned BDD iff there exist a_ngamma (an action for all other
+        agents) and s' such that <s, a_gamma, a_ngamma, s'> is in the transition
+        relation.
+        
+        """
+        gamma_inputs = [agent+"."+var
+                         for agent in agents
+                         for var in self.agents_inputvars[agent]]
+        gamma_cube = self.bddEnc.cube_for_inputs_vars(gamma_inputs)
+        ngamma_ptr = nsdd.bdd_cube_diff(self.bddEnc.DDmanager._ptr,
+                                        self.bddEnc.inputsCube._ptr,
+                                        gamma_cube._ptr)
+        ngamma_cube = BDD(ngamma_ptr, self.bddEnc.DDmanager, freeit=True)
+        return (self.weak_pre(self.reachable_states).forsome(ngamma_cube))
+        
         
     def pre_strat(self, states, agents):
         """
@@ -99,6 +126,39 @@ class MAS(BddFsm):
         
         states -- a BDD representing a set of states of this MAS;
         agents -- a set of agents names, agents of this MAS.
-        """
-        pass
         
+        """
+        gamma_inputs = [agent+"."+var
+                         for agent in agents
+                         for var in self.agents_inputvars[agent]]
+        ngamma_inputs = [agent+"."+var
+                          for agent in [ag for ag in self.agents
+                                           if ag not in agents]
+                          for var in self.agents_inputvars[agent]]
+        gamma_cube = self.bddEnc.cube_for_inputs_vars(gamma_inputs)
+        
+        ngamma_ptr = nsdd.bdd_cube_diff(self.bddEnc.DDmanager._ptr,
+                                        self.bddEnc.inputsCube._ptr,
+                                        gamma_cube._ptr)
+        ngamma_cube = BDD(ngamma_ptr, self.bddEnc.DDmanager, freeit=True)
+        
+        #ngamma_cube = self.bddEnc.cube_for_inputs_vars(ngamma_inputs)
+        
+        
+        # MCMAS:
+        #
+        # BDD res = ~states & reachable
+        # res = weak_pre(res) & reachable
+        # res = res & agents_protocol
+        # res = Exists a_ngamma (res)
+        # res = ~res & reachable
+        # res = res & agents_protocol
+        # res = Exists a_ngamma (res)
+        # res = Exists a_gamma (res) & reachable
+        #reach = self.reachable_states
+        #proto = self.weak_pre(reach)
+        #return (~((self.weak_pre(~states & reach) & reach & proto).forsome(ngamma_cube)) & reach & proto).forsome(ngamma_cube).forsome(gamma_cube) & reach
+        
+        
+        return (~(self.weak_pre(~states).forsome(ngamma_cube)) & 
+                self.weak_pre(states)).forsome(self.bddEnc.inputsCube)

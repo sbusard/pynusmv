@@ -229,6 +229,7 @@ def mas():
                           for v in inputvars[ag]}
                      for ag in inputvars.keys()}
         
+        
         # Create the MAS
         fsm = _prop_database().master.bddFsm
         _mas = MAS(fsm._ptr, localvars, inputvars, singletrans, freeit = False)

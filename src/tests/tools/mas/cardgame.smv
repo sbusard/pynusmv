@@ -1,0 +1,92 @@
+--- Simple card game
+---
+--- Simon Busard <simon.busard@uclouvain.be>, 19/03/13
+
+MODULE Player(step, pcard, ddcard)
+    --- step is the id of the step in the game
+    --- (0 for starting, 1 for first phase, 2 for the end)
+    --- pcard is the card of the player (none, Ac, K, Q)
+    --- ddcard is the card of the dealer, disclosed on table (none, Ac, K, Q)
+        
+    IVAR action : {none, keep, swap};
+    
+    --- Protocole
+    TRANS
+    action in case step = 1  : {keep, swap};
+                   step != 1 : {none};
+              esac
+
+
+MODULE Dealer(step, dcard, pcard)
+    --- step is the id of the step in the game
+    --- (0 for starting, 1 for first phase, 2 for the end)
+    --- pcard is the card of the player (none, Ac, K, Q)
+    --- dcard is the card of the dealer (none, Ac, K, Q)
+    
+    IVAR action : {none, dealAK, dealAQ, dealKA, dealKQ, dealQA, dealQK};
+    
+    --- Protocole
+    TRANS
+    action in case step = 0  : {dealAK, dealAQ, dealKA, dealKQ, dealQA, dealQK};
+                   step != 0 : {none};
+              esac
+                
+
+MODULE main
+
+    VAR step   : 0..2;
+        pcard  : {none, Ac, K, Q};
+        dcard  : {none, Ac, K, Q};
+        ddcard : {none, Ac, K, Q};
+        dealer : Dealer(step, dcard, pcard);
+        player : Player(step, pcard, ddcard);
+        
+        
+    INIT step = 0 & pcard = none & dcard = none & ddcard = none
+    
+    TRANS
+    next(step) = case step < 2 : step + 1; TRUE : step; esac
+    
+    TRANS
+    next(pcard) = case step = 0 : case dealer.action in {dealAK, dealAQ} : Ac;
+                                       dealer.action in {dealKQ, dealKA} : K;
+                                       dealer.action in {dealQK, dealQA} : Q;
+                                       TRUE                              : none;
+                                  esac;
+                       step = 1 : case player.action = keep : pcard;
+                                       player.action = swap :
+                                        case (pcard = Ac & dcard = K) |
+                                             (pcard = K & dcard = Ac)   : Q;
+                                             (pcard = Ac & dcard = Q) |
+                                             (pcard = Q & dcard = Ac)   : K;
+                                             (pcard = Q & dcard = K)  |
+                                             (pcard = K & dcard = Q)    : Ac;
+                                             TRUE                       : none;
+                                        esac;
+                                       player.action = none : none;
+                                  esac;
+                       step = 2 : pcard;
+                  esac
+                  
+    TRANS              
+    next(dcard) = case step != 0 : dcard;
+                       step = 0  : case dealer.action in {dealKA, dealQA} : Ac;
+                                        dealer.action in {dealAK, dealQK} : K;
+                                        dealer.action in {dealKQ, dealAQ} : Q;
+                                        dealer.action = none             : none;
+                                   esac;
+                  esac
+    
+    TRANS
+    next(ddcard) = case step != 1 : ddcard;
+                        step = 1  : dcard;
+                   esac
+                   
+    
+    DEFINE
+    win := step = 2 & ( (pcard = Ac & dcard = K) | 
+                        (pcard = K & dcard = Q) |
+                        (pcard = Q & dcard = Ac) );
+    lose := step = 2 & ( (pcard = Ac & dcard = Q) | 
+                         (pcard = K & dcard = Ac) |
+                         (pcard = Q & dcard = K) );
