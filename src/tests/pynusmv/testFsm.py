@@ -278,6 +278,22 @@ class TestFsm(unittest.TestCase):
         pinputs = fsm.pick_all_states(p)
         self.assertEqual(len(pinputs), 2) # WHY ?
         
+        
+    def test_pick_states_inputs(self):
+        fsm = self.model()
+        
+        false = BDD.false(fsm.bddEnc.DDmanager)
+        true = BDD.true(fsm.bddEnc.DDmanager)
+        p = evalSexp(fsm, "p")
+        q = evalSexp(fsm, "q")
+        a = evalSexp(fsm, "a")
+        
+        pstates = fsm.pick_all_states_inputs(p & a)
+        self.assertEqual(len(pstates), 2)
+        self.assertTrue(false < pstates[0] < p)
+        self.assertTrue(false < pstates[1] < p)
+        self.assertTrue(pstates[0] != pstates[1])
+        
              
     def test_pick_no_inputs(self):
         fsm = BddFsm.from_filename("tests/pynusmv/models/modules.smv")

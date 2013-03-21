@@ -122,6 +122,38 @@ def pick_all_terms_inputs(bddenc, bdd):
         delete_bddArray(array)
     
         return (err, t)
+        
+def pick_all_terms_states_inputs(bddenc, bdd):
+    # count states
+    count = int(BddEnc_count_states_inputs_of_bdd(bddenc, bdd))
+    
+    if count <= 0:
+        return (1, tuple())
+    
+    # init array
+    array = new_bddArray(count)
+    for i in range(count):
+        bddArray_setitem(array, i, None)
+    
+    # call function
+    err = _pick_all_terms_states_inputs(bddenc, bdd, array, count)
+    
+    if err:
+        delete_bddArray(array)
+        return (err, tuple())
+    
+    else:
+        # create tuple from array
+        l = list()
+        for i in range(count):
+            if bddArray_getitem(array, i) is not None:
+                l.append(bddArray_getitem(array, i))
+        t = tuple(l)
+    
+        # delete array
+        delete_bddArray(array)
+    
+        return (err, t)
 %}
 
 %inline %{
@@ -149,6 +181,21 @@ boolean _pick_all_terms_inputs(const BddEnc_ptr self, bdd_ptr bdd,
     CATCH {
         error = BddEnc_pick_all_terms_inputs(self, bdd, result_array,
                                              array_len);
+    }
+    FAIL {
+        error = true;
+    }
+    return error;
+}
+
+boolean _pick_all_terms_states_inputs(const BddEnc_ptr self, bdd_ptr bdd,
+                                      bdd_ptr* result_array,
+                                      const int array_len) {
+                                     
+    boolean error;
+    CATCH {
+        error = BddEnc_pick_all_terms_states_inputs(self, bdd, result_array,
+                                                    array_len);
     }
     FAIL {
         error = true;

@@ -26,8 +26,11 @@ from .nusmv.set import set as nsset
 from .nusmv.compile.symb_table import symb_table as nssymbtable
 from .nusmv.compile import compile as nscompile
 from .nusmv.node import node as nsnode
+from .nusmv.prop import prop as nsprop
+from .nusmv.fsm.sexp import sexp as nssexp
+from .nusmv.utils import utils as nsutils
 
-from .dd import BDD, State, Inputs, DDManager
+from .dd import BDD, State, Inputs, StateInputs, DDManager
 from .utils import PointerWrapper, fixpoint
 from .exception import NuSMVBddPickingError
 from .parser import parse_simple_expression
@@ -338,6 +341,30 @@ class BddFsm(PointerWrapper):
             raise NuSMVBddPickingError("Cannot pick all inputs.")
         else:
             return tuple(Inputs(te, self) for te in t)
+    
+            
+    def pick_all_states_inputs(self, bdd):
+        """
+        Return a tuple of all states/inputs pairs belonging to `bdd`.
+        
+        :param bdd: the concerned BDD
+        :type bdd: :class:`BDD <pynusmv.dd.BDD>`
+        :rtype: tuple(:class:`StateInputs <pynusmv.dd.StateInputs>`)
+        :raise: a :exc:`NuSMVBddPickingError
+                <pynusmv.exception.NuSMVBddPickingError>`
+                if something is wrong
+        
+        """
+        # FIXME Still get segmentation faults. Need investigation.
+        # tests/pynusmv/testFsm.py seems to raise segmentation faults
+        
+        # Get all states inputs
+        (err, t) = bddEnc.pick_all_terms_states_inputs(self.bddEnc._ptr,
+                                                       bdd._ptr)
+        if err:
+            raise NuSMVBddPickingError("Cannot pick all states.")
+        else:
+            return tuple(StateInputs(te, self) for te in t)
         
         
     @property    
@@ -469,19 +496,27 @@ class BddEnc(PointerWrapper):
         
         """
         
-        inputs = nscompile.FlatHierarchy_get_input(
-                    nscompile.cvar.mainFlatHierarchy)
-        var_nodes = {}
-        while inputs is not None:
-            var_node = nsnode.car(inputs)
-            for var in variables:
-                if(nsnode.sprint_node(var_node) == var):
-                    var_nodes.add(var_node)
-            inputs = nsnode.cdr(inputs)
+        from . import glob
+        
+        master = glob.prop_database().master
+        sexp_fsm = nsprop.Prop_get_scalar_sexp_fsm(master._ptr)
+        st = glob.symb_table()
+        
+        inputs = nssexp.SexpFsm_get_vars_list(sexp_fsm)
+        
+        var_nodes = set()
+        ite = nsutils.NodeList_get_first_iter(inputs)
+        while not nsutils.ListIter_is_end(ite):
+            var_node = nsutils.NodeList_get_elem_at(inputs, ite)
+            varname = nsnode.sprint_node(var_node)
+            isVar = nssymbtable.SymbTable_is_symbol_input_var(st._ptr, var_node)
+            if isVar and varname in variables:
+                var_nodes.add(var_node)
+            ite = nsutils.ListIter_get_next(ite)
         
         varset = nsset.Set_MakeEmpty()
         for var in var_nodes:
-            varset = nsset.Set_AddMember(varset, parse_simple_expression(var))
+            varset = nsset.Set_AddMember(varset, var)
         
         cube_ptr = bddEnc.BddEnc_get_vars_cube(self._ptr, varset, 
                                                nssymbtable.VFT_INPUT)
