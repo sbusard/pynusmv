@@ -306,6 +306,7 @@ class BddFsm(PointerWrapper):
         # FIXME Still get segmentation faults. Need investigation.
         # tests/pynusmv/testFsm.py seems to raise segmentation faults
         
+        # TODO Don't use mask but abstract inputs variables
         # Apply mask
         bdd = bdd & self.bddEnc.statesMask
         # Get all states
@@ -331,6 +332,7 @@ class BddFsm(PointerWrapper):
         # FIXME Still get segmentation faults. Need investigation.
         # tests/pynusmv/testFsm.py seems to raise segmentation faults
         
+        # TODO Don't use mask but abstract state variables
         mask = self.bddEnc.inputsMask
         
         # Apply mask
@@ -357,6 +359,8 @@ class BddFsm(PointerWrapper):
         """
         # FIXME Still get segmentation faults. Need investigation.
         # tests/pynusmv/testFsm.py seems to raise segmentation faults
+        
+        # TODO check non-empty
         
         # Get all states inputs
         (err, t) = bddEnc.pick_all_terms_states_inputs(self.bddEnc._ptr,

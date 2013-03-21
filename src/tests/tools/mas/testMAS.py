@@ -228,9 +228,19 @@ class TestMAS(unittest.TestCase):
         false = eval_simple_expression(fsm, "FALSE")
         dak = eval_simple_expression(fsm, "dealer.action = dealAK")
         dn = eval_simple_expression(fsm, "dealer.action = none")
+        ps = eval_simple_expression(fsm, "player.action = swap")
+        pk = eval_simple_expression(fsm, "player.action = keep")
+        pn = eval_simple_expression(fsm, "player.action = none")
         
         self.assertTrue((s0 & dak & fsm.protocol({"dealer"})).isnot_false())
-        # FIXME Understand and compute protocol
+        self.assertTrue((s0 & dak & fsm.reachable_states) <= fsm.protocol({"dealer"}))
+        self.assertFalse((s0 & dn & fsm.reachable_states) <= fsm.protocol({"dealer"}))
+        
+        self.assertTrue((s0 & pn & fsm.reachable_states) <= fsm.protocol({"player"}))
+        self.assertTrue((s1 & pk & fsm.reachable_states) <= fsm.protocol({"player"}))
+        self.assertTrue((s2 & pn & fsm.reachable_states) <= fsm.protocol({"player"}))
+        self.assertTrue((s1 & ps & fsm.reachable_states) <= fsm.protocol({"player"}))
+        self.assertFalse((s1 & pn & fsm.reachable_states) <= fsm.protocol({"player"}))
     
     
     def test_pre_strat(self):
