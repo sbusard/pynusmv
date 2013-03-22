@@ -357,3 +357,10 @@ class TestFsm(unittest.TestCase):
         self.assertEqual(len(fairBdds), 2)
         for fair in fairBdds:
             self.assertTrue(fair == rc1 or fair == rc2)
+            
+    
+    def test_no_fairness(self):
+        fsm = BddFsm.from_filename("tests/pynusmv/models/counters.smv")
+        self.assertIsNotNone(fsm)
+        
+        self.assertEqual(len(fsm.fairness_constraints), 0)
