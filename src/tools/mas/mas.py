@@ -122,7 +122,8 @@ class MAS(BddFsm):
         """
         Return the set of states s of this MAS such that there exists values
         of input variables of the agents such that for all values of input
-        variables of the other agents, all successors of s belong to states.
+        variables of the other agents, all successors of s through these inputs
+        belong to states.
         
         states -- a BDD representing a set of states of this MAS;
         agents -- a set of agents names, agents of this MAS.
@@ -156,3 +157,17 @@ class MAS(BddFsm):
         
         return (~(self.weak_pre(~states).forsome(ngamma_cube)) & 
                 self.weak_pre(states)).forsome(self.bddEnc.inputsCube)
+                
+                
+    def pre_nstrat(self, states, agents):
+        """
+        Return the set of states s of this MAS such that for all values of input
+        variables of the agents there exists values of input
+        variables of the other agents such that there is a successor of s
+        through these inputs that belongs to states.
+        
+        states -- a BDD representing a set of states of this MAS;
+        agents -- a set of agents names, agents of this MAS.
+        
+        """
+        return ~self.pre_strat(~states, agents)

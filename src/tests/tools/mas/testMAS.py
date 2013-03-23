@@ -286,3 +286,31 @@ class TestMAS(unittest.TestCase):
         bc = mas.bddEnc.cube_for_inputs_vars("b")
         self.assertTrue((~(mas.weak_pre(~s4).forsome(bc)) &     
                         mas.weak_pre(s4)).forsome(mas.bddEnc.inputsCube))
+                        
+                        
+    def test_pre_nstat(self):
+        fsm = self.cardgame()
+        
+        s0 = eval_simple_expression(fsm, "step = 0")
+        s1 = eval_simple_expression(fsm, "step = 1")
+        s2 = eval_simple_expression(fsm, "step = 2")
+        pa = eval_simple_expression(fsm, "pcard = Ac")
+        pk = eval_simple_expression(fsm, "pcard = K")
+        pq = eval_simple_expression(fsm, "pcard = Q")
+        da = eval_simple_expression(fsm, "dcard = Ac")
+        dk = eval_simple_expression(fsm, "dcard = K")
+        dq = eval_simple_expression(fsm, "dcard = Q")
+        dda = eval_simple_expression(fsm, "ddcard = Ac")
+        ddk = eval_simple_expression(fsm, "ddcard = K")
+        ddq = eval_simple_expression(fsm, "ddcard = Q")
+        win = eval_simple_expression(fsm, "win")
+        lose = eval_simple_expression(fsm, "lose")
+        true = eval_simple_expression(fsm, "TRUE")
+        false = eval_simple_expression(fsm, "FALSE")
+        
+        self.assertTrue(s0 & fsm.reachable_states <=
+                        fsm.pre_nstrat(s1 & pa, {"player"}))
+        self.assertTrue(s1 & fsm.reachable_states <=
+                        fsm.pre_nstrat(win, {"dealer"}))
+        self.assertFalse(s1 & fsm.reachable_states <=
+                        fsm.pre_nstrat(win, {"player"}))
