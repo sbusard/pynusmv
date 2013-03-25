@@ -143,7 +143,57 @@ def evalATLK(fsm, spec):
                    [a.value for a in spec.group],
                    ~evalATLK(fsm, spec.child))
                    
-    # TODO ATL operators
+    elif type(spec) is CEX:
+        # <g> X p = ~[g] X ~p
+        return ~cax(fsm, {atom.value for atom in spec.group},
+                         ~evalATLK(fsm, spec.child))
+        
+    elif type(spec) is CAX:
+        return cax(fsm, {atom.value for atom in spec.group},
+                        evalATLK(fsm, spec.child))
+        
+    elif type(spec) is CEG:
+        # <g> G p = ~[g] F ~p
+        return ~cau(fsm, {atom.value for atom in spec.group},
+                    BDD.true(fsm.bddEnc.DDmanager),
+                    ~evalATLK(fsm, spec.child))
+        
+    elif type(spec) is CAG:
+        return cag(fsm, {atom.value for atom in spec.group},
+                        evalATLK(fsm, spec.child))
+        
+    elif type(spec) is CEU:
+        # <g> p U q = ~[g][ ~q W ~p & ~q ]
+        return ~caw(fsm, {atom.value for atom in spec.group},
+                    ~evalATLK(fsm, spec.right),
+                    ~evalATLK(fsm, spec.right) & ~evalATLK(fsm, spec.left))
+        
+    elif type(spec) is CAU:
+        return cau(fsm, {atom.value for atom in spec.group},
+                        evalATLK(fsm, spec.left),
+                        evalATLK(fsm, spec.right))
+        
+    elif type(spec) is CEF:
+        # <g> F p = ~[g] G ~p
+        return ~cag(fsm, {atom.value for atom in spec.group},
+                         ~evalATLK(fsm, spec.child))    
+        
+    elif type(spec) is CAF:
+        # [g] F p = [g][true U p]
+        return cau(fsm, {atom.value for atom in spec.group},
+                        BDD.true(fsm.bddEnc.DDmanager),
+                        evalATLK(fsm, spec.child))
+        
+    elif type(spec) is CEW:
+        # <g>[p W q] = ~[g][~q U ~p & ~q]
+        return ~cau(fsm, {atom.value for atom in spec.group},
+                         ~evalATLK(fsm, spec.right),
+                         ~evalATLK(fsm, spec.right) & ~evalATLK(fsm, spec.left))
+        
+    elif type(spec) is CAW:
+        return caw(fsm, {atom.value for atom in spec.group},
+                        evalATLK(fsm, spec.left),
+                        evalATLK(fsm, spec.right))
         
     else:
         # TODO Generate error
@@ -258,3 +308,88 @@ def nc(fsm, group, phi):
     # nC<g> p = μZ. nE<g> (p | Z)
     return fp(lambda Z: ne(fsm, group, (Z | phi)),
               BDD.false(fsm.bddEnc.DDmanager))
+              
+              
+def cax(fsm, agents, phi):
+    """
+    Return the set of states of fsm satisfying [agents] X phi.
+    
+    fsm -- a MAS representing the system
+    agents -- a list of agents names
+    phi -- a BDD representing the set of states of fsm satisfying phi
+    """
+    return fsm.pre_nstrat(phi & fair_gamma_states(fsm, agents), agents)
+    
+
+def cau(fsm, agents, phi, psi):
+    """
+    Return the set of states of fsm satisfying [agents][phi U psi].
+    
+    fsm -- a MAS representing the system
+    agents -- a list of agents names
+    phi -- a BDD representing the set of states of fsm satisfying phi
+    psi -- a BDD representing the set of states of fsm satisfying psi
+    """
+    return fp(lambda Y : (psi & fair_gamma_states(fsm, agents)) |
+                         (phi & fsm.pre_nstrat(Y, agents)),
+              BDD.false(fsm.bddEnc.DDmanager))
+    
+
+def caw(fsm, agents, phi, psi):
+    """
+    Return the set of states of fsm satisfying [agents][phi W psi].
+    
+    fsm -- a MAS representing the system
+    agents -- a list of agents names
+    phi -- a BDD representing the set of states of fsm satisfying phi
+    psi -- a BDD representing the set of states of fsm satisfying psi
+    """
+    if len(fsm.fairness_constraints) == 0:
+        return fp(lambda Z : phi & fsm.pre_nstrat(Z, agents),
+                  BDD.true(fsm.bddEnc.DDmanager))
+    else:
+        def inner(Z):
+            res = phi
+            for f in fsm.fairness_constraints:
+                res = res & fsm.pre_nstrat(fp(lambda Y :
+                                             (psi &fair_gamma_states(fsm,
+                                                                     agents)) |
+                                             (Z & f) |
+                                             (phi & fsm.pre_nstrat(Y, agents)),
+                                             BDD.false(fsm.bddEnc.DDmanager)),
+                                           agents)
+            return (psi &fair_gamma_states(fsm, agents)) | res
+        return fp(inner, BDD.true(fsm.bddEnc.DDmanager))
+    
+    
+def cag(fsm, agents, phi):
+    """
+    Return the set of states of fsm satisfying [agents] G phi.
+    
+    fsm -- a MAS representing the system
+    agents -- a list of agents names
+    phi -- a BDD representing the set of states of fsm satisfying phi
+    """
+    if len(fsm.fairness_constraints) == 0:
+        return fp(lambda Z : phi & fsm.pre_nstrat(Z, agents),
+                  BDD.true(fsm.bddEnc.DDmanager))
+    else:
+        def inner(Z):
+            res = phi
+            for f in fsm.fairness_constraints:
+                res = res & fsm.pre_nstrat(fp(lambda Y : (Z & f) |
+                                             (phi & fsm.pre_nstrat(Y, agents)),
+                                             BDD.false(fsm.bddEnc.DDmanager))
+                                           , agents)
+            return res
+        return fp(inner, BDD.true(fsm.bddEnc.DDmanager))
+    
+    
+def fair_gamma_states(fsm, agents):
+    """
+    Return the set of states in which agents cannot avoid a fair path.
+    
+    fsm -- the model
+    agents -- a list of agents names
+    """
+    return cag(fsm, agents, BDD.true(fsm.bddEnc.DDmanager))

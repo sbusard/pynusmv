@@ -110,7 +110,7 @@ expression, represented using AST classes of .ast module.
 
 _atlk = None
 
-def parseCTLK(spec):
+def parseATLK(spec):
     """Parse the spec and return the list of possible ASTs."""
     global _atlk
     if _atlk is None:
@@ -199,7 +199,7 @@ def parseCTLK(spec):
         caf = Literal("[") + group + "]" + "F" + logical
         caf.setParseAction(lambda tokens: CAF(tokens[1], tokens[4]))
         cef = Literal("<") + group + ">" + "F" + logical
-        cef.setParseAction(lambda tokens: CEFF(tokens[1], tokens[4]))
+        cef.setParseAction(lambda tokens: CEF(tokens[1], tokens[4]))
          
         cag = Literal("[") + group + "]" + "G" + logical
         cag.setParseAction(lambda tokens: CAG(tokens[1], tokens[4]))

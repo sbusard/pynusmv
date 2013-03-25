@@ -150,44 +150,54 @@ C.__str__ = (lambda self: "C" + "<" +
 # strategic : <g>F, <g>G, <g>X, <g>U, <g>W, [g]F, [g]G, [g]X, [g]U, [g]W
 CEF = namedtuple('CEF', ['group', 'child'])
 CEF.__bases__ += (Spec,)
-CEF.__str__ = (lambda self: "<" +group.join(',')+ ">" + "F " + str(self.child))
+CEF.__str__ = (lambda self: "<" +','.join([ag.value for ag in self.group])+ ">"+
+                            "F " + str(self.child))
                             
 CEG = namedtuple('CEG', ['group', 'child'])
 CEG.__bases__ += (Spec,)
-CEG.__str__ = (lambda self: "<" +group.join(',')+ ">" + "G " + str(self.child))
+CEG.__str__ = (lambda self: "<" +','.join([ag.value for ag in self.group])+ ">"+
+                            "G " + str(self.child))
                            
 CEX = namedtuple('CEX', ['group', 'child'])
 CEX.__bases__ += (Spec,)
-CEX.__str__ = (lambda self: "<" +group.join(',')+ ">" + "X " + str(self.child))
+CEX.__str__ = (lambda self: "<" +','.join([ag.value for ag in self.group])+ ">"+ 
+                            "X " + str(self.child))
                            
 CEU = namedtuple('CEU', ['group', 'left', 'right'])
 CEU.__bases__ += (Spec,)
-CEU.__str__ = (lambda self: "<" +group.join(',')+ ">" + "[" + str(self.left) +
-                                                " U " + str(self.right) + "]")
+CEU.__str__ = (lambda self: "<" +','.join([ag.value for ag in self.group])+ ">"+ 
+                            "[" + str(self.left) +
+                            " U " + str(self.right) + "]")
                            
 CEW = namedtuple('CEW', ['group', 'left', 'right'])
 CEW.__bases__ += (Spec,)
-CEW.__str__ = (lambda self: "<" +group.join(',')+ ">" + "[" + str(self.left) +
-                                                " W " + str(self.right) + "]")
+CEW.__str__ = (lambda self: "<" +','.join([ag.value for ag in self.group])+ ">"+ 
+                            "[" + str(self.left) +
+                            " W " + str(self.right) + "]")
  
 CAF = namedtuple('CAF', ['group', 'child'])
 CAF.__bases__ += (Spec,)
-CAF.__str__ = (lambda self: "[" +group.join(',')+ "]" + "F " + str(self.child))
+CAF.__str__ = (lambda self: "[" +','.join([ag.value for ag in self.group])+ "]"+ 
+                            "F " + str(self.child))
                            
 CAG = namedtuple('CAG', ['group', 'child'])
 CAG.__bases__ += (Spec,)
-CAG.__str__ = (lambda self: "[" +group.join(',')+ "]" + "G " + str(self.child))
+CAG.__str__ = (lambda self: "[" +','.join([ag.value for ag in self.group])+ "]"+ 
+                            "G " + str(self.child))
                            
 CAX = namedtuple('CAX', ['group', 'child'])
 CAX.__bases__ += (Spec,)
-CAX.__str__ = (lambda self: "[" +group.join(',')+ "]" + "X " + str(self.child))
+CAX.__str__ = (lambda self: "[" +','.join([ag.value for ag in self.group])+ "]"+ 
+                            "X " + str(self.child))
                            
 CAU = namedtuple('CAU', ['group', 'left', 'right'])
 CAU.__bases__ += (Spec,)
-CAU.__str__ = (lambda self: "[" +group.join(',')+ "]" + "[" + str(self.left) +
-                                                " U " + str(self.right) + "]")
+CAU.__str__ = (lambda self: "[" +','.join([ag.value for ag in self.group])+ "]"+ 
+                            "[" + str(self.left) +
+                            " U " + str(self.right) + "]")
                            
 CAW = namedtuple('CAW', ['group', 'left', 'right'])
 CAW.__bases__ += (Spec,)
-CAW.__str__ = (lambda self: "[" +group.join(',')+ "]" + "[" + str(self.left) +
-                                                " W " + str(self.right) + "]")
+CAW.__str__ = (lambda self: "[" +','.join([ag.value for ag in self.group])+ "]"+ 
+                            "[" + str(self.left) +
+                            " W " + str(self.right) + "]")
