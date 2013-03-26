@@ -34,6 +34,7 @@ class MAS(BddFsm):
         self._epistemic_trans = {}
         self._agents_variables = variables
         self._agents_inputvars = inputvars
+        self._protocols = {}
         
     
     @property
@@ -107,15 +108,20 @@ class MAS(BddFsm):
         relation.
         
         """
-        gamma_inputs = [agent+"."+var
-                         for agent in agents
-                         for var in self.agents_inputvars[agent]]
-        gamma_cube = self.bddEnc.cube_for_inputs_vars(gamma_inputs)
-        ngamma_ptr = nsdd.bdd_cube_diff(self.bddEnc.DDmanager._ptr,
-                                        self.bddEnc.inputsCube._ptr,
-                                        gamma_cube._ptr)
-        ngamma_cube = BDD(ngamma_ptr, self.bddEnc.DDmanager, freeit=True)
-        return (self.weak_pre(self.reachable_states).forsome(ngamma_cube))
+        agents = frozenset(agents)
+        if agents not in self._protocols:
+            gamma_inputs = [agent+"."+var
+                             for agent in agents
+                             for var in self.agents_inputvars[agent]]
+            gamma_cube = self.bddEnc.cube_for_inputs_vars(gamma_inputs)
+            ngamma_ptr = nsdd.bdd_cube_diff(self.bddEnc.DDmanager._ptr,
+                                            self.bddEnc.inputsCube._ptr,
+                                            gamma_cube._ptr)
+            ngamma_cube = BDD(ngamma_ptr, self.bddEnc.DDmanager, freeit=True)
+            self._protocols[agents] = (self.weak_pre(self.reachable_states).
+                                       forsome(ngamma_cube))
+                                       
+        return self._protocols[agents]
         
         
     def pre_strat(self, states, agents):
@@ -138,22 +144,6 @@ class MAS(BddFsm):
                                         self.bddEnc.inputsCube._ptr,
                                         gamma_cube._ptr)
         ngamma_cube = BDD(ngamma_ptr, self.bddEnc.DDmanager, freeit=True)
-        
-        
-        # MCMAS:
-        #
-        # BDD res = ~states & reachable
-        # res = weak_pre(res) & reachable
-        # res = res & agents_protocol
-        # res = Exists a_ngamma (res)
-        # res = ~res & reachable
-        # res = res & agents_protocol
-        # res = Exists a_ngamma (res)
-        # res = Exists a_gamma (res) & reachable
-        #reach = self.reachable_states
-        #proto = self.weak_pre(reach)
-        #return (~((self.weak_pre(~states & reach) & reach & proto).forsome(ngamma_cube)) & reach & proto).forsome(ngamma_cube).forsome(gamma_cube) & reach
-        
         
         return (~(self.weak_pre(~states).forsome(ngamma_cube)) & 
                 self.weak_pre(states)).forsome(self.bddEnc.inputsCube)

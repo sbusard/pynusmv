@@ -385,6 +385,7 @@ def cag(fsm, agents, phi):
         return fp(inner, BDD.true(fsm.bddEnc.DDmanager))
     
     
+_fair_gamma_states = {}
 def fair_gamma_states(fsm, agents):
     """
     Return the set of states in which agents cannot avoid a fair path.
@@ -392,4 +393,9 @@ def fair_gamma_states(fsm, agents):
     fsm -- the model
     agents -- a list of agents names
     """
-    return cag(fsm, agents, BDD.true(fsm.bddEnc.DDmanager))
+    global _fair_gamma_states
+    agents = frozenset(agents)
+    if agents not in _fair_gamma_states:
+        _fair_gamma_states[agents] = cag(fsm, agents,
+                                         BDD.true(fsm.bddEnc.DDmanager))
+    return _fair_gamma_states[agents]
