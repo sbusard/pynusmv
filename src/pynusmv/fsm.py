@@ -217,7 +217,6 @@ class BddFsm(PointerWrapper):
         :raise: a :exc:`NuSMVBddPickingError 
                 <pynusmv.exception.NuSMVBddPickingError>`
                 if `bdd` is false or an error occurs while picking one state
-                (for example if the bdd does not contain any state but inputs)
         
         """
         # Abstract inputs
@@ -241,7 +240,6 @@ class BddFsm(PointerWrapper):
         :raise: a :exc:`NuSMVBddPickingError 
                 <pynusmv.exception.NuSMVBddPickingError>`
                 if `bdd` is false or an error occurs while picking one inputs
-                (for example if the bdd does not contain any inputs but states)
         
         """
         # Abstract inputs
@@ -255,6 +253,27 @@ class BddFsm(PointerWrapper):
             raise NuSMVBddPickingError("Cannot pick inputs from BDD.")
         return Inputs(inputs, self, freeit = True)
         
+    
+    
+    def pick_one_state_inputs(self, bdd):
+        """
+        Return a BDD representing a state/inputs pair of `bdd`.
+        
+        :rtype: :class:`StateInputs <pynusmv.dd.StateInputs>`
+        :raise: a :exc:`NuSMVBddPickingError 
+                <pynusmv.exception.NuSMVBddPickingError>`
+                if `bdd` is false or an error occurs while picking one pair
+        
+        """        
+        # The BDD contains no pairs
+        if bdd.is_false():
+            raise NuSMVBddPickingError("Cannot pick state/inputs"
+                                       " from false BDD.")
+        si = bddEnc.pick_one_state_input(self.bddEnc._ptr, bdd._ptr)
+        if si is None:
+            raise NuSMVBddPickingError("Cannot pick state/inputs from BDD.")
+        return StateInputs(si, self, freeit = True)
+            
     
     def get_inputs_between_states(self, current, next):
         """

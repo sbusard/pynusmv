@@ -12,6 +12,8 @@
 #include "../../../../nusmv/src/utils/error.h"
 
 #include "../../../../nusmv/src/dd/dd.h"
+
+#include "../../../../nusmv/src/enc/bdd/BddEnc_private.h"
 %}
 
 %feature("autodoc", 1);
@@ -201,6 +203,25 @@ boolean _pick_all_terms_states_inputs(const BddEnc_ptr self, bdd_ptr bdd,
         error = true;
     }
     return error;
+}
+
+%}
+
+%inline %{
+bdd_ptr pick_one_state_input(const BddEnc_ptr self, bdd_ptr si)
+{
+    bdd_ptr result;
+    CATCH {
+        BDD_ENC_CHECK_INSTANCE(self);
+        result = bdd_pick_one_minterm(self->dd, si,
+                                      array_fetch_p(bdd_ptr,
+                                      self->minterm_state_frozen_input_vars, 0),
+                                     self->minterm_state_frozen_input_vars_dim);
+    }
+    FAIL {
+        result = NULL;
+    }
+    return result;
 }
 
 %}

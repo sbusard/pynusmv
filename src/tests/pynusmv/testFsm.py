@@ -171,6 +171,23 @@ class TestFsm(unittest.TestCase):
         i = fsm.pick_one_inputs(p)
         
         
+    def test_pick_one_state_inputs(self):
+        fsm = self.model()
+
+        false = BDD.false(fsm.bddEnc.DDmanager)
+        true = BDD.true(fsm.bddEnc.DDmanager)
+        p = evalSexp(fsm, "p")
+        q = evalSexp(fsm, "q")
+        a = evalSexp(fsm, "a")
+
+        si = fsm.pick_one_state_inputs(a & p)
+        self.assertTrue(false < si <= a & p < true)
+        self.assertTrue(si.isnot_false())
+        self.assertTrue((si == (a & p & q)) | (si == (a & p & ~q)))
+        si = fsm.pick_one_state_inputs(true)
+        self.assertTrue(false < si < true)
+        
+        
     def test_get_inputs(self):
         fsm = self.model()
         
