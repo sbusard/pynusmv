@@ -220,8 +220,13 @@ class BddFsm(PointerWrapper):
                 (for example if the bdd does not contain any state but inputs)
         
         """
+        # Abstract inputs
+        bdd = bdd.forsome(self.bddEnc.inputsCube)
+        
+        # The BDD contains no states
         if bdd.is_false():
             raise NuSMVBddPickingError("Cannot pick state from false BDD.")
+            
         state = bddEnc.pick_one_state(self.bddEnc._ptr, bdd._ptr)
         if state is None:
             raise NuSMVBddPickingError("Cannot pick state from BDD.")
@@ -239,6 +244,10 @@ class BddFsm(PointerWrapper):
                 (for example if the bdd does not contain any inputs but states)
         
         """
+        # Abstract inputs
+        bdd = bdd.forsome(self.bddEnc.statesCube)
+        
+        # The BDD contains no states
         if bdd.is_false():
             raise NuSMVBddPickingError("Cannot pick inputs from false BDD.")
         inputs = bddEnc.pick_one_input(self.bddEnc._ptr, bdd._ptr)
@@ -306,9 +315,8 @@ class BddFsm(PointerWrapper):
         # FIXME Still get segmentation faults. Need investigation.
         # tests/pynusmv/testFsm.py seems to raise segmentation faults
         
-        # TODO Don't use mask but abstract inputs variables
         # Apply mask
-        bdd = bdd & self.bddEnc.statesMask
+        bdd = bdd.forsome(self.bddEnc.inputsCube)
         # Get all states
         (err, t) = bddEnc.pick_all_terms_states(self.bddEnc._ptr, bdd._ptr)
         if err:
@@ -332,12 +340,9 @@ class BddFsm(PointerWrapper):
         # FIXME Still get segmentation faults. Need investigation.
         # tests/pynusmv/testFsm.py seems to raise segmentation faults
         
-        # TODO Don't use mask but abstract state variables
-        mask = self.bddEnc.inputsMask
-        
         # Apply mask
-        bdd = bdd & mask
-        # Get all states
+        bdd = bdd.forsome(self.bddEnc.statesCube)
+        # Get all inputs
         (err, t) = bddEnc.pick_all_terms_inputs(self.bddEnc._ptr, bdd._ptr)
         if err:
             raise NuSMVBddPickingError("Cannot pick all inputs.")

@@ -129,9 +129,10 @@ class TestFsm(unittest.TestCase):
         
         with self.assertRaises(NuSMVBddPickingError):
             s = fsm.pick_one_state(false)
-            
-        with self.assertRaises(NuSMVBddPickingError):
-            s = fsm.pick_one_state(a)
+        
+        # This does not raise an error since "a" contains all the states
+        # Thus "s" is any state
+        s = fsm.pick_one_state(a)
         
         
         
@@ -165,8 +166,9 @@ class TestFsm(unittest.TestCase):
         with self.assertRaises(NuSMVBddPickingError):
             i = fsm.pick_one_inputs(false)
             
-        with self.assertRaises(NuSMVBddPickingError):
-            i = fsm.pick_one_inputs(p)
+        # This does not raise an error since "p" contains all the inputs
+        # Thus "i" is any inputs
+        i = fsm.pick_one_inputs(p)
         
         
     def test_get_inputs(self):
@@ -250,9 +252,8 @@ class TestFsm(unittest.TestCase):
         self.assertTrue(false < pstates[1] < p)
         self.assertTrue(pstates[0] != pstates[1])
         
-        # FIXME Raise a segmentation fault
-        #astates = fsm.pick_all_states(a)
-        #self.assertEqual(len(astates), 2) # WHY ?
+        astates = fsm.pick_all_states(a)
+        self.assertEqual(len(astates), 4) # Contains all states
         
           
     def test_pick_inputs(self):
@@ -276,7 +277,7 @@ class TestFsm(unittest.TestCase):
         self.assertTrue(tinputs[0] != tinputs[1])
         
         pinputs = fsm.pick_all_states(p)
-        self.assertEqual(len(pinputs), 2) # WHY ?
+        self.assertEqual(len(pinputs), 2) # Contains all inputs
         
         
     def test_pick_states_inputs(self):
