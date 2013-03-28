@@ -16,7 +16,6 @@ __all__ = ['BDD', 'BDDList', 'Inputs', 'DDManager', 'State']
 
 from .nusmv.dd import dd as nsdd
 from .nusmv.node import node as nsnode
-from .nusmv.dd import dd as nsdd
 from .nusmv.compile.symb_table import symb_table as nssymb_table
 from .nusmv.enc.bdd import bdd as nsbddEnc
 from .nusmv.utils import utils as nsutils
