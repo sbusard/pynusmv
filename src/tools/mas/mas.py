@@ -119,7 +119,8 @@ class MAS(BddFsm):
                                             gamma_cube._ptr)
             ngamma_cube = BDD(ngamma_ptr, self.bddEnc.DDmanager, freeit=True)
             self._protocols[agents] = (self.weak_pre(self.reachable_states).
-                                       forsome(ngamma_cube))
+                                       forsome(ngamma_cube) &
+                                       self.reachable_states)
                                        
         return self._protocols[agents]
         
