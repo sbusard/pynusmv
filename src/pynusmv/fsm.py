@@ -390,7 +390,7 @@ class BddFsm(PointerWrapper):
         (err, t) = bddEnc.pick_all_terms_states_inputs(self.bddEnc._ptr,
                                                        bdd._ptr)
         if err:
-            raise NuSMVBddPickingError("Cannot pick all states.")
+            raise NuSMVBddPickingError("Cannot pick all state/inputs pairs.")
         else:
             return tuple(StateInputs(te, self) for te in t)
         
