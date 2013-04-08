@@ -317,11 +317,7 @@ def split(fsm, strats, gamma):
     strats = strats - eqcl
     
     # Get ngamma cube
-    gamma_inputs = [agent+"."+var
-                     for agent in {"a"}
-                     for var in fsm.agents_inputvars[agent]]
-    gamma_cube = fsm.bddEnc.cube_for_inputs_vars(gamma_inputs)
-    ngamma_cube = fsm.bddEnc.inputsCube - gamma_cube
+    ngamma_cube = fsm.bddEnc.inputsCube - fsm.inputs_cube_for_agents(gamma)
     
     # Split eqcl into non-conflicting subsetes
     # (if eqcl is already non-conflicting, only one iteration is done)

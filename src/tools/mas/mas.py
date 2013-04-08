@@ -122,6 +122,19 @@ class MAS(BddFsm):
         return self._protocols[agents]
         
         
+    def inputs_cube_for_agents(self, agents):
+        """
+        Return the cube of inputs variables of agents.
+        
+        agents -- a set of agents names of this MAS.
+        
+        """
+        gamma_inputs = [agent+"."+var
+                         for agent in agents
+                         for var in self.agents_inputvars[agent]]
+        return self.bddEnc.cube_for_inputs_vars(gamma_inputs)
+        
+        
     def pre_strat(self, states, agents):
         """
         Return the set of states s of this MAS such that there exists values
