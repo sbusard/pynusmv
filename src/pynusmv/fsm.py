@@ -341,7 +341,7 @@ class BddFsm(PointerWrapper):
         if err:
             raise NuSMVBddPickingError("Cannot pick all states.")
         else:
-            return tuple(State(te, self) for te in t)
+            return frozenset(State(te, self) for te in t)
             
             
     def pick_all_inputs(self, bdd):
@@ -366,7 +366,7 @@ class BddFsm(PointerWrapper):
         if err:
             raise NuSMVBddPickingError("Cannot pick all inputs.")
         else:
-            return tuple(Inputs(te, self) for te in t)
+            return frozenset(Inputs(te, self) for te in t)
     
             
     def pick_all_states_inputs(self, bdd):
@@ -392,7 +392,7 @@ class BddFsm(PointerWrapper):
         if err:
             raise NuSMVBddPickingError("Cannot pick all state/inputs pairs.")
         else:
-            return tuple(StateInputs(te, self) for te in t)
+            return frozenset(StateInputs(te, self) for te in t)
         
         
     @property    

@@ -265,9 +265,8 @@ class TestFsm(unittest.TestCase):
         
         pstates = fsm.pick_all_states(p)
         self.assertEqual(len(pstates), 2)
-        self.assertTrue(false < pstates[0] < p)
-        self.assertTrue(false < pstates[1] < p)
-        self.assertTrue(pstates[0] != pstates[1])
+        for pstate in pstates:
+            self.assertTrue(false < pstate < p)
         
         astates = fsm.pick_all_states(a)
         self.assertEqual(len(astates), 4) # Contains all states
@@ -284,14 +283,14 @@ class TestFsm(unittest.TestCase):
         
         ainputs = fsm.pick_all_inputs(a)
         self.assertEqual(len(ainputs), 1)
-        self.assertTrue(false < ainputs[0] <= a)
-        self.assertTrue(ainputs[0] == a)
+        for ainput in ainputs:
+            self.assertTrue(false < ainput <= a)
+            self.assertTrue(ainput == a)
         
         tinputs = fsm.pick_all_inputs(true)
         self.assertEqual(len(tinputs), 2)
-        self.assertTrue(tinputs[0] == a or tinputs[0] == ~a)
-        self.assertTrue(tinputs[1] == a or tinputs[1] == ~a)
-        self.assertTrue(tinputs[0] != tinputs[1])
+        for tinput in tinputs:
+            self.assertTrue(tinput == a or tinput == ~a)
         
         pinputs = fsm.pick_all_states(p)
         self.assertEqual(len(pinputs), 2) # Contains all inputs
@@ -308,9 +307,8 @@ class TestFsm(unittest.TestCase):
         
         pstates = fsm.pick_all_states_inputs(p & a)
         self.assertEqual(len(pstates), 2)
-        self.assertTrue(false < pstates[0] < p)
-        self.assertTrue(false < pstates[1] < p)
-        self.assertTrue(pstates[0] != pstates[1])
+        for pstate in pstates:
+            self.assertTrue(false < pstate < p)
         
              
     def test_pick_no_inputs(self):
