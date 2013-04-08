@@ -30,7 +30,7 @@ from .nusmv.prop import prop as nsprop
 from .nusmv.fsm.sexp import sexp as nssexp
 from .nusmv.utils import utils as nsutils
 
-from .dd import BDD, State, Inputs, StateInputs, DDManager
+from .dd import BDD, State, Inputs, StateInputs, DDManager, Cube
 from .utils import PointerWrapper, fixpoint
 from .exception import NuSMVBddPickingError
 from .parser import parse_simple_expression
@@ -498,8 +498,8 @@ class BddEnc(PointerWrapper):
         
         """
         
-        return BDD(bddEnc.BddEnc_get_state_frozen_vars_cube(self._ptr),
-                   self.DDmanager, freeit = True)
+        return Cube(bddEnc.BddEnc_get_state_frozen_vars_cube(self._ptr),
+                    self.DDmanager, freeit = True)
                    
     
     @property               
@@ -511,8 +511,8 @@ class BddEnc(PointerWrapper):
         
         """
     
-        return BDD(bddEnc.BddEnc_get_input_vars_cube(self._ptr),
-                   self.DDmanager, freeit = True)
+        return Cube(bddEnc.BddEnc_get_input_vars_cube(self._ptr),
+                    self.DDmanager, freeit = True)
                    
                    
     def cube_for_inputs_vars(self, variables):
@@ -551,7 +551,7 @@ class BddEnc(PointerWrapper):
                         
         nsset.Set_ReleaseSet(varset)
         
-        return BDD(cube_ptr, self.DDmanager, freeit=True)
+        return Cube(cube_ptr, self.DDmanager, freeit=True)
         
                    
 class SymbTable(PointerWrapper):

@@ -769,3 +769,33 @@ class StateInputs(BDD):
         nsutils.NodeList_destroy(symbols)
             
         return values
+        
+
+class Cube(BDD):
+    """
+    Python class for Cube structure.
+    
+    A Cube is a :class:`BDD` representing a BDD cube of the model.
+    
+    """
+    
+    def diff(self, other):
+        """
+        Compute the difference between this cube and `other`
+        
+        :param other: the other cube
+        :type other: :class:`Cube`
+        
+        """
+        # Call to bdd_ptr bdd_cube_diff (DdManager *, bdd_ptr, bdd_ptr);
+        
+        # TODO Check that other is a cube!
+        
+        if self._manager is None:
+            raise MissingManagerError()
+        return Cube(nsdd.bdd_cube_diff(self._manager._ptr ,self._ptr, other._ptr),
+                    self._manager, freeit = True)
+                    
+    
+    def __sub__(self, other):
+        return self.diff(other)
