@@ -74,10 +74,7 @@ class TestSplit(unittest.TestCase):
                          for agent in {"a"}
                          for var in fsm.agents_inputvars[agent]]
         gamma_cube = fsm.bddEnc.cube_for_inputs_vars(gamma_inputs)
-        ngamma_ptr = nsdd.bdd_cube_diff(fsm.bddEnc.DDmanager._ptr,
-                                        fsm.bddEnc.inputsCube._ptr,
-                                        gamma_cube._ptr)
-        ngamma_cube = BDD(ngamma_ptr, fsm.bddEnc.DDmanager, freeit=True)
+        ngamma_cube = fsm.bddEnc.inputsCube - gamma_cube
         
         
         nact = ~act.forsome(ngamma_cube) # Useless here
