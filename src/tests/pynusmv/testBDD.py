@@ -200,3 +200,17 @@ class TestBDD(unittest.TestCase):
         self.assertFalse(alice > processing)
         self.assertFalse(processing > alice)
         
+    
+    def test_hashes(self):
+        (fsm, enc, manager) = self.init_model()
+        
+        true = BDD.true(manager)
+        false = BDD.false(manager)
+        init = fsm.init
+        noadmin = eval_simple_expression(fsm, "admin = none")
+        alice = eval_simple_expression(fsm, "admin = alice")
+        processing = eval_simple_expression(fsm, "state = processing")
+        
+        self.assertEqual(hash(true), hash(~false))
+        self.assertNotEqual(hash(true), hash(false))
+        self.assertEqual(hash(init & noadmin), hash(init))

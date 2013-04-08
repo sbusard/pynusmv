@@ -75,11 +75,20 @@ class BDD(PointerWrapper):
         
         :param other: the BDD to compare
         :type other: :class:`BDD`
+        
         """
         if nsdd.bdd_equal(self._ptr, other._ptr):
             return True
         else:
             return False
+            
+            
+    def __hash__(self):
+        """
+        Return the hash of this BDD.
+        
+        """
+        return int(self._ptr)
         
         
     # ==========================================================================
