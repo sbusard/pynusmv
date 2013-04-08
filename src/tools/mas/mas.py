@@ -114,10 +114,7 @@ class MAS(BddFsm):
                              for agent in agents
                              for var in self.agents_inputvars[agent]]
             gamma_cube = self.bddEnc.cube_for_inputs_vars(gamma_inputs)
-            ngamma_ptr = nsdd.bdd_cube_diff(self.bddEnc.DDmanager._ptr,
-                                            self.bddEnc.inputsCube._ptr,
-                                            gamma_cube._ptr)
-            ngamma_cube = BDD(ngamma_ptr, self.bddEnc.DDmanager, freeit=True)
+            ngamma_cube = self.bddEnc.inputsCube - gamma_cube
             self._protocols[agents] = (self.weak_pre(self.reachable_states).
                                        forsome(ngamma_cube) &
                                        self.reachable_states)
@@ -140,11 +137,7 @@ class MAS(BddFsm):
                          for agent in agents
                          for var in self.agents_inputvars[agent]]
         gamma_cube = self.bddEnc.cube_for_inputs_vars(gamma_inputs)
-        
-        ngamma_ptr = nsdd.bdd_cube_diff(self.bddEnc.DDmanager._ptr,
-                                        self.bddEnc.inputsCube._ptr,
-                                        gamma_cube._ptr)
-        ngamma_cube = BDD(ngamma_ptr, self.bddEnc.DDmanager, freeit=True)
+        ngamma_cube = self.bddEnc.inputsCube - gamma_cube
         
         return (~(self.weak_pre(~states).forsome(ngamma_cube)) & 
                 self.weak_pre(states)).forsome(self.bddEnc.inputsCube)
