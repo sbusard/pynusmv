@@ -388,7 +388,7 @@ class BDD(PointerWrapper):
         return self.andd(other)
 
     def __and__(self, other):
-        return self.andd(other)    
+        return self.andd(other)
     
     
     def __sub__(self, other):
@@ -797,5 +797,56 @@ class Cube(BDD):
                     self._manager, freeit = True)
                     
     
+    def intersection(self, other):
+        """
+        Compute the intersection of this Cube and `other`.
+        
+        :param other: the other Cube
+        :type other: :class:`Cube`
+        
+        """
+        # Call to bdd_ptr bdd_cube_intersection (DdManager *, bdd_ptr, bdd_ptr);
+        
+        # TODO Check that other is a cube!
+        
+        if self._manager is None:
+            raise MissingManagerError()
+        return Cube(nsdd.bdd_cube_intersection(self._manager._ptr,
+                                               self._ptr, other._ptr),
+                   self._manager, freeit = True)
+        
+
+    def union(self, other):
+        """
+        Compute the union of this Cube and `other`.
+        
+        :param other: the other Cube
+        :type other: :class:`Cube`
+        
+        """
+        # Call to bdd_ptr bdd_cube_union (DdManager *, bdd_ptr, bdd_ptr);
+        
+        # TODO Check that other is a cube!
+        
+        if self._manager is None:
+            raise MissingManagerError()
+        return BDD(nsdd.bdd_cube_union(self._manager._ptr, self._ptr, other._ptr),
+                   self._manager, freeit = True)
+                   
+    
     def __sub__(self, other):
         return self.diff(other)
+        
+        
+    def __add__(self, other):
+        return self.union(other)
+        
+    def __or__(self, other):
+        return self.union(other)
+    
+    
+    def __mul__(self, other):
+        return self.intersection(other)
+
+    def __and__(self, other):
+        return self.intersection(other)
