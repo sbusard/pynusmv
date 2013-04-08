@@ -1,0 +1,19 @@
+--  
+--
+-- by Simon Busard <simon.busard@uclouvain.be>, 08/04/2013
+
+MODULE main
+
+    VAR
+        p: boolean;
+    IVAR
+        a : boolean;
+        b : 0..2;
+        
+    INIT p
+    
+    TRANS
+    b in {0,1};
+    
+    TRANS
+    next(p) = a
