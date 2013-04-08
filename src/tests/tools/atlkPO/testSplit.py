@@ -8,6 +8,8 @@ from pynusmv.nusmv.dd import dd as nsdd
 
 from tools.mas import glob
 
+from tools.atlkPO.eval import split
+
 
 class TestSplit(unittest.TestCase):
     
@@ -36,7 +38,8 @@ class TestSplit(unittest.TestCase):
     def show_i(self, fsm, bdd):
         for i in fsm.pick_all_inputs(bdd):
             print(i.get_str_values())
-        
+    
+    @unittest.skip    
     def test_split_by_picking(self):
         fsm = self.little()
         
@@ -146,3 +149,35 @@ class TestSplit(unittest.TestCase):
         for substrat in splitted:
             print("new sub strategy")
             self.show_si(fsm, substrat)
+            
+            
+    def test_split(self):
+        fsm = self.little()
+        
+        aa = eval_simple_expression(fsm, "a.a = 1")
+        ap = eval_simple_expression(fsm, "a.p = 1")
+        ba = eval_simple_expression(fsm, "b.a = 1")
+        bq = eval_simple_expression(fsm, "b.q = 1")
+        true = eval_simple_expression(fsm, "TRUE")
+        false = eval_simple_expression(fsm, "FALSE")
+        
+        gamma_inputs = [agent+"."+var
+                         for agent in {"a"}
+                         for var in fsm.agents_inputvars[agent]]
+        gamma_cube = fsm.bddEnc.cube_for_inputs_vars(gamma_inputs)
+        ngamma_cube = fsm.bddEnc.inputsCube - gamma_cube
+        
+        strats = split(fsm, fsm.protocol({"a"}), {"a"})
+            
+        commstrat = (((~ap & bq & ~aa) | (~ap & ~bq & ~aa)).forsome(ngamma_cube) &
+                     fsm.protocol({"a"}))
+        firststrat = (((ap & bq & aa) | (ap & ~bq & aa)).forsome(ngamma_cube) &
+                      fsm.protocol({"a"}))
+        secstrat = (((ap & bq & ~aa) | (ap & ~bq & ~aa)).forsome(ngamma_cube) &
+                    fsm.protocol({"a"}))
+        
+        self.assertTrue((commstrat | firststrat) in strats)
+        self.assertTrue((commstrat | secstrat) in strats)
+        
+        self.assertSetEqual({commstrat | firststrat, commstrat | secstrat},
+                            strats)
