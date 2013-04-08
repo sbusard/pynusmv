@@ -214,3 +214,6 @@ class TestBDD(unittest.TestCase):
         self.assertEqual(hash(true), hash(~false))
         self.assertNotEqual(hash(true), hash(false))
         self.assertEqual(hash(init & noadmin), hash(init))
+        
+        bdddict = {true, false, init, noadmin, alice, processing}
+        self.assertEqual(len(bdddict), 6)
