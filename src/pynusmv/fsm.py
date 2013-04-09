@@ -386,6 +386,9 @@ class BddFsm(PointerWrapper):
         
         # TODO check non-empty
         
+        # Apply mask
+        bdd = bdd & self.bddEnc.inputsMask & self.bddEnc.statesMask
+        
         # Get all states inputs
         (err, t) = bddEnc.pick_all_terms_states_inputs(self.bddEnc._ptr,
                                                        bdd._ptr)
@@ -488,6 +491,17 @@ class BddEnc(PointerWrapper):
     
         return BDD(bddEnc.BddEnc_get_input_vars_mask_bdd(self._ptr),
                    self.DDmanager, freeit = True)
+                   
+    @property               
+    def statesInputsMask(self):
+        """
+        The mask for all input and state variables, represented as a BDD.
+        
+        :rtype: :class:`BDD <pynusmv.dd.BDD>`
+        
+        """
+    
+        return self.statesMask & self.inputsMask
                    
     @property    
     def statesCube(self):
