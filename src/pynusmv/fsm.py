@@ -335,7 +335,7 @@ class BddFsm(PointerWrapper):
         # tests/pynusmv/testFsm.py seems to raise segmentation faults
         
         # Apply mask
-        bdd = bdd.forsome(self.bddEnc.inputsCube)
+        bdd = bdd.forsome(self.bddEnc.inputsCube) & self.bddEnc.statesMask
         # Get all states
         (err, t) = bddEnc.pick_all_terms_states(self.bddEnc._ptr, bdd._ptr)
         if err:
@@ -360,7 +360,7 @@ class BddFsm(PointerWrapper):
         # tests/pynusmv/testFsm.py seems to raise segmentation faults
         
         # Apply mask
-        bdd = bdd.forsome(self.bddEnc.statesCube)
+        bdd = bdd.forsome(self.bddEnc.statesCube) & self.bddEnc.inputsMask
         # Get all inputs
         (err, t) = bddEnc.pick_all_terms_inputs(self.bddEnc._ptr, bdd._ptr)
         if err:

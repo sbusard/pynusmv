@@ -48,9 +48,4 @@ class TestEval(unittest.TestCase):
         true = eval_simple_expression(fsm, "TRUE")
         false = eval_simple_expression(fsm, "FALSE")
         
-        for i in fsm.pick_all_inputs(a & b1):
-            si = StateInputs(i._ptr, i._fsm, i._freeit)
-            print(si.get_str_values(), si._ptr)
-            print(i.get_str_values(), i._ptr)
-            
         self.assertEqual(len(fsm.pick_all_inputs(a & b1)), 1)
