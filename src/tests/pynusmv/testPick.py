@@ -37,7 +37,7 @@ class TestEval(unittest.TestCase):
             print(i.get_str_values())
 
 
-    def test_pick(self):
+    def test_pick_inputs(self):
         fsm = self.model()
         
         p = eval_simple_expression(fsm, "p")
@@ -49,3 +49,20 @@ class TestEval(unittest.TestCase):
         false = eval_simple_expression(fsm, "FALSE")
         
         self.assertEqual(len(fsm.pick_all_inputs(a & b1)), 1)
+        
+        
+    def test_pick_states_inputs(self):
+        fsm = self.model()
+        
+        p = eval_simple_expression(fsm, "p")
+        a = eval_simple_expression(fsm, "a")
+        b0 = eval_simple_expression(fsm, "b = 0")
+        b1 = eval_simple_expression(fsm, "b = 1")
+        b2 = eval_simple_expression(fsm, "b = 2")
+        true = eval_simple_expression(fsm, "TRUE")
+        false = eval_simple_expression(fsm, "FALSE")
+        
+        for si in fsm.pick_all_states_inputs(p & a & b1):
+            print(si.get_str_values())
+        
+        self.assertEqual(len(fsm.pick_all_states_inputs(p & a & b1)), 1)
