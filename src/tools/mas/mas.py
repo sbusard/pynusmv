@@ -117,7 +117,9 @@ class MAS(BddFsm):
             ngamma_cube = self.bddEnc.inputsCube - gamma_cube
             self._protocols[agents] = (self.weak_pre(self.reachable_states).
                                        forsome(ngamma_cube) &
-                                       self.reachable_states)
+                                       self.reachable_states &
+                                       self.bddEnc.inputsMask &
+                                       self.bddEnc.statesMask)
                                        
         return self._protocols[agents]
         
