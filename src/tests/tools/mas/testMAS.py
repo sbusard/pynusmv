@@ -321,3 +321,47 @@ class TestMAS(unittest.TestCase):
                         fsm.pre_nstrat(win, {"dealer"}))
         self.assertFalse(s1 & fsm.reachable_states <=
                         fsm.pre_nstrat(win, {"player"}))
+                        
+                        
+    def test_pre_stat_si(self):
+        fsm = self.cardgame()
+        
+        s0 = eval_simple_expression(fsm, "step = 0")
+        s1 = eval_simple_expression(fsm, "step = 1")
+        s2 = eval_simple_expression(fsm, "step = 2")
+        pa = eval_simple_expression(fsm, "pcard = Ac")
+        pk = eval_simple_expression(fsm, "pcard = K")
+        pq = eval_simple_expression(fsm, "pcard = Q")
+        da = eval_simple_expression(fsm, "dcard = Ac")
+        dk = eval_simple_expression(fsm, "dcard = K")
+        dq = eval_simple_expression(fsm, "dcard = Q")
+        dda = eval_simple_expression(fsm, "ddcard = Ac")
+        ddk = eval_simple_expression(fsm, "ddcard = K")
+        ddq = eval_simple_expression(fsm, "ddcard = Q")
+        pan = eval_simple_expression(fsm, "player.action = none")
+        pak = eval_simple_expression(fsm, "player.action = keep")
+        pas = eval_simple_expression(fsm, "player.action = swap")
+        daqa = eval_simple_expression(fsm, "dealer.action = dealQA")
+        win = eval_simple_expression(fsm, "win")
+        lose = eval_simple_expression(fsm, "lose")
+        true = eval_simple_expression(fsm, "TRUE")
+        false = eval_simple_expression(fsm, "FALSE")
+        
+        self.assertTrue(pa & dq & s2 & pan & fsm.reachable_states <= fsm.pre_strat_si(pa & dq & s2 & fsm.reachable_states, {'player'}))
+        self.assertTrue(pa & dq & s1 & pak & fsm.reachable_states <= fsm.pre_strat_si(pa & dq & s2 & fsm.reachable_states, {'player'}))
+        self.assertTrue(pk & dq & s1 & pas & fsm.reachable_states <= fsm.pre_strat_si(pa & dq & s2 & fsm.reachable_states, {'player'}))
+        self.assertFalse(pk & dq & s1 & pak & fsm.reachable_states <= fsm.pre_strat_si(pa & dq & s2 & fsm.reachable_states, {'player'}))
+        self.assertFalse(pk & da & s1 & fsm.reachable_states <= fsm.pre_strat_si(pa & dq & s2 & fsm.reachable_states, {'player'}))
+        
+        self.assertFalse(s1 & fsm.reachable_states <=
+                         fsm.pre_strat_si(win & fsm.reachable_states, {'player'}))
+        self.assertFalse(s1 & fsm.reachable_states <=
+                         fsm.pre_strat_si(lose, {'player'}))
+                         
+        self.assertTrue(win & fsm.reachable_states & fsm.protocol({'player'}) <=
+                        fsm.pre_strat_si(win & fsm.reachable_states, {'player'}))
+        self.assertTrue(s1 & pk & dq & pas & fsm.reachable_states <=
+                        fsm.pre_strat_si(lose, {'player'}))
+        
+        self.assertTrue(fsm.init & fsm.protocol({'dealer'}) <= fsm.pre_strat_si(s1, {'dealer'}))
+        self.assertTrue(fsm.init & daqa <= fsm.pre_strat_si(s1 & pq & da, {'dealer'}))

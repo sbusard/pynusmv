@@ -170,3 +170,21 @@ class MAS(BddFsm):
         
         """
         return ~self.pre_strat(~states, agents)
+        
+    
+    def pre_strat_si(self, states, agents):
+        """
+        Return the set of state/inputs pairs <s,i_agents> of this MAS such that for all values of input variables of the other agents i_nagents, all successors of s through i_agents U i_nagents belong to states.
+        
+        states -- a BDD representing a set of states of this MAS;
+        agents -- a set of agents names, agents of this MAS.
+        
+        """
+        gamma_inputs = [agent+"."+var
+                         for agent in agents
+                         for var in self.agents_inputvars[agent]]
+        gamma_cube = self.bddEnc.cube_for_inputs_vars(gamma_inputs)
+        ngamma_cube = self.bddEnc.inputsCube - gamma_cube
+        
+        return (~(self.weak_pre(~states).forsome(ngamma_cube)) & 
+                self.weak_pre(states)).forsome(ngamma_cube)
