@@ -34,7 +34,9 @@ class TestEval(unittest.TestCase):
         return fsm
         
     def show_si(self, fsm, bdd):
-        for si in fsm.pick_all_states_inputs(bdd):
+        sis = fsm.pick_all_states_inputs(bdd)
+        print("SI count:", len(sis))
+        for si in sis:
             print(si.get_str_values())
             
     def show_s(self, fsm, bdd):
@@ -46,7 +48,7 @@ class TestEval(unittest.TestCase):
             print(i.get_str_values())
 
 
-    @unittest.expectedFailure # FIXME test again when problem of inputs is fixed
+    #@unittest.expectedFailure # FIXME test again when problem of inputs is fixed
     def test_split(self):
         fsm = self.cardgame()
         
