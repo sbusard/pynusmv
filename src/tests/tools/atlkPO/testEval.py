@@ -8,7 +8,7 @@ from pynusmv.nusmv.dd import dd as nsdd
 
 from tools.mas import glob
 
-from tools.atlkPO.eval import split
+from tools.atlkPO.eval import split, cex_si
 
 
 class TestEval(unittest.TestCase):
@@ -48,7 +48,6 @@ class TestEval(unittest.TestCase):
             print(i.get_str_values())
 
 
-    #@unittest.expectedFailure # FIXME test again when problem of inputs is fixed
     def test_split(self):
         fsm = self.cardgame()
         
@@ -75,3 +74,43 @@ class TestEval(unittest.TestCase):
         strats = split(fsm, fsm.protocol({"player"}), {"player"})
         
         self.assertEqual(len(strats), 8)
+    
+    
+    def test_cex_si(self):
+        fsm = self.cardgame()
+        
+        s0 = eval_simple_expression(fsm, "step = 0")
+        s1 = eval_simple_expression(fsm, "step = 1")
+        s2 = eval_simple_expression(fsm, "step = 2")
+        
+        pa = eval_simple_expression(fsm, "pcard = Ac")
+        pk = eval_simple_expression(fsm, "pcard = K")
+        pq = eval_simple_expression(fsm, "pcard = Q")
+        
+        da = eval_simple_expression(fsm, "dcard = Ac")
+        dk = eval_simple_expression(fsm, "dcard = K")
+        dq = eval_simple_expression(fsm, "dcard = Q")
+        
+        dda = eval_simple_expression(fsm, "ddcard = Ac")
+        ddk = eval_simple_expression(fsm, "ddcard = K")
+        ddq = eval_simple_expression(fsm, "ddcard = Q")
+        
+        pan = eval_simple_expression(fsm, "player.action = none")
+        pak = eval_simple_expression(fsm, "player.action = keep")
+        pas = eval_simple_expression(fsm, "player.action = swap")
+        
+        dan = eval_simple_expression(fsm, "dealer.action = none")
+        
+        win = eval_simple_expression(fsm, "win")
+        lose = eval_simple_expression(fsm, "lose")
+        
+        true = eval_simple_expression(fsm, "TRUE")
+        false = eval_simple_expression(fsm, "FALSE")
+        
+        
+        self.assertTrue(pk & dq & s2 & pan & fsm.reachable_states <= cex_si(fsm, {'player'}, fsm.reachable_states & win))
+        self.assertTrue(pk & dq & s2 & pan & fsm.reachable_states <= cex_si(fsm, {'player'}, fsm.reachable_states & win, pk & dq & pan))
+        self.assertTrue(pk & dq & s1 & pak & fsm.reachable_states <= cex_si(fsm, {'player'}, fsm.reachable_states & win, pak))
+        self.assertFalse(pk & dq & s1 & pas & fsm.reachable_states <= cex_si(fsm, {'player'}, fsm.reachable_states & win, pak))
+        self.assertTrue(pa & dq & s1 & pas & fsm.reachable_states <= cex_si(fsm, {'player'}, fsm.reachable_states & win))
+        self.assertFalse(pa & dq & s1 & pas & fsm.reachable_states <= cex_si(fsm, {'player'}, fsm.reachable_states & win, pak))

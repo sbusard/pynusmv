@@ -204,95 +204,144 @@ def evalATLK(fsm, spec):
         return None
               
               
-def cax(fsm, agents, phi):
+def cex_si(fsm, agents, phi, strat=None):
     """
-    Return the set of states of fsm satisfying [agents] X phi.
+    Return the set of state/inputs pairs of strat satisfying <agents> X phi
+    under full observability in strat.
+    If strat is None, strat is considered true.
     
     fsm -- a MAS representing the system
     agents -- a list of agents names
     phi -- a BDD representing the set of states of fsm satisfying phi
+    strat -- a BDD representing allowed state/inputs pairs, or None
     """
-    return fsm.pre_nstrat(phi & fair_gamma_states(fsm, agents), agents)
+    if not strat:
+        strat = BDD.true(fsm.bddEnc.DDmanager)
+        
+    return fsm.pre_strat_si(phi | nfair_gamma_states(fsm, agents, strat),
+                            agents, strat)
     
 
-def cau(fsm, agents, phi, psi):
+def ceu_si(fsm, agents, phi, psi, strat=None):
     """
-    Return the set of states of fsm satisfying [agents][phi U psi].
+    Return the set of state/inputs pairs of strat satisfying <agents>[phi U psi]
+    under full observability in strat.
+    If strat is None, strat is considered true.
     
     fsm -- a MAS representing the system
     agents -- a list of agents names
     phi -- a BDD representing the set of states of fsm satisfying phi
     psi -- a BDD representing the set of states of fsm satisfying psi
+    strat -- a BDD representing allowed state/inputs pairs, or None
+    
     """
-    return fp(lambda Y : (psi & fair_gamma_states(fsm, agents)) |
-                         (phi & fsm.pre_nstrat(Y, agents)),
-              BDD.false(fsm.bddEnc.DDmanager))
+    if not strat:
+        strat = BDD.true(fsm.bddEnc.DDmanager)
+        
+    phi = phi & fsm.protocol(agents)
+    psi = psi & fsm.protocol(agents)
+    
+    nfair = nfair_gamma_states(fsm, agents, strat) & fsm.protocol(agents)
+    
+    if len(fsm.fairness_constraints) == 0:
+        return fp(lambda Z : psi | (phi & fsm.pre_strat_si(Z, agents, strat)),
+                  BDD.true(fsm.bddEnc.DDmanager))
+    else:
+        def inner(Z):
+            res = psi
+            for f in fsm.fairness_constraints:
+                f = f & fsm.protocol(agents)
+                res = res | fsm.pre_strat_si(fp(lambda Y :
+                                                 (phi | psi | nfair) &
+                                                 (Z | f) &
+                                                 (psi |
+                                                  fsm.pre_strat_si(Y, agents,
+                                                                   strat)
+                                                 ),
+                                                 BDD.true(fsm.bddEnc.DDmanager)),
+                                              agents, strat)
+            return (psi | phi | nfair) & res
+        return fp(inner, BDD.false(fsm.bddEnc.DDmanager))
     
 
-def caw(fsm, agents, phi, psi):
+def cew_si(fsm, agents, phi, psi, strat=None):
     """
-    Return the set of states of fsm satisfying [agents][phi W psi].
+    Return the set of state/inputs pairs of strat satisfying <agents>[phi W psi]
+    under full observability in strat.
+    If strat is None, strat is considered true.
     
     fsm -- a MAS representing the system
     agents -- a list of agents names
     phi -- a BDD representing the set of states of fsm satisfying phi
     psi -- a BDD representing the set of states of fsm satisfying psi
+    strat -- a BDD representing allowed state/inputs pairs, or None
+    
     """
-    if len(fsm.fairness_constraints) == 0:
-        return fp(lambda Z : phi & fsm.pre_nstrat(Z, agents),
-                  BDD.true(fsm.bddEnc.DDmanager))
-    else:
-        def inner(Z):
-            res = phi
-            for f in fsm.fairness_constraints:
-                res = res & fsm.pre_nstrat(fp(lambda Y :
-                                             (psi &fair_gamma_states(fsm,
-                                                                     agents)) |
-                                             (Z & f) |
-                                             (phi & fsm.pre_nstrat(Y, agents)),
-                                             BDD.false(fsm.bddEnc.DDmanager)),
-                                           agents)
-            return (psi &fair_gamma_states(fsm, agents)) | res
-        return fp(inner, BDD.true(fsm.bddEnc.DDmanager))
+    if not strat:
+        strat = BDD.true(fsm.bddEnc.DDmanager)
+        
+    phi = phi & fsm.protocol(agents)
+    psi = psi & fsm.protocol(agents)
+    
+    nfair = nfair_gamma_states(fsm, agents, strat) & fsm.protocol(agents)
+    
+    return fp(lambda Y : (psi | phi | nfair) &
+                         (psi | fsm.pre_strat_si(Y, agents, strat)),
+              BDD.true(fsm.bddEnc.DDmanager))
     
     
-def cag(fsm, agents, phi):
+def ceg_si(fsm, agents, phi, strat=None):
     """
-    Return the set of states of fsm satisfying [agents] G phi.
+    Return the set of state/inputs pairs of strat satisfying <agents> G phi
+    under full observability in strat.
+    If strat is None, strat is considered true.
     
     fsm -- a MAS representing the system
     agents -- a list of agents names
     phi -- a BDD representing the set of states of fsm satisfying phi
-    """
-    if len(fsm.fairness_constraints) == 0:
-        return fp(lambda Z : phi & fsm.pre_nstrat(Z, agents),
-                  BDD.true(fsm.bddEnc.DDmanager))
-    else:
-        def inner(Z):
-            res = phi
-            for f in fsm.fairness_constraints:
-                res = res & fsm.pre_nstrat(fp(lambda Y : (Z & f) |
-                                             (phi & fsm.pre_nstrat(Y, agents)),
-                                             BDD.false(fsm.bddEnc.DDmanager))
-                                           , agents)
-            return res
-        return fp(inner, BDD.true(fsm.bddEnc.DDmanager))
+    strat -- a BDD representing allowed state/inputs pairs, or None
     
-    
-_fair_gamma_states = {}
-def fair_gamma_states(fsm, agents):
     """
-    Return the set of states in which agents cannot avoid a fair path.
+    if not strat:
+        strat = BDD.true(fsm.bddEnc.DDmanager)
+        
+    phi = phi & fsm.protocol(agents)
+    
+    nfair = nfair_gamma_states(fsm, agents, strat) & fsm.protocol(agents)
+    
+    return fp(lambda Y : (phi | nfair) & fsm.pre_strat_si(Y, agents, strat),
+              BDD.true(fsm.bddEnc.DDmanager))
+    
+
+def nfair_gamma_states(fsm, agents, strat=None):
+    """
+    Return the set of state/inputs pairs of strat
+    in which agents can avoid a fair path in strat.
+    If strat is None, it is considered true.
     
     fsm -- the model
     agents -- a list of agents names
+    strat -- a BDD representing allowed state/inputs pairs, or None
+    
     """
-    global _fair_gamma_states
-    agents = frozenset(agents)
-    if agents not in _fair_gamma_states:
-        _fair_gamma_states[agents] = cag(fsm, agents,
-                                         BDD.true(fsm.bddEnc.DDmanager))
-    return _fair_gamma_states[agents]
+    if not strat:
+        strat = BDD.true(fsm.bddEnc.DDmanager)
+    
+    if len(fsm.fairness_constraints) == 0:
+        return BDD.false(fsm.bddEnc.DDmanager)
+    else:
+        def inner(Z):
+            res = BDD.false(fsm.bddEnc.DDmanager)
+            for f in fsm.fairness_constraints:
+                nf = ~f & fsm.protocol(agents)
+                res = res | fsm.pre_strat_si(fp(lambda Y :
+                                                 (Z | nf) &
+                                                 fsm.pre_strat_si(Y, agents,
+                                                                  strat),
+                                                 BDD.true(fsm.bddEnc.DDmanager)),
+                                              agents, strat)
+            return res
+        return fp(inner, BDD.false(fsm.bddEnc.DDmanager))
     
     
 def split(fsm, strats, gamma):
