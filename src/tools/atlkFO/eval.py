@@ -345,7 +345,7 @@ def caw(fsm, agents, phi, psi):
     psi -- a BDD representing the set of states of fsm satisfying psi
     """
     if len(fsm.fairness_constraints) == 0:
-        return fp(lambda Z : phi & fsm.pre_nstrat(Z, agents),
+        return fp(lambda Z : psi | (phi & fsm.pre_nstrat(Z, agents)),
                   BDD.true(fsm.bddEnc.DDmanager))
     else:
         def inner(Z):
