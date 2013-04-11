@@ -389,6 +389,10 @@ class BddFsm(PointerWrapper):
         # Apply mask
         bdd = bdd & self.bddEnc.inputsMask & self.bddEnc.statesMask
         
+        if bdd.is_false():
+            raise NuSMVBddPickingError("Cannot pick all state/inputs pairs "
+                                       "from FALSE BDD.")
+        
         # Get all states inputs
         (err, t) = bddEnc.pick_all_terms_states_inputs(self.bddEnc._ptr,
                                                        bdd._ptr)
