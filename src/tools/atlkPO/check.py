@@ -7,10 +7,20 @@ from .eval import evalATLK
 from pyparsing import ParseException
 from pynusmv.exception import PyNuSMVError
     
-    
-def check(allargs):
+def check(mas, spec):
     """
-    Check specs on the given NuSMV model.
+    Return whether the system satisfies the ATLK specification.
+    
+    mas -- the system
+    spec -- the specification, as a string
+    
+    """
+    sat = evalATLK(mas, spec)
+    return (~sat & mas.init).is_false()
+    
+def process(allargs):
+    """
+    Process specs on the given NuSMV model.
     
     Build the model from a given file and check every ATLK specification
     writen on standard input.
@@ -33,9 +43,7 @@ def check(allargs):
     for line in sys.stdin:
         try:
             spec = parseATLK(line)[0]
-            
-            sat = evalATLK(mas, spec)
-            satisfied = (~sat & mas.init).is_false()
+            satisfied = check(mas, spec)
             print('Specification', str(spec), 'is', str(satisfied))
         except ParseException as e:
             print("[ERROR] Cannot parse specification:", str(e))
@@ -45,5 +53,5 @@ def check(allargs):
 
 if __name__ == '__main__':
     init_nusmv()   
-    check(sys.argv[1:])
+    process(sys.argv[1:])
     deinit_nusmv()

@@ -1,0 +1,35 @@
+--- One bit transmission with two channels
+---
+--- Simon Busard <simon.busard@uclouvain.be>, 23/03/13
+
+MODULE Sender()
+
+    IVAR   action : {send1, send2, wait};
+    
+    --- Protocol: nothing, can always do both actions
+
+
+MODULE Transmitter()
+    
+    IVAR action : {transmit1, transmit2, block};
+    
+    --- Protocol: nothing, can always do both actions
+                
+
+MODULE main
+
+    VAR received : boolean;
+        sender : Sender();
+        transmitter : Transmitter();
+        
+    INIT !received
+    
+    TRANS next(received) = ((sender.action = send1 &
+                             transmitter.action = transmit1) |
+                            (sender.action = send2 &
+                             transmitter.action = transmit2)                    
+                            ? TRUE : received);
+                            
+
+FAIRNESS transmitter.action = transmit1
+FAIRNESS transmitter.action = transmit2

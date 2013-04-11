@@ -8,7 +8,9 @@ from pynusmv.nusmv.dd import dd as nsdd
 
 from tools.mas import glob
 
-from tools.atlkPO.eval import split, cex_si
+from tools.atlkPO.eval import split, cex_si, nfair_gamma_si
+
+from pynusmv.utils import fixpoint as fp
 
 
 class TestEval(unittest.TestCase):
@@ -33,19 +35,34 @@ class TestEval(unittest.TestCase):
         self.assertIsNotNone(fsm)
         return fsm
         
+    def cardgame_fair(self):
+        glob.load_from_file("tests/tools/atlkPO/cardgame-fair.smv")
+        fsm = glob.mas()
+        self.assertIsNotNone(fsm)
+        return fsm
+        
+    def trans2_fair(self):
+        glob.load_from_file("tests/tools/atlkPO/2-transmission-fair.smv")
+        fsm = glob.mas()
+        self.assertIsNotNone(fsm)
+        return fsm
+        
     def show_si(self, fsm, bdd):
-        sis = fsm.pick_all_states_inputs(bdd)
-        print("SI count:", len(sis))
-        for si in sis:
-            print(si.get_str_values())
+        if bdd.isnot_false():
+            sis = fsm.pick_all_states_inputs(bdd)
+            print("SI count:", len(sis))
+            for si in sis:
+                print(si.get_str_values())
             
     def show_s(self, fsm, bdd):
-        for s in fsm.pick_all_states(bdd):
-            print(s.get_str_values())
+        if bdd.isnot_false():
+            for s in fsm.pick_all_states(bdd):
+                print(s.get_str_values())
             
     def show_i(self, fsm, bdd):
-        for i in fsm.pick_all_inputs(bdd):
-            print(i.get_str_values())
+        if bdd.isnot_false():
+            for i in fsm.pick_all_inputs(bdd):
+                print(i.get_str_values())
 
 
     def test_split(self):
@@ -114,3 +131,87 @@ class TestEval(unittest.TestCase):
         self.assertFalse(pk & dq & s1 & pas & fsm.reachable_states <= cex_si(fsm, {'player'}, fsm.reachable_states & win, pak))
         self.assertTrue(pa & dq & s1 & pas & fsm.reachable_states <= cex_si(fsm, {'player'}, fsm.reachable_states & win))
         self.assertFalse(pa & dq & s1 & pas & fsm.reachable_states <= cex_si(fsm, {'player'}, fsm.reachable_states & win, pak))
+        
+    
+    @unittest.skip
+    def test_nfair_gamma_si(self):
+        fsm = self.cardgame_fair()
+        
+        s0 = eval_simple_expression(fsm, "step = 0")
+        s1 = eval_simple_expression(fsm, "step = 1")
+        s2 = eval_simple_expression(fsm, "step = 2")
+        
+        pa = eval_simple_expression(fsm, "pcard = Ac")
+        pk = eval_simple_expression(fsm, "pcard = K")
+        pq = eval_simple_expression(fsm, "pcard = Q")
+        
+        da = eval_simple_expression(fsm, "dcard = Ac")
+        dk = eval_simple_expression(fsm, "dcard = K")
+        dq = eval_simple_expression(fsm, "dcard = Q")
+        
+        dda = eval_simple_expression(fsm, "ddcard = Ac")
+        ddk = eval_simple_expression(fsm, "ddcard = K")
+        ddq = eval_simple_expression(fsm, "ddcard = Q")
+        
+        pan = eval_simple_expression(fsm, "player.action = none")
+        pak = eval_simple_expression(fsm, "player.action = keep")
+        pas = eval_simple_expression(fsm, "player.action = swap")
+        
+        dan = eval_simple_expression(fsm, "dealer.action = none")
+        
+        win = eval_simple_expression(fsm, "win")
+        lose = eval_simple_expression(fsm, "lose")
+        
+        true = eval_simple_expression(fsm, "TRUE")
+        false = eval_simple_expression(fsm, "FALSE")
+        
+        #for f in fsm.fairness_constraints:
+        #    print("new constraint")
+        #    self.show_si(fsm, ~f & s0 & fsm.protocol(fsm.agents))
+        
+        
+        agents = {'dealer'}
+        strats = split(fsm, fsm.protocol(agents), agents)
+        strat = strats.pop()
+        print("strat")
+        self.show_si(fsm, strat & s0)
+        nf = ~fsm.fairness_constraints[0]
+        print("fairness")
+        print(fsm.pick_one_state_inputs(fsm.fairness_constraints[0] & s0).get_str_values())
+        print("nf & pre(true)")
+        self.show_si(fsm, nf & fsm.pre_strat_si(BDD.true(fsm.bddEnc.DDmanager), agents, strat))
+        print("nf & pre(nf & pre(true))")
+        self.show_si(fsm, nf & fsm.pre_strat_si(nf & fsm.pre_strat_si(BDD.true(fsm.bddEnc.DDmanager), agents, strat), agents, strat))
+        print("test")
+        self.show_si(fsm, fp(lambda Y :
+                                         (nf) &
+                                         fsm.pre_strat_si(Y, agents, strat),
+                                         BDD.true(fsm.bddEnc.DDmanager)))
+        
+        nfp = nfair_gamma_si(fsm, {'player'})
+        nfd = nfair_gamma_si(fsm, {'dealer'})
+        
+        print("nfair player is", nfp.isnot_false())
+        self.show_si(fsm, nfp)
+        print("nfair dealer is", nfd.isnot_false())
+        self.show_si(fsm, nfd)
+        
+        
+    def test_nfair_gamma(self):
+        from tools.atlkFO.eval import fair_gamma_states
+        fsm = self.trans2_fair()
+        print("fair_[sender] states")
+        self.show_si(fsm, fair_gamma_states(fsm, {'sender'}))
+        
+        print("nfair_[transmitter] SI without strategies")
+        self.show_si(fsm, nfair_gamma_si(fsm, {'transmitter'}) &
+                          fsm.protocol({'transmitter','sender'}))
+        
+        print("nfair_[sender] SI without strategies")
+        self.show_si(fsm, nfair_gamma_si(fsm, {'sender'}))
+        
+        strats = split(fsm, fsm.protocol({'transmitter'}), {'transmitter'})
+        strat = strats.pop()
+        print("nfair_[transmitter] SI in a uniform strategy")
+        self.show_si(fsm, nfair_gamma_si(fsm, {'transmitter'}, strat))
+        

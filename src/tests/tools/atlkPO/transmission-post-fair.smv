@@ -1,0 +1,40 @@
+--- One bit transmission
+---
+--- Simon Busard <simon.busard@uclouvain.be>, 23/03/13
+
+MODULE Sender()
+
+    IVAR   action : {send, wait};
+    
+    --- Protocol: nothing, can always do both actions
+
+
+MODULE Transmitter()
+    
+    IVAR action : {transmit, block};
+    
+    --- Protocol: nothing, can always do both actions
+                
+
+MODULE main
+
+    VAR received : boolean;
+        sender : Sender();
+        transmitter : Transmitter();
+        sent : boolean;
+        waited : boolean;
+        transmitted : boolean;
+        blocked : boolean;
+        
+    INIT !received & !sent & !waited & !transmitted & !blocked
+    
+    TRANS next(received) = (sender.action = send & transmitter.action = transmit
+                            ? TRUE : received);
+                            
+    TRANS next(sent) = (sender.action = send)                        
+    TRANS next(waited) = (sender.action = wait)
+    TRANS next(transmitted) = (transmitter.action = transmit)
+    TRANS next(blocked) = (transmitter.action = block)
+                            
+
+FAIRNESS transmitted
