@@ -36,6 +36,13 @@ class TestMAS(unittest.TestCase):
         return fsm
         
         
+    def premod(self):
+        glob.load_from_file("tests/tools/mas/pre.smv")
+        fsm = glob.mas()
+        self.assertIsNotNone(fsm)
+        return fsm
+        
+        
     def test_pre(self):
         fsm = self.model()
         
@@ -365,3 +372,26 @@ class TestMAS(unittest.TestCase):
         
         self.assertTrue(fsm.init & fsm.protocol({'dealer'}) <= fsm.pre_strat_si(s1, {'dealer'}))
         self.assertTrue(fsm.init & daqa <= fsm.pre_strat_si(s1 & pq & da, {'dealer'}))
+        
+        
+    def test_premod_pre_strat_si(self):
+        fsm = self.premod()
+        
+        p = eval_simple_expression(fsm, "a.p = 1")
+        q = eval_simple_expression(fsm, "b.q = 1")
+        pa = eval_simple_expression(fsm, "a.a = 1")
+        qa = eval_simple_expression(fsm, "b.a = 1")
+        
+        aa = {'a'}
+        bb = {'b'}
+        ag = {'a', 'b'}
+        
+        self.assertEqual((~p & q) | (p & ~q & ~pa), fsm.pre_strat_si(~p & q, aa))
+        self.assertTrue(fsm.pre_strat_si(p, ag).is_false())
+        self.assertEqual(fsm.pre_strat_si(~p & q, bb), (~p & q) | (p & q & ~qa))
+        
+        strat = (pa)
+        
+        self.assertEqual((~p & q & pa), fsm.pre_strat_si(~p & q, aa, strat))
+        self.assertEqual(fsm.pre_strat_si(~p & q, bb, strat),
+                         pa & ((~p & q) | (p & q & ~qa)))

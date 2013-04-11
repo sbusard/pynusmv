@@ -1,0 +1,36 @@
+--- Little example with two agents
+---
+--- Simon Busard <simon.busard@uclouvain.be>, 28/03/13
+
+MODULE AA()
+
+    IVAR a : 0..1;
+    VAR  p : 0..1;
+    
+    --- Protocol : nothing needed, can do anything any time
+              
+    TRANS
+    next(p) = 0
+
+
+MODULE BB(p, pa)
+    
+    IVAR a : 0..1;
+    VAR  q : 0..1;
+    
+    --- Protocol : nothing needed, can do anything any time
+              
+    TRANS
+    next(q) = case (p = 1 & q = 1 & a = 0)  : 1;
+                   (p = 1 & q = 1 & a = 1)  : 0;
+                   (p = 1 & q = 0 & pa = 0) : 1;
+                   (p = 1 & q = 0 & pa = 1) : 0;
+                   TRUE             : q;
+              esac
+              
+MODULE main
+
+    VAR a : AA();
+        b : BB(a.p, a.a);
+        
+    INIT a.p = 1
