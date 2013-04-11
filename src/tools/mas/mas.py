@@ -137,25 +137,29 @@ class MAS(BddFsm):
         return self.bddEnc.cube_for_inputs_vars(gamma_inputs)
         
         
-    def pre_strat(self, states, agents):
+    def pre_strat(self, states, agents, strat=None):
         """
         Return the set of states s of this MAS such that there exists values
         of input variables of the agents such that for all values of input
         variables of the other agents, all successors of s through these inputs
         belong to states.
+        If strat is not None, restrict to strat.
         
         states -- a BDD representing a set of states of this MAS;
-        agents -- a set of agents names, agents of this MAS.
+        agents -- a set of agents names, agents of this MAS;
+        strat -- a BDD representing allowed state/inputs pairs, or None.
         
         """
+        if not strat:
+            strat = BDD.true(self.bddEnc.DDmanager)
         gamma_inputs = [agent+"."+var
                          for agent in agents
                          for var in self.agents_inputvars[agent]]
         gamma_cube = self.bddEnc.cube_for_inputs_vars(gamma_inputs)
         ngamma_cube = self.bddEnc.inputsCube - gamma_cube
         
-        return (~(self.weak_pre(~states).forsome(ngamma_cube)) & 
-                self.weak_pre(states)).forsome(self.bddEnc.inputsCube)
+        return ((~(self.weak_pre(~states).forsome(ngamma_cube)) & 
+                self.weak_pre(states)) & strat).forsome(self.bddEnc.inputsCube)
                 
                 
     def pre_nstrat(self, states, agents):
@@ -175,7 +179,7 @@ class MAS(BddFsm):
     def pre_strat_si(self, states, agents, strat=None):
         """
         Return the set of state/inputs pairs <s,i_agents> of this MAS such that
-        for all values of input variables of the other agents i_nagents,
+        there exist values of input variables of the agents i_agents,
         all successors of s through i_agents U i_nagents belong to states.
         Restrict to strat if not None.
         
