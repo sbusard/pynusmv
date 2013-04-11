@@ -229,11 +229,11 @@ def eg(fsm, phi):
     def inner(Z):
         res = Z
         for f in fsm.fairness_constraints:
-            res = res & fixpoint(lambda Y : (Z & f) | (phi & fsm.weak_pre(Y)),
+            res = res & fp(lambda Y : (Z & f) | (phi & fsm.weak_pre(Y)),
                                  BDD.false(fsm.bddEnc.DDmanager))
         return phi & fsm.weak_pre(res)
         
-    r = fixpoint(inner, BDD.true(fsm.bddEnc.DDmanager))
+    r = fp(inner, BDD.true(fsm.bddEnc.DDmanager))
     return r.forsome(fsm.bddEnc.inputsCube)
     
     
@@ -245,7 +245,7 @@ def eu(fsm, phi, psi):
     phi -- a BDD representing the set of states of fsm satisfying phi
     psi -- a BDD representing the set of states of fsm satisfying psi
     """
-    return fixpoint(lambda X : (psi & fair_states(fsm) & fsm.reachable_states) |
+    return fp(lambda X : (psi & fair_states(fsm) & fsm.reachable_states) |
                                (phi & ex(fsm, X)),
                     BDD.false(fsm.bddEnc.DDmanager))
     
