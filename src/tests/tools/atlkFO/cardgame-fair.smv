@@ -10,7 +10,7 @@ MODULE Player(step, pcard, ddcard)
         
     IVAR action : {none, keep, swap};
     
-    --- Protocole
+    --- Protocol
     TRANS
     action in case step = 1  : {keep, swap};
                    step != 1 : {none};
@@ -25,7 +25,7 @@ MODULE Dealer(step, dcard, pcard)
     
     IVAR action : {none, dealAK, dealAQ, dealKA, dealKQ, dealQA, dealQK};
     
-    --- Protocole
+    --- Protocol
     TRANS
     action in case step = 0  : {dealAK, dealAQ, dealKA, dealKQ, dealQA, dealQK};
                    step != 0 : {none};
@@ -45,7 +45,7 @@ MODULE main
     INIT step = 0 & pcard = none & dcard = none & ddcard = none
     
     TRANS
-    next(step) = step + 1 mod 2
+    next(step) = (step + 1) mod 3
     
     TRANS
     next(pcard) = case step = 0 : case dealer.action in {dealAK, dealAQ} : Ac;
@@ -65,21 +65,23 @@ MODULE main
                                         esac;
                                        player.action = none : none;
                                   esac;
-                       step = 2 : pcard;
+                       step = 2 : none;
                   esac
                   
     TRANS              
-    next(dcard) = case step != 0 : dcard;
-                       step = 0  : case dealer.action in {dealKA, dealQA} : Ac;
+    next(dcard) = case step = 0  : case dealer.action in {dealKA, dealQA} : Ac;
                                         dealer.action in {dealAK, dealQK} : K;
                                         dealer.action in {dealKQ, dealAQ} : Q;
                                         dealer.action = none             : none;
                                    esac;
+                       step = 1  : dcard;
+                       step = 2  : none;
                   esac
     
     TRANS
-    next(ddcard) = case step != 1 : ddcard;
+    next(ddcard) = case step = 0  : none;
                         step = 1  : dcard;
+                        step = 2  : none;
                    esac
                    
     
