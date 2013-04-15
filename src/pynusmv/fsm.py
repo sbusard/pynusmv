@@ -290,7 +290,7 @@ class BddFsm(PointerWrapper):
         inputs = bddFsm.BddFsm_states_to_states_get_inputs(self._ptr,
                                                            current._ptr,
                                                            next._ptr)
-        return Inputs(inputs, self, freeit = True)
+        return BDD(inputs, self.bddEnc.DDmanager, freeit = True)
         
         
     def count_states(self, bdd):
@@ -361,6 +361,8 @@ class BddFsm(PointerWrapper):
         
         # Apply mask
         bdd = bdd.forsome(self.bddEnc.statesCube) & self.bddEnc.inputsMask
+        if bdd.is_false():
+            return frozenset()
         # Get all inputs
         (err, t) = bddEnc.pick_all_terms_inputs(self.bddEnc._ptr, bdd._ptr)
         if err:
@@ -390,8 +392,7 @@ class BddFsm(PointerWrapper):
         bdd = bdd & self.bddEnc.inputsMask & self.bddEnc.statesMask
         
         if bdd.is_false():
-            raise NuSMVBddPickingError("Cannot pick all state/inputs pairs "
-                                       "from FALSE BDD.")
+            return frozenset()
         
         # Get all states inputs
         (err, t) = bddEnc.pick_all_terms_states_inputs(self.bddEnc._ptr,
