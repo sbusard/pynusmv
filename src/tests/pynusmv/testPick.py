@@ -8,7 +8,7 @@ from pynusmv.mc import eval_simple_expression
 from pynusmv.nusmv.dd import dd as nsdd
 
 
-class TestEval(unittest.TestCase):
+class TestPick(unittest.TestCase):
     
     def setUp(self):
         init_nusmv()
