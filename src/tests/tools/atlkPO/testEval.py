@@ -24,37 +24,37 @@ class TestEval(unittest.TestCase):
     
     
     def little(self):
-        glob.load_from_file("tests/tools/atlkPO/little.smv")
+        glob.load_from_file("tests/tools/atlkPO/models/little.smv")
         fsm = glob.mas()
         self.assertIsNotNone(fsm)
         return fsm
         
     def cardgame(self):
-        glob.load_from_file("tests/tools/atlkPO/cardgame.smv")
+        glob.load_from_file("tests/tools/atlkPO/models/cardgame.smv")
         fsm = glob.mas()
         self.assertIsNotNone(fsm)
         return fsm
         
     def cardgame_fair(self):
-        glob.load_from_file("tests/tools/atlkPO/cardgame-fair.smv")
+        glob.load_from_file("tests/tools/atlkPO/models/cardgame-fair.smv")
         fsm = glob.mas()
         self.assertIsNotNone(fsm)
         return fsm
         
     def cardgame_post_fair(self):
-        glob.load_from_file("tests/tools/atlkPO/cardgame-post-fair.smv")
+        glob.load_from_file("tests/tools/atlkPO/models/cardgame-post-fair.smv")
         fsm = glob.mas()
         self.assertIsNotNone(fsm)
         return fsm
         
     def transmission_post_fair(self):
-        glob.load_from_file("tests/tools/atlkPO/transmission-post-fair.smv")
+        glob.load_from_file("tests/tools/atlkPO/models/transmission-post-fair.smv")
         fsm = glob.mas()
         self.assertIsNotNone(fsm)
         return fsm
         
     def trans2_fair(self):
-        glob.load_from_file("tests/tools/atlkPO/2-transmission-fair.smv")
+        glob.load_from_file("tests/tools/atlkPO/models/2-transmission-fair.smv")
         fsm = glob.mas()
         self.assertIsNotNone(fsm)
         return fsm

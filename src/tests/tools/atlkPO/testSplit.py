@@ -22,7 +22,7 @@ class TestSplit(unittest.TestCase):
     
     
     def little(self):
-        glob.load_from_file("tests/tools/atlkPO/little.smv")
+        glob.load_from_file("tests/tools/atlkPO/models/little.smv")
         fsm = glob.mas()
         self.assertIsNotNone(fsm)
         return fsm
