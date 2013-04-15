@@ -16,7 +16,7 @@ def check(mas, spec):
     
     """
     sat = evalATLK(mas, spec)
-    return (~sat & mas.init).is_false()
+    return (~sat & mas.bddEnc.statesInputsMask & mas.init).is_false()
     
 def process(allargs):
     """
