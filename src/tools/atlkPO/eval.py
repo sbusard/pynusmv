@@ -183,13 +183,13 @@ def ceu(fsm, agents, phi, psi, strat=None):
     psi -- a BDD representing the set of states of fsm satisfying psi
     strat -- a BDD representing allowed state/inputs pairs, or None
     
-    """    
-    nfair = nfair_gamma(fsm, agents, strat)
+    """
     
     if len(fsm.fairness_constraints) == 0:
         return fp(lambda Z : psi | (phi & fsm.pre_strat(Z, agents, strat)),
-                  BDD.true(fsm.bddEnc.DDmanager))
+                  BDD.false(fsm.bddEnc.DDmanager))
     else:
+        nfair = nfair_gamma(fsm, agents, strat)
         def inner(Z):
             res = psi
             for f in fsm.fairness_constraints:
@@ -199,7 +199,7 @@ def ceu(fsm, agents, phi, psi, strat=None):
                                              (Z | nf) &
                                              (psi |
                                               fsm.pre_strat(Y, agents, strat)),
-                                                 BDD.true(fsm.bddEnc.DDmanager)),
+                                             BDD.true(fsm.bddEnc.DDmanager)),
                                               agents, strat)
             return (psi | phi | nfair) & res
         return fp(inner, BDD.false(fsm.bddEnc.DDmanager))
@@ -280,8 +280,6 @@ def cex_si(fsm, agents, phi, strat=None):
     phi -- a BDD representing the set of states of fsm satisfying phi
     strat -- a BDD representing allowed state/inputs pairs, or None
     """
-    if not strat:
-        strat = BDD.true(fsm.bddEnc.DDmanager)
         
     return fsm.pre_strat_si(phi | nfair_gamma_si(fsm, agents, strat),
                             agents, strat)
@@ -300,30 +298,23 @@ def ceu_si(fsm, agents, phi, psi, strat=None):
     strat -- a BDD representing allowed state/inputs pairs, or None
     
     """
-    if not strat:
-        strat = BDD.true(fsm.bddEnc.DDmanager)
-        
-    phi = phi & fsm.protocol(agents)
-    psi = psi & fsm.protocol(agents)
-    
-    nfair = nfair_gamma_si(fsm, agents, strat) & fsm.protocol(agents)
-    
     if len(fsm.fairness_constraints) == 0:
         return fp(lambda Z : psi | (phi & fsm.pre_strat_si(Z, agents, strat)),
-                  BDD.true(fsm.bddEnc.DDmanager))
+                  BDD.false(fsm.bddEnc.DDmanager))
     else:
+        nfair = nfair_gamma_si(fsm, agents, strat)
         def inner(Z):
             res = psi
             for f in fsm.fairness_constraints:
-                f = f & fsm.protocol(agents)
+                nf = ~f
                 res = res | fsm.pre_strat_si(fp(lambda Y :
                                                  (phi | psi | nfair) &
-                                                 (Z | f) &
+                                                 (Z | nf) &
                                                  (psi |
                                                   fsm.pre_strat_si(Y, agents,
                                                                    strat)
                                                  ),
-                                                 BDD.true(fsm.bddEnc.DDmanager)),
+                                              BDD.true(fsm.bddEnc.DDmanager)),
                                               agents, strat)
             return (psi | phi | nfair) & res
         return fp(inner, BDD.false(fsm.bddEnc.DDmanager))
@@ -342,13 +333,8 @@ def cew_si(fsm, agents, phi, psi, strat=None):
     strat -- a BDD representing allowed state/inputs pairs, or None
     
     """
-    if not strat:
-        strat = BDD.true(fsm.bddEnc.DDmanager)
-        
-    phi = phi & fsm.protocol(agents)
-    psi = psi & fsm.protocol(agents)
     
-    nfair = nfair_gamma_si(fsm, agents, strat) & fsm.protocol(agents)
+    nfair = nfair_gamma_si(fsm, agents, strat)
     
     return fp(lambda Y : (psi | phi | nfair) &
                          (psi | fsm.pre_strat_si(Y, agents, strat)),
@@ -367,12 +353,7 @@ def ceg_si(fsm, agents, phi, strat=None):
     strat -- a BDD representing allowed state/inputs pairs, or None
     
     """
-    if not strat:
-        strat = BDD.true(fsm.bddEnc.DDmanager)
-        
-    phi = phi & fsm.protocol(agents)
-    
-    nfair = nfair_gamma_si(fsm, agents, strat) & fsm.protocol(agents)
+    nfair = nfair_gamma_si(fsm, agents, strat)
     
     return fp(lambda Y : (phi | nfair) & fsm.pre_strat_si(Y, agents, strat),
               BDD.true(fsm.bddEnc.DDmanager))
@@ -388,23 +369,20 @@ def nfair_gamma_si(fsm, agents, strat=None):
     agents -- a list of agents names
     strat -- a BDD representing allowed state/inputs pairs, or None
     
-    """
-    if not strat:
-        strat = BDD.true(fsm.bddEnc.DDmanager)
-    
+    """    
     if len(fsm.fairness_constraints) == 0:
         return BDD.false(fsm.bddEnc.DDmanager)
     else:
         def inner(Z):
             res = BDD.false(fsm.bddEnc.DDmanager)
             for f in fsm.fairness_constraints:
-                nf = ~f & fsm.protocol(agents)
+                nf = ~f
                 res = res | fsm.pre_strat_si(fp(lambda Y :
                                                  (Z | nf) &
                                                  fsm.pre_strat_si(Y, agents,
                                                                   strat),
-                                                 BDD.true(fsm.bddEnc.DDmanager)),
-                                              agents, strat)
+                                             BDD.true(fsm.bddEnc.DDmanager)),
+                                             agents, strat)
             return res
         return fp(inner, BDD.false(fsm.bddEnc.DDmanager))
     
@@ -522,7 +500,7 @@ def eval_strat(fsm, spec):
 
         elif type(spec) is CAF:
             # [g] F p = ~<g> G ~p
-            winning = ~ceg_si(fsm, agents, ~evalATLK(fsm, spec.child), strat)
+            winning = ~ceg(fsm, agents, ~evalATLK(fsm, spec.child), strat)
 #            winning = ~(ceg_si(fsm, agents,
 #                               ~evalATLK(fsm, spec.child), strat).forsome(
 #                        fsm.bddEnc.inputsCube))
@@ -548,19 +526,10 @@ def eval_strat(fsm, spec):
                         
         # Complete sat with states for which all states belong to winning
         
-        #nfair = nfair_gamma_si(fsm, agents, strat)
-        #print("nfair is", nfair.isnot_false())
-        #if nfair.isnot_false():
-        #    for s in fsm.pick_all_states_inputs(nfair):
-        #        print(s.get_str_values())
         # wineq is the set of states for which all equiv states are in winning
-        wineq = ~(fsm.equivalent_states(~winning &
+        nwinning = ~winning & fsm.bddEnc.statesInputsMask
+        wineq = ~(fsm.equivalent_states(nwinning &
                   fsm.reachable_states, frozenset(agents))) & winning
-        #print("winning is", winning.isnot_false(), "(and equiv to wineq:", winning == wineq, ")")
-        #if winning.isnot_false():
-        #    for s in fsm.pick_all_states(winning):
-        #        print(s.get_str_values())
-        #        print(fsm.pick_one_state_inputs(strat & s).get_str_values())
         sat = sat | wineq
         
     return sat
