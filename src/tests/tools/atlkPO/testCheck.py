@@ -78,10 +78,31 @@ class TestCheck(unittest.TestCase):
 
     def test_cardgame(self):
         fsm = self.cardgame()
+        
         self.assertTrue(check(fsm, parseATLK("K<'player'>'pcard=none' & K<'player'>'dcard=none'")[0]))
         self.assertTrue(check(fsm, parseATLK("AG('step = 1' -> ~(K<'player'> 'dcard=Ac' | K<'player'> 'dcard=K' | K<'player'> 'dcard=Q'))")[0]))
         
         self.assertFalse(check(fsm, parseATLK("<'player'> F 'win'")[0]))
-        self.assertFalse(check(fsm, parseATLK("<'dealer'> X 'pcard=Ac'")[0]))
-        self.assertTrue(check(fsm, parseATLK("<'dealer'> G ~'win'")[0]))
+        self.assertTrue(check(fsm, parseATLK("<'dealer'> X 'pcard=Ac'")[0]))
+        self.assertFalse(check(fsm, parseATLK("<'dealer'> G ~'win'")[0]))
+        self.assertTrue(check(fsm, parseATLK("['player'] X 'pcard=Ac'")[0]))
+        self.assertTrue(check(fsm, parseATLK("['dealer'] F 'win'")[0]))
+        self.assertTrue(check(fsm, parseATLK("AG('step = 1' -> ~<'player'> X 'win')")[0]))
         
+    
+    def test_cardgame_post_fair(self):
+        fsm = self.cardgame_post_fair()
+        
+        self.assertTrue(check(fsm, parseATLK("K<'player'>'pcard=none' & K<'player'>'dcard=none'")[0]))
+        self.assertTrue(check(fsm, parseATLK("AG('step = 1' -> ~(K<'player'> 'dcard=Ac' | K<'player'> 'dcard=K' | K<'player'> 'dcard=Q'))")[0]))
+        
+        self.assertTrue(check(fsm, parseATLK("AG('step = 1' -> ~<'player'> X 'win')")[0]))
+        self.assertTrue(check(fsm, parseATLK("<'dealer'> X 'pcard=Ac'")[0]))
+        self.assertFalse(check(fsm, parseATLK("<'dealer'> G ~'win'")[0]))
+        self.assertTrue(check(fsm, parseATLK("['player'] X 'pcard=Ac'")[0]))
+        self.assertTrue(check(fsm, parseATLK("['dealer'] F 'win'")[0]))
+        
+        # Dealer can avoid fairness
+        self.assertTrue(check(fsm, parseATLK("<'dealer'> F 'FALSE'")[0]))
+        # Player can win
+        self.assertTrue(check(fsm, parseATLK("<'player'> F 'win'")[0]))

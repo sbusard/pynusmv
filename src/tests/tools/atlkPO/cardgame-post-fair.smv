@@ -1,6 +1,6 @@
 --- Simple card game
 ---
---- Simon Busard <simon.busard@uclouvain.be>, 19/03/13
+--- Simon Busard <simon.busard@uclouvain.be>, 11/04/13
 
 MODULE Player(step, pcard, ddcard)
     --- step is the id of the step in the game

@@ -8,7 +8,7 @@ from pynusmv.nusmv.dd import dd as nsdd
 
 from tools.mas import glob
 
-from tools.atlkPO.eval import split, cex_si, nfair_gamma_si
+from tools.atlkPO.eval import split, cex_si, nfair_gamma_si, nfair_gamma
 
 from pynusmv.utils import fixpoint as fp
 
@@ -37,6 +37,18 @@ class TestEval(unittest.TestCase):
         
     def cardgame_fair(self):
         glob.load_from_file("tests/tools/atlkPO/cardgame-fair.smv")
+        fsm = glob.mas()
+        self.assertIsNotNone(fsm)
+        return fsm
+        
+    def cardgame_post_fair(self):
+        glob.load_from_file("tests/tools/atlkPO/cardgame-post-fair.smv")
+        fsm = glob.mas()
+        self.assertIsNotNone(fsm)
+        return fsm
+        
+    def transmission_post_fair(self):
+        glob.load_from_file("tests/tools/atlkPO/transmission-post-fair.smv")
         fsm = glob.mas()
         self.assertIsNotNone(fsm)
         return fsm
@@ -197,7 +209,8 @@ class TestEval(unittest.TestCase):
         self.show_si(fsm, nfd)
         
         
-    def test_nfair_gamma(self):
+    @unittest.skip
+    def test_nfair_gamma_si_trans2_fair(self):
         from tools.atlkFO.eval import fair_gamma_states
         fsm = self.trans2_fair()
         print("fair_[sender] states")
@@ -215,3 +228,52 @@ class TestEval(unittest.TestCase):
         print("nfair_[transmitter] SI in a uniform strategy")
         self.show_si(fsm, nfair_gamma_si(fsm, {'transmitter'}, strat))
         
+    
+    def test_nfair_gamma(self):
+        fsm = self.transmission_post_fair()
+        
+        transmit = eval_simple_expression(fsm, "transmitter.action = transmit")
+        false = BDD.false(fsm.bddEnc.DDmanager)
+        
+        self.assertTrue(fsm.reachable_states <= nfair_gamma(fsm, {'transmitter'}))
+        
+        self.assertEqual(false, nfair_gamma(fsm, {'sender'}))
+        
+        strats = split(fsm, fsm.protocol({'transmitter'}), {'transmitter'})
+        for strat in strats:
+            if (strat & transmit).isnot_false():
+                self.assertTrue(nfair_gamma(fsm, {'transmitter'}, strat).is_false())
+            else:
+                self.assertTrue(fsm.reachable_states <= nfair_gamma(fsm, {'transmitter'}, strat))
+                
+                
+    def test_nfair_gamma_cardgame_post_fair(self):
+        fsm = self.cardgame_post_fair()
+        
+        false = BDD.false(fsm.bddEnc.DDmanager)
+        
+        self.assertTrue(fsm.reachable_states <= nfair_gamma(fsm, {'dealer'}))
+        
+        strats = split(fsm, fsm.protocol({'dealer'}), {'dealer'})
+        for strat in strats:
+            print("a new strategy")
+            self.show_si(fsm, strat)
+            f = fsm.fairness_constraints.pop()
+            nf = ~f
+            print("fairness constraint")
+            self.show_s(fsm, f)
+            print("nf & pre(true)")
+            self.show_s(fsm, nf &
+              fsm.pre_strat(BDD.true(fsm.bddEnc.DDmanager), {'dealer'}, strat))
+            print("nf & pre(nf & pre(true))")
+            self.show_s(fsm, nf &
+              fsm.pre_strat(nf &
+                fsm.pre_strat(BDD.true(fsm.bddEnc.DDmanager), {'dealer'}, strat), {'dealer'}, strat))
+            print("nf & pre(nf & pre(nf & pre(true)))")
+            self.show_s(fsm, nf &
+              fsm.pre_strat(nf &
+                fsm.pre_strat(nf &
+                  fsm.pre_strat(BDD.true(fsm.bddEnc.DDmanager), {'dealer'}, strat), {'dealer'}, strat), {'dealer'}, strat))
+            print("nfair_[dealer] for this strategy")
+            self.show_s(fsm, nfair_gamma(fsm, {'dealer'}, strat))
+            self.assertTrue(fsm.reachable_states <= nfair_gamma(fsm, {'dealer'}, strat))

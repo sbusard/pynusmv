@@ -13,8 +13,7 @@ from ..atlkFO.ast import (TrueExp, FalseExp, Init, Reachable,
                           CEF, CEG, CEX, CEU, CEW, CAF, CAG, CAX, CAU, CAW)
                           
 
-from ..atlkFO.eval import (fair_states, ex, eg, eu, nk, ne, nd, nc,
-                           fair_gamma_states)
+from ..atlkFO.eval import (fair_states, ex, eg, eu, nk, ne, nd, nc)
 
 
 def evalATLK(fsm, spec):
@@ -166,10 +165,7 @@ def cex(fsm, agents, phi, strat=None):
     agents -- a list of agents names
     phi -- a BDD representing the set of states of fsm satisfying phi
     strat -- a BDD representing allowed state/inputs pairs, or None
-    """
-    if not strat:
-        strat = BDD.true(fsm.bddEnc.DDmanager)
-        
+    """        
     nfair = nfair_gamma(fsm, agents, strat)
     
     return fsm.pre_strat(phi | nfair, agents, strat)
@@ -187,10 +183,7 @@ def ceu(fsm, agents, phi, psi, strat=None):
     psi -- a BDD representing the set of states of fsm satisfying psi
     strat -- a BDD representing allowed state/inputs pairs, or None
     
-    """
-    if not strat:
-        strat = BDD.true(fsm.bddEnc.DDmanager)
-    
+    """    
     nfair = nfair_gamma(fsm, agents, strat)
     
     if len(fsm.fairness_constraints) == 0:
@@ -224,10 +217,7 @@ def cew(fsm, agents, phi, psi, strat=None):
     psi -- a BDD representing the set of states of fsm satisfying psi
     strat -- a BDD representing allowed state/inputs pairs, or None
     
-    """
-    if not strat:
-        strat = BDD.true(fsm.bddEnc.DDmanager)
-    
+    """    
     nfair = nfair_gamma(fsm, agents, strat)
     
     return fp(lambda Y : (psi | phi | nfair) &
@@ -246,10 +236,7 @@ def ceg(fsm, agents, phi, strat=None):
     phi -- a BDD representing the set of states of fsm satisfying phi
     strat -- a BDD representing allowed state/inputs pairs, or None
     
-    """
-    if not strat:
-        strat = BDD.true(fsm.bddEnc.DDmanager)
-    
+    """    
     nfair = nfair_gamma(fsm, agents, strat)
     
     return fp(lambda Y : (phi | nfair) & fsm.pre_strat(Y, agents, strat),
@@ -266,10 +253,7 @@ def nfair_gamma(fsm, agents, strat=None):
     agents -- a list of agents names
     strat -- a BDD representing allowed state/inputs pairs, or None
     
-    """
-    if not strat:
-        strat = BDD.true(fsm.bddEnc.DDmanager)
-    
+    """    
     if len(fsm.fairness_constraints) == 0:
         return BDD.false(fsm.bddEnc.DDmanager)
     else:
@@ -415,7 +399,6 @@ def nfair_gamma_si(fsm, agents, strat=None):
             res = BDD.false(fsm.bddEnc.DDmanager)
             for f in fsm.fairness_constraints:
                 nf = ~f & fsm.protocol(agents)
-                print("nf is", nf.isnot_false())
                 res = res | fsm.pre_strat_si(fp(lambda Y :
                                                  (Z | nf) &
                                                  fsm.pre_strat_si(Y, agents,
