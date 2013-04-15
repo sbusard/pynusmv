@@ -277,20 +277,20 @@ class TestMAS(unittest.TestCase):
         true = eval_simple_expression(fsm, "TRUE")
         false = eval_simple_expression(fsm, "FALSE")
         
-        self.assertTrue(pa & dq & s2 & fsm.reachable_states <= fsm.pre_strat(pa & dq & s2 & fsm.reachable_states, {'player'}))
-        self.assertTrue(pa & dq & s1 & fsm.reachable_states <= fsm.pre_strat(pa & dq & s2 & fsm.reachable_states, {'player'}))
-        self.assertTrue(pk & dq & s1 & fsm.reachable_states <= fsm.pre_strat(pa & dq & s2 & fsm.reachable_states, {'player'}))
-        self.assertFalse(pk & da & s1 & fsm.reachable_states <= fsm.pre_strat(pa & dq & s2 & fsm.reachable_states, {'player'}))
+        self.assertTrue(pa & dq & s2 & fsm.reachable_states  & fsm.bddEnc.statesInputsMask <= fsm.pre_strat(pa & dq & s2 & fsm.reachable_states, {'player'}))
+        self.assertTrue(pa & dq & s1 & fsm.reachable_states  & fsm.bddEnc.statesInputsMask<= fsm.pre_strat(pa & dq & s2 & fsm.reachable_states, {'player'}))
+        self.assertTrue(pk & dq & s1 & fsm.reachable_states  & fsm.bddEnc.statesInputsMask<= fsm.pre_strat(pa & dq & s2 & fsm.reachable_states, {'player'}))
+        self.assertFalse(pk & da & s1 & fsm.reachable_states  & fsm.bddEnc.statesInputsMask<= fsm.pre_strat(pa & dq & s2 & fsm.reachable_states, {'player'}))
         
-        self.assertTrue(s1 & fsm.reachable_states <=
+        self.assertTrue(s1 & fsm.reachable_states  & fsm.bddEnc.statesInputsMask<=
                         fsm.pre_strat(win & fsm.reachable_states, {'player'}))
-        self.assertTrue(s1 & fsm.reachable_states <=
+        self.assertTrue(s1 & fsm.reachable_states  & fsm.bddEnc.statesInputsMask<=
                                                 fsm.pre_strat(lose, {'player'}))
         
-        self.assertTrue(fsm.init <= fsm.pre_strat(s1, {'dealer'}))
-        self.assertTrue(fsm.init <= fsm.pre_strat(s1 & pq & da, {'dealer'}))
+        self.assertTrue(fsm.init & fsm.bddEnc.statesInputsMask <= fsm.pre_strat(s1, {'dealer'}))
+        self.assertTrue(fsm.init & fsm.bddEnc.statesInputsMask <= fsm.pre_strat(s1 & pq & da, {'dealer'}))
         
-        self.assertFalse(fsm.init <= fsm.pre_strat(s1 & pq & da, {'player'}))
+        self.assertFalse(fsm.init & fsm.bddEnc.statesInputsMask <= fsm.pre_strat(s1 & pq & da, {'player'}))
         
     
     def test_simple(self):
@@ -354,24 +354,24 @@ class TestMAS(unittest.TestCase):
         true = eval_simple_expression(fsm, "TRUE")
         false = eval_simple_expression(fsm, "FALSE")
         
-        self.assertTrue(pa & dq & s2 & pan & fsm.reachable_states <= fsm.pre_strat_si(pa & dq & s2 & fsm.reachable_states, {'player'}))
-        self.assertTrue(pa & dq & s1 & pak & fsm.reachable_states <= fsm.pre_strat_si(pa & dq & s2 & fsm.reachable_states, {'player'}))
-        self.assertTrue(pk & dq & s1 & pas & fsm.reachable_states <= fsm.pre_strat_si(pa & dq & s2 & fsm.reachable_states, {'player'}))
-        self.assertFalse(pk & dq & s1 & pak & fsm.reachable_states <= fsm.pre_strat_si(pa & dq & s2 & fsm.reachable_states, {'player'}))
-        self.assertFalse(pk & da & s1 & fsm.reachable_states <= fsm.pre_strat_si(pa & dq & s2 & fsm.reachable_states, {'player'}))
+        self.assertTrue(pa & dq & s2 & pan & fsm.reachable_states & fsm.bddEnc.statesInputsMask <= fsm.pre_strat_si(pa & dq & s2 & fsm.reachable_states, {'player'}))
+        self.assertTrue(pa & dq & s1 & pak & fsm.reachable_states & fsm.bddEnc.statesInputsMask <= fsm.pre_strat_si(pa & dq & s2 & fsm.reachable_states, {'player'}))
+        self.assertTrue(pk & dq & s1 & pas & fsm.reachable_states & fsm.bddEnc.statesInputsMask <= fsm.pre_strat_si(pa & dq & s2 & fsm.reachable_states, {'player'}))
+        self.assertFalse(pk & dq & s1 & pak & fsm.reachable_states & fsm.bddEnc.statesInputsMask <= fsm.pre_strat_si(pa & dq & s2 & fsm.reachable_states, {'player'}))
+        self.assertFalse(pk & da & s1 & fsm.reachable_states & fsm.bddEnc.statesInputsMask <= fsm.pre_strat_si(pa & dq & s2 & fsm.reachable_states, {'player'}))
         
-        self.assertFalse(s1 & fsm.reachable_states <=
+        self.assertFalse(s1 & fsm.reachable_states & fsm.bddEnc.statesInputsMask <=
                          fsm.pre_strat_si(win & fsm.reachable_states, {'player'}))
-        self.assertFalse(s1 & fsm.reachable_states <=
+        self.assertFalse(s1 & fsm.reachable_states & fsm.bddEnc.statesInputsMask <=
                          fsm.pre_strat_si(lose, {'player'}))
                          
-        self.assertTrue(win & fsm.reachable_states & fsm.protocol({'player'}) <=
+        self.assertTrue(win & fsm.reachable_states & fsm.bddEnc.statesInputsMask & fsm.protocol({'player'}) <=
                         fsm.pre_strat_si(win & fsm.reachable_states, {'player'}))
-        self.assertTrue(s1 & pk & dq & pas & fsm.reachable_states <=
+        self.assertTrue(s1 & pk & dq & pas & fsm.reachable_states & fsm.bddEnc.statesInputsMask <=
                         fsm.pre_strat_si(lose, {'player'}))
         
-        self.assertTrue(fsm.init & fsm.protocol({'dealer'}) <= fsm.pre_strat_si(s1, {'dealer'}))
-        self.assertTrue(fsm.init & daqa <= fsm.pre_strat_si(s1 & pq & da, {'dealer'}))
+        self.assertTrue(fsm.init & fsm.protocol({'dealer'}) & fsm.bddEnc.statesInputsMask <= fsm.pre_strat_si(s1, {'dealer'}))
+        self.assertTrue(fsm.init & daqa & fsm.bddEnc.statesInputsMask <= fsm.pre_strat_si(s1 & pq & da, {'dealer'}))
         
         
     def test_premod_pre_strat_si(self):

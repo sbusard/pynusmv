@@ -118,8 +118,7 @@ class MAS(BddFsm):
             self._protocols[agents] = (self.weak_pre(self.reachable_states).
                                        forsome(ngamma_cube) &
                                        self.reachable_states &
-                                       self.bddEnc.inputsMask &
-                                       self.bddEnc.statesMask)
+                                       self.bddEnc.statesInputsMask)
                                        
         return self._protocols[agents]
         
@@ -152,14 +151,15 @@ class MAS(BddFsm):
         """
         if not strat:
             strat = BDD.true(self.bddEnc.DDmanager)
-        gamma_inputs = [agent+"."+var
-                         for agent in agents
-                         for var in self.agents_inputvars[agent]]
-        gamma_cube = self.bddEnc.cube_for_inputs_vars(gamma_inputs)
+        gamma_cube = self.inputs_cube_for_agents(agents)
         ngamma_cube = self.bddEnc.inputsCube - gamma_cube
         
-        return ((~(self.weak_pre(~states).forsome(ngamma_cube)) & 
+        nstates = ~states & self.bddEnc.statesInputsMask
+        strat = strat & self.bddEnc.statesInputsMask
+        
+        return (((~(self.weak_pre(nstates).forsome(ngamma_cube)) & 
                 self.weak_pre(states)) & strat).forsome(self.bddEnc.inputsCube)
+                & self.bddEnc.statesInputsMask)
                 
                 
     def pre_nstrat(self, states, agents):
@@ -190,12 +190,13 @@ class MAS(BddFsm):
         """
         if strat is None:
             strat = BDD.true(self.bddEnc.DDmanager)
-            
-        gamma_inputs = [agent+"."+var
-                         for agent in agents
-                         for var in self.agents_inputvars[agent]]
-        gamma_cube = self.bddEnc.cube_for_inputs_vars(gamma_inputs)
+        
+        gamma_cube = self.inputs_cube_for_agents(agents)
         ngamma_cube = self.bddEnc.inputsCube - gamma_cube
         
-        return (~(self.weak_pre(~states).forsome(ngamma_cube)) & 
-                self.weak_pre(states)).forsome(ngamma_cube) & strat
+        nstates = ~states & self.bddEnc.statesInputsMask
+        strat = strat & self.bddEnc.statesInputsMask
+        
+        return ((~(self.weak_pre(~states).forsome(ngamma_cube)) & 
+                self.weak_pre(states)).forsome(ngamma_cube) & strat &
+                self.bddEnc.statesInputsMask)
