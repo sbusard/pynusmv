@@ -394,4 +394,6 @@ class TestMAS(unittest.TestCase):
         
         self.assertEqual((~p & q & pa), fsm.pre_strat_si(~p & q, aa, strat))
         self.assertEqual(fsm.pre_strat_si(~p & q, bb, strat),
-                         pa & ((~p & q) | (p & q & ~qa)))
+                         ((~p & q) | (p & q & ~qa)) & strat)
+        self.assertEqual(fsm.pre_strat_si(~p & q, bb, qa),
+                         (~p & q & qa))

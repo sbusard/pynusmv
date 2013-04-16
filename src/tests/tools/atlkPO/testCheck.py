@@ -109,10 +109,10 @@ class TestCheck(unittest.TestCase):
         self.assertTrue(check(fsm, parseATLK("AG('step = 1' -> ~(K<'player'> 'dcard=Ac' | K<'player'> 'dcard=K' | K<'player'> 'dcard=Q'))")[0]))
         
         self.assertTrue(check(fsm, parseATLK("AG('step = 1' -> ~<'player'> X 'win')")[0]))
-        self.assertFalse(check(fsm, parseATLK("['dealer'] F 'win'")[0]))
         self.assertTrue(check(fsm, parseATLK("['player'] X 'pcard=Ac'")[0]))
         self.assertTrue(check(fsm, parseATLK("<'dealer'> X 'pcard=Ac'")[0]))
         self.assertTrue(check(fsm, parseATLK("<'dealer'> G ~'win'")[0]))
+        self.assertFalse(check(fsm, parseATLK("['dealer'] F 'win'")[0]))
         
         # Player can win
         self.assertTrue(check(fsm, parseATLK("<'player'> F 'win'")[0]))

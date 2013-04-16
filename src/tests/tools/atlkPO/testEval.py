@@ -150,7 +150,7 @@ class TestEval(unittest.TestCase):
         
     
     def test_nfair_gamma_si(self):
-        fsm = self.cardgame_fair()
+        fsm = self.cardgame_post_fair()
         
         s0 = eval_simple_expression(fsm, "step = 0")
         s1 = eval_simple_expression(fsm, "step = 1")
@@ -184,30 +184,15 @@ class TestEval(unittest.TestCase):
         agents = {'dealer'}
         strats = split(fsm, fsm.protocol(agents), agents)
         strat = strats.pop()
-        #print("strat")
-        #self.show_si(fsm, strat & s0)
-        nf = ~fsm.fairness_constraints[0]
-        #print("fairness")
-        #print(fsm.pick_one_state_inputs(fsm.fairness_constraints[0] & s0).get_str_values())
-        #print("nf & pre(true)")
-        #self.show_si(fsm, nf & fsm.pre_strat_si(BDD.true(fsm.bddEnc.DDmanager), agents, strat))
-        #print("nf & pre(nf & pre(true))")
-        #self.show_si(fsm, nf & fsm.pre_strat_si(nf & fsm.pre_strat_si(BDD.true(fsm.bddEnc.DDmanager), agents, strat), agents, strat))
-        #print("test")
-        #self.show_si(fsm, fp(lambda Y :
-        #                                 (nf) &
-        #                                 fsm.pre_strat_si(Y, agents, strat),
-        #                                 BDD.true(fsm.bddEnc.DDmanager)))
+        nf = ~fsm.fairness_constraints[0] & fsm.bddEnc.statesInputsMask
+        
+        self.assertEqual(nf & fsm.pre_strat_si(BDD.true(fsm.bddEnc.DDmanager), agents, strat), nf & fsm.pre_strat_si(BDD.true(fsm.bddEnc.DDmanager), agents, strat) & fsm.bddEnc.statesInputsMask)
         
         nfp = nfair_gamma_si(fsm, {'player'})
         nfd = nfair_gamma_si(fsm, {'dealer'})
         
-        #print("nfair player is", nfp.isnot_false())
-        #self.show_si(fsm, nfp)
-        #print("nfair dealer is", nfd.isnot_false())
-        #self.show_si(fsm, nfd)
-        
-        # TODO Write a test
+        self.assertTrue(nfp.is_false())
+        self.assertTrue(fsm.protocol({'dealer'}) <= nfd)
         
         
     def test_nfair_gamma_si_trans2_fair(self):
@@ -276,6 +261,8 @@ class TestEval(unittest.TestCase):
         
         true = eval_simple_expression(fsm, "TRUE")
         false = eval_simple_expression(fsm, "FALSE")
+        
+        self.assertEqual(false, nfair_gamma(fsm, {'player'}))
         
         self.assertTrue(fsm.reachable_states  & fsm.bddEnc.statesInputsMask <= nfair_gamma(fsm, {'dealer'}))
         

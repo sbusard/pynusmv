@@ -280,7 +280,11 @@ def cex_si(fsm, agents, phi, strat=None):
     phi -- a BDD representing the set of states of fsm satisfying phi
     strat -- a BDD representing allowed state/inputs pairs, or None
     """
-        
+    if not strat:
+        strat = BDD.true(fsm.bddEnc.DDmanager)
+    
+    phi = phi & fsm.bddEnc.statesInputsMask & strat
+    
     return fsm.pre_strat_si(phi | nfair_gamma_si(fsm, agents, strat),
                             agents, strat)
     
@@ -298,6 +302,12 @@ def ceu_si(fsm, agents, phi, psi, strat=None):
     strat -- a BDD representing allowed state/inputs pairs, or None
     
     """
+    if not strat:
+        strat = BDD.true(fsm.bddEnc.DDmanager)
+    
+    phi = phi & fsm.bddEnc.statesInputsMask & strat
+    psi = psi & fsm.bddEnc.statesInputsMask & strat
+    
     if len(fsm.fairness_constraints) == 0:
         return fp(lambda Z : psi | (phi & fsm.pre_strat_si(Z, agents, strat)),
                   BDD.false(fsm.bddEnc.DDmanager))
@@ -306,7 +316,7 @@ def ceu_si(fsm, agents, phi, psi, strat=None):
         def inner(Z):
             res = psi
             for f in fsm.fairness_constraints:
-                nf = ~f
+                nf = ~f & fsm.bddEnc.statesInputsMask
                 res = res | fsm.pre_strat_si(fp(lambda Y :
                                                  (phi | psi | nfair) &
                                                  (Z | nf) &
@@ -333,6 +343,11 @@ def cew_si(fsm, agents, phi, psi, strat=None):
     strat -- a BDD representing allowed state/inputs pairs, or None
     
     """
+    if not strat:
+        strat = BDD.true(fsm.bddEnc.DDmanager)
+    
+    phi = phi & fsm.bddEnc.statesInputsMask & strat
+    psi = psi & fsm.bddEnc.statesInputsMask & strat
     
     nfair = nfair_gamma_si(fsm, agents, strat)
     
@@ -353,6 +368,11 @@ def ceg_si(fsm, agents, phi, strat=None):
     strat -- a BDD representing allowed state/inputs pairs, or None
     
     """
+    if not strat:
+        strat = BDD.true(fsm.bddEnc.DDmanager)
+    
+    phi = phi & fsm.bddEnc.statesInputsMask & strat
+    
     nfair = nfair_gamma_si(fsm, agents, strat)
     
     return fp(lambda Y : (phi | nfair) & fsm.pre_strat_si(Y, agents, strat),
@@ -369,14 +389,17 @@ def nfair_gamma_si(fsm, agents, strat=None):
     agents -- a list of agents names
     strat -- a BDD representing allowed state/inputs pairs, or None
     
-    """    
+    """
+    if not strat:
+        strat = BDD.true(fsm.bddEnc.DDmanager)
+    
     if len(fsm.fairness_constraints) == 0:
         return BDD.false(fsm.bddEnc.DDmanager)
     else:
         def inner(Z):
             res = BDD.false(fsm.bddEnc.DDmanager)
             for f in fsm.fairness_constraints:
-                nf = ~f
+                nf = ~f & fsm.bddEnc.statesInputsMask & strat
                 res = res | fsm.pre_strat_si(fp(lambda Y :
                                                  (Z | nf) &
                                                  fsm.pre_strat_si(Y, agents,
@@ -443,86 +466,86 @@ def eval_strat(fsm, spec):
     strats = split(fsm, fsm.protocol(agents), agents)
     for strat in strats:
         if type(spec) is CEX:
-            winning = cex(fsm, agents, evalATLK(fsm, spec.child), strat)
-#            winning = cex_si(fsm, agents,
-#                             evalATLK(fsm, spec.child), strat).forsome(
-#                      fsm.bddEnc.inputsCube)
+#            winning = cex(fsm, agents, evalATLK(fsm, spec.child), strat)
+            winning = cex_si(fsm, agents,
+                             evalATLK(fsm, spec.child), strat).forsome(
+                      fsm.bddEnc.inputsCube)
 
         elif type(spec) is CAX:
             # [g] X p = ~<g> X ~p
-            winning = ~cex(fsm, agents, ~evalATLK(fsm, spec.child), strat)
-#            winning = ~(cex_si(fsm, agents,
-#                               ~evalATLK(fsm, spec.child), strat)).forsome(
-#                        fsm.bddEnc.inputsCube)
+#            winning = ~cex(fsm, agents, ~evalATLK(fsm, spec.child), strat)
+            winning = ~(cex_si(fsm, agents,
+                               ~evalATLK(fsm, spec.child), strat)).forsome(
+                        fsm.bddEnc.inputsCube)
 
         elif type(spec) is CEG:
-            winning = ceg(fsm, agents, evalATLK(fsm, spec.child), strat)
-#            winning = ceg_si(fsm, agents,
-#                             evalATLK(fsm, spec.child), strat).forsome(
-#                      fsm.bddEnc.inputsCube)
+#            winning = ceg(fsm, agents, evalATLK(fsm, spec.child), strat)
+            winning = ceg_si(fsm, agents,
+                             evalATLK(fsm, spec.child), strat).forsome(
+                      fsm.bddEnc.inputsCube)
 
         elif type(spec) is CAG:
             # [g] G p = ~<g> F ~p
-            winning= ~ceu(fsm, agents, BDD.true(fsm.bddEnc.DDmanager),
-                          ~evalATLK(fsm, spec.child), strat)
-#            winning= ~(ceu_si(fsm, agents,
-#                              BDD.true(fsm.bddEnc.DDmanager),
-#                              ~evalATLK(fsm, spec.child), strat).forsome(
-#                       fsm.bddEnc.inputsCube))
+#            winning= ~ceu(fsm, agents, BDD.true(fsm.bddEnc.DDmanager),
+#                          ~evalATLK(fsm, spec.child), strat)
+            winning= ~(ceu_si(fsm, agents,
+                              BDD.true(fsm.bddEnc.DDmanager),
+                              ~evalATLK(fsm, spec.child), strat).forsome(
+                       fsm.bddEnc.inputsCube))
 
         elif type(spec) is CEU:
-            winning = ceu(fsm, agents, evalATLK(fsm, spec.left),
-                          evalATLK(fsm, spec.right), strat)
-#            winning = ceu_si(fsm, agents,
-#                             evalATLK(fsm, spec.left),
-#                             evalATLK(fsm, spec.right), strat).forsome(
-#                      fsm.bddEnc.inputsCube)
+#            winning = ceu(fsm, agents, evalATLK(fsm, spec.left),
+#                          evalATLK(fsm, spec.right), strat)
+            winning = ceu_si(fsm, agents,
+                             evalATLK(fsm, spec.left),
+                             evalATLK(fsm, spec.right), strat).forsome(
+                      fsm.bddEnc.inputsCube)
 
         elif type(spec) is CAU:
             # [g][p U q] = ~<g>[ ~q W ~p & ~q ]
-            winning =  ~cew(fsm, agents, ~evalATLK(fsm, spec.right),
-                            ~evalATLK(fsm, spec.right) &
-                            ~evalATLK(fsm, spec.left), strat)
-#            winning =  ~(cew_si(fsm, agents,
-#                                ~evalATLK(fsm, spec.right),
-#                                ~evalATLK(fsm, spec.right) &
-#                                ~evalATLK(fsm, spec.left), strat).forsome(
-#                         fsm.bddEnc.inputsCube))
+#            winning =  ~cew(fsm, agents, ~evalATLK(fsm, spec.right),
+#                            ~evalATLK(fsm, spec.right) &
+#                            ~evalATLK(fsm, spec.left), strat)
+            winning =  ~(cew_si(fsm, agents,
+                                ~evalATLK(fsm, spec.right),
+                                ~evalATLK(fsm, spec.right) &
+                                ~evalATLK(fsm, spec.left), strat).forsome(
+                         fsm.bddEnc.inputsCube))
 
         elif type(spec) is CEF:
             # <g> F p = <g>[true U p]
-            winning = ceu(fsm, agents, BDD.true(fsm.bddEnc.DDmanager),
-                          evalATLK(fsm, spec.child), strat)
-#            winning = ceu_si(fsm, agents,
-#                             BDD.true(fsm.bddEnc.DDmanager),
-#                             evalATLK(fsm, spec.child), strat).forsome(
-#                      fsm.bddEnc.inputsCube)
+#            winning = ceu(fsm, agents, BDD.true(fsm.bddEnc.DDmanager),
+#                          evalATLK(fsm, spec.child), strat)
+            winning = ceu_si(fsm, agents,
+                             BDD.true(fsm.bddEnc.DDmanager),
+                             evalATLK(fsm, spec.child), strat).forsome(
+                      fsm.bddEnc.inputsCube)
 
         elif type(spec) is CAF:
             # [g] F p = ~<g> G ~p
-            winning = ~ceg(fsm, agents, ~evalATLK(fsm, spec.child), strat)
-#            winning = ~(ceg_si(fsm, agents,
-#                               ~evalATLK(fsm, spec.child), strat).forsome(
-#                        fsm.bddEnc.inputsCube))
+#            winning = ~ceg(fsm, agents, ~evalATLK(fsm, spec.child), strat)
+            winning = ~(ceg_si(fsm, agents,
+                               ~evalATLK(fsm, spec.child), strat).forsome(
+                        fsm.bddEnc.inputsCube))
 
         elif type(spec) is CEW:
-            winning = cew(fsm, agents, evalATLK(fsm, spec.left),
-                          evalATLK(fsm, spec.right), strat)
-#            winning = cew_si(fsm, agents,
-#                             evalATLK(fsm, spec.left),
-#                             evalATLK(fsm, spec.right), strat).forsome(
-#                      fsm.bddEnc.inputsCube)
+#            winning = cew(fsm, agents, evalATLK(fsm, spec.left),
+#                          evalATLK(fsm, spec.right), strat)
+           winning = cew_si(fsm, agents,
+                            evalATLK(fsm, spec.left),
+                            evalATLK(fsm, spec.right), strat).forsome(
+                     fsm.bddEnc.inputsCube)
 
         elif type(spec) is CAW:
             # [g][p W q] = ~<g>[~q U ~p & ~q]
-            winning = ~ceu(fsm, agents, ~evalATLK(fsm, spec.right),
-                           ~evalATLK(fsm, spec.right) &
-                           ~evalATLK(fsm, spec.left), strat)
-#            winning = ~(ceu_si(fsm, agents,
-#                               ~evalATLK(fsm, spec.right),
-#                               ~evalATLK(fsm, spec.right) &
-#                               ~evalATLK(fsm, spec.left), strat).forsome(
-#                        fsm.bddEnc.inputsCube))
+#            winning = ~ceu(fsm, agents, ~evalATLK(fsm, spec.right),
+#                           ~evalATLK(fsm, spec.right) &
+#                           ~evalATLK(fsm, spec.left), strat)
+            winning = ~(ceu_si(fsm, agents,
+                               ~evalATLK(fsm, spec.right),
+                               ~evalATLK(fsm, spec.right) &
+                               ~evalATLK(fsm, spec.left), strat).forsome(
+                        fsm.bddEnc.inputsCube))
                         
         # Complete sat with states for which all states belong to winning
         

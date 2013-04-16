@@ -151,15 +151,25 @@ class MAS(BddFsm):
         """
         if not strat:
             strat = BDD.true(self.bddEnc.DDmanager)
+            
         gamma_cube = self.inputs_cube_for_agents(agents)
         ngamma_cube = self.bddEnc.inputsCube - gamma_cube
         
         nstates = ~states & self.bddEnc.statesInputsMask
         strat = strat & self.bddEnc.statesInputsMask
         
-        return (((~(self.weak_pre(nstates).forsome(ngamma_cube)) & 
-                self.weak_pre(states)) & strat).forsome(self.bddEnc.inputsCube)
-                & self.bddEnc.statesInputsMask)
+        return (
+                ( ~(
+                    self.weak_pre(nstates).forsome(ngamma_cube)
+                  )
+                  & 
+                  self.weak_pre(states)
+                ).forsome(ngamma_cube)
+                &
+                strat
+                &
+                self.bddEnc.statesInputsMask
+               ).forsome(self.bddEnc.inputsCube)
                 
                 
     def pre_nstrat(self, states, agents):
@@ -194,9 +204,19 @@ class MAS(BddFsm):
         gamma_cube = self.inputs_cube_for_agents(agents)
         ngamma_cube = self.bddEnc.inputsCube - gamma_cube
         
+        states = states.forsome(self.bddEnc.inputsCube)
         nstates = ~states & self.bddEnc.statesInputsMask
         strat = strat & self.bddEnc.statesInputsMask
-        
-        return ((~(self.weak_pre(~states).forsome(ngamma_cube)) & 
-                self.weak_pre(states)).forsome(ngamma_cube) & strat &
-                self.bddEnc.statesInputsMask)
+                
+        return (
+                ( ~(
+                    self.weak_pre(nstates).forsome(ngamma_cube)
+                  )
+                  & 
+                  self.weak_pre(states)
+                ).forsome(ngamma_cube)
+                &
+                strat
+                &
+                self.bddEnc.statesInputsMask
+               )
