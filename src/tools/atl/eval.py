@@ -48,56 +48,56 @@ def evalATL(fsm, spec):
         return (l & r) | ((~l) & (~r))
                    
     elif type(spec) is CEX:
-        # <g> X p = ~[g] X ~p
-        return ~cax(fsm, {atom.value for atom in spec.group},
-                         ~evalATL(fsm, spec.child))
+        return cex(fsm, {atom.value for atom in spec.group},
+                   evalATL(fsm, spec.child))
         
     elif type(spec) is CAX:
-        return cax(fsm, {atom.value for atom in spec.group},
-                        evalATL(fsm, spec.child))
+        # [g] X p = ~<g> X ~p
+        return ~cex(fsm, {atom.value for atom in spec.group},
+                    ~evalATL(fsm, spec.child))
         
     elif type(spec) is CEG:
-        # <g> G p = ~[g] F ~p
-        return ~cau(fsm, {atom.value for atom in spec.group},
+        return ceg(fsm, {atom.value for atom in spec.group},
+                   evalATL(fsm, spec.child))
+        
+    elif type(spec) is CAG:
+        # [g] G p = ~<g> F ~p
+        return ~ceu(fsm, {atom.value for atom in spec.group},
                     BDD.true(fsm.bddEnc.DDmanager),
                     ~evalATL(fsm, spec.child))
         
-    elif type(spec) is CAG:
-        return cag(fsm, {atom.value for atom in spec.group},
-                        evalATL(fsm, spec.child))
-        
     elif type(spec) is CEU:
-        # <g> p U q = ~[g][ ~q W ~p & ~q ]
-        return ~caw(fsm, {atom.value for atom in spec.group},
+        return ceu(fsm, {atom.value for atom in spec.group},
+                   evalATL(fsm, spec.left),
+                   evalATL(fsm, spec.right))
+        
+    elif type(spec) is CAU:
+        # [g] p U q = ~<g>[ ~q W ~p & ~q ]
+        return ~cew(fsm, {atom.value for atom in spec.group},
                     ~evalATL(fsm, spec.right),
                     ~evalATL(fsm, spec.right) & ~evalATL(fsm, spec.left))
         
-    elif type(spec) is CAU:
-        return cau(fsm, {atom.value for atom in spec.group},
-                        evalATL(fsm, spec.left),
-                        evalATL(fsm, spec.right))
-        
     elif type(spec) is CEF:
-        # <g> F p = ~[g] G ~p
-        return ~cag(fsm, {atom.value for atom in spec.group},
-                         ~evalATL(fsm, spec.child))    
+        # <g> F p = <g>[true U p]
+        return ceu(fsm, {atom.value for atom in spec.group},
+                   BDD.true(fsm.bddEnc.DDmanager),
+                   evalATL(fsm, spec.child))
         
     elif type(spec) is CAF:
-        # [g] F p = [g][true U p]
-        return cau(fsm, {atom.value for atom in spec.group},
-                        BDD.true(fsm.bddEnc.DDmanager),
-                        evalATL(fsm, spec.child))
+        # [g] F p = ~<g> G ~p
+        return ~ceg(fsm, {atom.value for atom in spec.group},
+                    ~evalATL(fsm, spec.child))
         
     elif type(spec) is CEW:
-        # <g>[p W q] = ~[g][~q U ~p & ~q]
-        return ~cau(fsm, {atom.value for atom in spec.group},
-                         ~evalATL(fsm, spec.right),
-                         ~evalATL(fsm, spec.right) & ~evalATLK(fsm, spec.left))
+        return cew(fsm, {atom.value for atom in spec.group},
+                   evalATL(fsm, spec.left),
+                   evalATL(fsm, spec.right))
         
     elif type(spec) is CAW:
-        return caw(fsm, {atom.value for atom in spec.group},
-                        evalATL(fsm, spec.left),
-                        evalATL(fsm, spec.right))
+        # [g][p W q] = ~<g>[~q U ~p & ~q]
+        return ~ceu(fsm, {atom.value for atom in spec.group},
+                    ~evalATL(fsm, spec.right),
+                    ~evalATL(fsm, spec.right) & ~evalATLK(fsm, spec.left))
         
     else:
         # TODO Generate error
@@ -105,50 +105,50 @@ def evalATL(fsm, spec):
         return None
               
               
-def cax(fsm, agents, phi):
+def cex(fsm, agents, phi):
     """
-    Return the set of states of fsm satisfying [agents] X phi.
+    Return the set of states of fsm satisfying <agents> X phi.
     
     fsm -- a MAS representing the system
     agents -- a list of agents names
     phi -- a BDD representing the set of states of fsm satisfying phi
     """
-    return fsm.pre_nstrat(phi, agents)
+    return fsm.pre_strat(phi, agents)
     
 
-def cau(fsm, agents, phi, psi):
+def ceu(fsm, agents, phi, psi):
     """
-    Return the set of states of fsm satisfying [agents][phi U psi].
+    Return the set of states of fsm satisfying <agents>[phi U psi].
     
     fsm -- a MAS representing the system
     agents -- a list of agents names
     phi -- a BDD representing the set of states of fsm satisfying phi
     psi -- a BDD representing the set of states of fsm satisfying psi
     """
-    return fp(lambda Y : psi | (phi & fsm.pre_nstrat(Y, agents)),
+    return fp(lambda Y : psi | (phi & fsm.pre_strat(Y, agents)),
               BDD.false(fsm.bddEnc.DDmanager))
     
 
-def caw(fsm, agents, phi, psi):
+def cew(fsm, agents, phi, psi):
     """
-    Return the set of states of fsm satisfying [agents][phi W psi].
+    Return the set of states of fsm satisfying <agents>[phi W psi].
     
     fsm -- a MAS representing the system
     agents -- a list of agents names
     phi -- a BDD representing the set of states of fsm satisfying phi
     psi -- a BDD representing the set of states of fsm satisfying psi
     """
-    return fp(lambda Z : psi | (phi & fsm.pre_nstrat(Z, agents)),
+    return fp(lambda Z : psi | (phi & fsm.pre_strat(Z, agents)),
               BDD.true(fsm.bddEnc.DDmanager))
     
     
-def cag(fsm, agents, phi):
+def ceg(fsm, agents, phi):
     """
-    Return the set of states of fsm satisfying [agents] G phi.
+    Return the set of states of fsm satisfying <agents> G phi.
     
     fsm -- a MAS representing the system
     agents -- a list of agents names
     phi -- a BDD representing the set of states of fsm satisfying phi
     """
-    return fp(lambda Z : phi & fsm.pre_nstrat(Z, agents),
+    return fp(lambda Z : phi & fsm.pre_strat(Z, agents),
               BDD.true(fsm.bddEnc.DDmanager))
