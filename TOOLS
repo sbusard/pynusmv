@@ -61,6 +61,49 @@ python -m tools.ctl.CTLcheck [model]
 where [model] is the path to a NuSMV model. The tool loads the model, checks every CTL specification in the model file and outputs its truth value.
 
 
+5. Fair CTL model checking
+--------------------------------------------------------------------------------
+
+A reimplementation of Fair CTL model checking is provided. This tool can be run with
+
+python -m tools.fairctl.FairCTLcheck [model]
+
+where model is the path to a NuSMV model. The tool loads the model, checks every CTL specification in the model file (under fairness constraints of the model) and outputs its truth value.
+
+
+6. Multi-agent systems
+--------------------------------------------------------------------------------
+
+An implementation of Multi-agent systems (MAS) is provided with PyNuSMV. The tool is a library to define and manipulate MASs with NuSMV. To load a model and get the corresponding MAS, you have to use tools.mas.glob to load a model (load_from_file function) and to get the MAS (mas function).
+
+On a MAS, you can perform any action given by a PyNuSMV BddFsm, plus additional functionalities like getting equivalent states according to a set of agents' knowledge or getting the protocol of any subset of agents (see tools.mas.mas for more information).
+
+The assumptions on the given SMV model representing a MAS are the following:
+ - Every module instance of the MAIN module is considered as an agent;
+ - The agent's name is the variable name of the instance;
+ - The knowledge of the agent (its observations) are its internal state variables (the variables beginning with agent's name) and all variables given as a parameter at instanciation of the module (only pure variables are considered, not expressions or input variables).
+
+
+7. ATL model checking
+--------------------------------------------------------------------------------
+
+An implementation of ATL model checking is provided, relying on the MAS library. This tool can be run with
+
+python -m tools.atl.check [model]
+
+where model is the path to an SMV model representing a Multi-agent system (see above). The tool loads the model and starts a minimal command-line interface. Every typed ATL formula is checked and the result of the verification is given at standard output.
+
+
+8. DOT model export
+--------------------------------------------------------------------------------
+
+A DOT model export tool is provided. To run this tool, run
+
+python -m tools.dotDump.dump [model]
+
+where model is the path to an SMV model. The output of the tool is a DOT representation of the reachable state-space of the model, printed on standard output (copy/paste the output in a file or redirect sdtout into a file). This is useful to get an overview of the state-space and to inspect more precisely the model in a visual way.
+
+
 REFERENCES
 --------------------------------------------------------------------------------
 
