@@ -147,7 +147,7 @@ def evalATLK(fsm, spec):
                    ~evalATLK(fsm, spec.child))
                    
     elif type(spec) in {CEX, CAX, CEG, CAG, CEU, CAU, CEF, CAF, CEW, CAW}:
-        return eval_strat(fsm, spec)
+        return eval_strat_improved(fsm, spec)
         
     else:
         # TODO Generate error
@@ -316,7 +316,7 @@ def ceu_si(fsm, agents, phi, psi, strat=None):
         def inner(Z):
             res = psi
             for f in fsm.fairness_constraints:
-                nf = ~f & fsm.bddEnc.statesInputsMask
+                nf = ~f & fsm.bddEnc.statesMask & strat
                 res = res | fsm.pre_strat_si(fp(lambda Y :
                                                  (phi | psi | nfair) &
                                                  (Z | nf) &
@@ -399,7 +399,7 @@ def nfair_gamma_si(fsm, agents, strat=None):
         def inner(Z):
             res = BDD.false(fsm.bddEnc.DDmanager)
             for f in fsm.fairness_constraints:
-                nf = ~f & fsm.bddEnc.statesInputsMask & strat
+                nf = ~f & fsm.bddEnc.statesMask & strat
                 res = res | fsm.pre_strat_si(fp(lambda Y :
                                                  (Z | nf) &
                                                  fsm.pre_strat_si(Y, agents,
@@ -556,3 +556,130 @@ def eval_strat(fsm, spec):
         sat = sat | wineq
         
     return sat
+    
+def eval_strat_improved(fsm, spec, strat=None):
+    """
+    Return the BDD representing the set of states of fsm satisfying spec.
+    spec is a strategic operator <G> pi.
+    
+    Implement the improved algorithm alternating between splitting a conflicting
+    equvalence class and filtering winning state/inputs pairs.
+    
+    fsm -- a MAS representing the system;
+    spec -- an AST-based ATLK specification with a top strategic operator.
+    strat -- the strategy to consider (not necessarily uniform).
+    
+    """
+    sat = BDD.false(fsm.bddEnc.DDmanager)
+    agents = {atom.value for atom in spec.group}
+    
+    if not strat:
+        strat = fsm.protocol(agents)
+    
+    if type(spec) is CEX:
+        winning = cex_si(fsm, agents,
+                         evalATLK(fsm, spec.child), strat)
+
+    elif type(spec) is CAX:
+        # [g] X p = ~<g> X ~p
+        winning = ~cex_si(fsm, agents, ~evalATLK(fsm, spec.child), strat)
+
+    elif type(spec) is CEG:
+        winning = ceg_si(fsm, agents, evalATLK(fsm, spec.child), strat)
+
+    elif type(spec) is CAG:
+        # [g] G p = ~<g> F ~p
+        winning= ~ceu_si(fsm, agents, BDD.true(fsm.bddEnc.DDmanager),
+                         ~evalATLK(fsm, spec.child), strat)
+
+    elif type(spec) is CEU:
+        winning = ceu_si(fsm, agents, evalATLK(fsm, spec.left),
+                         evalATLK(fsm, spec.right), strat)
+
+    elif type(spec) is CAU:
+        # [g][p U q] = ~<g>[ ~q W ~p & ~q ]
+        winning =  ~cew_si(fsm, agents, ~evalATLK(fsm, spec.right),
+                           ~evalATLK(fsm, spec.right) &
+                           ~evalATLK(fsm, spec.left), strat)
+
+    elif type(spec) is CEF:
+        # <g> F p = <g>[true U p]
+        winning = ceu_si(fsm, agents, BDD.true(fsm.bddEnc.DDmanager),
+                         evalATLK(fsm, spec.child), strat)
+
+    elif type(spec) is CAF:
+        # [g] F p = ~<g> G ~p
+        winning = ~ceg_si(fsm, agents, ~evalATLK(fsm, spec.child), strat)
+
+    elif type(spec) is CEW:
+       winning = cew_si(fsm, agents, evalATLK(fsm, spec.left),
+                        evalATLK(fsm, spec.right), strat)
+
+    elif type(spec) is CAW:
+        # [g][p W q] = ~<g>[~q U ~p & ~q]
+        winning = ~ceu_si(fsm, agents, ~evalATLK(fsm, spec.right),
+                          ~evalATLK(fsm, spec.right) &
+                          ~evalATLK(fsm, spec.left), strat)
+                          
+    
+    winning = winning & fsm.bddEnc.statesInputsMask                      
+    # Get one conflicting equivalence class
+    if winning.is_false(): # no state/inputs pairs are winning => return false
+        return winning
+    
+    # Get ngamma cube
+    gamma = agents
+    ngamma_cube = fsm.bddEnc.inputsCube - fsm.inputs_cube_for_agents(gamma)
+    
+    conflicting = False
+    winning = winning & fsm.bddEnc.statesInputsMask
+    orig_winning = winning
+    while not conflicting and winning.isnot_false():
+        # Get one equivalence class
+        si = fsm.pick_one_state_inputs(winning)
+        s = si.forsome(fsm.bddEnc.inputsCube)
+        eqs = fsm.equivalent_states(s, gamma)
+        eqcl = winning & eqs
+        
+        if ((eqcl -
+             (eqcl & 
+              si.forsome(fsm.bddEnc.statesCube).forsome(ngamma_cube)))
+            .isnot_false()):
+            # Equivalence class is conflicting because there are some other
+            # possible actions, conflicting with si.
+            conflicting = True
+            
+        else:
+            # The equivalence class is not conflicting, remove it for the search
+            winning = winning - eqcl
+            
+    # TODO Improve this: if a pair is not conflicting now, it won't be 
+    # conflicting anymore. We should keep track of non-conflicting equivalence
+    # classes through recursive calls
+            
+    if winning.is_false():
+        # No conflicting classes, return states that are winning for all eq
+
+        # wineq is the set of states for which all equiv states are in winning
+        nwinning = ~orig_winning & fsm.bddEnc.statesInputsMask
+        wineq = ~(fsm.equivalent_states(nwinning &
+                  fsm.reachable_states, frozenset(agents))) & orig_winning
+        return wineq
+        
+    else:
+        # si is one conflicting action, eqcl is the conflicting
+        # equivalence class
+        # Split eqcl into non-conflicting subsets and recursively call eval
+        orig_winning = orig_winning - eqcl
+        eqcls = set()
+        while eqcl.isnot_false():
+            si = fsm.pick_one_state_inputs(eqcl)
+            ncss = eqcl & si.forsome(fsm.bddEnc.statesCube).forsome(ngamma_cube)
+            eqcls.add(ncss)
+            eqcl = eqcl - ncss
+        
+        for ncss in eqcls:
+            strat = orig_winning | ncss
+            sat = sat | eval_strat_improved(fsm, spec, strat)
+    
+        return sat
