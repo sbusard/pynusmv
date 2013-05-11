@@ -10,7 +10,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Index &mdash; PyNuSMV 0.7 documentation</title>
+    <title>Index &mdash; PyNuSMV 0.8 documentation</title>
     
     <link rel="stylesheet" href="_static/default.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -18,7 +18,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '',
-        VERSION:     '0.7',
+        VERSION:     '0.8',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -27,7 +27,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="PyNuSMV 0.7 documentation" href="index.html" /> 
+    <link rel="top" title="PyNuSMV 0.8 documentation" href="index.html" /> 
   </head>
   <body>
     <div class="related">
@@ -39,7 +39,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li><a href="index.html">PyNuSMV 0.7 documentation</a> &raquo;</li> 
+        <li><a href="index.html">PyNuSMV 0.8 documentation</a> &raquo;</li> 
       </ul>
     </div>  
 
@@ -68,6 +68,7 @@
  | <a href="#R"><strong>R</strong></a>
  | <a href="#S"><strong>S</strong></a>
  | <a href="#T"><strong>T</strong></a>
+ | <a href="#W"><strong>W</strong></a>
  | <a href="#X"><strong>X</strong></a>
  
 </div>
@@ -184,6 +185,10 @@
 
       
   <dt><a href="pynusmv.html#pynusmv.fsm.BddFsm.count_states">count_states() (pynusmv.fsm.BddFsm method)</a>
+  </dt>
+
+      
+  <dt><a href="pynusmv.html#pynusmv.fsm.BddEnc.cube_for_inputs_vars">cube_for_inputs_vars() (pynusmv.fsm.BddEnc method)</a>
   </dt>
 
   </dl></td>
@@ -414,6 +419,10 @@
   <dt><a href="pynusmv.html#pynusmv.fsm.BddFsm.inputs_constraints">inputs_constraints (pynusmv.fsm.BddFsm attribute)</a>
   </dt>
 
+      
+  <dt><a href="pynusmv.html#pynusmv.fsm.BddEnc.inputsCube">inputsCube (pynusmv.fsm.BddEnc attribute)</a>
+  </dt>
+
   </dl></td>
   <td style="width: 33%" valign="top"><dl>
       
@@ -617,11 +626,19 @@
   </dt>
 
       
+  <dt><a href="pynusmv.html#pynusmv.fsm.BddFsm.pick_all_states_inputs">pick_all_states_inputs() (pynusmv.fsm.BddFsm method)</a>
+  </dt>
+
+      
   <dt><a href="pynusmv.html#pynusmv.fsm.BddFsm.pick_one_inputs">pick_one_inputs() (pynusmv.fsm.BddFsm method)</a>
   </dt>
 
       
   <dt><a href="pynusmv.html#pynusmv.fsm.BddFsm.pick_one_state">pick_one_state() (pynusmv.fsm.BddFsm method)</a>
+  </dt>
+
+      
+  <dt><a href="pynusmv.html#pynusmv.fsm.BddFsm.pick_one_state_inputs">pick_one_state_inputs() (pynusmv.fsm.BddFsm method)</a>
   </dt>
 
       
@@ -656,12 +673,12 @@
   <dt><a href="pynusmv.html#pynusmv.glob.prop_database">prop_database() (in module pynusmv.glob)</a>
   </dt>
 
+  </dl></td>
+  <td style="width: 33%" valign="top"><dl>
       
   <dt><a href="pynusmv.html#pynusmv.prop.PropDb">PropDb (class in pynusmv.prop)</a>
   </dt>
 
-  </dl></td>
-  <td style="width: 33%" valign="top"><dl>
       
   <dt><a href="pynusmv.html#pynusmv.prop.propTypes">propTypes (in module pynusmv.prop)</a>
   </dt>
@@ -745,11 +762,19 @@
   </dt>
 
       
-  <dt><a href="pynusmv.html#pynusmv.fsm.BddEnc.statesMask">statesMask (pynusmv.fsm.BddEnc attribute)</a>
+  <dt><a href="pynusmv.html#pynusmv.fsm.BddEnc.statesCube">statesCube (pynusmv.fsm.BddEnc attribute)</a>
+  </dt>
+
+      
+  <dt><a href="pynusmv.html#pynusmv.fsm.BddEnc.statesInputsMask">statesInputsMask (pynusmv.fsm.BddEnc attribute)</a>
   </dt>
 
   </dl></td>
   <td style="width: 33%" valign="top"><dl>
+      
+  <dt><a href="pynusmv.html#pynusmv.fsm.BddEnc.statesMask">statesMask (pynusmv.fsm.BddEnc attribute)</a>
+  </dt>
+
       
   <dt><a href="pynusmv.html#pynusmv.glob.symb_table">symb_table() (in module pynusmv.glob)</a>
   </dt>
@@ -805,6 +830,16 @@
   </dl></td>
 </tr></table>
 
+<h2 id="W">W</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%" valign="top"><dl>
+      
+  <dt><a href="pynusmv.html#pynusmv.fsm.BddFsm.weak_pre">weak_pre() (pynusmv.fsm.BddFsm method)</a>
+  </dt>
+
+  </dl></td>
+</tr></table>
+
 <h2 id="X">X</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%" valign="top"><dl>
@@ -851,7 +886,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li><a href="index.html">PyNuSMV 0.7 documentation</a> &raquo;</li> 
+        <li><a href="index.html">PyNuSMV 0.8 documentation</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">

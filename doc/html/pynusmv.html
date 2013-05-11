@@ -8,7 +8,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>PyNuSMV Reference &mdash; PyNuSMV 0.7 documentation</title>
+    <title>PyNuSMV Reference &mdash; PyNuSMV 0.8 documentation</title>
     
     <link rel="stylesheet" href="_static/default.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -16,7 +16,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '',
-        VERSION:     '0.7',
+        VERSION:     '0.8',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -25,7 +25,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="PyNuSMV 0.7 documentation" href="index.html" />
+    <link rel="top" title="PyNuSMV 0.8 documentation" href="index.html" />
     <link rel="prev" title="Presentation of PyNuSMV" href="overview.html" /> 
   </head>
   <body>
@@ -41,7 +41,7 @@
         <li class="right" >
           <a href="overview.html" title="Presentation of PyNuSMV"
              accesskey="P">previous</a> |</li>
-        <li><a href="index.html">PyNuSMV 0.7 documentation</a> &raquo;</li> 
+        <li><a href="index.html">PyNuSMV 0.8 documentation</a> &raquo;</li> 
       </ul>
     </div>  
 
@@ -789,6 +789,25 @@ if something is wrong</td>
 </dd></dl>
 
 <dl class="method">
+<dt id="pynusmv.fsm.BddFsm.pick_all_states_inputs">
+<tt class="descname">pick_all_states_inputs</tt><big>(</big><em>bdd</em><big>)</big><a class="headerlink" href="#pynusmv.fsm.BddFsm.pick_all_states_inputs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a tuple of all states/inputs pairs belonging to <cite>bdd</cite>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>bdd</strong> (<a class="reference internal" href="#pynusmv.dd.BDD" title="pynusmv.dd.BDD"><tt class="xref py py-class docutils literal"><span class="pre">BDD</span></tt></a>) &#8211; the concerned BDD</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">tuple(<tt class="xref py py-class docutils literal"><span class="pre">StateInputs</span></tt>)</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Raise :</th><td class="field-body">a <a class="reference internal" href="#pynusmv.exception.NuSMVBddPickingError" title="pynusmv.exception.NuSMVBddPickingError"><tt class="xref py py-exc docutils literal"><span class="pre">NuSMVBddPickingError</span></tt></a>
+if something is wrong</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
 <dt id="pynusmv.fsm.BddFsm.pick_one_inputs">
 <tt class="descname">pick_one_inputs</tt><big>(</big><em>bdd</em><big>)</big><a class="reference internal" href="_modules/pynusmv/fsm.html#BddFsm.pick_one_inputs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynusmv.fsm.BddFsm.pick_one_inputs" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return a BDD representing an inputs of <cite>bdd</cite>.</p>
@@ -799,8 +818,7 @@ if something is wrong</td>
 <tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference internal" href="#pynusmv.dd.Inputs" title="pynusmv.dd.Inputs"><tt class="xref py py-class docutils literal"><span class="pre">Inputs</span></tt></a></td>
 </tr>
 <tr class="field-even field"><th class="field-name">Raise :</th><td class="field-body">a <a class="reference internal" href="#pynusmv.exception.NuSMVBddPickingError" title="pynusmv.exception.NuSMVBddPickingError"><tt class="xref py py-exc docutils literal"><span class="pre">NuSMVBddPickingError</span></tt></a>
-if <cite>bdd</cite> is false or an error occurs while picking one inputs
-(for example if the bdd does not contain any inputs but states)</td>
+if <cite>bdd</cite> is false or an error occurs while picking one inputs</td>
 </tr>
 </tbody>
 </table>
@@ -817,8 +835,24 @@ if <cite>bdd</cite> is false or an error occurs while picking one inputs
 <tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference internal" href="#pynusmv.dd.State" title="pynusmv.dd.State"><tt class="xref py py-class docutils literal"><span class="pre">State</span></tt></a></td>
 </tr>
 <tr class="field-even field"><th class="field-name">Raise :</th><td class="field-body">a <a class="reference internal" href="#pynusmv.exception.NuSMVBddPickingError" title="pynusmv.exception.NuSMVBddPickingError"><tt class="xref py py-exc docutils literal"><span class="pre">NuSMVBddPickingError</span></tt></a>
-if <cite>bdd</cite> is false or an error occurs while picking one state
-(for example if the bdd does not contain any state but inputs)</td>
+if <cite>bdd</cite> is false or an error occurs while picking one state</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pynusmv.fsm.BddFsm.pick_one_state_inputs">
+<tt class="descname">pick_one_state_inputs</tt><big>(</big><em>bdd</em><big>)</big><a class="headerlink" href="#pynusmv.fsm.BddFsm.pick_one_state_inputs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a BDD representing a state/inputs pair of <cite>bdd</cite>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><tt class="xref py py-class docutils literal"><span class="pre">StateInputs</span></tt></td>
+</tr>
+<tr class="field-even field"><th class="field-name">Raise :</th><td class="field-body">a <a class="reference internal" href="#pynusmv.exception.NuSMVBddPickingError" title="pynusmv.exception.NuSMVBddPickingError"><tt class="xref py py-exc docutils literal"><span class="pre">NuSMVBddPickingError</span></tt></a>
+if <cite>bdd</cite> is false or an error occurs while picking one pair</td>
 </tr>
 </tbody>
 </table>
@@ -897,6 +931,24 @@ pre-states that are reachable through these inputs.</p>
 Can also be replaced.</p>
 </dd></dl>
 
+<dl class="method">
+<dt id="pynusmv.fsm.BddFsm.weak_pre">
+<tt class="descname">weak_pre</tt><big>(</big><em>states</em><big>)</big><a class="headerlink" href="#pynusmv.fsm.BddFsm.weak_pre" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the weak pre-image of <cite>states</cite> in this FSM. This means that it
+returns a BDD representing the set of states with corresponding inputs
+&lt;s,i&gt; such that there is a state in <cite>state</cite> reachable from s through i.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>states</strong> (<a class="reference internal" href="#pynusmv.dd.BDD" title="pynusmv.dd.BDD"><tt class="xref py py-class docutils literal"><span class="pre">BDD</span></tt></a>) &#8211; the states from which getting the weak pre-image</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference internal" href="#pynusmv.dd.BDD" title="pynusmv.dd.BDD"><tt class="xref py py-class docutils literal"><span class="pre">BDD</span></tt></a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
 </dd></dl>
 
 <dl class="class">
@@ -920,10 +972,68 @@ used to manage BDDs, the symbols table or the state and inputs masks.</p>
 </table>
 </dd></dl>
 
+<dl class="method">
+<dt id="pynusmv.fsm.BddEnc.cube_for_inputs_vars">
+<tt class="descname">cube_for_inputs_vars</tt><big>(</big><em>variables</em><big>)</big><a class="headerlink" href="#pynusmv.fsm.BddEnc.cube_for_inputs_vars" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the cube for the given input variables.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>variables</strong> &#8211; a list of input variable names</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference internal" href="#pynusmv.dd.BDD" title="pynusmv.dd.BDD"><tt class="xref py py-class docutils literal"><span class="pre">BDD</span></tt></a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pynusmv.fsm.BddEnc.inputsCube">
+<tt class="descname">inputsCube</tt><a class="headerlink" href="#pynusmv.fsm.BddEnc.inputsCube" title="Permalink to this definition">¶</a></dt>
+<dd><p>The cube for all input variables, represented as a BDD.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference internal" href="#pynusmv.dd.BDD" title="pynusmv.dd.BDD"><tt class="xref py py-class docutils literal"><span class="pre">BDD</span></tt></a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
 <dl class="attribute">
 <dt id="pynusmv.fsm.BddEnc.inputsMask">
 <tt class="descname">inputsMask</tt><a class="reference internal" href="_modules/pynusmv/fsm.html#BddEnc.inputsMask"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynusmv.fsm.BddEnc.inputsMask" title="Permalink to this definition">¶</a></dt>
 <dd><p>The mask for all input variables, represented as a BDD.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference internal" href="#pynusmv.dd.BDD" title="pynusmv.dd.BDD"><tt class="xref py py-class docutils literal"><span class="pre">BDD</span></tt></a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pynusmv.fsm.BddEnc.statesCube">
+<tt class="descname">statesCube</tt><a class="headerlink" href="#pynusmv.fsm.BddEnc.statesCube" title="Permalink to this definition">¶</a></dt>
+<dd><p>The cube for all state variables, represented as a BDD.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference internal" href="#pynusmv.dd.BDD" title="pynusmv.dd.BDD"><tt class="xref py py-class docutils literal"><span class="pre">BDD</span></tt></a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pynusmv.fsm.BddEnc.statesInputsMask">
+<tt class="descname">statesInputsMask</tt><a class="headerlink" href="#pynusmv.fsm.BddEnc.statesInputsMask" title="Permalink to this definition">¶</a></dt>
+<dd><p>The mask for all input and state variables, represented as a BDD.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -1432,7 +1542,7 @@ It is the responsibility of the caller to manage it.</p>
 properties and specifications of models.</p>
 <dl class="data">
 <dt id="pynusmv.prop.propTypes">
-<tt class="descclassname">pynusmv.prop.</tt><tt class="descname">propTypes</tt><em class="property"> = {'Comparison': 107, 'LTL': 103, 'NoType': 101, 'Compute': 106, 'PSL': 104, 'Invariant': 105, 'CTL': 102}</em><a class="headerlink" href="#pynusmv.prop.propTypes" title="Permalink to this definition">¶</a></dt>
+<tt class="descclassname">pynusmv.prop.</tt><tt class="descname">propTypes</tt><em class="property"> = {'CTL': 102, 'Invariant': 105, 'LTL': 103, 'PSL': 104, 'Compute': 106, 'NoType': 101, 'Comparison': 107}</em><a class="headerlink" href="#pynusmv.prop.propTypes" title="Permalink to this definition">¶</a></dt>
 <dd><p>The possible types of properties. This gives access to NuSMV internal types
 without dealing with <cite>pynusmv.nusmv</cite> modules.</p>
 </dd></dl>
@@ -1948,7 +2058,7 @@ if the pointer have to be freed.</p>
         <li class="right" >
           <a href="overview.html" title="Presentation of PyNuSMV"
              >previous</a> |</li>
-        <li><a href="index.html">PyNuSMV 0.7 documentation</a> &raquo;</li> 
+        <li><a href="index.html">PyNuSMV 0.8 documentation</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">
