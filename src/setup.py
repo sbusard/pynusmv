@@ -1115,7 +1115,7 @@ extensions.append(
 
 
 setup(  name = "PyNuSMV",
-        version = "0.7",
+        version = "0.8",
         author = "Simon Busard",
         author_email = "simon.busard@uclouvain.be",
         url = "http://lvl.info.ucl.ac.be/Tools/PyNuSMV",
