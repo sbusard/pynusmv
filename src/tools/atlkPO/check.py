@@ -7,15 +7,17 @@ from .eval import evalATLK
 from pyparsing import ParseException
 from pynusmv.exception import PyNuSMVError
     
-def check(mas, spec):
+def check(mas, spec, improved=False):
     """
     Return whether the system satisfies the ATLK specification.
     
     mas -- the system
     spec -- the specification, as a string
+    improved -- whether or not using the improved algorithm to model check
+                strategies
     
     """
-    sat = evalATLK(mas, spec)
+    sat = evalATLK(mas, spec, improved)
     return (~sat & mas.bddEnc.statesInputsMask & mas.init).is_false()
     
 def process(allargs):

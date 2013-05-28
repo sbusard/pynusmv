@@ -58,6 +58,13 @@ class TestCheck(unittest.TestCase):
         self.assertIsNotNone(fsm)
         return fsm
         
+    def transmission_with_knowledge(self):
+        glob.load_from_file(
+                        "tests/tools/atlkPO/models/transmission-knowledge.smv")
+        fsm = glob.mas()
+        self.assertIsNotNone(fsm)
+        return fsm
+        
     def transmission_fair(self):
         glob.load_from_file("tests/tools/atlkPO/models/transmission-fair.smv")
         fsm = glob.mas()
@@ -88,7 +95,7 @@ class TestCheck(unittest.TestCase):
                 print(i.get_str_values())
         
     
-    def test_cardgame(self):
+    def test_cardgame_not_improved(self):
         fsm = self.cardgame()
         
         self.assertTrue(check(fsm, parseATLK("K<'player'>'pcard=none' & K<'player'>'dcard=none'")[0]))
@@ -102,9 +109,8 @@ class TestCheck(unittest.TestCase):
         self.assertFalse(check(fsm, parseATLK("<'player'> F 'win'")[0]))
         
     
-    @unittest.skip("eval_strat_improved does not terminate")
     @unittest.expectedFailure # MC algo does not deal with fairness on action for now
-    def test_cardgame_fair(self):
+    def test_cardgame_fair_not_improved(self):
         fsm = self.cardgame_fair()
         
         self.assertTrue(check(fsm, parseATLK("K<'player'>'pcard=none' & K<'player'>'dcard=none'")[0]))
@@ -122,8 +128,7 @@ class TestCheck(unittest.TestCase):
         self.assertTrue(check(fsm, parseATLK("<'dealer'> F 'FALSE'")[0]))
         
     
-    @unittest.skip("eval_strat_improved does not terminate")
-    def test_cardgame_post_fair(self):
+    def test_cardgame_post_fair_not_improved(self):
         fsm = self.cardgame_post_fair()
         
         self.assertTrue(check(fsm, parseATLK("K<'player'>'pcard=none' & K<'player'>'dcard=none'")[0]))
@@ -141,21 +146,35 @@ class TestCheck(unittest.TestCase):
         self.assertTrue(check(fsm, parseATLK("<'dealer'> F 'FALSE'")[0]))
         
 
-    def test_transmission(self):
+    def test_transmission_not_improved(self):
         fsm = self.transmission()
+        
+        self.assertFalse(check(fsm, parseATLK("<'sender'> F 'received'")[0]))
+        # False because transmitter cannot win if received is already true
+        # and he has no clue about it
+        self.assertFalse(check(fsm, parseATLK("<'transmitter'> G ~'received'")[0]))
+        self.assertFalse(check(fsm, parseATLK("<'sender'> X 'received'")[0]))
+        # False because transmitter cannot win if received is already true
+        # and he has no clue about it
+        self.assertFalse(check(fsm, parseATLK("<'transmitter'> X ~'received'")[0]))
+        self.assertFalse(check(fsm, parseATLK("<'transmitter'> F 'received'")[0]))
+        
+        # False because the sender does not know if the bit is already
+        # transmitted (and in this case, no strategy can avoid 'received')
+        self.assertFalse(check(fsm, parseATLK("<'sender'> G ~'received'")[0]))
+        
+    def test_transmission_with_know_not_improved(self):
+        fsm = self.transmission_with_knowledge()
         
         self.assertFalse(check(fsm, parseATLK("<'sender'> F 'received'")[0]))
         self.assertTrue(check(fsm, parseATLK("<'transmitter'> G ~'received'")[0]))
         self.assertFalse(check(fsm, parseATLK("<'sender'> X 'received'")[0]))
         self.assertTrue(check(fsm, parseATLK("<'transmitter'> X ~'received'")[0]))
         self.assertFalse(check(fsm, parseATLK("<'transmitter'> F 'received'")[0]))
-        
-        # False because the sender does not know if the bit is already
-        # transmitted (and in this case, no strategy can avoid 'received')
-        self.assertFalse(check(fsm, parseATLK("<'sender'> G ~'received'")[0]))
+        self.assertTrue(check(fsm, parseATLK("<'sender'> G ~'received'")[0]))
     
     @unittest.expectedFailure # MC algo does not deal with fairness on action for now
-    def test_transmission_fair(self):
+    def test_transmission_fair_not_improved(self):
         fsm = self.transmission_fair()
         
         self.assertTrue(check(fsm, parseATLK("<'sender'> F 'received'")[0]))
@@ -169,7 +188,7 @@ class TestCheck(unittest.TestCase):
         self.assertFalse(check(fsm, parseATLK("<'sender'> G ~'received'")[0]))
     
     
-    def test_transmission_post_fair(self):
+    def test_transmission_post_fair_not_improved(self):
         fsm = self.transmission_post_fair()
         
         self.assertTrue(check(fsm, parseATLK("<'sender'> F 'received'")[0]))

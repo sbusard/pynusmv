@@ -48,13 +48,20 @@ class TestEval(unittest.TestCase):
         return fsm
         
     def transmission_post_fair(self):
-        glob.load_from_file("tests/tools/atlkPO/models/transmission-post-fair.smv")
+        glob.load_from_file(
+                        "tests/tools/atlkPO/models/transmission-post-fair.smv")
         fsm = glob.mas()
         self.assertIsNotNone(fsm)
         return fsm
         
     def trans2_fair(self):
         glob.load_from_file("tests/tools/atlkPO/models/2-transmission-fair.smv")
+        fsm = glob.mas()
+        self.assertIsNotNone(fsm)
+        return fsm
+        
+    def nfair_model(self):
+        glob.load_from_file("tests/tools/atlkPO/models/nfair.smv")
         fsm = glob.mas()
         self.assertIsNotNone(fsm)
         return fsm
@@ -212,6 +219,30 @@ class TestEval(unittest.TestCase):
         
         # TODO Write a test
         
+        
+    def test_nfair_gamma_si_transmission_post_fair(self):
+        fsm = self.transmission_post_fair()
+        
+        transmit = eval_simple_expression(fsm, "transmitter.action = transmit")
+        block = eval_simple_expression(fsm, "transmitter.action = block")
+        wait = eval_simple_expression(fsm, "sender.action = wait")
+        send = eval_simple_expression(fsm, "sender.action = send")
+        
+        received = eval_simple_expression(fsm, "received")
+        sent = eval_simple_expression(fsm, "sent")
+        waited = eval_simple_expression(fsm, "waited")
+        transmitted = eval_simple_expression(fsm, "transmitted")
+        blocked = eval_simple_expression(fsm, "blocked")
+        
+        true = eval_simple_expression(fsm, "TRUE")
+        false = eval_simple_expression(fsm, "FALSE")
+        
+        nfgsit = nfair_gamma_si(fsm, {'transmitter'})
+        self.assertTrue(fsm.protocol({'transmitter'}) <= nfgsit)
+        
+        nfgsis = nfair_gamma_si(fsm, {'sender'})
+        self.assertEqual(false, nfgsis)
+        
     
     def test_nfair_gamma(self):
         fsm = self.transmission_post_fair()
@@ -264,8 +295,36 @@ class TestEval(unittest.TestCase):
         
         self.assertEqual(false, nfair_gamma(fsm, {'player'}))
         
-        self.assertTrue(fsm.reachable_states  & fsm.bddEnc.statesInputsMask <= nfair_gamma(fsm, {'dealer'}))
+        self.assertTrue(fsm.reachable_states & fsm.bddEnc.statesInputsMask <= nfair_gamma(fsm, {'dealer'}))
         
         strats = split(fsm, fsm.protocol({'dealer'}), {'dealer'})
         for strat in strats:
             self.assertTrue(fsm.reachable_states & fsm.bddEnc.statesInputsMask <= nfair_gamma(fsm, {'dealer'}, strat))
+            
+            
+    def test_nfair_si_nfair_model(self):
+        fsm = self.nfair_model()
+        
+        s0 = eval_simple_expression(fsm, "state = s0")
+        s1 = eval_simple_expression(fsm, "state = s1")
+        s2 = eval_simple_expression(fsm, "state = s2")
+        
+        a0 = eval_simple_expression(fsm, "a.a = 0")
+        a1 = eval_simple_expression(fsm, "a.a = 1")
+        a2 = eval_simple_expression(fsm, "a.a = 2")
+        
+        b0 = eval_simple_expression(fsm, "b.a = 0")
+        b1 = eval_simple_expression(fsm, "b.a = 1")
+        
+        true = eval_simple_expression(fsm, "TRUE")
+        false = eval_simple_expression(fsm, "FALSE")
+        
+        nfgsia = nfair_gamma_si(fsm, {'a'})
+        nfgsib  = nfair_gamma_si(fsm, {'b'})
+        
+        self.assertTrue(s0 & a1 & fsm.protocol({'a'}) <= nfgsia)
+        self.assertTrue(s1 & a0 & fsm.protocol({'a'}) <= nfgsia)
+        self.assertEqual((s0 & a1 & fsm.protocol({'a'})) |
+                         (s1 & a0 & fsm.protocol({'a'})), nfgsia)
+                         
+        self.assertEqual(s1 & b0 & fsm.protocol({'b'}), nfgsib)

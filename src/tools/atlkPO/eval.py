@@ -16,12 +16,14 @@ from ..atlkFO.ast import (TrueExp, FalseExp, Init, Reachable,
 from ..atlkFO.eval import (fair_states, ex, eg, eu, nk, ne, nd, nc)
 
 
-def evalATLK(fsm, spec):
+def evalATLK(fsm, spec, improved=False):
     """
     Return the BDD representing the set of states of fsm satisfying spec.
     
     fsm -- a MAS representing the system
     spec -- an AST-based ATLK specification
+    improved -- whether or not using the improved algorithm for strategies
+                computing
     """
     
     if type(spec) is TrueExp:
@@ -147,12 +149,22 @@ def evalATLK(fsm, spec):
                    ~evalATLK(fsm, spec.child))
                    
     elif type(spec) in {CEX, CAX, CEG, CAG, CEU, CAU, CEF, CAF, CEW, CAW}:
-        return eval_strat_improved(fsm, spec)
+        if improved:
+            return eval_strat_improved(fsm, spec)
+        else:
+            return eval_strat(fsm, spec)
         
     else:
         # TODO Generate error
         print("[ERROR] CTLK evalATLK: unrecognized specification type", spec)
         return None
+
+
+
+
+
+
+
 
 
 def cex(fsm, agents, phi, strat=None):
@@ -267,149 +279,8 @@ def nfair_gamma(fsm, agents, strat=None):
                                               BDD.true(fsm.bddEnc.DDmanager)),
                                              agents, strat)
             return res
-        return fp(inner, BDD.false(fsm.bddEnc.DDmanager))              
-              
-def cex_si(fsm, agents, phi, strat=None):
-    """
-    Return the set of state/inputs pairs of strat satisfying <agents> X phi
-    under full observability in strat.
-    If strat is None, strat is considered true.
-    
-    fsm -- a MAS representing the system
-    agents -- a list of agents names
-    phi -- a BDD representing the set of states of fsm satisfying phi
-    strat -- a BDD representing allowed state/inputs pairs, or None
-    """
-    if not strat:
-        strat = BDD.true(fsm.bddEnc.DDmanager)
-    
-    phi = phi & fsm.bddEnc.statesInputsMask & strat
-    
-    return fsm.pre_strat_si(phi | nfair_gamma_si(fsm, agents, strat),
-                            agents, strat)
-    
-
-def ceu_si(fsm, agents, phi, psi, strat=None):
-    """
-    Return the set of state/inputs pairs of strat satisfying <agents>[phi U psi]
-    under full observability in strat.
-    If strat is None, strat is considered true.
-    
-    fsm -- a MAS representing the system
-    agents -- a list of agents names
-    phi -- a BDD representing the set of states of fsm satisfying phi
-    psi -- a BDD representing the set of states of fsm satisfying psi
-    strat -- a BDD representing allowed state/inputs pairs, or None
-    
-    """
-    if not strat:
-        strat = BDD.true(fsm.bddEnc.DDmanager)
-    
-    phi = phi & fsm.bddEnc.statesInputsMask & strat
-    psi = psi & fsm.bddEnc.statesInputsMask & strat
-    
-    if len(fsm.fairness_constraints) == 0:
-        return fp(lambda Z : psi | (phi & fsm.pre_strat_si(Z, agents, strat)),
-                  BDD.false(fsm.bddEnc.DDmanager))
-    else:
-        nfair = nfair_gamma_si(fsm, agents, strat)
-        def inner(Z):
-            res = psi
-            for f in fsm.fairness_constraints:
-                nf = ~f & fsm.bddEnc.statesMask & strat
-                res = res | fsm.pre_strat_si(fp(lambda Y :
-                                                 (phi | psi | nfair) &
-                                                 (Z | nf) &
-                                                 (psi |
-                                                  fsm.pre_strat_si(Y, agents,
-                                                                   strat)
-                                                 ),
-                                              BDD.true(fsm.bddEnc.DDmanager)),
-                                              agents, strat)
-            return (psi | phi | nfair) & res
         return fp(inner, BDD.false(fsm.bddEnc.DDmanager))
-    
-
-def cew_si(fsm, agents, phi, psi, strat=None):
-    """
-    Return the set of state/inputs pairs of strat satisfying <agents>[phi W psi]
-    under full observability in strat.
-    If strat is None, strat is considered true.
-    
-    fsm -- a MAS representing the system
-    agents -- a list of agents names
-    phi -- a BDD representing the set of states of fsm satisfying phi
-    psi -- a BDD representing the set of states of fsm satisfying psi
-    strat -- a BDD representing allowed state/inputs pairs, or None
-    
-    """
-    if not strat:
-        strat = BDD.true(fsm.bddEnc.DDmanager)
-    
-    phi = phi & fsm.bddEnc.statesInputsMask & strat
-    psi = psi & fsm.bddEnc.statesInputsMask & strat
-    
-    nfair = nfair_gamma_si(fsm, agents, strat)
-    
-    return fp(lambda Y : (psi | phi | nfair) &
-                         (psi | fsm.pre_strat_si(Y, agents, strat)),
-              BDD.true(fsm.bddEnc.DDmanager))
-    
-    
-def ceg_si(fsm, agents, phi, strat=None):
-    """
-    Return the set of state/inputs pairs of strat satisfying <agents> G phi
-    under full observability in strat.
-    If strat is None, strat is considered true.
-    
-    fsm -- a MAS representing the system
-    agents -- a list of agents names
-    phi -- a BDD representing the set of states of fsm satisfying phi
-    strat -- a BDD representing allowed state/inputs pairs, or None
-    
-    """
-    if not strat:
-        strat = BDD.true(fsm.bddEnc.DDmanager)
-    
-    phi = phi & fsm.bddEnc.statesInputsMask & strat
-    
-    nfair = nfair_gamma_si(fsm, agents, strat)
-    
-    return fp(lambda Y : (phi | nfair) & fsm.pre_strat_si(Y, agents, strat),
-              BDD.true(fsm.bddEnc.DDmanager))
-
-
-def nfair_gamma_si(fsm, agents, strat=None):
-    """
-    Return the set of state/inputs pairs of strat
-    in which agents can avoid a fair path in strat.
-    If strat is None, it is considered true.
-    
-    fsm -- the model
-    agents -- a list of agents names
-    strat -- a BDD representing allowed state/inputs pairs, or None
-    
-    """
-    if not strat:
-        strat = BDD.true(fsm.bddEnc.DDmanager)
-    
-    if len(fsm.fairness_constraints) == 0:
-        return BDD.false(fsm.bddEnc.DDmanager)
-    else:
-        def inner(Z):
-            res = BDD.false(fsm.bddEnc.DDmanager)
-            for f in fsm.fairness_constraints:
-                nf = ~f & fsm.bddEnc.statesMask & strat
-                res = res | fsm.pre_strat_si(fp(lambda Y :
-                                                 (Z | nf) &
-                                                 fsm.pre_strat_si(Y, agents,
-                                                                  strat),
-                                             BDD.true(fsm.bddEnc.DDmanager)),
-                                             agents, strat)
-            return res
-        return fp(inner, BDD.false(fsm.bddEnc.DDmanager))
-    
-    
+        
 def split(fsm, strats, gamma):
     """
     Split strats into all its non-conflicting greatest subsets.
@@ -556,7 +427,167 @@ def eval_strat(fsm, spec):
         sat = sat | wineq
         
     return sat
+
+
+
+
+
+
+
+
+
+
+              
+def cex_si(fsm, agents, phi, strat=None):
+    """
+    Return the set of state/inputs pairs of strat satisfying <agents> X phi
+    under full observability in strat.
+    If strat is None, strat is considered true.
     
+    fsm -- a MAS representing the system
+    agents -- a list of agents names
+    phi -- a BDD representing the set of states of fsm satisfying phi
+    strat -- a BDD representing allowed state/inputs pairs, or None
+    """
+    if not strat:
+        strat = BDD.true(fsm.bddEnc.DDmanager)
+    
+    phi = phi & fsm.bddEnc.statesInputsMask & strat
+    
+    return fsm.pre_strat_si(phi | nfair_gamma_si(fsm, agents, strat),
+                            agents, strat)
+    
+
+def ceu_si(fsm, agents, phi, psi, strat=None):
+    """
+    Return the set of state/inputs pairs of strat satisfying <agents>[phi U psi]
+    under full observability in strat.
+    If strat is None, strat is considered true.
+    
+    fsm -- a MAS representing the system
+    agents -- a list of agents names
+    phi -- a BDD representing the set of states of fsm satisfying phi
+    psi -- a BDD representing the set of states of fsm satisfying psi
+    strat -- a BDD representing allowed state/inputs pairs, or None
+    
+    """
+    if not strat:
+        strat = BDD.true(fsm.bddEnc.DDmanager)
+    
+    phi = phi & fsm.bddEnc.statesInputsMask & strat
+    psi = psi & fsm.bddEnc.statesInputsMask & strat
+    
+    if len(fsm.fairness_constraints) == 0:
+        return fp(lambda Z : psi | (phi & fsm.pre_strat_si(Z, agents, strat)),
+                  BDD.false(fsm.bddEnc.DDmanager))
+    else:
+        nfair = nfair_gamma_si(fsm, agents, strat)
+        def inner(Z):
+            res = psi
+            for f in fsm.fairness_constraints:
+                nf = ~f# & fsm.bddEnc.statesMask & strat
+                res = res | fsm.pre_strat_si(fp(lambda Y :
+                                                 (phi | psi | nfair) &
+                                                 (Z | nf) &
+                                                 (psi |
+                                                  fsm.pre_strat_si(Y, agents,
+                                                                   strat)
+                                                 ),
+                                              BDD.true(fsm.bddEnc.DDmanager)),
+                                              agents, strat)
+            return (psi | phi | nfair) & res
+        return fp(inner, BDD.false(fsm.bddEnc.DDmanager))
+    
+
+def cew_si(fsm, agents, phi, psi, strat=None):
+    """
+    Return the set of state/inputs pairs of strat satisfying <agents>[phi W psi]
+    under full observability in strat.
+    If strat is None, strat is considered true.
+    
+    fsm -- a MAS representing the system
+    agents -- a list of agents names
+    phi -- a BDD representing the set of states of fsm satisfying phi
+    psi -- a BDD representing the set of states of fsm satisfying psi
+    strat -- a BDD representing allowed state/inputs pairs, or None
+    
+    """
+    if not strat:
+        strat = BDD.true(fsm.bddEnc.DDmanager)
+    
+    phi = phi & fsm.bddEnc.statesInputsMask & strat
+    psi = psi & fsm.bddEnc.statesInputsMask & strat
+    
+    nfair = nfair_gamma_si(fsm, agents, strat)
+    
+    return fp(lambda Y : (psi | phi | nfair) &
+                         (psi | fsm.pre_strat_si(Y, agents, strat)),
+              BDD.true(fsm.bddEnc.DDmanager))
+    
+    
+def ceg_si(fsm, agents, phi, strat=None):
+    """
+    Return the set of state/inputs pairs of strat satisfying <agents> G phi
+    under full observability in strat.
+    If strat is None, strat is considered true.
+    
+    fsm -- a MAS representing the system
+    agents -- a list of agents names
+    phi -- a BDD representing the set of states of fsm satisfying phi
+    strat -- a BDD representing allowed state/inputs pairs, or None
+    
+    """
+    if not strat:
+        strat = BDD.true(fsm.bddEnc.DDmanager)
+    
+    phi = phi & fsm.bddEnc.statesInputsMask & strat
+    
+    nfair = nfair_gamma_si(fsm, agents, strat)
+    
+    return fp(lambda Y : (phi | nfair) & fsm.pre_strat_si(Y, agents, strat),
+              BDD.true(fsm.bddEnc.DDmanager))
+
+
+def nfair_gamma_si(fsm, agents, strat=None):
+    """
+    Return the set of state/inputs pairs of strat
+    in which agents can avoid a fair path in strat.
+    If strat is None, it is considered true.
+    
+    fsm -- the model
+    agents -- a list of agents names
+    strat -- a BDD representing allowed state/inputs pairs, or None
+    
+    """
+    if not strat:
+        strat = BDD.true(fsm.bddEnc.DDmanager)
+    
+    if len(fsm.fairness_constraints) == 0:
+        return BDD.false(fsm.bddEnc.DDmanager)
+    else:
+        def inner(Z):
+            res = BDD.false(fsm.bddEnc.DDmanager)
+            for f in fsm.fairness_constraints:
+                nf = ~f# & fsm.bddEnc.statesMask & strat
+                res = res | fsm.pre_strat_si(fp(lambda Y :
+                                                 (Z | nf) &
+                                                 fsm.pre_strat_si(Y, agents,
+                                                                  strat),
+                                             BDD.true(fsm.bddEnc.DDmanager)),
+                                             agents, strat)
+            return res
+        return fp(inner, BDD.false(fsm.bddEnc.DDmanager))
+        
+
+
+
+
+
+
+
+
+
+
 def eval_strat_improved(fsm, spec, strat=None):
     """
     Return the BDD representing the set of states of fsm satisfying spec.
