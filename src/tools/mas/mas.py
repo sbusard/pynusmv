@@ -155,6 +155,9 @@ class MAS(BddFsm):
         gamma_cube = self.inputs_cube_for_agents(agents)
         ngamma_cube = self.bddEnc.inputsCube - gamma_cube
         
+        # Abstract away actions of states
+        states = states.forsome(self.bddEnc.inputsCube)
+        
         nstates = ~states & self.bddEnc.statesInputsMask
         strat = strat & self.bddEnc.statesInputsMask
         
