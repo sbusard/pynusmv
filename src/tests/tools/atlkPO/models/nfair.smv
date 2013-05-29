@@ -1,0 +1,44 @@
+--- Little example to test nfair
+---
+--- Simon Busard <simon.busard@uclouvain.be>, 28/05/13
+
+MODULE AA(state)
+
+    IVAR a : 0..2;
+    
+    --- Protocol
+    TRANS
+    a in case state = s0       : {0,1,2};
+              state in {s1,s2} : {0};
+         esac
+
+
+MODULE BB(state)
+    
+    IVAR a : 0..1;
+    
+    --- Protocol
+    TRANS
+    a in case state = s0       : {0,1};
+              state in {s1,s2} : {0};
+         esac
+    
+              
+MODULE main
+
+    VAR state : {s0, s1, s2};
+        a : AA(state);
+        b : BB(state);
+        
+    INIT state = s0
+    
+    TRANS next(state) = case state = s0 & a.a = 0 & b.a = 1 : s1;
+                             state = s0 & a.a = 0 & b.a = 0 : s2;
+                             state = s0 & a.a = 1           : s1;
+                             state = s0 & a.a = 2           : s2;
+                             state = s1                     : s1;
+                             state = s2                     : s2;
+                        esac
+                        
+                        
+FAIRNESS state = s2

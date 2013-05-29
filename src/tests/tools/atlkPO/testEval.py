@@ -140,12 +140,16 @@ class TestEval(unittest.TestCase):
         pas = eval_simple_expression(fsm, "player.action = swap")
         
         dan = eval_simple_expression(fsm, "dealer.action = none")
+        daak = eval_simple_expression(fsm, "dealer.action = dealAK")
         
         win = eval_simple_expression(fsm, "win")
         lose = eval_simple_expression(fsm, "lose")
         
         true = eval_simple_expression(fsm, "TRUE")
         false = eval_simple_expression(fsm, "FALSE")
+        
+        dealercube = fsm.inputs_cube_for_agents({'dealer'})
+        playercube = fsm.inputs_cube_for_agents({'player'})
         
         
         self.assertTrue(pk & dq & s2 & pan & fsm.reachable_states & fsm.bddEnc.statesInputsMask <= cex_si(fsm, {'player'}, fsm.reachable_states & win))
@@ -154,6 +158,13 @@ class TestEval(unittest.TestCase):
         self.assertFalse(pk & dq & s1 & pas & fsm.reachable_states & fsm.bddEnc.statesInputsMask <= cex_si(fsm, {'player'}, fsm.reachable_states & win, pak))
         self.assertTrue(pa & dq & s1 & pas & fsm.reachable_states & fsm.bddEnc.statesInputsMask <= cex_si(fsm, {'player'}, fsm.reachable_states & win))
         self.assertFalse(pa & dq & s1 & pas & fsm.reachable_states & fsm.bddEnc.statesInputsMask <= cex_si(fsm, {'player'}, fsm.reachable_states & win, pak))
+        
+        strat = (s0 & daak & fsm.protocol({'dealer'})) | ((s2) & fsm.protocol({'dealer'}))
+        self.assertTrue(nfair_gamma_si(fsm, {'dealer'}, strat).is_false())
+        self.assertEqual(pa, nfair_gamma_si(fsm, {'dealer'}, strat) | pa)
+        cexsi = cex_si(fsm, {'dealer'}, fsm.reachable_states & pa, strat)
+        self.assertTrue(fsm.init <= cexsi.forsome(fsm.bddEnc.inputsCube))
+        
         
     
     def test_nfair_gamma_si(self):

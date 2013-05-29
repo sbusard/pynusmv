@@ -1,0 +1,28 @@
+--- One bit transmission, with knowledge of the transmission
+---
+--- Simon Busard <simon.busard@uclouvain.be>, 23/03/13
+
+MODULE Sender(received)
+
+    IVAR   action : {send, wait};
+    
+    --- Protocol: nothing, can always do both actions
+
+
+MODULE Transmitter(received)
+    
+    IVAR action : {transmit, block};
+    
+    --- Protocol: nothing, can always do both actions
+                
+
+MODULE main
+
+    VAR received : boolean;
+        sender : Sender(received);
+        transmitter : Transmitter(received);
+        
+    INIT !received
+    
+    TRANS next(received) = (sender.action = send & transmitter.action = transmit
+                            ? TRUE : received);
