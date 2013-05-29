@@ -161,12 +161,6 @@ def evalATLK(fsm, spec, improved=False):
 
 
 
-
-
-
-
-
-
 def cex(fsm, agents, phi, strat=None):
     """
     Return the set of states of strat satisfying <agents> X phi
@@ -305,7 +299,7 @@ def split(fsm, strats, gamma):
     # Get ngamma cube
     ngamma_cube = fsm.bddEnc.inputsCube - fsm.inputs_cube_for_agents(gamma)
     
-    # Split eqcl into non-conflicting subsetes
+    # Split eqcl into non-conflicting subsets
     # (if eqcl is already non-conflicting, only one iteration is done)
     eqcls = set()
     while eqcl.isnot_false():
@@ -430,14 +424,6 @@ def eval_strat(fsm, spec):
 
 
 
-
-
-
-
-
-
-
-              
 def cex_si(fsm, agents, phi, strat=None):
     """
     Return the set of state/inputs pairs of strat satisfying <agents> X phi
@@ -577,14 +563,6 @@ def nfair_gamma_si(fsm, agents, strat=None):
                                              agents, strat)
             return res
         return fp(inner, BDD.false(fsm.bddEnc.DDmanager))
-        
-
-
-
-
-
-
-
 
 
 
@@ -615,7 +593,6 @@ def eval_strat_improved(fsm, spec, strat=None):
         # [g] X p = ~<g> X ~p
         newspec = CEX(spec.group, Not(spec.child))
         return ~evalATLK(fsm, newspec, True)
-        #winning = ~cex_si(fsm, agents, ~evalATLK(fsm, spec.child), strat)
 
     elif type(spec) is CEG:
         winning = ceg_si(fsm, agents, evalATLK(fsm, spec.child), strat)
@@ -624,8 +601,6 @@ def eval_strat_improved(fsm, spec, strat=None):
         # [g] G p = ~<g> F ~p
         newspec = CEF(spec.group, Not(spec.child))
         return ~evalATLK(fsm, newspec, True)
-        #winning= ~ceu_si(fsm, agents, BDD.true(fsm.bddEnc.DDmanager),
-        #                 ~evalATLK(fsm, spec.child), strat)
 
     elif type(spec) is CEU:
         winning = ceu_si(fsm, agents, evalATLK(fsm, spec.left),
@@ -637,9 +612,6 @@ def eval_strat_improved(fsm, spec, strat=None):
                       Not(spec.right),
                       And(Not(spec.left), Not(spec.right)))
         return ~evalATLK(fsm, newspec, True)
-        #winning =  ~cew_si(fsm, agents, ~evalATLK(fsm, spec.right),
-        #                   ~evalATLK(fsm, spec.right) &
-        #                   ~evalATLK(fsm, spec.left), strat)
 
     elif type(spec) is CEF:
         # <g> F p = <g>[true U p]
@@ -650,7 +622,6 @@ def eval_strat_improved(fsm, spec, strat=None):
         # [g] F p = ~<g> G ~p
         newspec = CEG(spec.group, Not(spec.child))
         return ~evalATLK(fsm, newspec, True)
-        #winning = ~ceg_si(fsm, agents, ~evalATLK(fsm, spec.child), strat)
 
     elif type(spec) is CEW:
        winning = cew_si(fsm, agents, evalATLK(fsm, spec.left),
@@ -662,12 +633,8 @@ def eval_strat_improved(fsm, spec, strat=None):
                       Not(spec.right),
                       And(Not(spec.left), Not(spec.right)))
         return ~evalATLK(fsm, newspec, True)
-        #winning = ~ceu_si(fsm, agents, ~evalATLK(fsm, spec.right),
-        #                  ~evalATLK(fsm, spec.right) &
-        #                  ~evalATLK(fsm, spec.left), strat)
                           
     
-    assert(winning <= strat)
     winning = winning & fsm.bddEnc.statesInputsMask & fsm.protocol(agents)
     # Get one conflicting equivalence class
     if winning.is_false(): # no state/inputs pairs are winning => return false

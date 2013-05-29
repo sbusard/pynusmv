@@ -145,6 +145,8 @@ class MAS(BddFsm):
         If strat is not None, restrict to strat.
         
         states -- a BDD representing a set of states of this MAS;
+                  if states represents a set of state/inputs pairs, inputs
+                  are abstracted away;
         agents -- a set of agents names, agents of this MAS;
         strat -- a BDD representing allowed state/inputs pairs, or None.
         
@@ -197,6 +199,8 @@ class MAS(BddFsm):
         Restrict to strat if not None.
         
         states -- a BDD representing a set of states of this MAS;
+                  if states represents a set of state/inputs pairs, inputs
+                  are abstracted away;
         agents -- a set of agents names, agents of this MAS;
         strat -- a BDD representing a set of allowed state/inputs pairs.
         
