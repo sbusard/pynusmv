@@ -105,9 +105,10 @@ def eg(fsm, phi):
     def inner(Z):
         res = Z
         for f in fsm.fairness_constraints:
-            res = res & fixpoint(lambda Y : (Z & f) | (phi & fsm.weak_pre(Y)),
+            res = res & fixpoint(lambda Y : (Z & f) | (phi & 
+                                fsm.weak_pre(Y.forsome(fsm.bddEnc.inputsCube))),
                                  BDD.false(fsm.bddEnc.DDmanager))
-        return phi & fsm.weak_pre(res)
+        return phi & fsm.weak_pre(res.forsome(fsm.bddEnc.inputsCube))
         
     r = fixpoint(inner, BDD.true(fsm.bddEnc.DDmanager))
     return r.forsome(fsm.bddEnc.inputsCube)
