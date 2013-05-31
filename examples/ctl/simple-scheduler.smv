@@ -1,0 +1,26 @@
+-- Model of a simple scheduler
+--
+-- by Simon Busard <simon.busard@uclouvain.be>, 27/10/2011
+
+MODULE main
+
+	VAR
+		timer : 1..5;
+		run : 0..4;
+		
+	INIT run = 0 & timer = 1
+		
+	TRANS
+		next(run) in	case
+							timer = 1:		{0,1};
+							timer = 2:		{0,2};
+							timer = 3:		{0,3,4};
+							timer = 4:		{0,3,4};
+							TRUE:			0;
+						esac
+						
+	TRANS
+		next(timer) =	case
+							timer < 5 & next(run) = 0 :		timer + 1;
+							TRUE:							timer;
+						esac
