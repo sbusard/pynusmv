@@ -1,0 +1,167 @@
+--- A Tic Tac Toe game.
+--- 
+--- By Simon Busard <simon.busard@uclouvain.be>, 30-05-13
+
+MODULE player(turn, board)
+
+    IVAR play : 0..9;
+    
+    --- Protocol
+    TRANS (turn -> play in 1..9)
+    
+    TRANS
+        turn & board[1] = empty & play = 1 |
+        turn & board[2] = empty & play = 2 |
+        turn & board[3] = empty & play = 3 |
+        turn & board[4] = empty & play = 4 |
+        turn & board[5] = empty & play = 5 |
+        turn & board[6] = empty & play = 6 |
+        turn & board[7] = empty & play = 7 |
+        turn & board[8] = empty & play = 8 |
+        turn & board[9] = empty & play = 9 |
+        !turn & play = 0
+
+
+MODULE main
+
+    VAR board   : array 1..9 of {empty, circle, cross};
+        run     : {stop, circle, cross};
+        winner  : {empty, circle, cross};
+        circlep : player(run = circle, board);
+        crossp  :  player(run = cross, board);
+        
+    INIT
+        board[1] = empty & board[2] = empty & board[3] = empty &
+        board[4] = empty & board[5] = empty & board[6] = empty &
+        board[7] = empty & board[8] = empty & board[9] = empty
+    INIT run in {circle, cross}
+    INIT winner = empty
+        
+    DEFINE
+        finished := (next(board[1]) != empty &
+                     next(board[2]) != empty &
+                     next(board[3]) != empty & 
+                     next(board[4]) != empty &
+                     next(board[5]) != empty &
+                     next(board[6]) != empty & 
+                     next(board[7]) != empty &
+                     next(board[8]) != empty &
+                     next(board[9]) != empty);
+        cirwins := (next(board[1]) = circle &
+                    next(board[2]) = circle &
+                    next(board[3]) = circle) |
+                   (next(board[4]) = circle &
+                    next(board[5]) = circle &
+                    next(board[6]) = circle) |
+                   (next(board[7]) = circle &
+                    next(board[8]) = circle &
+                    next(board[9]) = circle) |
+                   (next(board[1]) = circle &
+                    next(board[4]) = circle &
+                    next(board[7]) = circle) |
+                   (next(board[2]) = circle &
+                    next(board[5]) = circle &
+                    next(board[8]) = circle) |
+                   (next(board[3]) = circle &
+                    next(board[6]) = circle &
+                    next(board[9]) = circle) |
+                   (next(board[1]) = circle &
+                    next(board[5]) = circle &
+                    next(board[9]) = circle) |
+                   (next(board[3]) = circle &
+                    next(board[5]) = circle &
+                    next(board[7]) = circle);
+        crowins := (next(board[1]) = cross &
+                    next(board[2]) = cross &
+                    next(board[3]) = cross) |
+                   (next(board[4]) = cross &
+                    next(board[5]) = cross &
+                    next(board[6]) = cross) |
+                   (next(board[7]) = cross &
+                    next(board[8]) = cross &
+                    next(board[9]) = cross) |
+                   (next(board[1]) = cross &
+                    next(board[4]) = cross &
+                    next(board[7]) = cross) |
+                   (next(board[2]) = cross &
+                    next(board[5]) = cross &
+                    next(board[8]) = cross) |
+                   (next(board[3]) = cross &
+                    next(board[6]) = cross &
+                    next(board[9]) = cross) |
+                   (next(board[1]) = cross &
+                    next(board[5]) = cross &
+                    next(board[9]) = cross) |
+                   (next(board[3]) = cross &
+                    next(board[5]) = cross &
+                    next(board[7]) = cross);
+        won := cirwins | crowins;
+    
+    
+    TRANS next(winner) = case !won    : empty;
+                              crowins : cross;
+                              cirwins : circle;
+                         esac
+        
+    TRANS next(run) = case !finished & run = circle & !won : cross;
+                           !finished & run = cross  & !won : circle;
+                           TRUE                            : stop;
+                      esac
+        
+                           
+    TRANS next(board[1]) = case circlep.play = 1 & run = circle
+                                & board[1] = empty              : circle;
+                                crossp.play = 1  & run = cross
+                                & board[1] = empty              : cross;
+                                TRUE                            : board[1];
+                           esac
+    TRANS next(board[2]) = case circlep.play = 2 & run = circle 
+                                & board[2] = empty              : circle;
+                                crossp.play = 2  & run = cross  
+                                & board[2] = empty              : cross;
+                                TRUE                            : board[2];
+                           esac
+    TRANS next(board[3]) = case circlep.play = 3 & run = circle 
+                                & board[3] = empty              : circle;
+                                crossp.play = 3  & run = cross  
+                                & board[3] = empty              : cross;
+                                TRUE                            : board[3];
+                           esac
+    TRANS next(board[4]) = case circlep.play = 4 & run = circle 
+                                & board[4] = empty              : circle;
+                                crossp.play = 4  & run = cross  
+                                & board[4] = empty              : cross;
+                                TRUE                            : board[4];
+                           esac
+    TRANS next(board[5]) = case circlep.play = 5 & run = circle 
+                                & board[5] = empty              : circle;
+                                crossp.play = 5  & run = cross  
+                                & board[5] = empty              : cross;
+                                TRUE                            : board[5];
+                           esac
+    TRANS next(board[6]) = case circlep.play = 6 & run = circle 
+                                & board[6] = empty              : circle;
+                                crossp.play = 6  & run = cross  
+                                & board[6] = empty              : cross;
+                                TRUE                            : board[6];
+                           esac
+    TRANS next(board[7]) = case circlep.play = 7 & run = circle 
+                                & board[7] = empty              : circle;
+                                crossp.play = 7  & run = cross  
+                                & board[7] = empty              : cross;
+                                TRUE                            : board[7];
+                           esac
+    TRANS next(board[8]) = case circlep.play = 8 & run = circle 
+                                & board[8] = empty              : circle;
+                                crossp.play = 8  & run = cross  
+                                & board[8] = empty              : cross;
+                                TRUE                            : board[8];
+                           esac
+    TRANS next(board[9]) = case circlep.play = 9 & run = circle 
+                                & board[9] = empty              : circle;
+                                crossp.play = 9  & run = cross  
+                                & board[9] = empty              : cross;
+                                TRUE                            : board[9];
+                           esac
+                           
+SPEC run = circle -> EX run = cross

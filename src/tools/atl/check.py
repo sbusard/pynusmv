@@ -6,9 +6,19 @@ from .parsing import parseATL
 from .eval import evalATL
 from pyparsing import ParseException
 from pynusmv.exception import PyNuSMVError
+
+def check(mas, spec):
+    """
+    Return whether the system satisfies the ATL specification.
     
+    mas -- the system
+    spec -- the specification, as a string
     
-def check(allargs):
+    """
+    sat = evalATL(mas, spec)
+    return (~sat & mas.bddEnc.statesInputsMask & mas.init).is_false()    
+    
+def process(allargs):
     """
     Check specs on the given NuSMV model.
     
@@ -33,9 +43,7 @@ def check(allargs):
     for line in sys.stdin:
         try:
             spec = parseATL(line)[0]
-            
-            sat = evalATL(mas, spec)
-            satisfied = (~sat & mas.init).is_false()
+            satisfied = check(mas, spec)
             print('Specification', str(spec), 'is', str(satisfied))
         except ParseException as e:
             print("[ERROR] Cannot parse specification:", str(e))
@@ -45,5 +53,5 @@ def check(allargs):
 
 if __name__ == '__main__':
     init_nusmv()   
-    check(sys.argv[1:])
+    process(sys.argv[1:])
     deinit_nusmv()

@@ -1,0 +1,77 @@
+--- A small game.
+--- 
+--- By Simon Busard <simon.busard@uclouvain.be>, 30-05-13
+
+MODULE player(turn, board)
+
+    IVAR play : {nothing, cross1, cross2, cross3, circle1, circle2, circle3};
+    
+    --- Protocol
+    TRANS (turn -> play in {cross1, cross2, cross3, circle1, circle2, circle3})
+    
+    TRANS
+        turn & board[1] = empty & play = cross1 |
+        turn & board[1] = empty & play = circle1 |
+        turn & board[2] = empty & play = cross2 |
+        turn & board[2] = empty & play = circle2 |
+        turn & board[3] = empty & play = cross3 |
+        turn & board[3] = empty & play = circle3 |
+        !turn & play = nothing
+
+
+MODULE main
+
+    VAR board   : array 1..3 of {empty, circle, cross};
+        run     : {stop, p1, p2};
+        winner  : {none, p1, p2};
+        player1 : player(run = p1, board);
+        player2 : player(run = p2, board);
+        
+    INIT
+        board[1] = empty & board[2] = empty & board[3] = empty
+    INIT run in {p1, p2}
+    INIT winner = none
+        
+    DEFINE
+        finished := (next(board[1]) != empty &
+                     next(board[2]) != empty &
+                     next(board[3]) != empty);
+    
+    TRANS next(winner) = case finished :
+                                case toint(next(board[1]) = circle) +
+                                     toint(next(board[2]) = circle) +
+                                     toint(next(board[3]) = circle) >= 2 : p1;
+                                     toint(next(board[1]) = cross) +
+                                     toint(next(board[2]) = cross) +
+                                     toint(next(board[3]) = cross) >= 2  : p2;
+                                     TRUE                              : winner;
+                                esac;
+                              !finished : none;    
+                         esac
+        
+    TRANS next(run) = case !finished & run = p1 : p2;
+                           !finished & run = p2 : p1;
+                           TRUE                 : stop;
+                      esac
+        
+                           
+    TRANS next(board[1]) = case player1.play = circle1 & run = p1 : circle;
+                                player1.play = cross1  & run = p1 : cross;
+                                player2.play = circle1 & run = p2 : circle;
+                                player2.play = cross1  & run = p2 : cross;
+                                TRUE                              : board[1];
+                           esac
+    TRANS next(board[2]) = case player1.play = circle2 & run = p1 : circle;
+                                player1.play = cross2  & run = p1 : cross;
+                                player2.play = circle2 & run = p2 : circle;
+                                player2.play = cross2  & run = p2 : cross;
+                                TRUE                              : board[2];
+                           esac
+    TRANS next(board[3]) = case player1.play = circle3 & run = p1 : circle;
+                                player1.play = cross3  & run = p1 : cross;
+                                player2.play = circle3 & run = p2 : circle;
+                                player2.play = cross3  & run = p2 : cross;
+                                TRUE                              : board[3];
+                           esac
+                           
+SPEC run = p1 -> AX run = p2
