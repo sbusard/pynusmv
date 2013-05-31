@@ -19,28 +19,28 @@ class TestEval(unittest.TestCase):
     
     
     def transmission(self):
-        glob.load_from_file("tests/tools/atlkFO/transmission.smv")
+        glob.load_from_file("tests/tools/atlkFO/models/transmission.smv")
         fsm = glob.mas()
         self.assertIsNotNone(fsm)
         return fsm
         
     
     def transmission_fair(self):
-        glob.load_from_file("tests/tools/atlkFO/transmission-fair.smv")
+        glob.load_from_file("tests/tools/atlkFO/models/transmission-fair.smv")
         fsm = glob.mas()
         self.assertIsNotNone(fsm)
         return fsm
         
     
     def cardgame(self):
-        glob.load_from_file("tests/tools/atlkFO/cardgame.smv")
+        glob.load_from_file("tests/tools/atlkFO/models/cardgame.smv")
         fsm = glob.mas()
         self.assertIsNotNone(fsm)
         return fsm
         
     
     def cardgame_fair(self):
-        glob.load_from_file("tests/tools/atlkFO/cardgame-fair.smv")
+        glob.load_from_file("tests/tools/atlkFO/models/cardgame-fair.smv")
         fsm = glob.mas()
         self.assertIsNotNone(fsm)
         return fsm
