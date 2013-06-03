@@ -77,17 +77,19 @@ def explain_cex(fsm, state, agents, phi):
     si = fsm.pre_strat_si(phi, agents)
     # The winning actions from state are the ones belonging to its protocol
     # and to si
-    actions = si & (fsm.protocol(agents) & state)
+    actions = (si & (fsm.protocol(agents) & state) &
+               fsm.bddEnc.inputsMask).forsome(fsm.bddEnc.statesCube)
     fullaction = fsm.pick_one_inputs(actions)
     ag_action = fullaction.forsome(ngamma_cube)
     
     
     # Build the graph
     successors = set()
-    for successor in fsm.pick_all_states(fsm.post(state, ag_action)):
+    for successor in fsm.pick_all_states(fsm.post(state, ag_action) &
+                                         fsm.bddEnc.statesMask):
         nextexpl = Explanation(successor)
         allactions = fsm.get_inputs_between_states(state, successor) & ag_action 
-        for action in fsm.pick_all_inputs(allactions):
+        for action in fsm.pick_all_inputs(allactions & fsm.bddEnc.inputsMask):
             successors.add((action, nextexpl))
     return Explanation(state, successors)
     
@@ -187,10 +189,11 @@ def explain_cax(fsm, state, agents, phi):
     successors = set()
     for ag_action in ag_actions:
         # Choose one successor through ag_action
-        succ = fsm.pick_one_state(fsm.post(state, ag_action) & phi)
+        succ = fsm.pick_one_state(fsm.post(state, ag_action) & phi &
+                                  fsm.bddEnc.statesMask)
         # Get the full action
         act = fsm.pick_one_inputs(fsm.get_inputs_between_states(state, succ) &
-                                  ag_action)
+                                  ag_action & fsm.bddEnc.inputsMask)
         successors.add((act, Explanation(succ)))
     
     return Explanation(state, successors)    
@@ -206,7 +209,35 @@ def explain_cau(fsm, state, agents, phi, psi):
     phi -- the set of states of fsm satifying phi;
     psi -- the set of states of fsm satifying psi.
     """
-    pass # TODO
+    # [agents] phi U psi = mu Y. psi | (phi & fsm.pre_nstrat(Y, agents))
+    
+    # To show that state satisfies [agents] phi U psi
+    #   if state in psi, return Explanation(state) because state is its own
+    #   explanation
+    #   otherwise, compute the fixpoint, until state is in the last set
+    #   then show that all actions always lead to states of the previous set
+    #   (it is possible because state is added because it cannot avoid to go
+    #   one step in the right direction), and recursively explain why the found
+    #   states satisfy [agents] phi U psi.
+    
+    if state <= psi:
+        return Explanation(state)
+        
+    else:
+        f = lambda Y : psi | (phi & fsm.pre_nstrat(Y, agents))
+        old = BDD.false(fsm.bddEnc.DDmanager)
+        new = psi
+        while not state <= new:
+            old = new
+            new = f(old)
+        
+        expl = explain_cax(fsm, state, agents, old)
+        
+        successors = set()
+        for action, succ in expl.successors:
+            successors.add((action,
+                            explain_cau(fsm, succ.state, agents, phi, psi)))
+        return Explanation(state, successors)
     
     
 def explain_cag(fsm, state, agents, phi):

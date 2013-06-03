@@ -4,12 +4,15 @@ from pynusmv.dd import BDD
 from pynusmv.init import init_nusmv, deinit_nusmv
 from pynusmv.mc import eval_simple_expression
 
+from pynusmv.utils import fixpoint as fp
+
 from tools.mas import glob
 
 from tools.atl.check import check
 from tools.atl.eval import evalATL, cex
 from tools.atl.parsing import parseATL
-from tools.atl.explain import explain_cex, explain_cax, explain_ceu
+from tools.atl.explain import (explain_cex, explain_cax, explain_ceu,
+                               explain_cau)
 
 
 class TestCheck(unittest.TestCase):
@@ -153,6 +156,9 @@ class TestCheck(unittest.TestCase):
                 self.assertTrue(len(expl.successors) == 0)
             else:
                 self.assertTrue(len(expl.successors) > 0)
+            for action, succ in expl.successors:
+                extract.add(succ)
+    
     
     def test_transmission_cex(self):
         fsm = self.transmission()
@@ -346,4 +352,64 @@ class TestCheck(unittest.TestCase):
         initsat = sat & fsm.init
         first = fsm.pick_one_state(initsat)
         explanation = explain_ceu(fsm, first, agents, phi, psi)
+        self.check_ceu(fsm, explanation, agents, phi, psi)
+        
+    
+    def test_transmission_cau(self):
+        fsm = self.transmission()
+        
+        spec = parseATL("['transmitter']['TRUE' U ~'received']")[0]
+        agents = {atom.value for atom in spec.group}
+        phi = evalATL(fsm, spec.left)
+        psi = evalATL(fsm, spec.right)
+        self.assertTrue(check(fsm, spec))
+        sat = evalATL(fsm, spec)
+        initsat = sat & fsm.init
+        first = fsm.pick_one_state(initsat)
+        explanation = explain_cau(fsm, first, agents, phi, psi)
+        self.check_ceu(fsm, explanation, agents, phi, psi)
+    
+    
+    def test_cardgame_cau(self):
+        fsm = self.cardgame()
+        
+        spec = parseATL("['dealer']['TRUE' U 'win']")[0]
+        agents = {atom.value for atom in spec.group}
+        phi = evalATL(fsm, spec.left)
+        psi = evalATL(fsm, spec.right)
+        self.assertTrue(check(fsm, spec))
+        sat = evalATL(fsm, spec)
+        initsat = sat & fsm.init
+        first = fsm.pick_one_state(initsat)
+        explanation = explain_cau(fsm, first, agents, phi, psi)
+        self.check_ceu(fsm, explanation, agents, phi, psi)
+        
+        spec = parseATL("['dealer']['TRUE' U 'lose']")[0]
+        agents = {atom.value for atom in spec.group}
+        phi = evalATL(fsm, spec.left)
+        psi = evalATL(fsm, spec.right)
+        self.assertTrue(check(fsm, spec))
+        sat = evalATL(fsm, spec)
+        initsat = sat & fsm.init
+        first = fsm.pick_one_state(initsat)
+        explanation = explain_cau(fsm, first, agents, phi, psi)
+        self.check_ceu(fsm, explanation, agents, phi, psi)
+        
+    
+    @unittest.skip("Test too long")
+    def test_tictactoe_cau(self):
+        fsm = self.tictactoe()
+        
+        spec = parseATL("['circlep']['TRUE' U  ('winner != circle' & 'run = stop')]")[0]
+        agents = {atom.value for atom in spec.group}
+        phi = evalATL(fsm, spec.left)
+        psi = evalATL(fsm, spec.right)
+        self.assertTrue(check(fsm, spec))
+        sat = evalATL(fsm, spec)
+        
+        self.assertEqual(sat, fp(lambda Y : psi | (phi & fsm.pre_nstrat(Y, agents)), BDD.false(fsm.bddEnc.DDmanager)))
+        
+        initsat = sat & fsm.init
+        first = fsm.pick_one_state(initsat)
+        explanation = explain_cau(fsm, first, agents, phi, psi)
         self.check_ceu(fsm, explanation, agents, phi, psi)
