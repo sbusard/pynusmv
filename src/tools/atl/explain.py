@@ -1,3 +1,5 @@
+from pynusmv.dd import BDD
+
 class Explanation():
     """
     Explanations consistute a graph explaining why a particular state satisfies
@@ -14,6 +16,43 @@ class Explanation():
         """
         self.state = state
         self.successors = successors if successors else set()
+        
+    
+    def dot(self):
+        """
+        Return a dot representation (as a text) of this explanation.
+        """
+        # Get all states, keep them and mark them
+        ids = {}
+        curid = 0
+        extract = {self}
+        while len(extract) > 0:
+            expl = extract.pop()
+            ids[expl] = "s" + str(curid)
+            curid += 1
+            for (action, succ) in expl.successors:
+                extract.add(succ)
+                
+        dot = "digraph {"
+        
+        # Add states to the dot representation
+        for expl in ids:
+            dot += (ids[expl] + " " + "[label=\"" +
+                    '\\n'.join(var + "=" + val for var, val in
+                                            expl.state.get_str_values().items()) +
+                    "\"]" + ";\n")
+        
+        # For each state, add each transition to the representation
+        for expl in ids:
+            for action, succ in expl.successors:
+                dot += (ids[expl] + "->" + ids[succ] + " " +
+                        "[label=\"" + "\\n".join(var + "=" + val for var, val in 
+                                        action.get_str_values().items()) + "\"]"
+                        + ";\n")
+        
+        dot += "}"
+        
+        return dot
     
 
 def explain_cex(fsm, state, agents, phi):
@@ -63,7 +102,35 @@ def explain_ceu(fsm, state, agents, phi, psi):
     phi -- the set of states of fsm satifying phi;
     psi -- the set of states of fsm satifying psi.
     """
-    pass # TODO
+    # <agents> phi U psi = mu Y. psi | (phi & fsm.pre_strat(Y, agents))
+    
+    # To show that state satisfies <agents> phi U psi
+    #   if state in psi, return Explanation(state) because state is its own
+    #   explanation
+    #   otherwise, compute the fixpoint, until state is in the last set
+    #   then choose one action always leading to states of the previous set
+    #   (it is possible because state is added because it can go one step in
+    #   the right direction), and recursively explain why the found states
+    #   satisfy <agents> phi U psi.
+    
+    if state <= psi:
+        return Explanation(state)
+        
+    else:
+        f = lambda Y : psi | (phi & fsm.pre_strat(Y, agents))
+        old = BDD.false(fsm.bddEnc.DDmanager)
+        new = psi
+        while not state <= new:
+            old = new
+            new = f(old)
+        
+        expl = explain_cex(fsm, state, agents, old)
+        
+        successors = set()
+        for action, succ in expl.successors:
+            successors.add((action,
+                            explain_ceu(fsm, succ.state, agents, phi, psi)))
+        return Explanation(state, successors)
     
     
 def explain_ceg(fsm, state, agents, phi):
@@ -100,7 +167,33 @@ def explain_cax(fsm, state, agents, phi):
     agents -- the agents of the specification;
     phi -- the set of states of fsm satifying phi.
     """
-    pass # TODO
+    # To show that state satisfies [agents] X phi, we have to show that
+    # for each action of agents, there is a completion by other agents such that
+    # the reached state satisfies phi.
+    # That is, we have to take all actions and of agents and for each of them
+    # exhibit a successor satisfying phi.
+    
+    # Cubes
+    gamma_cube = fsm.inputs_cube_for_agents(agents)
+    ngamma_cube = fsm.bddEnc.inputsCube - gamma_cube
+    
+    # Get all different actions of agents
+    ag_actions = set()
+    for action in fsm.pick_all_inputs((fsm.protocol(agents) &
+                                         state).forsome(fsm.bddEnc.statesCube)):
+        ag_actions.add(action.forsome(ngamma_cube))
+    
+    # Get successors
+    successors = set()
+    for ag_action in ag_actions:
+        # Choose one successor through ag_action
+        succ = fsm.pick_one_state(fsm.post(state, ag_action) & phi)
+        # Get the full action
+        act = fsm.pick_one_inputs(fsm.get_inputs_between_states(state, succ) &
+                                  ag_action)
+        successors.add((act, Explanation(succ)))
+    
+    return Explanation(state, successors)    
     
     
 def explain_cau(fsm, state, agents, phi, psi):
