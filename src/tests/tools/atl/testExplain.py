@@ -1,0 +1,180 @@
+import unittest
+
+from pynusmv.dd import BDD
+from pynusmv.init import init_nusmv, deinit_nusmv
+from pynusmv.mc import eval_simple_expression
+
+from tools.mas import glob
+
+from tools.atl.check import check
+from tools.atl.eval import evalATL, cex
+from tools.atl.parsing import parseATL
+from tools.atl.explain import explain_cex
+
+
+class TestCheck(unittest.TestCase):
+    
+    def setUp(self):
+        init_nusmv()
+    
+    def tearDown(self):
+        glob.reset_globals()
+        deinit_nusmv()
+    
+    
+    def small(self):
+        glob.load_from_file("tests/tools/atl/models/small-game.smv")
+        fsm = glob.mas()
+        self.assertIsNotNone(fsm)
+        return fsm
+        
+    def cardgame(self):
+        glob.load_from_file("tests/tools/atl/models/cardgame.smv")
+        fsm = glob.mas()
+        self.assertIsNotNone(fsm)
+        return fsm
+        
+    def transmission(self):
+        glob.load_from_file("tests/tools/atl/models/transmission.smv")
+        fsm = glob.mas()
+        self.assertIsNotNone(fsm)
+        return fsm
+    
+    def tictactoe(self):
+        glob.load_from_file("tests/tools/atl/models/tictactoe.smv")
+        fsm = glob.mas()
+        self.assertIsNotNone(fsm)
+        return fsm
+        
+    def show_si(self, fsm, bdd):
+        if bdd.isnot_false():
+            sis = fsm.pick_all_states_inputs(bdd)
+            print("SI count:", len(sis))
+            for si in sis:
+                print(si.get_str_values())
+            
+    def show_s(self, fsm, bdd):
+        if bdd.isnot_false():
+            ss = fsm.pick_all_states(bdd)
+            print("S count:", len(ss))
+            for s in ss:
+                print(s.get_str_values())
+            
+    def show_i(self, fsm, bdd):
+        if bdd.isnot_false():
+            ii = fsm.pick_all_inputs(bdd)
+            print("I count:", len(ii))
+            for i in ii:
+                print(i.get_str_values())
+                
+                
+    def show_cex(self, explanation, spec):
+        """Show the explanation of spec satisfied by explanation.state."""
+        print()
+        print("Explaining", spec)
+        print(explanation.state.get_str_values())
+        for action, succ in explanation.successors:
+            print("action:", action.get_str_values())
+            print("successor:", succ.state.get_str_values())
+            
+    
+    def check_cex(self, fsm, explanation, agents, phi):
+        """Check that the explanation is correct."""
+        # Get the cubes
+        gamma_cube = fsm.inputs_cube_for_agents(agents)
+        ngamma_cube = fsm.bddEnc.inputsCube - gamma_cube
+        
+        # The first state satisfies the spec
+        self.assertTrue(explanation.state <= cex(fsm, agents, phi))
+        acts = BDD.false(fsm.bddEnc.DDmanager)
+        states = BDD.false(fsm.bddEnc.DDmanager)
+        for (act, succ) in explanation.successors:
+            ag_action = act.forsome(ngamma_cube)
+            # The successor satisfies phi
+            self.assertTrue(succ.state <= phi)
+            # The action is effectively possible
+            self.assertTrue(act <= fsm.get_inputs_between_states(
+                                                 explanation.state, succ.state))
+            # Accumulate states and actions
+            acts = acts | act
+            states = states | succ.state
+        
+        # The reached states are effectively the reachable states
+        # through the action
+        self.assertTrue(states <= fsm.post(explanation.state, ag_action))
+        self.assertTrue(states >= fsm.post(explanation.state, ag_action)
+                                                        & fsm.bddEnc.statesMask)
+                                                        
+        # The actions are effectively all the possible actions completing ag_act
+        self.assertTrue(acts <= ag_action)
+        self.assertTrue(acts >= ag_action & 
+                      fsm.get_inputs_between_states(explanation.state, states) &
+                      fsm.bddEnc.inputsMask)
+        
+    
+    def test_transmission_cex(self):
+        fsm = self.transmission()
+        
+        spec = parseATL("<'transmitter'>X ~'received'")[0]
+        agents = {atom.value for atom in spec.group}
+        phi = evalATL(fsm, spec.child)
+        self.assertTrue(check(fsm, spec))
+        sat = evalATL(fsm, spec)
+        initsat = sat & fsm.init
+        first = fsm.pick_one_state(initsat)
+        explanation = explain_cex(fsm, first, agents, phi)
+        #self.show_cex(explanation, spec)
+        self.check_cex(fsm, explanation, agents, phi)
+    
+    
+    def test_cardgame_cex(self):
+        fsm = self.cardgame()
+        
+        spec = parseATL("<'dealer'>X 'pcard = Ac'")[0]
+        agents = {atom.value for atom in spec.group}
+        phi = evalATL(fsm, spec.child)
+        self.assertTrue(check(fsm, spec))
+        sat = evalATL(fsm, spec)
+        initsat = sat & fsm.init
+        first = fsm.pick_one_state(initsat)
+        explanation = explain_cex(fsm, first, agents, evalATL(fsm, spec.child))
+        #self.show_cex(explanation, spec)
+        self.check_cex(fsm, explanation, agents, phi)
+        
+        spec = parseATL("<'player'>X 'step = 1'")[0]
+        agents = {atom.value for atom in spec.group}
+        phi = evalATL(fsm, spec.child)
+        self.assertTrue(check(fsm, spec))
+        sat = evalATL(fsm, spec)
+        initsat = sat & fsm.init
+        first = fsm.pick_one_state(initsat)
+        explanation = explain_cex(fsm, first, agents, evalATL(fsm, spec.child))
+        #self.show_cex(explanation, spec)
+        self.check_cex(fsm, explanation, agents, phi)
+        
+
+    def test_tictactoe_cex(self):
+        fsm = self.tictactoe()
+        
+        spec = parseATL("'run = circle' -> <'circlep'>X 'run = cross'")[0]
+        
+        agents = {atom.value for atom in spec.right.group}
+        phi = evalATL(fsm, spec.right.child)
+        self.assertTrue(check(fsm, spec))
+        sat = evalATL(fsm, spec)
+        initsat = sat & fsm.init
+        first = fsm.pick_one_state(initsat)
+        explanation = explain_cex(fsm, first, agents, phi)
+        #self.show_cex(explanation, spec.right)
+        self.check_cex(fsm, explanation, agents, phi)
+        
+        spec = parseATL("'run = circle' -> <'circlep'>X 'board[1] = circle'")[0]
+        agents = {atom.value for atom in spec.right.group}
+        phi = evalATL(fsm, spec.right.child)
+        self.assertTrue(check(fsm, spec))
+        sat = evalATL(fsm, spec)
+        initsat = sat & fsm.init
+        first = fsm.pick_one_state(initsat)
+        explanation = explain_cex(fsm, first, agents, phi)
+        #self.show_cex(explanation, spec.right)
+        self.check_cex(fsm, explanation, agents, phi)
