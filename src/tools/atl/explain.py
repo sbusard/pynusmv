@@ -1,6 +1,6 @@
 from pynusmv.dd import BDD
 
-from .eval import ceg
+from .eval import ceg, ceu
 
 class Explanation():
     """
@@ -312,7 +312,36 @@ def explain_cag(fsm, state, agents, phi):
     agents -- the agents of the specification;
     phi -- the set of states of fsm satifying phi.
     """
-    pass # TODO
+    # To show that state satisfies [agents] G phi
+    # we just have to explain why state satisfies [agents]X[agents]G phi
+    # and iterate until we reach the fixpoint.
+    # By keeping track of already visited states,
+    # we know that we will finally extract the full sub-system of phi states.
+    
+    # Get CAG(phi)
+    cagphi = ~ceu(fsm, agents, BDD.true(fsm.bddEnc.DDmanager), ~phi)
+    
+    # Get all states and transitions
+    extract = {state}
+    states = set()
+    transitions = set()
+    while len(extract) > 0:
+        cur = extract.pop()
+        states.add(cur)
+        expl = explain_cax(fsm, cur, agents, cagphi)
+        for act, succ in expl.successors:
+            transitions.add((cur, act, succ.state))
+            if succ.state not in states:
+                extract.add(succ.state)
+    
+    # Build the graph
+    nodes = {}
+    for s in states:
+        nodes[s] = Explanation(s)
+    for cur, act, succ in transitions:
+        nodes[cur].successors.add((act, nodes[succ]))
+    
+    return nodes[state]
     
     
 def explain_caw(fsm, state, agents, phi, psi):

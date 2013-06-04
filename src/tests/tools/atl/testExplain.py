@@ -12,7 +12,7 @@ from tools.atl.check import check
 from tools.atl.eval import evalATL, cex
 from tools.atl.parsing import parseATL
 from tools.atl.explain import (explain_cex, explain_cax, explain_ceu,
-                               explain_cau, explain_ceg)
+                               explain_cau, explain_ceg, explain_cag)
 
 
 class TestCheck(unittest.TestCase):
@@ -470,6 +470,7 @@ class TestCheck(unittest.TestCase):
         self.check_ceg(fsm, explanation, agents, phi)
         
     
+    @unittest.skip("Test too long.")
     def test_tictactoe_ceg(self):
         fsm = self.tictactoe()
         
@@ -491,4 +492,58 @@ class TestCheck(unittest.TestCase):
         initsat = sat & fsm.init
         first = fsm.pick_one_state(initsat)
         explanation = explain_ceg(fsm, first, agents, phi)
+        self.check_ceg(fsm, explanation, agents, phi)
+        
+    
+    def test_transmission_cag(self):
+        fsm = self.transmission()
+        
+        spec = parseATL("['sender'] G ~'received'")[0]
+        agents = {atom.value for atom in spec.group}
+        phi = evalATL(fsm, spec.child)
+        self.assertTrue(check(fsm, spec))
+        sat = evalATL(fsm, spec)
+        initsat = sat & fsm.init
+        first = fsm.pick_one_state(initsat)
+        explanation = explain_cag(fsm, first, agents, phi)
+        self.check_ceg(fsm, explanation, agents, phi)
+        
+        
+        spec = parseATL("['transmitter'] G ~'received'")[0]
+        agents = {atom.value for atom in spec.group}
+        phi = evalATL(fsm, spec.child)
+        self.assertTrue(check(fsm, spec))
+        sat = evalATL(fsm, spec)
+        initsat = sat & fsm.init
+        first = fsm.pick_one_state(initsat)
+        explanation = explain_cag(fsm, first, agents, phi)
+        self.check_ceg(fsm, explanation, agents, phi)
+    
+    
+    def test_cardgame_cag(self):
+        fsm = self.cardgame()
+        
+        spec = parseATL("['dealer'] G ~'win'")[0]
+        agents = {atom.value for atom in spec.group}
+        phi = evalATL(fsm, spec.child)
+        self.assertTrue(check(fsm, spec))
+        sat = evalATL(fsm, spec)
+        initsat = sat & fsm.init
+        first = fsm.pick_one_state(initsat)
+        explanation = explain_cag(fsm, first, agents, phi)
+        self.check_ceg(fsm, explanation, agents, phi)
+        
+    
+    @unittest.skip("Test too long.")
+    def test_tictactoe_cag(self):
+        fsm = self.tictactoe()
+        
+        spec = parseATL("['circlep'] G 'winner != circle'")[0]
+        agents = {atom.value for atom in spec.group}
+        phi = evalATL(fsm, spec.child)
+        self.assertTrue(check(fsm, spec))
+        sat = evalATL(fsm, spec)
+        initsat = sat & fsm.init
+        first = fsm.pick_one_state(initsat)
+        explanation = explain_cag(fsm, first, agents, phi)
         self.check_ceg(fsm, explanation, agents, phi)
