@@ -97,7 +97,7 @@ def explain_cex(fsm, state, agents, phi):
     return Explanation(state, successors)
     
     
-def explain_ceu(fsm, state, agents, phi, psi):
+def explain_ceu(fsm, state, agents, phi, psi, states=None):
     """
     Explain why state of fsm satisfies <agents> phi U psi.
     
@@ -105,7 +105,8 @@ def explain_ceu(fsm, state, agents, phi, psi):
     state -- a state of fsm satisfying <agents> phi U psi;
     agents -- the agents of the specification;
     phi -- the set of states of fsm satifying phi;
-    psi -- the set of states of fsm satifying psi.
+    psi -- the set of states of fsm satifying psi;
+    states -- a dictionary of state->explanation pairs.
     """
     # <agents> phi U psi = mu Y. psi | (phi & fsm.pre_strat(Y, agents))
     
@@ -118,8 +119,20 @@ def explain_ceu(fsm, state, agents, phi, psi):
     #   the right direction), and recursively explain why the found states
     #   satisfy <agents> phi U psi.
     
+    # states is used to store already explained states and create a directed
+    # acyclic graph instead of the pure execution tree, to avoid a blow up
+    # in terms of number of states.
+    
+    if states is None:
+        states = {}
+    
+    if state in states:
+        return states[state]
+    
     if state <= psi:
-        return Explanation(state)
+        new = Explanation(state)
+        states[state] = new
+        return new
         
     else:
         f = lambda Y : psi | (phi & fsm.pre_strat(Y, agents))
@@ -134,8 +147,11 @@ def explain_ceu(fsm, state, agents, phi, psi):
         successors = set()
         for action, succ in expl.successors:
             successors.add((action,
-                            explain_ceu(fsm, succ.state, agents, phi, psi)))
-        return Explanation(state, successors)
+                            explain_ceu(fsm, succ.state, agents,
+                                        phi, psi, states)))
+        new = Explanation(state, successors)
+        states[state] = new
+        return new
     
     
 def explain_ceg(fsm, state, agents, phi):
@@ -231,7 +247,7 @@ def explain_cax(fsm, state, agents, phi):
     return Explanation(state, successors)    
     
     
-def explain_cau(fsm, state, agents, phi, psi):
+def explain_cau(fsm, state, agents, phi, psi, states=None):
     """
     Explain why state of fsm satisfies [agents] phi U psi.
     
@@ -239,7 +255,8 @@ def explain_cau(fsm, state, agents, phi, psi):
     state -- a state of fsm satisfying [agents] phi U psi;
     agents -- the agents of the specification;
     phi -- the set of states of fsm satifying phi;
-    psi -- the set of states of fsm satifying psi.
+    psi -- the set of states of fsm satifying psi;
+    states -- a dictionary of state->explanation pairs.
     """
     # [agents] phi U psi = mu Y. psi | (phi & fsm.pre_nstrat(Y, agents))
     
@@ -252,8 +269,19 @@ def explain_cau(fsm, state, agents, phi, psi):
     #   one step in the right direction), and recursively explain why the found
     #   states satisfy [agents] phi U psi.
     
+    # states is used to store already explained states to create a directed
+    # acyclic graph instead of the pure execution tree.
+    
+    if states is None:
+        states = {}
+        
+    if state in states:
+        return states[state]
+    
     if state <= psi:
-        return Explanation(state)
+        new = Explanation(state)
+        states[state] = new
+        return new
         
     else:
         f = lambda Y : psi | (phi & fsm.pre_nstrat(Y, agents))
@@ -268,8 +296,11 @@ def explain_cau(fsm, state, agents, phi, psi):
         successors = set()
         for action, succ in expl.successors:
             successors.add((action,
-                            explain_cau(fsm, succ.state, agents, phi, psi)))
-        return Explanation(state, successors)
+                            explain_cau(fsm, succ.state, agents,
+                                        phi, psi, states)))
+        new = Explanation(state, successors)
+        states[state] = new
+        return new
     
     
 def explain_cag(fsm, state, agents, phi):
