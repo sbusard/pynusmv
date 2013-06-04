@@ -12,7 +12,7 @@ from tools.atl.check import check
 from tools.atl.eval import evalATL, cex
 from tools.atl.parsing import parseATL
 from tools.atl.explain import (explain_cex, explain_cax, explain_ceu,
-                               explain_cau)
+                               explain_cau, explain_ceg)
 
 
 class TestCheck(unittest.TestCase):
@@ -158,6 +158,22 @@ class TestCheck(unittest.TestCase):
                 self.assertTrue(len(expl.successors) > 0)
             for action, succ in expl.successors:
                 extract.add(succ)
+                
+    
+    def check_ceg(self, fsm, explanation, agents, phi):
+        # For all states, check that
+        # it is in phi,
+        # it has at least one successor
+        extract = {explanation}
+        states = set()
+        while len(extract) > 0:
+            expl = extract.pop()
+            states.add(expl)
+            self.assertTrue(expl.state <= phi)
+            self.assertTrue(len(expl.successors) > 0)
+            for action, succ in expl.successors:
+                if succ not in states:
+                    extract.add(succ)
     
     
     def test_transmission_cex(self):
@@ -413,3 +429,66 @@ class TestCheck(unittest.TestCase):
         first = fsm.pick_one_state(initsat)
         explanation = explain_cau(fsm, first, agents, phi, psi)
         self.check_ceu(fsm, explanation, agents, phi, psi)
+
+        
+    def test_transmission_ceg(self):
+        fsm = self.transmission()
+        
+        spec = parseATL("<'transmitter'> G ~'received'")[0]
+        agents = {atom.value for atom in spec.group}
+        phi = evalATL(fsm, spec.child)
+        self.assertTrue(check(fsm, spec))
+        sat = evalATL(fsm, spec)
+        initsat = sat & fsm.init
+        first = fsm.pick_one_state(initsat)
+        explanation = explain_ceg(fsm, first, agents, phi)
+        self.check_ceg(fsm, explanation, agents, phi)
+        
+        
+        spec = parseATL("<'sender'> G ~'received'")[0]
+        agents = {atom.value for atom in spec.group}
+        phi = evalATL(fsm, spec.child)
+        self.assertTrue(check(fsm, spec))
+        sat = evalATL(fsm, spec)
+        initsat = sat & fsm.init
+        first = fsm.pick_one_state(initsat)
+        explanation = explain_ceg(fsm, first, agents, phi)
+        self.check_ceg(fsm, explanation, agents, phi)
+    
+    
+    def test_cardgame_ceg(self):
+        fsm = self.cardgame()
+        
+        spec = parseATL("<'player'> G ~'win'")[0]
+        agents = {atom.value for atom in spec.group}
+        phi = evalATL(fsm, spec.child)
+        self.assertTrue(check(fsm, spec))
+        sat = evalATL(fsm, spec)
+        initsat = sat & fsm.init
+        first = fsm.pick_one_state(initsat)
+        explanation = explain_ceg(fsm, first, agents, phi)
+        self.check_ceg(fsm, explanation, agents, phi)
+        
+    
+    def test_tictactoe_ceg(self):
+        fsm = self.tictactoe()
+        
+        spec = parseATL("<'circlep', 'crossp'> G 'winner = empty'")[0]
+        agents = {atom.value for atom in spec.group}
+        phi = evalATL(fsm, spec.child)
+        self.assertTrue(check(fsm, spec))
+        sat = evalATL(fsm, spec)
+        initsat = sat & fsm.init
+        first = fsm.pick_one_state(initsat)
+        explanation = explain_ceg(fsm, first, agents, phi)
+        self.check_ceg(fsm, explanation, agents, phi)
+        
+        spec = parseATL("<'circlep'> G 'winner != circle'")[0]
+        agents = {atom.value for atom in spec.group}
+        phi = evalATL(fsm, spec.child)
+        self.assertTrue(check(fsm, spec))
+        sat = evalATL(fsm, spec)
+        initsat = sat & fsm.init
+        first = fsm.pick_one_state(initsat)
+        explanation = explain_ceg(fsm, first, agents, phi)
+        self.check_ceg(fsm, explanation, agents, phi)
