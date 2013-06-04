@@ -13,7 +13,7 @@ from tools.atl.eval import evalATL, cex
 from tools.atl.parsing import parseATL
 from tools.atl.explain import (explain_cex, explain_cax, explain_ceu,
                                explain_cau, explain_ceg, explain_cag,
-                               explain_cew)
+                               explain_cew, explain_caw)
 
 
 class TestCheck(unittest.TestCase):
@@ -577,4 +577,31 @@ class TestCheck(unittest.TestCase):
         initsat = sat & fsm.init
         first = fsm.pick_one_state(initsat)
         explanation = explain_cew(fsm, first, agents, phi, psi)
+        self.check_ceu(fsm, explanation, agents, phi, psi)
+        
+        
+    def test_cardgame_caw(self):
+        fsm = self.cardgame()
+        
+        spec = parseATL("['dealer'][~'lose' W 'win']")[0]
+        agents = {atom.value for atom in spec.group}
+        phi = evalATL(fsm, spec.left)
+        psi = evalATL(fsm, spec.right)
+        self.assertTrue(check(fsm, spec))
+        sat = evalATL(fsm, spec)
+        initsat = sat & fsm.init
+        first = fsm.pick_one_state(initsat)
+        explanation = explain_caw(fsm, first, agents, phi, psi)
+        self.check_ceu(fsm, explanation, agents, phi, psi)
+        
+        
+        spec = parseATL("['dealer'][~'lose' W 'step = 3']")[0]
+        agents = {atom.value for atom in spec.group}
+        phi = evalATL(fsm, spec.left)
+        psi = evalATL(fsm, spec.right)
+        self.assertTrue(check(fsm, spec))
+        sat = evalATL(fsm, spec)
+        initsat = sat & fsm.init
+        first = fsm.pick_one_state(initsat)
+        explanation = explain_caw(fsm, first, agents, phi, psi)
         self.check_ceu(fsm, explanation, agents, phi, psi)
