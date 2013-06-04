@@ -97,7 +97,7 @@ def evalATL(fsm, spec):
         # [g][p W q] = ~<g>[~q U ~p & ~q]
         return ~ceu(fsm, {atom.value for atom in spec.group},
                     ~evalATL(fsm, spec.right),
-                    ~evalATL(fsm, spec.right) & ~evalATLK(fsm, spec.left))
+                    ~evalATL(fsm, spec.right) & ~evalATL(fsm, spec.left))
         
     else:
         # TODO Generate error
