@@ -1,6 +1,6 @@
 from pynusmv.dd import BDD
 
-from .eval import ceg, ceu
+from .eval import ceg, ceu, cew
 
 class Explanation():
     """
@@ -205,7 +205,38 @@ def explain_cew(fsm, state, agents, phi, psi):
     phi -- the set of states of fsm satifying phi;
     psi -- the set of states of fsm satifying psi.
     """
-    pass # TODO
+    # To show that state satisfies <agents> phi W psi
+    # either it satisfies psi and we are done,
+    # or we have to explain why state satisfies <agents>X<agents>phi W psi
+    # and iterate until we reach the fixpoint or stop at psi.
+    # By keeping track of already visited states,
+    # we know that we will finally extract the full sub-system.
+    
+    # Get CEW(phi,psi)
+    cewpp = cew(fsm, agents, phi, psi)
+    
+    # Get all states and transitions
+    extract = {state}
+    states = set()
+    transitions = set()
+    while len(extract) > 0:
+        cur = extract.pop()
+        states.add(cur)
+        if not cur <= psi:
+            expl = explain_cex(fsm, cur, agents, cewpp)
+            for act, succ in expl.successors:
+                transitions.add((cur, act, succ.state))
+                if succ.state not in states:
+                    extract.add(succ.state)
+    
+    # Build the graph
+    nodes = {}
+    for s in states:
+        nodes[s] = Explanation(s)
+    for cur, act, succ in transitions:
+        nodes[cur].successors.add((act, nodes[succ]))
+    
+    return nodes[state]
     
     
 def explain_cax(fsm, state, agents, phi):

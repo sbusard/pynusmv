@@ -12,7 +12,8 @@ from tools.atl.check import check
 from tools.atl.eval import evalATL, cex
 from tools.atl.parsing import parseATL
 from tools.atl.explain import (explain_cex, explain_cax, explain_ceu,
-                               explain_cau, explain_ceg, explain_cag)
+                               explain_cau, explain_ceg, explain_cag,
+                               explain_cew)
 
 
 class TestCheck(unittest.TestCase):
@@ -149,15 +150,18 @@ class TestCheck(unittest.TestCase):
         # if it's in phi, it has a least one successor
         # if it's in psi, it has no successor
         extract = {explanation}
+        states = set()
         while len(extract) > 0:
             expl = extract.pop()
+            states.add(expl)
             self.assertTrue(expl.state <= phi | psi)
             if expl.state <= psi:
                 self.assertTrue(len(expl.successors) == 0)
             else:
                 self.assertTrue(len(expl.successors) > 0)
             for action, succ in expl.successors:
-                extract.add(succ)
+                if succ not in states:
+                    extract.add(succ)
                 
     
     def check_ceg(self, fsm, explanation, agents, phi):
@@ -547,3 +551,30 @@ class TestCheck(unittest.TestCase):
         first = fsm.pick_one_state(initsat)
         explanation = explain_cag(fsm, first, agents, phi)
         self.check_ceg(fsm, explanation, agents, phi)
+    
+    
+    def test_cardgame_cew(self):
+        fsm = self.cardgame()
+        
+        spec = parseATL("<'player'>[~'lose' W 'win']")[0]
+        agents = {atom.value for atom in spec.group}
+        phi = evalATL(fsm, spec.left)
+        psi = evalATL(fsm, spec.right)
+        self.assertTrue(check(fsm, spec))
+        sat = evalATL(fsm, spec)
+        initsat = sat & fsm.init
+        first = fsm.pick_one_state(initsat)
+        explanation = explain_cew(fsm, first, agents, phi, psi)
+        self.check_ceu(fsm, explanation, agents, phi, psi)
+        
+        
+        spec = parseATL("<'player'>[~'lose' W 'step = 3']")[0]
+        agents = {atom.value for atom in spec.group}
+        phi = evalATL(fsm, spec.left)
+        psi = evalATL(fsm, spec.right)
+        self.assertTrue(check(fsm, spec))
+        sat = evalATL(fsm, spec)
+        initsat = sat & fsm.init
+        first = fsm.pick_one_state(initsat)
+        explanation = explain_cew(fsm, first, agents, phi, psi)
+        self.check_ceu(fsm, explanation, agents, phi, psi)
