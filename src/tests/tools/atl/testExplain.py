@@ -473,6 +473,16 @@ class TestCheck(unittest.TestCase):
         explanation = explain_ceg(fsm, first, agents, phi)
         self.check_ceg(fsm, explanation, agents, phi)
         
+        spec = parseATL("<'player','dealer'> G ~'win'")[0]
+        agents = {atom.value for atom in spec.group}
+        phi = evalATL(fsm, spec.child)
+        self.assertTrue(check(fsm, spec))
+        sat = evalATL(fsm, spec)
+        initsat = sat & fsm.init
+        first = fsm.pick_one_state(initsat)
+        explanation = explain_ceg(fsm, first, agents, phi)
+        self.check_ceg(fsm, explanation, agents, phi)
+        
     
     @unittest.skip("Test too long.")
     def test_tictactoe_ceg(self):
