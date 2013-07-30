@@ -1,4 +1,17 @@
 --- Simple card game
+--- 
+--- The game is composed of a player, a dealer and three cards: an Ace, a King
+--- and a Queen; the Ace wins over the King, the King over the Queen and the Queen over the Ace. The game is played in two steps.
+--- During the first step, the dealer gives one card to the player, keeps one
+--- and put the last one, hidden, on table. The dealer sees all cards, while
+--- the player only sees his.
+--- During the second step, the player can ask to swap his card with the one
+--- on table, or to keep it.
+--- At the end, the winner is the one with the winning card.
+---
+--- In this version of the game, the game is played again and again,
+--- and fairness constraints are added such that a fair path happens only if
+--- the dealer fairly give the cards.
 ---
 --- Simon Busard <simon.busard@uclouvain.be>, 19/03/13
 
