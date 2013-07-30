@@ -1,4 +1,14 @@
---- One bit transmission, with knowledge of the transmission
+--- One bit transmission system
+---
+--- The system is composed of one bit of information, a sender
+--- and a transmitter.
+--- The sender can ask to send the bit or to wait, while the transmitter can
+--- choose to transmit the bit or block the transmission.
+--- The bit is received if and only if the sender sends the bit,
+--- and the transmitter transmits it.
+---
+--- In this version of the system, both agents are aware of the bit being
+--- received or not.
 ---
 --- Simon Busard <simon.busard@uclouvain.be>, 23/03/13
 

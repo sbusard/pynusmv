@@ -1,4 +1,19 @@
---- One bit transmission
+--- One bit transmission system
+---
+--- The system is composed of one bit of information, a sender
+--- and a transmitter.
+--- The sender can ask to send the bit or to wait, while the transmitter can
+--- choose to transmit the bit or block the transmission.
+--- The bit is received if and only if the sender sends the bit,
+--- and the transmitter transmits it.
+---
+--- In this version of the system, fairness constraints are added such that
+--- a fair path only happens when the transmitter allows the transmission
+--- infinitely often (representing a fair channel).
+---
+--- In this version of the system, additional state variables are added to
+--- track the last played actions, and fairness constraints are only specified
+--- on state variables (not on input variables).
 ---
 --- Simon Busard <simon.busard@uclouvain.be>, 23/03/13
 
