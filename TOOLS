@@ -91,7 +91,43 @@ An implementation of ATL model checking is provided, relying on the MAS library.
 
 python -m tools.atl.check [model]
 
-where model is the path to an SMV model representing a Multi-agent system (see above). The tool loads the model and starts a minimal command-line interface. Every typed ATL formula is checked and the result of the verification is given at standard output.
+where model is the path to an SMV model representing a Multi-agent system (see above). The tool loads the model and starts a minimal command-line interface. Every typed ATL formula is checked and the result of the verification is given at standard output. The command-line interface can be exited with EOF (CTRL-D).
+
+The grammar for ATL properties phi is the following:
+
+phi ::= EXPR | '(' phi ')' | phi '&' phi | phi '|' phi | '~'phi | phi '->' phi
+        | phi '<->' phi | '<' group '>' psi | '[' GROUP ']' psi
+psi ::= 'X' phi | 'G' phi | 'F' phi | '[' phi 'U' phi ']' | '[' phi 'W' phi ']'
+
+where EXPR is any simple expression over variables of the system, enclosed into simple quotes (e.g. EXPR = 'transmission = completed' or EXPR = 'v = 3'), and GROUP is a list of agent names enclosed into simple quotes, separated by commas (e.g. GROUP = 'sender', 'transmitter' or GROUP = 'dealer').
+
+
+Model checking ATLK with full and partial observability
+--------------------------------------------------------------------------------
+
+An implementation of model checking algorithms for ATLK with full and partial observability [BPQR13] is provided. This tool can be run with
+
+python -m tools.atlkFO.check [model]
+
+for the full observability setting, and with
+
+python -m tools.atlkPO.check [model]
+
+for the partial observability setting.
+
+[model] is the path to an SMV model representing a Multi-agent system (see above). The tool loads the model and starts a minimal command-line interface. Every typed ATLK formula is checked and the result of the verification is given at standard output. The command-line interface can be exited with EOF (CTRL-D).
+
+The grammar for ATLK properties phi (under both semantics) is the following:
+
+phi ::= EXPR | '(' phi ')' | phi '&' phi | phi '|' phi | '~'phi | phi '->' phi
+        | phi '<->' phi | '<' group '>' psi | '[' GROUP ']' psi
+        | 'A' psi | 'E' psi | 'nK' '<' AGENT '>' phi | 'K' '<' AGENT '>' phi
+        | 'nE' '<' GROUP '>' phi | 'K' '<' GROUP '>' phi
+        | 'nD' '<' GROUP '>' phi | 'D' '<' GROUP '>' phi
+        | 'nC' '<' GROUP '>' phi | 'C' '<' GROUP '>' phi
+psi ::= 'X' phi | 'G' phi | 'F' phi | '[' phi 'U' phi ']' | '[' phi 'W' phi ']'
+
+where EXPR is any simple expression over variables of the system, enclosed into simple quotes (e.g. EXPR = 'transmission = completed' or EXPR = 'v = 3'), AGENT is an agent name enclosed into simple quotes, and GROUP is a comma-separated list of agent names (e.g. GROUP = 'sender', 'transmitter' or AGENT = 'dealer').
 
 
 DOT model export
@@ -108,5 +144,6 @@ REFERENCES
 --------------------------------------------------------------------------------
 
 [BP12] Simon Busard, Charles Pecheur: Rich Counter-Examples for Temporal-Epistemic Logic Model Checking. IWIGP 2012: 39-53
+[BPQR13] Simon Busard, Charles Pecheur, Hongyang Qu, Franco Raimondi: Reasoning about Strategies under Partial Observability and Fairness Constraints. Proceedings of SR 2013, EPTCS Vol. 112, pp. 71–79, 2013.
 [PL03] W.Penczek, A.Lomuscio: Verifying epistemic properties of multi-agent systems via bounded model checking. Fundamenta Informaticae, 55(2) :167–185, 2003.
 [PR07] Charles Pecheur, Franco Raimondi: Symbolic Model Checking of Logics with Actions. MoChArt 2006: 113-128
