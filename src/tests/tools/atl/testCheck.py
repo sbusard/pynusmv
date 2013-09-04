@@ -32,6 +32,12 @@ class TestCheck(unittest.TestCase):
         self.assertIsNotNone(fsm)
         return fsm
         
+    def cardgamenew(self):
+        glob.load_from_file("tests/tools/atl/models/card-game3.smv")
+        fsm = glob.mas()
+        self.assertIsNotNone(fsm)
+        return fsm
+        
     def transmission(self):
         glob.load_from_file("tests/tools/atl/models/transmission.smv")
         fsm = glob.mas()
@@ -70,6 +76,17 @@ class TestCheck(unittest.TestCase):
         self.assertTrue(check(fsm, parseATL("['player'] X 'pcard=Ac'")[0]))
         self.assertTrue(check(fsm, parseATL("['dealer'] F 'win'")[0]))
         self.assertTrue(check(fsm, parseATL("<'player'> F 'win'")[0]))
+        
+    
+    def test_cardgame_new(self):
+        fsm = self.cardgamenew()
+        
+        self.assertTrue(check(fsm, parseATL("<'dealer'>F 'player.state=1'")[0]))
+        self.assertTrue(check(fsm, parseATL("<'dealer'>F 'player.state=2'")[0]))
+        self.assertTrue(check(fsm, parseATL("<'dealer'>F 'player.state=3'")[0]))
+        self.assertTrue(check(fsm, parseATL("['player']F 'player.state=1'")[0]))
+        self.assertTrue(check(fsm, parseATL("<'player'>F 'playerwins'")[0]))
+        self.assertFalse(check(fsm, parseATL("<'dealer'>F 'dealerwins'")[0]))
         
 
     def test_transmission(self):
