@@ -328,6 +328,8 @@ def eval_strat(fsm, spec):
     """
     sat = BDD.false(fsm.bddEnc.DDmanager)
     agents = {atom.value for atom in spec.group}
+    # TODO restrict protocol to reachable states to avoid splitting useless
+    # equivalence classes
     strats = split(fsm, fsm.protocol(agents), agents)
     for strat in strats:
         if type(spec) is CEX:
