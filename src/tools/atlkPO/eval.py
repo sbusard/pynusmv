@@ -16,14 +16,23 @@ from ..atlkFO.ast import (TrueExp, FalseExp, Init, Reachable,
 from ..atlkFO.eval import (fair_states, ex, eg, eu, nk, ne, nd, nc)
 
 
-def evalATLK(fsm, spec, improved=False):
+def evalATLK(fsm, spec, variant="SF"):
     """
     Return the BDD representing the set of states of fsm satisfying spec.
     
     fsm -- a MAS representing the system
     spec -- an AST-based ATLK specification
-    improved -- whether or not using the improved algorithm for strategies
-                computing
+    variant -- the variant of the algorithm to evaluate strategic operators;
+               must be
+               * "SF" for the standard way: splitting in uniform strategies then
+                 filtering winning states,
+               * "FS" for the alternating way: filtering winning states, then
+                 splitting one conflicting equivalence class, then recurse
+               * "FSF" for the filter-split-filter way: filtering winning states
+                 then splitting all remaining actions into uniform strategies,
+                 then filtering final winning states.
+                 
+    If variant is not in {"SF", "FS", "FSF"}, the standard "SF" way is used.
     """
     
     if type(spec) is TrueExp:
@@ -149,8 +158,12 @@ def evalATLK(fsm, spec, improved=False):
                    ~evalATLK(fsm, spec.child))
                    
     elif type(spec) in {CEX, CAX, CEG, CAG, CEU, CAU, CEF, CAF, CEW, CAW}:
-        if improved:
+        if variant == "FS":
+            return eval_strat(fsm, spec)
+        elif variant == "SF":
             return eval_strat_improved(fsm, spec)
+        elif variant == "FSF":
+            return eval_strat_FSF(fsm, spec)
         else:
             return eval_strat(fsm, spec)
         
@@ -699,3 +712,112 @@ def eval_strat_improved(fsm, spec, strat=None):
             sat = sat | eval_strat_improved(fsm, spec, strat)
     
         return sat
+
+
+def filter_strat(fsm, spec, strat=None):
+    """
+    Returns the subset SA of strat (or the whole system if strat is None),
+    state/action pairs of fsm, such that there is a strategy to satisfy spec
+    in fsm.
+    
+    fsm -- a MAS representing the system;
+    spec -- an AST-based ATLK specification with a top strategic operator;
+            the operator is CEX, CEG, CEF, CEU or CEW.
+    strat -- the subset of the system to consider.
+    """
+    
+    sat = BDD.false(fsm.bddEnc.DDmanager)
+    agents = {atom.value for atom in spec.group}
+    
+    # Filtering
+    if type(spec) is CEX:
+        winning = cex_si(fsm, agents,
+                         evalATLK(fsm, spec.child), strat)
+
+    elif type(spec) is CEG:
+        winning = ceg_si(fsm, agents, evalATLK(fsm, spec.child), strat)
+
+    elif type(spec) is CEU:
+        winning = ceu_si(fsm, agents, evalATLK(fsm, spec.left),
+                         evalATLK(fsm, spec.right), strat)
+
+    elif type(spec) is CEF:
+        # <g> F p = <g>[true U p]
+        winning = ceu_si(fsm, agents, BDD.true(fsm.bddEnc.DDmanager),
+                         evalATLK(fsm, spec.child), strat)
+
+    elif type(spec) is CEW:
+       winning = cew_si(fsm, agents, evalATLK(fsm, spec.left),
+                        evalATLK(fsm, spec.right), strat)
+    
+    
+    return winning & fsm.bddEnc.statesInputsMask & fsm.protocol(agents)
+    
+    
+def eval_strat_FSF(fsm, spec):
+    """
+    Return the BDD representing the set of states of fsm satisfying spec.
+    spec is a strategic operator <G> pi.
+    
+    Implement a variant of the algorithm that
+    filters, splits and then filters.
+    
+    fsm -- a MAS representing the system;
+    spec -- an AST-based ATLK specification with a top strategic operator.
+    
+    """
+    
+    if type(spec) is CAX:
+        # [g] X p = ~<g> X ~p
+        newspec = CEX(spec.group, Not(spec.child))
+        return ~eval_strat_FSF(fsm, newspec)
+        
+    elif type(spec) is CAG:
+        # [g] G p = ~<g> F ~p
+        newspec = CEF(spec.group, Not(spec.child))
+        return ~eval_strat_FSF(fsm, newspec)
+        
+    elif type(spec) is CAU:
+        # [g][p U q] = ~<g>[ ~q W ~p & ~q ]
+        newspec = CEW(spec.group,
+                      Not(spec.right),
+                      And(Not(spec.left), Not(spec.right)))
+        return ~eval_strat_FSF(fsm, newspec)
+        
+    elif type(spec) is CAF:
+        # [g] F p = ~<g> G ~p
+        newspec = CEG(spec.group, Not(spec.child))
+        return ~eval_strat_FSF(fsm, newspec)
+        
+    elif type(spec) is CAW:
+        # [g][p W q] = ~<g>[~q U ~p & ~q]
+        newspec = CEU(spec.group,
+                      Not(spec.right),
+                      And(Not(spec.left), Not(spec.right)))
+        return ~eval_strat_FSF(fsm, newspec)
+        
+        
+    sat = BDD.false(fsm.bddEnc.DDmanager)
+    agents = {atom.value for atom in spec.group}
+    
+    # First filtering
+    winning = filter_strat(fsm, spec)
+    
+    if winning.is_false(): # no state/inputs pairs are winning => return false
+        return winning
+    
+    # Splitting the strategies
+    strats = split(fsm, winning, agents)
+    
+    for strat in strats:
+        # Second filtering
+        winning = filter_strat(fsm, spec, strat)
+        
+        # wineq is the set of states for which all equiv states are in winning
+        winning = winning.forsome(fsm.bddEnc.inputsCube)
+        nwinning = ~winning & fsm.bddEnc.statesInputsMask
+        wineq = ~(fsm.equivalent_states(nwinning &
+                  fsm.reachable_states, frozenset(agents))) & winning
+        sat = sat | wineq
+        
+    return sat

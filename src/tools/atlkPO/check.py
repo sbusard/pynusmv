@@ -7,17 +7,26 @@ from .eval import evalATLK
 from pyparsing import ParseException
 from pynusmv.exception import PyNuSMVError
     
-def check(mas, spec, improved=False):
+def check(mas, spec, variant="SF"):
     """
     Return whether the system satisfies the ATLK specification.
     
     mas -- the system
     spec -- the specification, as a string
-    improved -- whether or not using the improved algorithm to model check
-                strategies
+    variant -- the variant of the algorithm to evaluate strategic operators;
+               must be
+               * "SF" for the standard way: splitting in uniform strategies then
+                 filtering winning states,
+               * "FS" for the alternating way: filtering winning states, then
+                 splitting one conflicting equivalence class, then recurse
+               * "FSF" for the filter-split-filter way: filtering winning states
+                 then splitting all remaining actions into uniform strategies,
+                 then filtering final winning states.
+                 
+    If variant is not in {"SF", "FS", "FSF"}, the standard "SF" way is used.
     
     """
-    sat = evalATLK(mas, spec, improved)
+    sat = evalATLK(mas, spec, variant)
     return (~sat & mas.bddEnc.statesInputsMask & mas.init).is_false()
     
 def process(allargs):
