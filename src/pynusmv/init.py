@@ -41,7 +41,7 @@ def init_nusmv():
         nscinit.NuSMVCore_init_cmd_options()
         
         # Set NuSMV in interactive mode to avoid fast termination when errors
-        nsopt.unset_batch(nsopt.OptsHandler_get_instance())
+        #nsopt.unset_batch(nsopt.OptsHandler_get_instance())
         
         # Initialize option commands (set, unset)
         # to be able to set parser_is_lax
