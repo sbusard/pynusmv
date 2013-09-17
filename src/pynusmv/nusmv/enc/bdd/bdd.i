@@ -65,7 +65,7 @@ def pick_all_terms_states(bddenc, bdd):
     count = int(BddEnc_count_states_of_bdd(bddenc, bdd))
     
     if count <= 0:
-        return (1, tuple())
+        return (0, tuple())
     
     # init array
     array = new_bddArray(count)
@@ -98,7 +98,7 @@ def pick_all_terms_inputs(bddenc, bdd):
     count = int(BddEnc_count_inputs_of_bdd(bddenc, bdd))
     
     if count <= 0:
-        return (1, tuple())
+        return (0, tuple())
     
     # init array
     array = new_bddArray(count)
@@ -130,7 +130,7 @@ def pick_all_terms_states_inputs(bddenc, bdd):
     count = int(BddEnc_count_states_inputs_of_bdd(bddenc, bdd))
     
     if count <= 0:
-        return (1, tuple())
+        return (0, tuple())
     
     # init array
     array = new_bddArray(count)
