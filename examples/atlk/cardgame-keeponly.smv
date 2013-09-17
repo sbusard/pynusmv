@@ -1,0 +1,104 @@
+--- Simple card game
+--- 
+--- The game is composed of a player, a dealer and three cards: an Ace, a King
+--- and a Queen; the Ace wins over the King, the King over the Queen and the Queen over the Ace. The game is played in two steps.
+--- During the first step, the dealer gives one card to the player, keeps one
+--- and put the last one, hidden, on table. The dealer sees all cards, while
+--- the player only sees his.
+--- During the second step, the player can ask to swap his card with the one
+--- on table, or to keep it.
+--- At the end, the winner is the one with the winning card.
+---
+--- In this version of the game, the game is played again and again,
+--- and fairness constraints are added such that a fair path happens only if
+--- the dealer fairly give the cards.
+---
+--- In this version of the game, additional state variables are added to track
+--- the last played actions, and the fairness constraints are set only on state
+--- variables (not on input variables), thanks to these additional variables.
+---
+--- In this version, the player can only keep his card.
+---
+--- Simon Busard <simon.busard@uclouvain.be>, 17/09/13
+
+MODULE Player(step, pcard, dcard)
+    --- step is the id of the step in the game
+    --- (0 for starting, 1 for first phase, 2 for the end)
+    --- pcard is the card of the player (none, Ac, K, Q)
+    --- dcard is the card of the dealer (none, Ac, K, Q)
+        
+    IVAR action : {none, keep};
+    
+    --- Protocol
+    TRANS
+    action in case step = 1  : {keep};
+                   step != 1 : {none};
+              esac
+
+
+MODULE Dealer(step, dcard, pcard)
+    --- step is the id of the step in the game
+    --- (0 for starting, 1 for first phase, 2 for the end)
+    --- pcard is the card of the player (none, Ac, K, Q)
+    --- dcard is the card of the dealer (none, Ac, K, Q)
+    
+    IVAR action : {none, dealAK, dealAQ, dealKA, dealKQ, dealQA, dealQK};
+    
+    --- Protocol
+    TRANS
+    action in case step = 0  : {dealAK, dealAQ, dealKA, dealKQ, dealQA, dealQK};
+                   step != 0 : {none};
+              esac
+                
+
+MODULE main
+
+    VAR step   : 0..2;
+        pcard  : {none, Ac, K, Q};
+        dcard  : {none, Ac, K, Q};
+        dealer : Dealer(step, dcard, pcard);
+        player : Player(step, pcard, dcard);
+        
+        
+    INIT step = 0 & pcard = none & dcard = none
+    
+    TRANS
+    next(step) = (step + 1) mod 3
+    
+    TRANS
+    next(pcard) = case step = 0 : case dealer.action in {dealAK, dealAQ} : Ac;
+                                       dealer.action in {dealKQ, dealKA} : K;
+                                       dealer.action in {dealQK, dealQA} : Q;
+                                       TRUE                              : none;
+                                  esac;
+                       step = 1 : case player.action = keep : pcard;
+                                       player.action = none : none;
+                                  esac;
+                       step = 2 : none;
+                  esac
+                  
+    TRANS              
+    next(dcard) = case step = 0  : case dealer.action in {dealKA, dealQA} : Ac;
+                                        dealer.action in {dealAK, dealQK} : K;
+                                        dealer.action in {dealKQ, dealAQ} : Q;
+                                        dealer.action = none             : none;
+                                   esac;
+                       step = 1  : dcard;
+                       step = 2  : none;
+                  esac
+                   
+    
+    DEFINE
+    win := step = 2 & ( (pcard = Ac & dcard = K) | 
+                        (pcard = K & dcard = Q) |
+                        (pcard = Q & dcard = Ac) );
+    lose := step = 2 & ( (pcard = Ac & dcard = Q) | 
+                         (pcard = K & dcard = Ac) |
+                         (pcard = Q & dcard = K) );
+                         
+FAIRNESS step = 1 & pcard = Ac & dcard = K
+FAIRNESS step = 1 & pcard = Ac & dcard = Q
+FAIRNESS step = 1 & pcard = K & dcard = Ac
+FAIRNESS step = 1 & pcard = K & dcard = Q
+FAIRNESS step = 1 & pcard = Q & dcard = Ac
+FAIRNESS step = 1 & pcard = Q & dcard = K
