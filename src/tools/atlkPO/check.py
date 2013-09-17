@@ -43,23 +43,38 @@ def process(allargs):
     parser = argparse.ArgumentParser(description='ATLK model checker.')
     # Populate arguments: for now, only the model
     parser.add_argument('model', help='the MAS as an SMV model')
+    parser.add_argument('-p', dest='property', help='the property check',
+                        default=None)
     args = parser.parse_args(allargs)
     
     # Initialize the model
     glob.load_from_file(args.model)
     mas = glob.mas()
     
-    # Check all ATLK properties
-    print("Enter ATLK properties, one by line:")
-    for line in sys.stdin:
+    # Check given property, if any
+    if args.property:
         try:
-            spec = parseATLK(line)[0]
+            spec = parseATLK(args.property)[0]
             satisfied = check(mas, spec)
             print('Specification', str(spec), 'is', str(satisfied))
         except ParseException as e:
             print("[ERROR] Cannot parse specification:", str(e))
         except PyNuSMVError as e:
             print("[ERROR]", str(e))
+    
+    # Otherwise, ask for ATLK properties
+    else:
+        print("Enter ATLK properties, one by line:")
+        for line in sys.stdin:
+            try:
+                spec = parseATLK(line)[0]
+            
+                satisfied = check(mas, spec)
+                print('Specification', str(spec), 'is', str(satisfied))
+            except ParseException as e:
+                print("[ERROR] Cannot parse specification:", str(e))
+            except PyNuSMVError as e:
+                print("[ERROR]", str(e))
 
 
 if __name__ == '__main__':
