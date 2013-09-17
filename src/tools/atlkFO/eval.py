@@ -449,10 +449,10 @@ def ceu(fsm, agents, phi, psi):
                                              (phi | psi | nfair) &
                                               (Z | nf) &
                                               (psi | fsm.pre_strat(Y, agents)),
-                                              BDD.true(fsm.bddEnc.DDmanager), fsm),
+                                              BDD.true(fsm.bddEnc.DDmanager)),
                                               agents)
             return (psi | phi | nfair) & res
-        return fp(inner, BDD.false(fsm.bddEnc.DDmanager), fsm)
+        return fp(inner, BDD.false(fsm.bddEnc.DDmanager))
     
 
 def cew(fsm, agents, phi, psi):
