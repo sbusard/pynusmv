@@ -158,9 +158,9 @@ def evalATLK(fsm, spec, variant="SF"):
                    ~evalATLK(fsm, spec.child))
                    
     elif type(spec) in {CEX, CAX, CEG, CAG, CEU, CAU, CEF, CAF, CEW, CAW}:
-        if variant == "FS":
+        if variant == "SF":
             return eval_strat(fsm, spec)
-        elif variant == "SF":
+        elif variant == "FS":
             return eval_strat_improved(fsm, spec)
         elif variant == "FSF":
             return eval_strat_FSF(fsm, spec)
