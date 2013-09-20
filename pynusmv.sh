@@ -8,4 +8,4 @@ export PYTHONPATH=${PYNUSMV}/src
 export DYLD_LIBRARY_PATH=${PYNUSMV}/src/lib
 export LD_LIBRARY_PATH=${PYNUSMV}/src/lib
 
-python3.2 -i -c "import pynusmv"
+python3 -i -c "import pynusmv"
