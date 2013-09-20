@@ -27,6 +27,13 @@ SWIG=../dep/swig-2.0.6/swig
 endif
 endif
 
+ifndef SWIG_LIB
+ifneq ($(wildcard ../dep/swig-2.0.6/swig),)
+SWIG_LIB=../dep/swig-2.0.6/Lib/
+endif
+endif
+
+
 
 all: cudd nusmv pynusmv
 
