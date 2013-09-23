@@ -51,47 +51,51 @@ def evalATLK(fsm, spec, variant="SF"):
         return eval_simple_expression(fsm, spec.value)
         
     elif type(spec) is Not:
-        return ~evalATLK(fsm, spec.child)
+        return ~evalATLK(fsm, spec.child, variant=variant)
         
     elif type(spec) is And:
-        return evalATLK(fsm, spec.left) & evalATLK(fsm, spec.right)
+        return (evalATLK(fsm, spec.left, variant=variant)
+                & evalATLK(fsm, spec.right, variant=variant))
         
     elif type(spec) is Or:
-        return evalATLK(fsm, spec.left) | evalATLK(fsm, spec.right)
+        return (evalATLK(fsm, spec.left, variant=variant)
+                | evalATLK(fsm, spec.right, variant=variant))
         
     elif type(spec) is Implies:
         # a -> b = ~a | b
-        return (~evalATLK(fsm, spec.left)) | evalATLK(fsm, spec.right)
+        return ((~evalATLK(fsm, spec.left, variant=variant))
+                 | evalATLK(fsm, spec.right, variant=variant))
         
     elif type(spec) is Iff:
         # a <-> b = (a & b) | (~a & ~b)
-        l = evalATLK(fsm, spec.left)
-        r = evalATLK(fsm, spec.right)
+        l = evalATLK(fsm, spec.left, variant=variant)
+        r = evalATLK(fsm, spec.right, variant=variant)
         return (l & r) | ((~l) & (~r))
         
     elif type(spec) is EX:
-        return ex(fsm, evalATLK(fsm, spec.child))
+        return ex(fsm, evalATLK(fsm, spec.child, variant=variant))
         
     elif type(spec) is AX:
         # AX p = ~EX ~p
-        return ~ex(fsm, ~evalATLK(fsm, spec.child))
+        return ~ex(fsm, ~evalATLK(fsm, spec.child, variant=variant))
         
     elif type(spec) is EG:
-        return eg(fsm, evalATLK(fsm, spec.child))
+        return eg(fsm, evalATLK(fsm, spec.child, variant=variant))
         
     elif type(spec) is AG:
         # AG p = ~EF ~p = ~E[ true U ~p ]
         return ~eu(fsm,
                    BDD.true(fsm.bddEnc.DDmanager),
-                   ~evalATLK(fsm, spec.child))
+                   ~evalATLK(fsm, spec.child, variant=variant))
         
     elif type(spec) is EU:
-        return eu(fsm, evalATLK(fsm, spec.left), evalATLK(fsm, spec.right))
+        return eu(fsm, evalATLK(fsm, spec.left, variant=variant),
+                       evalATLK(fsm, spec.right, variant=variant))
         
     elif type(spec) is AU:
         # A[p U q] = ~E[~q W ~p & ~q] = ~(E[~q U ~p & ~q] | EG ~q)
-        p = evalATLK(fsm, spec.left)
-        q = evalATLK(fsm, spec.right)
+        p = evalATLK(fsm, spec.left, variant=variant)
+        q = evalATLK(fsm, spec.right, variant=variant)
         equpq = eu(fsm, ~q, ~q & ~p)
         egq = eg(fsm, ~q)
         return ~(equpq | egq)
@@ -100,62 +104,63 @@ def evalATLK(fsm, spec, variant="SF"):
         # EF p = E[ true U p ]
         return eu(fsm,
                   BDD.true(fsm.bddEnc.DDmanager),
-                  evalATLK(fsm, spec.child))    
+                  evalATLK(fsm, spec.child, variant=variant))    
         
     elif type(spec) is AF:
         # AF p = ~EG ~p
-        return ~eg(fsm, ~evalATLK(fsm, spec.child))
+        return ~eg(fsm, ~evalATLK(fsm, spec.child, variant=variant))
         
     elif type(spec) is EW:
         # E[ p W q ] = E[ p U q ] | EG p
-        return (eu(fsm, evalATLK(fsm, spec.left), evalATLK(fsm, spec.right)) |
-                eg(fsm, evalATLK(fsm, spec.left)))
+        return (eu(fsm, evalATLK(fsm, spec.left, variant=variant),
+                        evalATLK(fsm, spec.right, variant=variant)) |
+                eg(fsm, evalATLK(fsm, spec.left, variant=variant)))
         
     elif type(spec) is AW:
         # A[p W q] = ~E[~q U ~p & ~q]
-        p = evalATLK(fsm, spec.left)
-        q = evalATLK(fsm, spec.right)
+        p = evalATLK(fsm, spec.left, variant=variant)
+        q = evalATLK(fsm, spec.right, variant=variant)
         return ~eu(fsm, ~q, ~p & ~q)
         
     elif type(spec) is nK:
-        return nk(fsm, spec.agent.value, evalATLK(fsm, spec.child))
+        return nk(fsm, spec.agent.value, evalATLK(fsm, spec.child, variant=variant))
         
     elif type(spec) is K:
         # K<'a'> p = ~nK<'a'> ~p
-        return ~nk(fsm, spec.agent.value, ~evalATLK(fsm, spec.child))
+        return ~nk(fsm, spec.agent.value, ~evalATLK(fsm, spec.child, variant=variant))
         
     elif type(spec) is nE:
         return ne(fsm,
                   [a.value for a in spec.group],
-                  evalATLK(fsm, spec.child))
+                  evalATLK(fsm, spec.child, variant=variant))
         
     elif type(spec) is E:
         # E<g> p = ~nE<g> ~p
         return ~ne(fsm,
                    [a.value for a in spec.group],
-                   ~evalATLK(fsm, spec.child))
+                   ~evalATLK(fsm, spec.child, variant=variant))
         
     elif type(spec) is nD:
         return nd(fsm,
                   [a.value for a in spec.group],
-                  evalATLK(fsm, spec.child)) 
+                  evalATLK(fsm, spec.child, variant=variant)) 
         
     elif type(spec) is D:
         # D<g> p = ~nD<g> ~p
         return ~nd(fsm,
                    [a.value for a in spec.group],
-                   ~evalATLK(fsm, spec.child))
+                   ~evalATLK(fsm, spec.child, variant=variant))
         
     elif type(spec) is nC:
         return nc(fsm,
                   [a.value for a in spec.group],
-                  evalATLK(fsm, spec.child))
+                  evalATLK(fsm, spec.child, variant=variant))
         
     elif type(spec) is C:
         # C<g> p = ~nC<g> ~p
         return ~nc(fsm,
                    [a.value for a in spec.group],
-                   ~evalATLK(fsm, spec.child))
+                   ~evalATLK(fsm, spec.child, variant=variant))
                    
     elif type(spec) in {CEX, CAX, CEG, CAG, CEU, CAU, CEF, CAF, CEW, CAW}:
         if variant == "SF":
@@ -348,20 +353,21 @@ def eval_strat(fsm, spec):
         if type(spec) is CEX:
 #            winning = cex(fsm, agents, evalATLK(fsm, spec.child), strat)
             winning = cex_si(fsm, agents,
-                             evalATLK(fsm, spec.child), strat).forsome(
+                             evalATLK(fsm, spec.child, "SF"), strat).forsome(
                       fsm.bddEnc.inputsCube)
 
         elif type(spec) is CAX:
             # [g] X p = ~<g> X ~p
 #            winning = ~cex(fsm, agents, ~evalATLK(fsm, spec.child), strat)
             winning = ~(cex_si(fsm, agents,
-                               ~evalATLK(fsm, spec.child), strat)).forsome(
+                               ~evalATLK(fsm, spec.child, "SF"),
+                               strat)).forsome(
                         fsm.bddEnc.inputsCube)
 
         elif type(spec) is CEG:
 #            winning = ceg(fsm, agents, evalATLK(fsm, spec.child), strat)
             winning = ceg_si(fsm, agents,
-                             evalATLK(fsm, spec.child), strat).forsome(
+                             evalATLK(fsm, spec.child, "SF"), strat).forsome(
                       fsm.bddEnc.inputsCube)
 
         elif type(spec) is CAG:
@@ -370,15 +376,16 @@ def eval_strat(fsm, spec):
 #                          ~evalATLK(fsm, spec.child), strat)
             winning= ~(ceu_si(fsm, agents,
                               BDD.true(fsm.bddEnc.DDmanager),
-                              ~evalATLK(fsm, spec.child), strat).forsome(
+                              ~evalATLK(fsm, spec.child, "SF"),
+                              strat).forsome(
                        fsm.bddEnc.inputsCube))
 
         elif type(spec) is CEU:
 #            winning = ceu(fsm, agents, evalATLK(fsm, spec.left),
 #                          evalATLK(fsm, spec.right), strat)
             winning = ceu_si(fsm, agents,
-                             evalATLK(fsm, spec.left),
-                             evalATLK(fsm, spec.right), strat).forsome(
+                             evalATLK(fsm, spec.left, "SF"),
+                             evalATLK(fsm, spec.right, "SF"), strat).forsome(
                       fsm.bddEnc.inputsCube)
 
         elif type(spec) is CAU:
@@ -387,9 +394,10 @@ def eval_strat(fsm, spec):
 #                            ~evalATLK(fsm, spec.right) &
 #                            ~evalATLK(fsm, spec.left), strat)
             winning =  ~(cew_si(fsm, agents,
-                                ~evalATLK(fsm, spec.right),
-                                ~evalATLK(fsm, spec.right) &
-                                ~evalATLK(fsm, spec.left), strat).forsome(
+                                ~evalATLK(fsm, spec.right, "SF"),
+                                ~evalATLK(fsm, spec.right, "SF") &
+                                ~evalATLK(fsm, spec.left, "SF"),
+                                strat).forsome(
                          fsm.bddEnc.inputsCube))
 
         elif type(spec) is CEF:
@@ -398,22 +406,23 @@ def eval_strat(fsm, spec):
 #                          evalATLK(fsm, spec.child), strat)
             winning = ceu_si(fsm, agents,
                              BDD.true(fsm.bddEnc.DDmanager),
-                             evalATLK(fsm, spec.child), strat).forsome(
+                             evalATLK(fsm, spec.child, "SF"), strat).forsome(
                       fsm.bddEnc.inputsCube)
 
         elif type(spec) is CAF:
             # [g] F p = ~<g> G ~p
 #            winning = ~ceg(fsm, agents, ~evalATLK(fsm, spec.child), strat)
             winning = ~(ceg_si(fsm, agents,
-                               ~evalATLK(fsm, spec.child), strat).forsome(
+                               ~evalATLK(fsm, spec.child, "SF"),
+                               strat).forsome(
                         fsm.bddEnc.inputsCube))
 
         elif type(spec) is CEW:
 #            winning = cew(fsm, agents, evalATLK(fsm, spec.left),
 #                          evalATLK(fsm, spec.right), strat)
            winning = cew_si(fsm, agents,
-                            evalATLK(fsm, spec.left),
-                            evalATLK(fsm, spec.right), strat).forsome(
+                            evalATLK(fsm, spec.left, "SF"),
+                            evalATLK(fsm, spec.right, "SF"), strat).forsome(
                      fsm.bddEnc.inputsCube)
 
         elif type(spec) is CAW:
@@ -422,9 +431,10 @@ def eval_strat(fsm, spec):
 #                           ~evalATLK(fsm, spec.right) &
 #                           ~evalATLK(fsm, spec.left), strat)
             winning = ~(ceu_si(fsm, agents,
-                               ~evalATLK(fsm, spec.right),
-                               ~evalATLK(fsm, spec.right) &
-                               ~evalATLK(fsm, spec.left), strat).forsome(
+                               ~evalATLK(fsm, spec.right, "SF"),
+                               ~evalATLK(fsm, spec.right, "SF") &
+                               ~evalATLK(fsm, spec.left, "SF"),
+                               strat).forsome(
                         fsm.bddEnc.inputsCube))
                         
         # Complete sat with states for which all states belong to winning
@@ -602,7 +612,7 @@ def eval_strat_improved(fsm, spec, strat=None):
     
     if type(spec) is CEX:
         winning = cex_si(fsm, agents,
-                         evalATLK(fsm, spec.child), strat)
+                         evalATLK(fsm, spec.child, "FS"), strat)
 
     elif type(spec) is CAX:
         # [g] X p = ~<g> X ~p
@@ -610,7 +620,7 @@ def eval_strat_improved(fsm, spec, strat=None):
         return ~evalATLK(fsm, newspec, True)
 
     elif type(spec) is CEG:
-        winning = ceg_si(fsm, agents, evalATLK(fsm, spec.child), strat)
+        winning = ceg_si(fsm, agents, evalATLK(fsm, spec.child, "FS"), strat)
 
     elif type(spec) is CAG:
         # [g] G p = ~<g> F ~p
@@ -618,8 +628,8 @@ def eval_strat_improved(fsm, spec, strat=None):
         return ~evalATLK(fsm, newspec, True)
 
     elif type(spec) is CEU:
-        winning = ceu_si(fsm, agents, evalATLK(fsm, spec.left),
-                         evalATLK(fsm, spec.right), strat)
+        winning = ceu_si(fsm, agents, evalATLK(fsm, spec.left, "FS"),
+                         evalATLK(fsm, spec.right, "FS"), strat)
 
     elif type(spec) is CAU:
         # [g][p U q] = ~<g>[ ~q W ~p & ~q ]
@@ -631,7 +641,7 @@ def eval_strat_improved(fsm, spec, strat=None):
     elif type(spec) is CEF:
         # <g> F p = <g>[true U p]
         winning = ceu_si(fsm, agents, BDD.true(fsm.bddEnc.DDmanager),
-                         evalATLK(fsm, spec.child), strat)
+                         evalATLK(fsm, spec.child, "FS"), strat)
 
     elif type(spec) is CAF:
         # [g] F p = ~<g> G ~p
@@ -639,8 +649,8 @@ def eval_strat_improved(fsm, spec, strat=None):
         return ~evalATLK(fsm, newspec, True)
 
     elif type(spec) is CEW:
-       winning = cew_si(fsm, agents, evalATLK(fsm, spec.left),
-                        evalATLK(fsm, spec.right), strat)
+       winning = cew_si(fsm, agents, evalATLK(fsm, spec.left, "FS"),
+                        evalATLK(fsm, spec.right, "FS"), strat)
 
     elif type(spec) is CAW:
         # [g][p W q] = ~<g>[~q U ~p & ~q]
@@ -714,7 +724,7 @@ def eval_strat_improved(fsm, spec, strat=None):
         return sat
 
 
-def filter_strat(fsm, spec, strat=None):
+def filter_strat(fsm, spec, strat=None, variant="SF"):
     """
     Returns the subset SA of strat (or the whole system if strat is None),
     state/action pairs of fsm, such that there is a strategy to satisfy spec
@@ -724,6 +734,17 @@ def filter_strat(fsm, spec, strat=None):
     spec -- an AST-based ATLK specification with a top strategic operator;
             the operator is CEX, CEG, CEF, CEU or CEW.
     strat -- the subset of the system to consider.
+    variant -- the variant of the algorithm to evaluate strategic operators;
+               must be
+               * "SF" for the standard way: splitting in uniform strategies then
+                 filtering winning states,
+               * "FS" for the alternating way: filtering winning states, then
+                 splitting one conflicting equivalence class, then recurse
+               * "FSF" for the filter-split-filter way: filtering winning states
+                 then splitting all remaining actions into uniform strategies,
+                 then filtering final winning states.
+                 
+    If variant is not in {"SF", "FS", "FSF"}, the standard "SF" way is used.
     """
     
     sat = BDD.false(fsm.bddEnc.DDmanager)
@@ -732,23 +753,23 @@ def filter_strat(fsm, spec, strat=None):
     # Filtering
     if type(spec) is CEX:
         winning = cex_si(fsm, agents,
-                         evalATLK(fsm, spec.child), strat)
+                         evalATLK(fsm, spec.child, variant=variant), strat)
 
     elif type(spec) is CEG:
-        winning = ceg_si(fsm, agents, evalATLK(fsm, spec.child), strat)
+        winning = ceg_si(fsm, agents, evalATLK(fsm, spec.child, variant=variant), strat)
 
     elif type(spec) is CEU:
-        winning = ceu_si(fsm, agents, evalATLK(fsm, spec.left),
-                         evalATLK(fsm, spec.right), strat)
+        winning = ceu_si(fsm, agents, evalATLK(fsm, spec.left, variant=variant),
+                         evalATLK(fsm, spec.right, variant=variant), strat)
 
     elif type(spec) is CEF:
         # <g> F p = <g>[true U p]
         winning = ceu_si(fsm, agents, BDD.true(fsm.bddEnc.DDmanager),
-                         evalATLK(fsm, spec.child), strat)
+                         evalATLK(fsm, spec.child, variant=variant), strat)
 
     elif type(spec) is CEW:
-       winning = cew_si(fsm, agents, evalATLK(fsm, spec.left),
-                        evalATLK(fsm, spec.right), strat)
+       winning = cew_si(fsm, agents, evalATLK(fsm, spec.left, variant=variant),
+                        evalATLK(fsm, spec.right, variant=variant), strat)
     
     
     return winning & fsm.bddEnc.statesInputsMask & fsm.protocol(agents)
@@ -801,7 +822,7 @@ def eval_strat_FSF(fsm, spec):
     agents = {atom.value for atom in spec.group}
     
     # First filtering
-    winning = filter_strat(fsm, spec)
+    winning = filter_strat(fsm, spec, variant="FSF")
     
     if winning.is_false(): # no state/inputs pairs are winning => return false
         return winning
@@ -811,7 +832,7 @@ def eval_strat_FSF(fsm, spec):
     
     for strat in strats:
         # Second filtering
-        winning = filter_strat(fsm, spec, strat)
+        winning = filter_strat(fsm, spec, strat, variant="FSF")
         
         # wineq is the set of states for which all equiv states are in winning
         winning = winning.forsome(fsm.bddEnc.inputsCube)
