@@ -349,6 +349,7 @@ def eval_strat(fsm, spec):
     # TODO restrict protocol to reachable states to avoid splitting useless
     # equivalence classes
     strats = split(fsm, fsm.protocol(agents), agents)
+    print("Eval_strat: {} strategies".format(len(strats)))
     for strat in strats:
         if type(spec) is CEX:
 #            winning = cex(fsm, agents, evalATLK(fsm, spec.child), strat)
@@ -829,6 +830,7 @@ def eval_strat_FSF(fsm, spec):
     
     # Splitting the strategies
     strats = split(fsm, winning, agents)
+    print("Eval_strat_FSF: {} strategies".format(len(strats)))
     
     for strat in strats:
         # Second filtering
