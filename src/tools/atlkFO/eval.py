@@ -226,6 +226,8 @@ def ex(fsm, phi):
     fsm -- a MAS representing the system
     phi -- a BDD representing the set of states of fsm satisfying phi
     """
+    
+    phi = phi.forsome(fsm.bddEnc.inputsCube) & fsm.bddEnc.statesMask
     return fsm.pre(phi & fair_states(fsm))
     
     
@@ -236,15 +238,31 @@ def eg(fsm, phi):
     fsm -- a MAS representing the system
     phi -- a BDD representing the set of states of fsm satisfying phi
     """
-    def inner(Z):
-        res = Z
-        for f in fsm.fairness_constraints:
-            res = res & fp(lambda Y : (Z & f) | (phi & fsm.weak_pre(Y)),
-                                 BDD.false(fsm.bddEnc.DDmanager))
-        return phi & fsm.weak_pre(res)
-        
-    r = fp(inner, BDD.true(fsm.bddEnc.DDmanager))
-    return r.forsome(fsm.bddEnc.inputsCube)
+    #def inner(Z):
+    #    res = Z
+    #    for f in fsm.fairness_constraints:
+    #        res = res & fp(lambda Y : (Z & f) | (phi & fsm.weak_pre(Y)),
+    #                             BDD.false(fsm.bddEnc.DDmanager))
+    #    return phi & fsm.weak_pre(res)
+    #    
+    #r = fp(inner, BDD.true(fsm.bddEnc.DDmanager))
+    #return r.forsome(fsm.bddEnc.inputsCube)
+    
+    phi = phi.forsome(fsm.bddEnc.inputsCube) & fsm.bddEnc.statesMask
+    
+    if len(fsm.fairness_constraints) == 0:
+        return fp(lambda Z : phi & fsm.weak_pre(Z),
+                  BDD.true(fsm.bddEnc.DDmanager)).forsome(fsm.bddEnc.inputsCube)
+    else:
+        def inner(Z):
+            res = phi
+            for f in fsm.fairness_constraints:
+                res = res & fsm.pre(fp(lambda Y : (Z & f) |
+                                       (phi & fsm.pre(Y)),
+                                       BDD.false(fsm.bddEnc.DDmanager)))
+            return res
+        return (fp(inner, BDD.true(fsm.bddEnc.DDmanager))
+                .forsome(fsm.bddEnc.inputsCube))
     
     
 def eu(fsm, phi, psi):
@@ -255,6 +273,9 @@ def eu(fsm, phi, psi):
     phi -- a BDD representing the set of states of fsm satisfying phi
     psi -- a BDD representing the set of states of fsm satisfying psi
     """
+    
+    phi = phi.forsome(fsm.bddEnc.inputsCube) & fsm.bddEnc.statesMask
+    psi = psi.forsome(fsm.bddEnc.inputsCube) & fsm.bddEnc.statesMask
     return fp(lambda X : (psi & fair_states(fsm) & fsm.reachable_states) |
                                (phi & ex(fsm, X)),
                     BDD.false(fsm.bddEnc.DDmanager))
