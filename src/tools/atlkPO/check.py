@@ -45,6 +45,8 @@ def process(allargs):
     parser.add_argument('model', help='the MAS as an SMV model')
     parser.add_argument('-p', dest='property', help='the property check',
                         default=None)
+    parser.add_argument('-v', dest='variant', help='the variant to use',
+                        default="SF")
     args = parser.parse_args(allargs)
     
     # Initialize the model
@@ -55,7 +57,7 @@ def process(allargs):
     if args.property:
         try:
             spec = parseATLK(args.property)[0]
-            satisfied = check(mas, spec)
+            satisfied = check(mas, spec, variant=args.variant)
             print('Specification', str(spec), 'is', str(satisfied))
         except ParseException as e:
             print("[ERROR] Cannot parse specification:", str(e))
