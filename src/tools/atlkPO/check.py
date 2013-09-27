@@ -3,11 +3,12 @@ import argparse
 from pynusmv.init import init_nusmv, deinit_nusmv
 from ..mas import glob
 from ..atlkFO.parsing import parseATLK
-from .eval import evalATLK
+from .eval import evalATLK as evalATLK_nogen
+from .evalGen import evalATLK as evalATLK_gen
 from pyparsing import ParseException
 from pynusmv.exception import PyNuSMVError
     
-def check(mas, spec, variant="SF"):
+def check(mas, spec, variant="SF", gen=False):
     """
     Return whether the system satisfies the ATLK specification.
     
@@ -22,11 +23,16 @@ def check(mas, spec, variant="SF"):
                * "FSF" for the filter-split-filter way: filtering winning states
                  then splitting all remaining actions into uniform strategies,
                  then filtering final winning states.
+    gen -- whether or not using the variant of the algorithms based on
+           generators.
                  
     If variant is not in {"SF", "FS", "FSF"}, the standard "SF" way is used.
     
     """
-    sat = evalATLK(mas, spec, variant)
+    if not gen:
+        sat = evalATLK_nogen(mas, spec, variant)
+    else:
+        sat = evalATLK_gen(mas, spec, variant)
     return (~sat & mas.bddEnc.statesInputsMask & mas.init).is_false()
     
 def process(allargs):
