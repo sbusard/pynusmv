@@ -303,36 +303,39 @@ def split(fsm, strats, gamma):
     
     """
     if strats.is_false():
-        return {strats}
+        yield strats
+        #return {strats}
     
-    # Get one equivalence class
-    si = fsm.pick_one_state_inputs(strats)
-    s = si.forsome(fsm.bddEnc.inputsCube)
-    eqs = fsm.equivalent_states(s, gamma)
-    eqcl = strats & eqs
+    else:
+        # Get one equivalence class
+        si = fsm.pick_one_state_inputs(strats)
+        s = si.forsome(fsm.bddEnc.inputsCube)
+        eqs = fsm.equivalent_states(s, gamma)
+        eqcl = strats & eqs
     
-    # Remove eqcl from strats
-    strats = strats - eqcl
+        # Remove eqcl from strats
+        strats = strats - eqcl
     
-    # Get ngamma cube
-    ngamma_cube = fsm.bddEnc.inputsCube - fsm.inputs_cube_for_agents(gamma)
+        # Get ngamma cube
+        ngamma_cube = fsm.bddEnc.inputsCube - fsm.inputs_cube_for_agents(gamma)
     
-    # Split eqcl into non-conflicting subsets
-    # (if eqcl is already non-conflicting, only one iteration is done)
-    eqcls = set()
-    while eqcl.isnot_false():
-        si = fsm.pick_one_state_inputs(eqcl)
-        ncss = eqcl & si.forsome(fsm.bddEnc.statesCube).forsome(ngamma_cube)
-        eqcls.add(ncss)
-        eqcl = eqcl - ncss
+        # Split eqcl into non-conflicting subsets
+        # (if eqcl is already non-conflicting, only one iteration is done)
+        eqcls = set()
+        while eqcl.isnot_false():
+            si = fsm.pick_one_state_inputs(eqcl)
+            ncss = eqcl & si.forsome(fsm.bddEnc.statesCube).forsome(ngamma_cube)
+            eqcls.add(ncss)
+            eqcl = eqcl - ncss
         
-    # Combine NCSSs with strategies of restricted strats
-    unistrats = set()
-    for strat in split(fsm, strats, gamma):
-        for ncss in eqcls:
-            unistrats.add(strat | ncss)
+        # Combine NCSSs with strategies of restricted strats
+        #unistrats = set()
+        for strat in split(fsm, strats, gamma):
+            for ncss in eqcls:
+                #unistrats.add(strat | ncss)
+                yield (strat | ncss)
             
-    return unistrats
+        #return unistrats
     
 
 def eval_strat(fsm, spec):
@@ -349,8 +352,9 @@ def eval_strat(fsm, spec):
     # TODO restrict protocol to reachable states to avoid splitting useless
     # equivalence classes
     strats = split(fsm, fsm.protocol(agents), agents)
-    print("Eval_strat: {} strategies".format(len(strats)))
+    nbstrats = 0
     for strat in strats:
+        nbstrats += 1
         if type(spec) is CEX:
 #            winning = cex(fsm, agents, evalATLK(fsm, spec.child), strat)
             winning = cex_si(fsm, agents,
@@ -446,6 +450,7 @@ def eval_strat(fsm, spec):
                   fsm.reachable_states, frozenset(agents))) & winning
         sat = sat | wineq
         
+    print("Eval_strat: {} strategies".format(nbstrats))
     return sat
 
 
@@ -830,9 +835,9 @@ def eval_strat_FSF(fsm, spec):
     
     # Splitting the strategies
     strats = split(fsm, winning, agents)
-    print("Eval_strat_FSF: {} strategies".format(len(strats)))
-    
+    nbstrats = 0
     for strat in strats:
+        nbstrats += 1
         # Second filtering
         winning = filter_strat(fsm, spec, strat, variant="FSF")
         
@@ -842,5 +847,6 @@ def eval_strat_FSF(fsm, spec):
         wineq = ~(fsm.equivalent_states(nwinning &
                   fsm.reachable_states, frozenset(agents))) & winning
         sat = sat | wineq
-        
+    
+    print("Eval_strat_FSF: {} strategies".format(nbstrats))
     return sat
