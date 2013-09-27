@@ -1,5 +1,5 @@
 """
-CTLK evaluation functions.
+ATLK with partial observability evaluation functions.
 """
 
 from pynusmv.dd import BDD
