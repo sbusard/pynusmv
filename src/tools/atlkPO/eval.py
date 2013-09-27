@@ -303,8 +303,7 @@ def split(fsm, strats, gamma):
     
     """
     if strats.is_false():
-        yield strats
-        #return {strats}
+        return {strats}
     
     else:
         # Get one equivalence class
@@ -329,13 +328,12 @@ def split(fsm, strats, gamma):
             eqcl = eqcl - ncss
         
         # Combine NCSSs with strategies of restricted strats
-        #unistrats = set()
+        unistrats = set()
         for strat in split(fsm, strats, gamma):
             for ncss in eqcls:
-                #unistrats.add(strat | ncss)
-                yield (strat | ncss)
+                unistrats.add(strat | ncss)
             
-        #return unistrats
+        return unistrats
     
 
 def eval_strat(fsm, spec):
