@@ -251,7 +251,24 @@ def split(fsm, strats, gamma):
         for common, splitted, rest in split_one(fsm, strats, gamma):
             for strat in split(fsm, rest, gamma):
                 yield (common | strat | splitted)
+
+
+def all_equiv_sat(fsm, winning, agents):
+    """
+    Return the states s of winning such that all states indistinguishable
+    from s by agents are in winning.
     
+    fsm -- a MAS representing the system;
+    winning -- a BDD representing a set of states of fsm;
+    agents -- a set of agents.
+    
+    """
+    # Get states for which all states belong to winning
+    # wineq is the set of states for which all equiv states are in winning
+    nwinning = ~winning & fsm.bddEnc.statesInputsMask
+    return ~(fsm.equivalent_states(nwinning &
+             fsm.reachable_states, frozenset(agents))) & winning
+
 
 def eval_strat(fsm, spec):
     """
@@ -302,13 +319,7 @@ def eval_strat(fsm, spec):
         nbstrats += 1
         winning = (filter_strat(fsm, spec, strat, variant="SF").
                     forsome(fsm.bddEnc.inputsCube))
-        
-        # Complete sat with states for which all states belong to winning
-        # wineq is the set of states for which all equiv states are in winning
-        nwinning = ~winning & fsm.bddEnc.statesInputsMask
-        wineq = ~(fsm.equivalent_states(nwinning &
-                  fsm.reachable_states, frozenset(agents))) & winning
-        sat = sat | wineq
+        sat = sat | all_equiv_sat(fsm, winning, agents)
         
     print("Eval_strat: {} strategies".format(nbstrats))
     return sat
@@ -523,12 +534,7 @@ def eval_strat_improved(fsm, spec, strat=None):
         if splitted.is_false():
             # No conflicting classes, return states that are winning for all eq
             common = common.forsome(fsm.bddEnc.inputsCube)
-            # wineq is the set of states for which all equiv states
-            #are in winning
-            nwinning = ~common & fsm.bddEnc.statesInputsMask
-            wineq = ~(fsm.equivalent_states(nwinning &
-                      fsm.reachable_states, frozenset(agents))) & common
-            sat = sat | wineq
+            sat = sat | all_equiv_sat(fsm, common, agents)
         
         else:
             sat = sat | eval_strat_improved(fsm, spec, common | splitted | rest)
@@ -645,13 +651,8 @@ def eval_strat_FSF(fsm, spec):
         nbstrats += 1
         # Second filtering
         winning = filter_strat(fsm, spec, strat, variant="FSF")
-        
-        # wineq is the set of states for which all equiv states are in winning
         winning = winning.forsome(fsm.bddEnc.inputsCube)
-        nwinning = ~winning & fsm.bddEnc.statesInputsMask
-        wineq = ~(fsm.equivalent_states(nwinning &
-                  fsm.reachable_states, frozenset(agents))) & winning
-        sat = sat | wineq
+        sat = sat | all_equiv_sat(fsm, winning, agents)
     
     print("Eval_strat_FSF: {} strategies".format(nbstrats))
     return sat
