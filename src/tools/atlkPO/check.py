@@ -3,12 +3,13 @@ import argparse
 from pynusmv.init import init_nusmv, deinit_nusmv
 from ..mas import glob
 from ..atlkFO.parsing import parseATLK
-from .eval import evalATLK as evalATLK_nogen
+from .eval import evalATLK as evalATLK_naive
 from .evalGen import evalATLK as evalATLK_gen
+from .evalOpt import evalATLK as evalATLK_opt
 from pyparsing import ParseException
 from pynusmv.exception import PyNuSMVError
     
-def check(mas, spec, variant="SF", gen=False):
+def check(mas, spec, variant="SF", implem="naive"):
     """
     Return whether the system satisfies the ATLK specification.
     
@@ -23,16 +24,25 @@ def check(mas, spec, variant="SF", gen=False):
                * "FSF" for the filter-split-filter way: filtering winning states
                  then splitting all remaining actions into uniform strategies,
                  then filtering final winning states.
-    gen -- whether or not using the variant of the algorithms based on
-           generators.
+    implem -- the particular implementation to use for strategic operators
+              evaluation:
+              * "naive" the naive implementation;
+              * "generator" the generator-based implementation;
+              * "optimized" an memory-optimized version.
                  
-    If variant is not in {"SF", "FS", "FSF"}, the standard "SF" way is used.
+    If variant is not in {"SF", "FS", "FSF"}, the standard "SF" way is used.          
+    If implem is not in {"naive", "generator", "optimized"},
+    the standard "naive" way is used.
     
     """
-    if not gen:
-        sat = evalATLK_nogen(mas, spec, variant)
-    else:
+    if implem == "naive":
+        sat = evalATLK_naive(mas, spec, variant)
+    elif implem == "generator":
         sat = evalATLK_gen(mas, spec, variant)
+    elif implem == "optimized":
+        sat = evalATLK_opt(mas, spec, variant)
+    else:
+        sat = evalATLK_naive(mas, spec, variant)
     return (~sat & mas.bddEnc.statesInputsMask & mas.init).is_false()
     
 def process(allargs):

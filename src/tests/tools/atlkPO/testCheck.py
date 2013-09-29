@@ -355,110 +355,110 @@ class TestCheck(unittest.TestCase):
     def test_cardgame_not_improved_gen(self):
         fsm = self.cardgame()
         
-        self.assertTrue(check(fsm, parseATLK("K<'player'>'pcard=none' & K<'player'>'dcard=none'")[0], gen=True))
-        self.assertTrue(check(fsm, parseATLK("AG('step = 1' -> ~(K<'player'> 'dcard=Ac' | K<'player'> 'dcard=K' | K<'player'> 'dcard=Q'))")[0], gen=True))
+        self.assertTrue(check(fsm, parseATLK("K<'player'>'pcard=none' & K<'player'>'dcard=none'")[0], implem="generator"))
+        self.assertTrue(check(fsm, parseATLK("AG('step = 1' -> ~(K<'player'> 'dcard=Ac' | K<'player'> 'dcard=K' | K<'player'> 'dcard=Q'))")[0], implem="generator"))
         
-        self.assertTrue(check(fsm, parseATLK("<'dealer'> X 'pcard=Ac'")[0], gen=True))
-        self.assertFalse(check(fsm, parseATLK("<'dealer'> G ~'win'")[0], gen=True))
-        self.assertTrue(check(fsm, parseATLK("['player'] X 'pcard=Ac'")[0], gen=True))
-        self.assertTrue(check(fsm, parseATLK("['dealer'] F 'win'")[0], gen=True))
-        self.assertTrue(check(fsm, parseATLK("AG('step = 1' -> ~<'player'> X 'win')")[0], gen=True))
-        self.assertFalse(check(fsm, parseATLK("<'player'> F 'win'")[0], gen=True))
+        self.assertTrue(check(fsm, parseATLK("<'dealer'> X 'pcard=Ac'")[0], implem="generator"))
+        self.assertFalse(check(fsm, parseATLK("<'dealer'> G ~'win'")[0], implem="generator"))
+        self.assertTrue(check(fsm, parseATLK("['player'] X 'pcard=Ac'")[0], implem="generator"))
+        self.assertTrue(check(fsm, parseATLK("['dealer'] F 'win'")[0], implem="generator"))
+        self.assertTrue(check(fsm, parseATLK("AG('step = 1' -> ~<'player'> X 'win')")[0], implem="generator"))
+        self.assertFalse(check(fsm, parseATLK("<'player'> F 'win'")[0], implem="generator"))
         
     
     @unittest.expectedFailure # MC algo does not deal with fairness on action for now
     def test_cardgame_fair_not_improved_gen(self):
         fsm = self.cardgame_fair()
         
-        self.assertTrue(check(fsm, parseATLK("K<'player'>'pcard=none' & K<'player'>'dcard=none'")[0], gen=True))
-        self.assertTrue(check(fsm, parseATLK("AG('step = 1' -> ~(K<'player'> 'dcard=Ac' | K<'player'> 'dcard=K' | K<'player'> 'dcard=Q'))")[0], gen=True))
+        self.assertTrue(check(fsm, parseATLK("K<'player'>'pcard=none' & K<'player'>'dcard=none'")[0], implem="generator"))
+        self.assertTrue(check(fsm, parseATLK("AG('step = 1' -> ~(K<'player'> 'dcard=Ac' | K<'player'> 'dcard=K' | K<'player'> 'dcard=Q'))")[0], implem="generator"))
         
-        self.assertTrue(check(fsm, parseATLK("AG('step = 1' -> ~<'player'> X 'win')")[0], gen=True))
-        self.assertTrue(check(fsm, parseATLK("['player'] X 'pcard=Ac'")[0], gen=True))
-        self.assertTrue(check(fsm, parseATLK("<'dealer'> X 'pcard=Ac'")[0], gen=True))
-        self.assertTrue(check(fsm, parseATLK("<'dealer'> G ~'win'")[0], gen=True))
-        self.assertFalse(check(fsm, parseATLK("['dealer'] F 'win'")[0], gen=True))
+        self.assertTrue(check(fsm, parseATLK("AG('step = 1' -> ~<'player'> X 'win')")[0], implem="generator"))
+        self.assertTrue(check(fsm, parseATLK("['player'] X 'pcard=Ac'")[0], implem="generator"))
+        self.assertTrue(check(fsm, parseATLK("<'dealer'> X 'pcard=Ac'")[0], implem="generator"))
+        self.assertTrue(check(fsm, parseATLK("<'dealer'> G ~'win'")[0], implem="generator"))
+        self.assertFalse(check(fsm, parseATLK("['dealer'] F 'win'")[0], implem="generator"))
         
         # Player can win
-        self.assertTrue(check(fsm, parseATLK("<'player'> F 'win'")[0], gen=True))
+        self.assertTrue(check(fsm, parseATLK("<'player'> F 'win'")[0], implem="generator"))
         # Dealer can avoid fairness
-        self.assertTrue(check(fsm, parseATLK("<'dealer'> F 'FALSE'")[0], gen=True))
+        self.assertTrue(check(fsm, parseATLK("<'dealer'> F 'FALSE'")[0], implem="generator"))
         
     
     def test_cardgame_post_fair_not_improved_gen(self):
         fsm = self.cardgame_post_fair()
         
-        self.assertTrue(check(fsm, parseATLK("K<'player'>'pcard=none' & K<'player'>'dcard=none'")[0], gen=True))
-        self.assertTrue(check(fsm, parseATLK("AG('step = 1' -> ~(K<'player'> 'dcard=Ac' | K<'player'> 'dcard=K' | K<'player'> 'dcard=Q'))")[0], gen=True))
+        self.assertTrue(check(fsm, parseATLK("K<'player'>'pcard=none' & K<'player'>'dcard=none'")[0], implem="generator"))
+        self.assertTrue(check(fsm, parseATLK("AG('step = 1' -> ~(K<'player'> 'dcard=Ac' | K<'player'> 'dcard=K' | K<'player'> 'dcard=Q'))")[0], implem="generator"))
         
-        self.assertTrue(check(fsm, parseATLK("AG('step = 1' -> ~<'player'> X 'win')")[0], gen=True))
-        self.assertFalse(check(fsm, parseATLK("['dealer'] F 'win'")[0], gen=True))
-        self.assertTrue(check(fsm, parseATLK("['player'] X 'pcard=Ac'")[0], gen=True))
-        self.assertTrue(check(fsm, parseATLK("<'dealer'> X 'pcard=Ac'")[0], gen=True))
-        self.assertTrue(check(fsm, parseATLK("<'dealer'> G ~'win'")[0], gen=True))
+        self.assertTrue(check(fsm, parseATLK("AG('step = 1' -> ~<'player'> X 'win')")[0], implem="generator"))
+        self.assertFalse(check(fsm, parseATLK("['dealer'] F 'win'")[0], implem="generator"))
+        self.assertTrue(check(fsm, parseATLK("['player'] X 'pcard=Ac'")[0], implem="generator"))
+        self.assertTrue(check(fsm, parseATLK("<'dealer'> X 'pcard=Ac'")[0], implem="generator"))
+        self.assertTrue(check(fsm, parseATLK("<'dealer'> G ~'win'")[0], implem="generator"))
         
         # Player can win
-        self.assertTrue(check(fsm, parseATLK("<'player'> F 'win'")[0], gen=True))
+        self.assertTrue(check(fsm, parseATLK("<'player'> F 'win'")[0], implem="generator"))
         # Dealer can avoid fairness
-        self.assertTrue(check(fsm, parseATLK("<'dealer'> F 'FALSE'")[0], gen=True))
+        self.assertTrue(check(fsm, parseATLK("<'dealer'> F 'FALSE'")[0], implem="generator"))
         
 
     def test_transmission_not_improved_gen(self):
         fsm = self.transmission()
         
-        self.assertFalse(check(fsm, parseATLK("<'sender'> F 'received'")[0], gen=True))
+        self.assertFalse(check(fsm, parseATLK("<'sender'> F 'received'")[0], implem="generator"))
         # False because transmitter cannot win if received is already true
         # and he has no clue about it
-        self.assertFalse(check(fsm, parseATLK("<'transmitter'> G ~'received'")[0], gen=True))
-        self.assertFalse(check(fsm, parseATLK("<'sender'> X 'received'")[0], gen=True))
+        self.assertFalse(check(fsm, parseATLK("<'transmitter'> G ~'received'")[0], implem="generator"))
+        self.assertFalse(check(fsm, parseATLK("<'sender'> X 'received'")[0], implem="generator"))
         # False because transmitter cannot win if received is already true
         # and he has no clue about it
-        self.assertFalse(check(fsm, parseATLK("<'transmitter'> X ~'received'")[0], gen=True))
-        self.assertFalse(check(fsm, parseATLK("<'transmitter'> F 'received'")[0], gen=True))
+        self.assertFalse(check(fsm, parseATLK("<'transmitter'> X ~'received'")[0], implem="generator"))
+        self.assertFalse(check(fsm, parseATLK("<'transmitter'> F 'received'")[0], implem="generator"))
         
         # False because the sender does not know if the bit is already
         # transmitted (and in this case, no strategy can avoid 'received')
-        self.assertFalse(check(fsm, parseATLK("<'sender'> G ~'received'")[0], gen=True))
+        self.assertFalse(check(fsm, parseATLK("<'sender'> G ~'received'")[0], implem="generator"))
         
     
     def test_transmission_with_know_not_improved_gen(self):
         fsm = self.transmission_with_knowledge()
         
-        self.assertFalse(check(fsm, parseATLK("<'sender'> F 'received'")[0], gen=True))
-        self.assertTrue(check(fsm, parseATLK("<'transmitter'> G ~'received'")[0], gen=True))
-        self.assertFalse(check(fsm, parseATLK("<'sender'> X 'received'")[0], gen=True))
-        self.assertTrue(check(fsm, parseATLK("<'transmitter'> X ~'received'")[0], gen=True))
-        self.assertFalse(check(fsm, parseATLK("<'transmitter'> F 'received'")[0], gen=True))
-        self.assertTrue(check(fsm, parseATLK("<'sender'> G ~'received'")[0], gen=True))
+        self.assertFalse(check(fsm, parseATLK("<'sender'> F 'received'")[0], implem="generator"))
+        self.assertTrue(check(fsm, parseATLK("<'transmitter'> G ~'received'")[0], implem="generator"))
+        self.assertFalse(check(fsm, parseATLK("<'sender'> X 'received'")[0], implem="generator"))
+        self.assertTrue(check(fsm, parseATLK("<'transmitter'> X ~'received'")[0], implem="generator"))
+        self.assertFalse(check(fsm, parseATLK("<'transmitter'> F 'received'")[0], implem="generator"))
+        self.assertTrue(check(fsm, parseATLK("<'sender'> G ~'received'")[0], implem="generator"))
     
     
     @unittest.expectedFailure # MC algo does not deal with fairness on action for now
     def test_transmission_fair_not_improved_gen(self):
         fsm = self.transmission_fair()
         
-        self.assertTrue(check(fsm, parseATLK("<'sender'> F 'received'")[0], gen=True))
-        self.assertTrue(check(fsm, parseATLK("<'transmitter'> G ~'received'")[0], gen=True))
-        self.assertFalse(check(fsm, parseATLK("<'sender'> X 'received'")[0], gen=True))
-        self.assertTrue(check(fsm, parseATLK("<'transmitter'> X ~'received'")[0], gen=True))
-        self.assertTrue(check(fsm, parseATLK("<'transmitter'> F 'received'")[0], gen=True))
+        self.assertTrue(check(fsm, parseATLK("<'sender'> F 'received'")[0], implem="generator"))
+        self.assertTrue(check(fsm, parseATLK("<'transmitter'> G ~'received'")[0], implem="generator"))
+        self.assertFalse(check(fsm, parseATLK("<'sender'> X 'received'")[0], implem="generator"))
+        self.assertTrue(check(fsm, parseATLK("<'transmitter'> X ~'received'")[0], implem="generator"))
+        self.assertTrue(check(fsm, parseATLK("<'transmitter'> F 'received'")[0], implem="generator"))
         
         # False because the sender does not know if the bit is already
         # transmitted (and in this case, no strategy can avoid 'received')
-        self.assertFalse(check(fsm, parseATLK("<'sender'> G ~'received'")[0], gen=True))
+        self.assertFalse(check(fsm, parseATLK("<'sender'> G ~'received'")[0], implem="generator"))
     
     
     def test_transmission_post_fair_not_improved_gen(self):
         fsm = self.transmission_post_fair()
         
-        self.assertTrue(check(fsm, parseATLK("<'sender'> F 'received'")[0], gen=True))
-        self.assertTrue(check(fsm, parseATLK("<'transmitter'> G ~'received'")[0], gen=True))
-        self.assertFalse(check(fsm, parseATLK("<'sender'> X 'received'")[0], gen=True))
-        self.assertTrue(check(fsm, parseATLK("<'transmitter'> X ~'received'")[0], gen=True))
-        self.assertTrue(check(fsm, parseATLK("<'transmitter'> F 'received'")[0], gen=True))
+        self.assertTrue(check(fsm, parseATLK("<'sender'> F 'received'")[0], implem="generator"))
+        self.assertTrue(check(fsm, parseATLK("<'transmitter'> G ~'received'")[0], implem="generator"))
+        self.assertFalse(check(fsm, parseATLK("<'sender'> X 'received'")[0], implem="generator"))
+        self.assertTrue(check(fsm, parseATLK("<'transmitter'> X ~'received'")[0], implem="generator"))
+        self.assertTrue(check(fsm, parseATLK("<'transmitter'> F 'received'")[0], implem="generator"))
         
         # False because the sender does not know if the bit is already
         # transmitted (and in this case, no strategy can avoid 'received')
-        self.assertFalse(check(fsm, parseATLK("<'sender'> G ~'received'")[0], gen=True))
+        self.assertFalse(check(fsm, parseATLK("<'sender'> G ~'received'")[0], implem="generator"))
         
         
     def test_transmission_improved_gen(self):
@@ -466,74 +466,74 @@ class TestCheck(unittest.TestCase):
         
         # False because transmitter cannot win if received is already true
         # and he has no clue about it
-        self.assertFalse(check(fsm, parseATLK("<'transmitter'> G ~'received'")[0], variant="SF", gen=True))
-        self.assertFalse(check(fsm, parseATLK("<'sender'> X 'received'")[0], variant="SF", gen=True))
+        self.assertFalse(check(fsm, parseATLK("<'transmitter'> G ~'received'")[0], variant="SF", implem="generator"))
+        self.assertFalse(check(fsm, parseATLK("<'sender'> X 'received'")[0], variant="SF", implem="generator"))
         # False because transmitter cannot win if received is already true
         # and he has no clue about it
-        self.assertFalse(check(fsm, parseATLK("<'transmitter'> X ~'received'")[0], variant="SF", gen=True))
+        self.assertFalse(check(fsm, parseATLK("<'transmitter'> X ~'received'")[0], variant="SF", implem="generator"))
         
         # False because the sender does not know if the bit is already
         # transmitted (and in this case, no strategy can avoid 'received')
-        self.assertFalse(check(fsm, parseATLK("<'sender'> G ~'received'")[0], variant="SF", gen=True))
+        self.assertFalse(check(fsm, parseATLK("<'sender'> G ~'received'")[0], variant="SF", implem="generator"))
         
-        self.assertFalse(check(fsm, parseATLK("<'transmitter'> F 'received'")[0], variant="SF", gen=True))
-        self.assertFalse(check(fsm, parseATLK("<'sender'> F 'received'")[0], variant="SF", gen=True))
+        self.assertFalse(check(fsm, parseATLK("<'transmitter'> F 'received'")[0], variant="SF", implem="generator"))
+        self.assertFalse(check(fsm, parseATLK("<'sender'> F 'received'")[0], variant="SF", implem="generator"))
         
     
     def test_transmission_with_know_improved_gen(self):
         fsm = self.transmission_with_knowledge()
         
-        self.assertFalse(check(fsm, parseATLK("<'sender'> F 'received'")[0], variant="SF", gen=True))
-        self.assertTrue(check(fsm, parseATLK("<'transmitter'> G ~'received'")[0], variant="SF", gen=True))
-        self.assertFalse(check(fsm, parseATLK("<'sender'> X 'received'")[0], variant="SF", gen=True))
-        self.assertTrue(check(fsm, parseATLK("<'transmitter'> X ~'received'")[0], variant="SF", gen=True))
-        self.assertFalse(check(fsm, parseATLK("<'transmitter'> F 'received'")[0], variant="SF", gen=True))
-        self.assertTrue(check(fsm, parseATLK("<'sender'> G ~'received'")[0], variant="SF", gen=True))
+        self.assertFalse(check(fsm, parseATLK("<'sender'> F 'received'")[0], variant="SF", implem="generator"))
+        self.assertTrue(check(fsm, parseATLK("<'transmitter'> G ~'received'")[0], variant="SF", implem="generator"))
+        self.assertFalse(check(fsm, parseATLK("<'sender'> X 'received'")[0], variant="SF", implem="generator"))
+        self.assertTrue(check(fsm, parseATLK("<'transmitter'> X ~'received'")[0], variant="SF", implem="generator"))
+        self.assertFalse(check(fsm, parseATLK("<'transmitter'> F 'received'")[0], variant="SF", implem="generator"))
+        self.assertTrue(check(fsm, parseATLK("<'sender'> G ~'received'")[0], variant="SF", implem="generator"))
         
     
     def test_transmission_post_fair_improved_gen(self):
         fsm = self.transmission_post_fair()
         
-        self.assertTrue(check(fsm, parseATLK("<'sender'> F 'received'")[0], variant="SF", gen=True))
-        self.assertTrue(check(fsm, parseATLK("<'transmitter'> G ~'received'")[0], variant="SF", gen=True))
-        self.assertFalse(check(fsm, parseATLK("<'sender'> X 'received'")[0], variant="SF", gen=True))
-        self.assertTrue(check(fsm, parseATLK("<'transmitter'> X ~'received'")[0], variant="SF", gen=True))
-        self.assertTrue(check(fsm, parseATLK("<'transmitter'> F 'received'")[0], variant="SF", gen=True))
+        self.assertTrue(check(fsm, parseATLK("<'sender'> F 'received'")[0], variant="SF", implem="generator"))
+        self.assertTrue(check(fsm, parseATLK("<'transmitter'> G ~'received'")[0], variant="SF", implem="generator"))
+        self.assertFalse(check(fsm, parseATLK("<'sender'> X 'received'")[0], variant="SF", implem="generator"))
+        self.assertTrue(check(fsm, parseATLK("<'transmitter'> X ~'received'")[0], variant="SF", implem="generator"))
+        self.assertTrue(check(fsm, parseATLK("<'transmitter'> F 'received'")[0], variant="SF", implem="generator"))
         
         # False because the sender does not know if the bit is already
         # transmitted (and in this case, no strategy can avoid 'received')
-        self.assertFalse(check(fsm, parseATLK("<'sender'> G ~'received'")[0], variant="SF", gen=True))
+        self.assertFalse(check(fsm, parseATLK("<'sender'> G ~'received'")[0], variant="SF", implem="generator"))
         
         
     def test_cardgame_improved_gen(self):
         fsm = self.cardgame()
         
-        self.assertTrue(check(fsm, parseATLK("<'dealer'> X 'pcard=Ac'")[0], variant="SF", gen=True))
-        self.assertFalse(check(fsm, parseATLK("<'dealer'> G ~'win'")[0], variant="SF", gen=True))
-        self.assertTrue(check(fsm, parseATLK("AG('step = 1' -> ~<'player'> X 'win')")[0], variant="SF", gen=True))
-        self.assertFalse(check(fsm, parseATLK("<'player'> F 'win'")[0], variant="SF", gen=True))
+        self.assertTrue(check(fsm, parseATLK("<'dealer'> X 'pcard=Ac'")[0], variant="SF", implem="generator"))
+        self.assertFalse(check(fsm, parseATLK("<'dealer'> G ~'win'")[0], variant="SF", implem="generator"))
+        self.assertTrue(check(fsm, parseATLK("AG('step = 1' -> ~<'player'> X 'win')")[0], variant="SF", implem="generator"))
+        self.assertFalse(check(fsm, parseATLK("<'player'> F 'win'")[0], variant="SF", implem="generator"))
         
-        self.assertTrue(check(fsm, parseATLK("['player'] X 'pcard=Ac'")[0], variant="SF", gen=True))
-        self.assertTrue(check(fsm, parseATLK("['dealer'] F 'win'")[0], variant="SF", gen=True))
+        self.assertTrue(check(fsm, parseATLK("['player'] X 'pcard=Ac'")[0], variant="SF", implem="generator"))
+        self.assertTrue(check(fsm, parseATLK("['dealer'] F 'win'")[0], variant="SF", implem="generator"))
         
         
     @unittest.skip("Model checking takes too long.")
     def test_cardgame_post_fair_improved_gen(self):
         fsm = self.cardgame_post_fair()
         
-        self.assertTrue(check(fsm, parseATLK("K<'player'>'pcard=none' & K<'player'>'dcard=none'")[0], variant="SF", gen=True))
-        self.assertTrue(check(fsm, parseATLK("AG('step = 1' -> ~(K<'player'> 'dcard=Ac' | K<'player'> 'dcard=K' | K<'player'> 'dcard=Q'))")[0], variant="SF", gen=True))
+        self.assertTrue(check(fsm, parseATLK("K<'player'>'pcard=none' & K<'player'>'dcard=none'")[0], variant="SF", implem="generator"))
+        self.assertTrue(check(fsm, parseATLK("AG('step = 1' -> ~(K<'player'> 'dcard=Ac' | K<'player'> 'dcard=K' | K<'player'> 'dcard=Q'))")[0], variant="SF", implem="generator"))
         
-        self.assertTrue(check(fsm, parseATLK("AG('step = 1' -> ~<'player'> X 'win')")[0], variant="SF", gen=True))
-        self.assertFalse(check(fsm, parseATLK("['dealer'] F 'win'")[0], variant="SF", gen=True))
-        self.assertTrue(check(fsm, parseATLK("['player'] X 'pcard=Ac'")[0], variant="SF", gen=True))
-        self.assertTrue(check(fsm, parseATLK("<'dealer'> X 'pcard=Ac'")[0], variant="SF", gen=True))
-        self.assertTrue(check(fsm, parseATLK("<'dealer'> G ~'win'")[0], variant="SF", gen=True))
+        self.assertTrue(check(fsm, parseATLK("AG('step = 1' -> ~<'player'> X 'win')")[0], variant="SF", implem="generator"))
+        self.assertFalse(check(fsm, parseATLK("['dealer'] F 'win'")[0], variant="SF", implem="generator"))
+        self.assertTrue(check(fsm, parseATLK("['player'] X 'pcard=Ac'")[0], variant="SF", implem="generator"))
+        self.assertTrue(check(fsm, parseATLK("<'dealer'> X 'pcard=Ac'")[0], variant="SF", implem="generator"))
+        self.assertTrue(check(fsm, parseATLK("<'dealer'> G ~'win'")[0], variant="SF", implem="generator"))
         
         # Player can win
-        self.assertTrue(check(fsm, parseATLK("<'player'> F 'win'")[0], variant="SF", gen=True))
+        self.assertTrue(check(fsm, parseATLK("<'player'> F 'win'")[0], variant="SF", implem="generator"))
         # Dealer can avoid fairness
-        self.assertTrue(check(fsm, parseATLK("<'dealer'> F 'FALSE'")[0], variant="SF", gen=True))
+        self.assertTrue(check(fsm, parseATLK("<'dealer'> F 'FALSE'")[0], variant="SF", implem="generator"))
         
     
     def test_transmission_FSF_gen(self):
@@ -541,69 +541,252 @@ class TestCheck(unittest.TestCase):
         
         # False because transmitter cannot win if received is already true
         # and he has no clue about it
-        self.assertFalse(check(fsm, parseATLK("<'transmitter'> G ~'received'")[0], variant="FSF", gen=True))
-        self.assertFalse(check(fsm, parseATLK("<'sender'> X 'received'")[0], variant="FSF", gen=True))
+        self.assertFalse(check(fsm, parseATLK("<'transmitter'> G ~'received'")[0], variant="FSF", implem="generator"))
+        self.assertFalse(check(fsm, parseATLK("<'sender'> X 'received'")[0], variant="FSF", implem="generator"))
         # False because transmitter cannot win if received is already true
         # and he has no clue about it
-        self.assertFalse(check(fsm, parseATLK("<'transmitter'> X ~'received'")[0], variant="FSF", gen=True))
+        self.assertFalse(check(fsm, parseATLK("<'transmitter'> X ~'received'")[0], variant="FSF", implem="generator"))
         
         # False because the sender does not know if the bit is already
         # transmitted (and in this case, no strategy can avoid 'received')
-        self.assertFalse(check(fsm, parseATLK("<'sender'> G ~'received'")[0], variant="FSF", gen=True))
+        self.assertFalse(check(fsm, parseATLK("<'sender'> G ~'received'")[0], variant="FSF", implem="generator"))
         
-        self.assertFalse(check(fsm, parseATLK("<'transmitter'> F 'received'")[0], variant="FSF", gen=True))
-        self.assertFalse(check(fsm, parseATLK("<'sender'> F 'received'")[0], variant="FSF", gen=True))
+        self.assertFalse(check(fsm, parseATLK("<'transmitter'> F 'received'")[0], variant="FSF", implem="generator"))
+        self.assertFalse(check(fsm, parseATLK("<'sender'> F 'received'")[0], variant="FSF", implem="generator"))
         
     def test_transmission_with_know_FSF_gen(self):
         fsm = self.transmission_with_knowledge()
         
-        self.assertFalse(check(fsm, parseATLK("<'sender'> F 'received'")[0], variant="FSF", gen=True))
-        self.assertTrue(check(fsm, parseATLK("<'transmitter'> G ~'received'")[0], variant="FSF", gen=True))
-        self.assertFalse(check(fsm, parseATLK("<'sender'> X 'received'")[0], variant="FSF", gen=True))
-        self.assertTrue(check(fsm, parseATLK("<'transmitter'> X ~'received'")[0], variant="FSF", gen=True))
-        self.assertFalse(check(fsm, parseATLK("<'transmitter'> F 'received'")[0], variant="FSF", gen=True))
-        self.assertTrue(check(fsm, parseATLK("<'sender'> G ~'received'")[0], variant="FSF", gen=True))
+        self.assertFalse(check(fsm, parseATLK("<'sender'> F 'received'")[0], variant="FSF", implem="generator"))
+        self.assertTrue(check(fsm, parseATLK("<'transmitter'> G ~'received'")[0], variant="FSF", implem="generator"))
+        self.assertFalse(check(fsm, parseATLK("<'sender'> X 'received'")[0], variant="FSF", implem="generator"))
+        self.assertTrue(check(fsm, parseATLK("<'transmitter'> X ~'received'")[0], variant="FSF", implem="generator"))
+        self.assertFalse(check(fsm, parseATLK("<'transmitter'> F 'received'")[0], variant="FSF", implem="generator"))
+        self.assertTrue(check(fsm, parseATLK("<'sender'> G ~'received'")[0], variant="FSF", implem="generator"))
         
     def test_transmission_post_fair_FSF_gen(self):
         fsm = self.transmission_post_fair()
         
-        self.assertTrue(check(fsm, parseATLK("<'sender'> F 'received'")[0], variant="FSF", gen=True))
-        self.assertTrue(check(fsm, parseATLK("<'transmitter'> G ~'received'")[0], variant="FSF", gen=True))
-        self.assertFalse(check(fsm, parseATLK("<'sender'> X 'received'")[0], variant="FSF", gen=True))
-        self.assertTrue(check(fsm, parseATLK("<'transmitter'> X ~'received'")[0], variant="FSF", gen=True))
-        self.assertTrue(check(fsm, parseATLK("<'transmitter'> F 'received'")[0], variant="FSF", gen=True))
+        self.assertTrue(check(fsm, parseATLK("<'sender'> F 'received'")[0], variant="FSF", implem="generator"))
+        self.assertTrue(check(fsm, parseATLK("<'transmitter'> G ~'received'")[0], variant="FSF", implem="generator"))
+        self.assertFalse(check(fsm, parseATLK("<'sender'> X 'received'")[0], variant="FSF", implem="generator"))
+        self.assertTrue(check(fsm, parseATLK("<'transmitter'> X ~'received'")[0], variant="FSF", implem="generator"))
+        self.assertTrue(check(fsm, parseATLK("<'transmitter'> F 'received'")[0], variant="FSF", implem="generator"))
         
         # False because the sender does not know if the bit is already
         # transmitted (and in this case, no strategy can avoid 'received')
-        self.assertFalse(check(fsm, parseATLK("<'sender'> G ~'received'")[0], variant="FSF", gen=True))
+        self.assertFalse(check(fsm, parseATLK("<'sender'> G ~'received'")[0], variant="FSF", implem="generator"))
         
         
     def test_cardgame_FSF_gen(self):
         fsm = self.cardgame()
         
-        self.assertTrue(check(fsm, parseATLK("<'dealer'> X 'pcard=Ac'")[0], variant="FSF", gen=True))
-        self.assertFalse(check(fsm, parseATLK("<'dealer'> G ~'win'")[0], variant="FSF", gen=True))
-        self.assertTrue(check(fsm, parseATLK("AG('step = 1' -> ~<'player'> X 'win')")[0], variant="FSF", gen=True))
-        self.assertFalse(check(fsm, parseATLK("<'player'> F 'win'")[0], variant="FSF", gen=True))
+        self.assertTrue(check(fsm, parseATLK("<'dealer'> X 'pcard=Ac'")[0], variant="FSF", implem="generator"))
+        self.assertFalse(check(fsm, parseATLK("<'dealer'> G ~'win'")[0], variant="FSF", implem="generator"))
+        self.assertTrue(check(fsm, parseATLK("AG('step = 1' -> ~<'player'> X 'win')")[0], variant="FSF", implem="generator"))
+        self.assertFalse(check(fsm, parseATLK("<'player'> F 'win'")[0], variant="FSF", implem="generator"))
         
-        self.assertTrue(check(fsm, parseATLK("['player'] X 'pcard=Ac'")[0], variant="FSF", gen=True))
-        self.assertTrue(check(fsm, parseATLK("['dealer'] F 'win'")[0], variant="FSF", gen=True))
+        self.assertTrue(check(fsm, parseATLK("['player'] X 'pcard=Ac'")[0], variant="FSF", implem="generator"))
+        self.assertTrue(check(fsm, parseATLK("['dealer'] F 'win'")[0], variant="FSF", implem="generator"))
         
         
     @unittest.skip("Model checking takes too long.")
     def test_cardgame_post_fair_FSF_gen(self):
         fsm = self.cardgame_post_fair()
         
-        self.assertTrue(check(fsm, parseATLK("K<'player'>'pcard=none' & K<'player'>'dcard=none'")[0], variant="FSF", gen=True))
-        self.assertTrue(check(fsm, parseATLK("AG('step = 1' -> ~(K<'player'> 'dcard=Ac' | K<'player'> 'dcard=K' | K<'player'> 'dcard=Q'))")[0], variant="FSF", gen=True))
+        self.assertTrue(check(fsm, parseATLK("K<'player'>'pcard=none' & K<'player'>'dcard=none'")[0], variant="FSF", implem="generator"))
+        self.assertTrue(check(fsm, parseATLK("AG('step = 1' -> ~(K<'player'> 'dcard=Ac' | K<'player'> 'dcard=K' | K<'player'> 'dcard=Q'))")[0], variant="FSF", implem="generator"))
         
-        self.assertTrue(check(fsm, parseATLK("AG('step = 1' -> ~<'player'> X 'win')")[0], variant="FSF", gen=True))
-        self.assertFalse(check(fsm, parseATLK("['dealer'] F 'win'")[0], variant="FSF", gen=True))
-        self.assertTrue(check(fsm, parseATLK("['player'] X 'pcard=Ac'")[0], variant="FSF", gen=True))
-        self.assertTrue(check(fsm, parseATLK("<'dealer'> X 'pcard=Ac'")[0], variant="FSF", gen=True))
-        self.assertTrue(check(fsm, parseATLK("<'dealer'> G ~'win'")[0], variant="FSF", gen=True))
+        self.assertTrue(check(fsm, parseATLK("AG('step = 1' -> ~<'player'> X 'win')")[0], variant="FSF", implem="generator"))
+        self.assertFalse(check(fsm, parseATLK("['dealer'] F 'win'")[0], variant="FSF", implem="generator"))
+        self.assertTrue(check(fsm, parseATLK("['player'] X 'pcard=Ac'")[0], variant="FSF", implem="generator"))
+        self.assertTrue(check(fsm, parseATLK("<'dealer'> X 'pcard=Ac'")[0], variant="FSF", implem="generator"))
+        self.assertTrue(check(fsm, parseATLK("<'dealer'> G ~'win'")[0], variant="FSF", implem="generator"))
         
         # Player can win
-        self.assertTrue(check(fsm, parseATLK("<'player'> F 'win'")[0], variant="FSF", gen=True))
+        self.assertTrue(check(fsm, parseATLK("<'player'> F 'win'")[0], variant="FSF", implem="generator"))
         # Dealer can avoid fairness
-        self.assertTrue(check(fsm, parseATLK("<'dealer'> F 'FALSE'")[0], variant="FSF", gen=True))
+        self.assertTrue(check(fsm, parseATLK("<'dealer'> F 'FALSE'")[0], variant="FSF", implem="generator"))
+        
+        
+        
+    def test_cardgame_not_improved_opt(self):
+        fsm = self.cardgame()
+        
+        self.assertTrue(check(fsm, parseATLK("K<'player'>'pcard=none' & K<'player'>'dcard=none'")[0], implem="optimized"))
+        self.assertTrue(check(fsm, parseATLK("AG('step = 1' -> ~(K<'player'> 'dcard=Ac' | K<'player'> 'dcard=K' | K<'player'> 'dcard=Q'))")[0], implem="optimized"))
+        
+        self.assertTrue(check(fsm, parseATLK("<'dealer'> X 'pcard=Ac'")[0], implem="optimized"))
+        self.assertFalse(check(fsm, parseATLK("<'dealer'> G ~'win'")[0], implem="optimized"))
+        self.assertTrue(check(fsm, parseATLK("['player'] X 'pcard=Ac'")[0], implem="optimized"))
+        self.assertTrue(check(fsm, parseATLK("['dealer'] F 'win'")[0], implem="optimized"))
+        self.assertTrue(check(fsm, parseATLK("AG('step = 1' -> ~<'player'> X 'win')")[0], implem="optimized"))
+        self.assertFalse(check(fsm, parseATLK("<'player'> F 'win'")[0], implem="optimized"))
+        
+    
+    @unittest.expectedFailure # MC algo does not deal with fairness on action for now
+    def test_cardgame_fair_not_improved_opt(self):
+        fsm = self.cardgame_fair()
+        
+        self.assertTrue(check(fsm, parseATLK("K<'player'>'pcard=none' & K<'player'>'dcard=none'")[0], implem="optimized"))
+        self.assertTrue(check(fsm, parseATLK("AG('step = 1' -> ~(K<'player'> 'dcard=Ac' | K<'player'> 'dcard=K' | K<'player'> 'dcard=Q'))")[0], implem="optimized"))
+        
+        self.assertTrue(check(fsm, parseATLK("AG('step = 1' -> ~<'player'> X 'win')")[0], implem="optimized"))
+        self.assertTrue(check(fsm, parseATLK("['player'] X 'pcard=Ac'")[0], implem="optimized"))
+        self.assertTrue(check(fsm, parseATLK("<'dealer'> X 'pcard=Ac'")[0], implem="optimized"))
+        self.assertTrue(check(fsm, parseATLK("<'dealer'> G ~'win'")[0], implem="optimized"))
+        self.assertFalse(check(fsm, parseATLK("['dealer'] F 'win'")[0], implem="optimized"))
+        
+        # Player can win
+        self.assertTrue(check(fsm, parseATLK("<'player'> F 'win'")[0], implem="optimized"))
+        # Dealer can avoid fairness
+        self.assertTrue(check(fsm, parseATLK("<'dealer'> F 'FALSE'")[0], implem="optimized"))
+        
+    
+    def test_cardgame_post_fair_not_improved_opt(self):
+        fsm = self.cardgame_post_fair()
+        
+        self.assertTrue(check(fsm, parseATLK("K<'player'>'pcard=none' & K<'player'>'dcard=none'")[0], implem="optimized"))
+        self.assertTrue(check(fsm, parseATLK("AG('step = 1' -> ~(K<'player'> 'dcard=Ac' | K<'player'> 'dcard=K' | K<'player'> 'dcard=Q'))")[0], implem="optimized"))
+        
+        self.assertTrue(check(fsm, parseATLK("AG('step = 1' -> ~<'player'> X 'win')")[0], implem="optimized"))
+        self.assertFalse(check(fsm, parseATLK("['dealer'] F 'win'")[0], implem="optimized"))
+        self.assertTrue(check(fsm, parseATLK("['player'] X 'pcard=Ac'")[0], implem="optimized"))
+        self.assertTrue(check(fsm, parseATLK("<'dealer'> X 'pcard=Ac'")[0], implem="optimized"))
+        self.assertTrue(check(fsm, parseATLK("<'dealer'> G ~'win'")[0], implem="optimized"))
+        
+        # Player can win
+        self.assertTrue(check(fsm, parseATLK("<'player'> F 'win'")[0], implem="optimized"))
+        # Dealer can avoid fairness
+        self.assertTrue(check(fsm, parseATLK("<'dealer'> F 'FALSE'")[0], implem="optimized"))
+        
+
+    def test_transmission_not_improved_opt(self):
+        fsm = self.transmission()
+        
+        self.assertFalse(check(fsm, parseATLK("<'sender'> F 'received'")[0], implem="optimized"))
+        # False because transmitter cannot win if received is already true
+        # and he has no clue about it
+        self.assertFalse(check(fsm, parseATLK("<'transmitter'> G ~'received'")[0], implem="optimized"))
+        self.assertFalse(check(fsm, parseATLK("<'sender'> X 'received'")[0], implem="optimized"))
+        # False because transmitter cannot win if received is already true
+        # and he has no clue about it
+        self.assertFalse(check(fsm, parseATLK("<'transmitter'> X ~'received'")[0], implem="optimized"))
+        self.assertFalse(check(fsm, parseATLK("<'transmitter'> F 'received'")[0], implem="optimized"))
+        
+        # False because the sender does not know if the bit is already
+        # transmitted (and in this case, no strategy can avoid 'received')
+        self.assertFalse(check(fsm, parseATLK("<'sender'> G ~'received'")[0], implem="optimized"))
+        
+    
+    def test_transmission_with_know_not_improved_opt(self):
+        fsm = self.transmission_with_knowledge()
+        
+        self.assertFalse(check(fsm, parseATLK("<'sender'> F 'received'")[0], implem="optimized"))
+        self.assertTrue(check(fsm, parseATLK("<'transmitter'> G ~'received'")[0], implem="optimized"))
+        self.assertFalse(check(fsm, parseATLK("<'sender'> X 'received'")[0], implem="optimized"))
+        self.assertTrue(check(fsm, parseATLK("<'transmitter'> X ~'received'")[0], implem="optimized"))
+        self.assertFalse(check(fsm, parseATLK("<'transmitter'> F 'received'")[0], implem="optimized"))
+        self.assertTrue(check(fsm, parseATLK("<'sender'> G ~'received'")[0], implem="optimized"))
+    
+    
+    @unittest.expectedFailure # MC algo does not deal with fairness on action for now
+    def test_transmission_fair_not_improved_opt(self):
+        fsm = self.transmission_fair()
+        
+        self.assertTrue(check(fsm, parseATLK("<'sender'> F 'received'")[0], implem="optimized"))
+        self.assertTrue(check(fsm, parseATLK("<'transmitter'> G ~'received'")[0], implem="optimized"))
+        self.assertFalse(check(fsm, parseATLK("<'sender'> X 'received'")[0], implem="optimized"))
+        self.assertTrue(check(fsm, parseATLK("<'transmitter'> X ~'received'")[0], implem="optimized"))
+        self.assertTrue(check(fsm, parseATLK("<'transmitter'> F 'received'")[0], implem="optimized"))
+        
+        # False because the sender does not know if the bit is already
+        # transmitted (and in this case, no strategy can avoid 'received')
+        self.assertFalse(check(fsm, parseATLK("<'sender'> G ~'received'")[0], implem="optimized"))
+    
+    
+    def test_transmission_post_fair_not_improved_opt(self):
+        fsm = self.transmission_post_fair()
+        
+        self.assertTrue(check(fsm, parseATLK("<'sender'> F 'received'")[0], implem="optimized"))
+        self.assertTrue(check(fsm, parseATLK("<'transmitter'> G ~'received'")[0], implem="optimized"))
+        self.assertFalse(check(fsm, parseATLK("<'sender'> X 'received'")[0], implem="optimized"))
+        self.assertTrue(check(fsm, parseATLK("<'transmitter'> X ~'received'")[0], implem="optimized"))
+        self.assertTrue(check(fsm, parseATLK("<'transmitter'> F 'received'")[0], implem="optimized"))
+        
+        # False because the sender does not know if the bit is already
+        # transmitted (and in this case, no strategy can avoid 'received')
+        self.assertFalse(check(fsm, parseATLK("<'sender'> G ~'received'")[0], implem="optimized"))
+        
+    
+    def test_transmission_FSF_opt(self):
+        fsm = self.transmission()
+        
+        # False because transmitter cannot win if received is already true
+        # and he has no clue about it
+        self.assertFalse(check(fsm, parseATLK("<'transmitter'> G ~'received'")[0], variant="FSF", implem="optimized"))
+        self.assertFalse(check(fsm, parseATLK("<'sender'> X 'received'")[0], variant="FSF", implem="optimized"))
+        # False because transmitter cannot win if received is already true
+        # and he has no clue about it
+        self.assertFalse(check(fsm, parseATLK("<'transmitter'> X ~'received'")[0], variant="FSF", implem="optimized"))
+        
+        # False because the sender does not know if the bit is already
+        # transmitted (and in this case, no strategy can avoid 'received')
+        self.assertFalse(check(fsm, parseATLK("<'sender'> G ~'received'")[0], variant="FSF", implem="optimized"))
+        
+        self.assertFalse(check(fsm, parseATLK("<'transmitter'> F 'received'")[0], variant="FSF", implem="optimized"))
+        self.assertFalse(check(fsm, parseATLK("<'sender'> F 'received'")[0], variant="FSF", implem="optimized"))
+        
+    def test_transmission_with_know_FSF_opt(self):
+        fsm = self.transmission_with_knowledge()
+        
+        self.assertFalse(check(fsm, parseATLK("<'sender'> F 'received'")[0], variant="FSF", implem="optimized"))
+        self.assertTrue(check(fsm, parseATLK("<'transmitter'> G ~'received'")[0], variant="FSF", implem="optimized"))
+        self.assertFalse(check(fsm, parseATLK("<'sender'> X 'received'")[0], variant="FSF", implem="optimized"))
+        self.assertTrue(check(fsm, parseATLK("<'transmitter'> X ~'received'")[0], variant="FSF", implem="optimized"))
+        self.assertFalse(check(fsm, parseATLK("<'transmitter'> F 'received'")[0], variant="FSF", implem="optimized"))
+        self.assertTrue(check(fsm, parseATLK("<'sender'> G ~'received'")[0], variant="FSF", implem="optimized"))
+        
+    def test_transmission_post_fair_FSF_opt(self):
+        fsm = self.transmission_post_fair()
+        
+        self.assertTrue(check(fsm, parseATLK("<'sender'> F 'received'")[0], variant="FSF", implem="optimized"))
+        self.assertTrue(check(fsm, parseATLK("<'transmitter'> G ~'received'")[0], variant="FSF", implem="optimized"))
+        self.assertFalse(check(fsm, parseATLK("<'sender'> X 'received'")[0], variant="FSF", implem="optimized"))
+        self.assertTrue(check(fsm, parseATLK("<'transmitter'> X ~'received'")[0], variant="FSF", implem="optimized"))
+        self.assertTrue(check(fsm, parseATLK("<'transmitter'> F 'received'")[0], variant="FSF", implem="optimized"))
+        
+        # False because the sender does not know if the bit is already
+        # transmitted (and in this case, no strategy can avoid 'received')
+        self.assertFalse(check(fsm, parseATLK("<'sender'> G ~'received'")[0], variant="FSF", implem="optimized"))
+        
+        
+    def test_cardgame_FSF_opt(self):
+        fsm = self.cardgame()
+        
+        self.assertTrue(check(fsm, parseATLK("<'dealer'> X 'pcard=Ac'")[0], variant="FSF", implem="optimized"))
+        self.assertFalse(check(fsm, parseATLK("<'dealer'> G ~'win'")[0], variant="FSF", implem="optimized"))
+        self.assertTrue(check(fsm, parseATLK("AG('step = 1' -> ~<'player'> X 'win')")[0], variant="FSF", implem="optimized"))
+        self.assertFalse(check(fsm, parseATLK("<'player'> F 'win'")[0], variant="FSF", implem="optimized"))
+        
+        self.assertTrue(check(fsm, parseATLK("['player'] X 'pcard=Ac'")[0], variant="FSF", implem="optimized"))
+        self.assertTrue(check(fsm, parseATLK("['dealer'] F 'win'")[0], variant="FSF", implem="optimized"))
+        
+        
+    @unittest.skip("Model checking takes too long.")
+    def test_cardgame_post_fair_FSF_opt(self):
+        fsm = self.cardgame_post_fair()
+        
+        self.assertTrue(check(fsm, parseATLK("K<'player'>'pcard=none' & K<'player'>'dcard=none'")[0], variant="FSF", implem="optimized"))
+        self.assertTrue(check(fsm, parseATLK("AG('step = 1' -> ~(K<'player'> 'dcard=Ac' | K<'player'> 'dcard=K' | K<'player'> 'dcard=Q'))")[0], variant="FSF", implem="optimized"))
+        
+        self.assertTrue(check(fsm, parseATLK("AG('step = 1' -> ~<'player'> X 'win')")[0], variant="FSF", implem="optimized"))
+        self.assertFalse(check(fsm, parseATLK("['dealer'] F 'win'")[0], variant="FSF", implem="optimized"))
+        self.assertTrue(check(fsm, parseATLK("['player'] X 'pcard=Ac'")[0], variant="FSF", implem="optimized"))
+        self.assertTrue(check(fsm, parseATLK("<'dealer'> X 'pcard=Ac'")[0], variant="FSF", implem="optimized"))
+        self.assertTrue(check(fsm, parseATLK("<'dealer'> G ~'win'")[0], variant="FSF", implem="optimized"))
+        
+        # Player can win
+        self.assertTrue(check(fsm, parseATLK("<'player'> F 'win'")[0], variant="FSF", implem="optimized"))
+        # Dealer can avoid fairness
+        self.assertTrue(check(fsm, parseATLK("<'dealer'> F 'FALSE'")[0], variant="FSF", implem="optimized"))
