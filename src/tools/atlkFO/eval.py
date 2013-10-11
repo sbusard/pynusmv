@@ -440,7 +440,7 @@ def cex(fsm, agents, phi):
     agents -- a list of agents names
     phi -- a BDD representing the set of states of fsm satisfying phi
     """
-    phi = phi & fsm.bddEnc.statesInputsMask
+    #phi = phi & fsm.bddEnc.statesInputsMask
     
     return fsm.pre_strat(phi | nfair_gamma_states(fsm, agents), agents)
     
@@ -454,8 +454,8 @@ def ceu(fsm, agents, phi, psi):
     phi -- a BDD representing the set of states of fsm satisfying phi
     psi -- a BDD representing the set of states of fsm satisfying psi
     """
-    phi = phi & fsm.bddEnc.statesInputsMask
-    psi = psi & fsm.bddEnc.statesInputsMask
+    #phi = phi & fsm.bddEnc.statesInputsMask
+    #psi = psi & fsm.bddEnc.statesInputsMask
     
     if len(fsm.fairness_constraints) == 0:
         return fp(lambda Z : psi | (phi & fsm.pre_strat(Z, agents)),
@@ -465,7 +465,7 @@ def ceu(fsm, agents, phi, psi):
         def inner(Z):
             res = psi
             for f in fsm.fairness_constraints:
-                nf = ~f & fsm.bddEnc.statesMask
+                nf = ~f #& fsm.bddEnc.statesMask
                 res = res | fsm.pre_strat(fp(lambda Y :
                                              (phi | psi | nfair) &
                                               (Z | nf) &
@@ -485,8 +485,8 @@ def cew(fsm, agents, phi, psi):
     phi -- a BDD representing the set of states of fsm satisfying phi
     psi -- a BDD representing the set of states of fsm satisfying psi
     """
-    phi = phi & fsm.bddEnc.statesInputsMask
-    psi = psi & fsm.bddEnc.statesInputsMask
+    #phi = phi & fsm.bddEnc.statesInputsMask
+    #psi = psi & fsm.bddEnc.statesInputsMask
     
     nfair = nfair_gamma_states(fsm, agents)
     
@@ -513,7 +513,7 @@ def nfair_gamma_states(fsm, agents):
             def inner(Z):
                 res = BDD.false(fsm.bddEnc.DDmanager)
                 for f in fsm.fairness_constraints:
-                    nf = ~f & fsm.bddEnc.statesMask
+                    nf = ~f #& fsm.bddEnc.statesMask
                     res = res | fsm.pre_strat(fp(lambda Y :
                                                  (Z | nf) &
                                                  fsm.pre_strat(Y, agents),
