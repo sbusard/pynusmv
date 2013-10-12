@@ -13,10 +13,12 @@ __all__ = ['init_nusmv', 'deinit_nusmv', 'reset_nusmv']
 
 import weakref
 import gc
+import sys
 
 from .nusmv.cinit import cinit as nscinit
 from .nusmv.opt import opt as nsopt
 from .nusmv.cmd import cmd as nscmd
+from .nusmv.dd import dd as nsdd
 
 from .exception import NuSMVInitError
 
@@ -49,14 +51,23 @@ def init_nusmv():
         nscmd.Cmd_SecureCommandExecute("set parser_is_lax")    
     
 
-def deinit_nusmv():
+def deinit_nusmv(ddinfo=False):
     """
     Quit NuSMV. Must be called only once, after calling :func:`init_nusmv`.
+    
+    :param ddinfo: Whether or not display Decision Diagrams statistics.
     
     """
     # Apply Python garbage collection first, then collect every pointer wrapper
     # that is not yet collected by Python GC
     from . import glob
+    
+    if ddinfo:
+        # Print statistics on stdout about DDs handled by the main DD manager.
+        nsdd.dd_print_stats(
+                    glob.prop_database().master.bddFsm.bddEnc.DDmanager._ptr,
+                    nscinit.cvar.nusmv_stdout)
+    
     glob._reset_globals()    
     
     global __collector
