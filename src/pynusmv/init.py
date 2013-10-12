@@ -20,7 +20,7 @@ from .nusmv.opt import opt as nsopt
 from .nusmv.cmd import cmd as nscmd
 from .nusmv.dd import dd as nsdd
 
-from .exception import NuSMVInitError
+from .exception import NuSMVInitError, PyNuSMVError
 
 
 # Set of pointer wrappers to collect when deiniting NuSMV
@@ -62,11 +62,13 @@ def deinit_nusmv(ddinfo=False):
     # that is not yet collected by Python GC
     from . import glob
     
+    # Print statistics on stdout about DDs handled by the main DD manager.
     if ddinfo:
-        # Print statistics on stdout about DDs handled by the main DD manager.
-        nsdd.dd_print_stats(
-                    glob.prop_database().master.bddFsm.bddEnc.DDmanager._ptr,
-                    nscinit.cvar.nusmv_stdout)
+        try:
+            manager = glob.prop_database().master.bddFsm.bddEnc.DDmanager
+            nsdd.dd_print_stats(manager._ptr, nscinit.cvar.nusmv_stdout)
+        except PyNuSMVError:
+            pass
     
     glob._reset_globals()    
     

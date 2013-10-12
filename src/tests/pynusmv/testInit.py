@@ -21,3 +21,8 @@ class TestInit(unittest.TestCase):
             init_nusmv()
             init_nusmv()
         deinit_nusmv()
+        
+    
+    def test_init_deinit_stats(self):
+        init_nusmv()
+        deinit_nusmv(ddinfo=True)
