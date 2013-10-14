@@ -179,8 +179,11 @@ def evalATLK(fsm, spec, variant="SF"):
             strategies[spec] = 0
             filterings[spec] = 0
             sat = eval_strat_improved(fsm, spec)
-            print("Eval_strat_FS: {} strategies, {} filterings"
-                  .format(strategies[spec], filterings[spec]))
+            
+            # DEBUG Print number of strategies and filterings up to know
+            #print("Eval_strat_FS: {} strategies, {} filterings"
+            #      .format(strategies[spec], filterings[spec]))
+            
             return sat
         elif variant == "FSF":
             return eval_strat_FSF(fsm, spec)
@@ -332,8 +335,10 @@ def eval_strat(fsm, spec):
         winning = (filter_strat(fsm, spec, strat, variant="SF").
                     forsome(fsm.bddEnc.inputsCube))
         sat = sat | all_equiv_sat(fsm, winning, agents)
-        
-    print("Eval_strat: {} strategies".format(nbstrats))
+    
+    # DEBUG Print number of strategies
+    #print("Eval_strat: {} strategies".format(nbstrats))
+    
     return sat
 
 
@@ -670,5 +675,7 @@ def eval_strat_FSF(fsm, spec):
         winning = winning.forsome(fsm.bddEnc.inputsCube)
         sat = sat | all_equiv_sat(fsm, winning, agents)
     
-    print("Eval_strat_FSF: {} strategies".format(nbstrats))
+    # DEBUG Print number of strategies
+    #print("Eval_strat_FSF: {} strategies".format(nbstrats))
+    
     return sat

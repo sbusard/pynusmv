@@ -447,8 +447,10 @@ def eval_strat(fsm, spec):
         wineq = ~(fsm.equivalent_states(nwinning &
                   fsm.reachable_states, frozenset(agents))) & winning
         sat = sat | wineq
-        
-    print("Eval_strat: {} strategies".format(nbstrats))
+    
+    # DEBUG Print number of strategies
+    #print("Eval_strat: {} strategies".format(nbstrats))
+    
     return sat
 
 
@@ -846,5 +848,7 @@ def eval_strat_FSF(fsm, spec):
                   fsm.reachable_states, frozenset(agents))) & winning
         sat = sat | wineq
     
-    print("Eval_strat_FSF: {} strategies".format(nbstrats))
+    # DEBUG Print number of strategies
+    #print("Eval_strat_FSF: {} strategies".format(nbstrats))
+    
     return sat
