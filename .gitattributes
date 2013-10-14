@@ -12,3 +12,5 @@
 /doc/Makefile export-ignore
 /doc/pynusmv.patch export-ignore
 /doc/source export-ignore
+
+/experiments export-ignore
