@@ -6,9 +6,15 @@ from ..atlkFO.parsing import parseATLK
 from .eval import evalATLK as evalATLK_naive
 from .evalGen import evalATLK as evalATLK_gen
 from .evalOpt import evalATLK as evalATLK_opt
+from .evalPartial import evalATLK as evalATLK_partial
 from pyparsing import ParseException
 from pynusmv.exception import PyNuSMVError
-    
+
+__implementations = {"naive" : evalATLK_naive,
+                     "generator" : evalATLK_gen,
+                     "optimized" : evalATLK_opt,
+                     "partial" : evalATLK_partial}
+
 def check(mas, spec, variant="SF", implem="naive"):
     """
     Return whether the system satisfies the ATLK specification.
@@ -28,21 +34,18 @@ def check(mas, spec, variant="SF", implem="naive"):
               evaluation:
               * "naive" the naive implementation;
               * "generator" the generator-based implementation;
-              * "optimized" an memory-optimized version.
+              * "optimized" an memory-optimized version;
+              * "partial" a version based on partial strategies.
                  
     If variant is not in {"SF", "FS", "FSF"}, the standard "SF" way is used.          
-    If implem is not in {"naive", "generator", "optimized"},
+    If implem is not in {"naive", "generator", "optimized", "partial"},
     the standard "naive" way is used.
     
     """
-    if implem == "naive":
-        sat = evalATLK_naive(mas, spec, variant)
-    elif implem == "generator":
-        sat = evalATLK_gen(mas, spec, variant)
-    elif implem == "optimized":
-        sat = evalATLK_opt(mas, spec, variant)
+    if implem in __implementations:
+        sat = __implementations[implem](mas, spec, variant=variant)
     else:
-        sat = evalATLK_naive(mas, spec, variant)
+        sat = evalATLK_naive(mas, spec, variant=variant)
     return (~sat & mas.bddEnc.statesInputsMask & mas.init).is_false()
     
 def process(allargs):
