@@ -9,6 +9,7 @@ from pynusmv.nusmv.dd import dd as nsdd
 from tools.mas import glob
 
 from tools.atlkPO.eval import split, cex_si, nfair_gamma_si, nfair_gamma
+from tools.atlkPO.evalPartial import split_reach, split as psplit
 
 from pynusmv.utils import fixpoint as fp
 
@@ -25,6 +26,18 @@ class TestEval(unittest.TestCase):
     
     def little(self):
         glob.load_from_file("tests/tools/atlkPO/models/little.smv")
+        fsm = glob.mas()
+        self.assertIsNotNone(fsm)
+        return fsm
+        
+    def tree(self):
+        glob.load_from_file("tests/tools/atlkPO/models/tree.smv")
+        fsm = glob.mas()
+        self.assertIsNotNone(fsm)
+        return fsm
+        
+    def collapsed_tree(self):
+        glob.load_from_file("tests/tools/atlkPO/models/collapsed-tree.smv")
         fsm = glob.mas()
         self.assertIsNotNone(fsm)
         return fsm
@@ -339,3 +352,52 @@ class TestEval(unittest.TestCase):
                          (s1 & a0 & fsm.protocol({'a'})), nfgsia)
                          
         self.assertEqual(s1 & b0 & fsm.protocol({'b'}), nfgsib)
+        
+        
+    def test_splitreach_tree(self):
+        fsm = self.tree()
+        agents = {"a"}
+        
+        s0 = eval_simple_expression(fsm, "a.state = 0")
+        s1 = eval_simple_expression(fsm, "a.state = 1")
+        s2 = eval_simple_expression(fsm, "a.state = 2")
+        s3 = eval_simple_expression(fsm, "a.state = 3")
+        s4 = eval_simple_expression(fsm, "a.state = 4")
+        s5 = eval_simple_expression(fsm, "a.state = 5")
+        s6 = eval_simple_expression(fsm, "a.state = 6")
+        
+        aa = eval_simple_expression(fsm, "a.action = a")
+        ab = eval_simple_expression(fsm, "a.action = b")
+        
+        splitted_init = psplit(fsm, fsm.init & fsm.protocol(agents), agents)
+        strats = {strat for pustrat in splitted_init
+                        for strat in split_reach(fsm, agents, pustrat)}
+        self.assertEqual(len(strats), 4)
+        self.assertTrue(((s0 & aa) | (s1 & aa) | (s3 & aa))
+                         & fsm.bddEnc.statesMask in strats)
+        self.assertTrue(((s0 & aa) | (s1 & ab) | (s4 & aa))
+                        & fsm.bddEnc.statesMask in strats)
+        self.assertTrue(((s0 & ab) | (s2 & aa) | (s5 & aa))
+                        & fsm.bddEnc.statesMask in strats)
+        self.assertTrue(((s0 & ab) | (s2 & ab) | (s6 & aa))
+                        & fsm.bddEnc.statesMask in strats)
+                        
+                        
+    def test_splitreach_collapsed_tree(self):
+        fsm = self.collapsed_tree()
+        agents = {"a"}
+        
+        sa0 = eval_simple_expression(fsm, "a.state = 0")
+        sa1 = eval_simple_expression(fsm, "a.state = 1")
+        
+        s0 = eval_simple_expression(fsm, "s = 0")
+        s1 = eval_simple_expression(fsm, "s = 1")
+        s2 = eval_simple_expression(fsm, "s = 2")
+        
+        aa = eval_simple_expression(fsm, "a.action = a")
+        ab = eval_simple_expression(fsm, "a.action = b")
+        
+        splitted_init = psplit(fsm, fsm.init & fsm.protocol(agents), agents)
+        strats = {strat for pustrat in splitted_init
+                        for strat in split_reach(fsm, agents, pustrat)}
+        self.assertEqual(len(strats), 2)

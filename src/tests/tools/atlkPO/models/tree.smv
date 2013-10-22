@@ -1,0 +1,28 @@
+--- Little tree with one agent
+---
+--- Simon Busard <simon.busard@uclouvain.be>, 21/10/13
+
+MODULE AA()
+
+    IVAR action : {a, b};
+    VAR state : 0..6;
+    
+    -- protocol
+    TRANS
+    action in case state in 0..2 : {a, b};
+                   state in 3..6 : {a};
+              esac
+    
+    -- evolution
+    TRANS
+    next(state) = case state = 0 : (action = a) ? 1 : 2;
+                       state = 1 : (action = a) ? 3 : 4;
+                       state = 2 : (action = a) ? 5 : 6;
+                       TRUE : state;
+                  esac
+              
+MODULE main
+
+    VAR a : AA();
+        
+    INIT a.state = 0
