@@ -337,7 +337,7 @@ def eval_strat(fsm, spec):
         sat = sat | all_equiv_sat(fsm, winning, agents)
     
     # DEBUG Print number of strategies
-    #print("Eval_strat: {} strategies".format(nbstrats))
+    print("Eval_strat: {} strategies".format(nbstrats))
     
     return sat
 
