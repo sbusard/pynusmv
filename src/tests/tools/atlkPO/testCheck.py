@@ -108,6 +108,10 @@ class TestCheck(unittest.TestCase):
         self.assertTrue(check(fsm, parseATLK("AG('step = 1' -> ~<'player'> X 'win')")[0]))
         self.assertFalse(check(fsm, parseATLK("<'player'> F 'win'")[0]))
         
+        self.assertTrue(check(fsm, parseATLK("EG ~'win'")[0]))
+        self.assertTrue(check(fsm, parseATLK("EF 'win'")[0]))
+        self.assertFalse(check(fsm, parseATLK("AF 'win'")[0]))
+        
     
     @unittest.expectedFailure # MC algo does not deal with fairness on action for now
     def test_cardgame_fair_not_improved(self):
@@ -805,6 +809,10 @@ class TestCheck(unittest.TestCase):
         self.assertTrue(check(fsm, parseATLK("AG('step = 1' -> ~<'player'> X 'win')")[0], implem="partial"))
         self.assertFalse(check(fsm, parseATLK("<'player'> F 'win'")[0], implem="partial"))
         
+        self.assertTrue(check(fsm, parseATLK("EG ~'win'")[0], implem="partial"))
+        self.assertTrue(check(fsm, parseATLK("EF 'win'")[0], implem="partial"))
+        self.assertFalse(check(fsm, parseATLK("AF 'win'")[0], implem="partial"))
+        
     
     @unittest.expectedFailure # MC algo does not deal with fairness on action for now
     def test_cardgame_fair_not_improved_partial(self):
@@ -842,6 +850,10 @@ class TestCheck(unittest.TestCase):
         # Dealer can avoid fairness
         self.assertTrue(check(fsm, parseATLK("<'dealer'> F 'FALSE'")[0], implem="partial"))
         
+        self.assertTrue(check(fsm, parseATLK("EG ~'win'")[0], implem="partial"))
+        self.assertTrue(check(fsm, parseATLK("EF 'win'")[0], implem="partial"))
+        self.assertFalse(check(fsm, parseATLK("AF 'win'")[0], implem="partial"))
+        
 
     def test_transmission_not_improved_partial(self):
         fsm = self.transmission()
@@ -859,6 +871,12 @@ class TestCheck(unittest.TestCase):
         # False because the sender does not know if the bit is already
         # transmitted (and in this case, no strategy can avoid 'received')
         self.assertFalse(check(fsm, parseATLK("<'sender'> G ~'received'")[0], implem="partial"))
+        
+        self.assertTrue(check(fsm, parseATLK("EF 'received'")[0], implem="partial"))
+        self.assertTrue(check(fsm, parseATLK("EG ~'received'")[0], implem="partial"))
+        self.assertFalse(check(fsm, parseATLK("AG ~'received'")[0], implem="partial"))
+        self.assertFalse(check(fsm, parseATLK("AF 'received'")[0], implem="partial"))
+        self.assertTrue(check(fsm, parseATLK("AF ~'received'")[0], implem="partial"))
         
     
     def test_transmission_with_know_not_improved_partial(self):
@@ -899,6 +917,12 @@ class TestCheck(unittest.TestCase):
         # False because the sender does not know if the bit is already
         # transmitted (and in this case, no strategy can avoid 'received')
         self.assertFalse(check(fsm, parseATLK("<'sender'> G ~'received'")[0], implem="partial"))
+        
+        self.assertTrue(check(fsm, parseATLK("EF 'received'")[0], implem="partial"))
+        self.assertTrue(check(fsm, parseATLK("EG ~'received'")[0], implem="partial"))
+        self.assertFalse(check(fsm, parseATLK("AG ~'received'")[0], implem="partial"))
+        self.assertFalse(check(fsm, parseATLK("AF 'received'")[0], implem="partial"))
+        self.assertTrue(check(fsm, parseATLK("AF ~'received'")[0], implem="partial"))
         
         
     def test_tpfni_partial_vs_normal(self):

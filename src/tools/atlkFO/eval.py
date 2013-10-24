@@ -251,7 +251,7 @@ def eg(fsm, phi):
     phi = phi.forsome(fsm.bddEnc.inputsCube) & fsm.bddEnc.statesMask
     
     if len(fsm.fairness_constraints) == 0:
-        return fp(lambda Z : phi & fsm.weak_pre(Z),
+        return fp(lambda Z : phi & fsm.pre(Z),
                   BDD.true(fsm.bddEnc.DDmanager)).forsome(fsm.bddEnc.inputsCube)
     else:
         def inner(Z):
