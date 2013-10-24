@@ -9,7 +9,7 @@ from pynusmv.nusmv.dd import dd as nsdd
 from tools.mas import glob
 
 from tools.atlkPO.eval import split, cex_si, nfair_gamma_si, nfair_gamma
-from tools.atlkPO.evalPartial import split_reach, split as psplit
+from tools.atlkPO.evalPartial import reach, split_reach, split as psplit
 
 from pynusmv.utils import fixpoint as fp
 
@@ -401,3 +401,8 @@ class TestEval(unittest.TestCase):
         strats = {strat for pustrat in splitted_init
                         for strat in split_reach(fsm, agents, pustrat)}
         self.assertEqual(len(strats), 2)
+        
+        
+    def test_reach_cardgame(self):
+        fsm = self.cardgame()
+        self.assertEqual(fsm.reachable_states, reach(fsm, fsm.init))
