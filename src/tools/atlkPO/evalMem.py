@@ -6,6 +6,7 @@ memory efficient.
 """
 
 from functools import reduce
+import gc
 
 from pynusmv.dd import BDD
 from pynusmv.mc import eval_simple_expression
@@ -557,6 +558,8 @@ def eval_strat(fsm, spec):
         winning = (filter_strat(fsm, spec, current_choices + common, "SF")
                    .forsome(fsm.bddEnc.inputsCube))
         sat += all_equiv_sat(fsm, winning, agents)
+        
+        gc.collect()
         
         nbstrats += 1
     
