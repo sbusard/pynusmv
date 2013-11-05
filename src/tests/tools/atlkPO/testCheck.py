@@ -795,6 +795,115 @@ class TestCheck(unittest.TestCase):
         # Dealer can avoid fairness
         self.assertTrue(check(fsm, parseATLK("<'dealer'> F 'FALSE'")[0], variant="FSF", implem="optimized"))
         
+    
+    def test_cardgame_not_improved_mem(self):
+        fsm = self.cardgame()
+        
+        self.assertTrue(check(fsm, parseATLK("K<'player'>'pcard=none' & K<'player'>'dcard=none'")[0], implem="memory"))
+        self.assertTrue(check(fsm, parseATLK("AG('step = 1' -> ~(K<'player'> 'dcard=Ac' | K<'player'> 'dcard=K' | K<'player'> 'dcard=Q'))")[0], implem="memory"))
+        
+        self.assertTrue(check(fsm, parseATLK("<'dealer'> X 'pcard=Ac'")[0], implem="memory"))
+        self.assertFalse(check(fsm, parseATLK("<'dealer'> G ~'win'")[0], implem="memory"))
+        self.assertTrue(check(fsm, parseATLK("['player'] X 'pcard=Ac'")[0], implem="memory"))
+        self.assertTrue(check(fsm, parseATLK("['dealer'] F 'win'")[0], implem="memory"))
+        self.assertTrue(check(fsm, parseATLK("AG('step = 1' -> ~<'player'> X 'win')")[0], implem="memory"))
+        self.assertFalse(check(fsm, parseATLK("<'player'> F 'win'")[0], implem="memory"))
+        
+    
+    @unittest.expectedFailure # MC algo does not deal with fairness on action for now
+    def test_cardgame_fair_not_improved_mem(self):
+        fsm = self.cardgame_fair()
+        
+        self.assertTrue(check(fsm, parseATLK("K<'player'>'pcard=none' & K<'player'>'dcard=none'")[0], implem="memory"))
+        self.assertTrue(check(fsm, parseATLK("AG('step = 1' -> ~(K<'player'> 'dcard=Ac' | K<'player'> 'dcard=K' | K<'player'> 'dcard=Q'))")[0], implem="memory"))
+        
+        self.assertTrue(check(fsm, parseATLK("AG('step = 1' -> ~<'player'> X 'win')")[0], implem="memory"))
+        self.assertTrue(check(fsm, parseATLK("['player'] X 'pcard=Ac'")[0], implem="memory"))
+        self.assertTrue(check(fsm, parseATLK("<'dealer'> X 'pcard=Ac'")[0], implem="memory"))
+        self.assertTrue(check(fsm, parseATLK("<'dealer'> G ~'win'")[0], implem="memory"))
+        self.assertFalse(check(fsm, parseATLK("['dealer'] F 'win'")[0], implem="memory"))
+        
+        # Player can win
+        self.assertTrue(check(fsm, parseATLK("<'player'> F 'win'")[0], implem="memory"))
+        # Dealer can avoid fairness
+        self.assertTrue(check(fsm, parseATLK("<'dealer'> F 'FALSE'")[0], implem="memory"))
+        
+    
+    def test_cardgame_post_fair_not_improved_mem(self):
+        fsm = self.cardgame_post_fair()
+        
+        self.assertTrue(check(fsm, parseATLK("K<'player'>'pcard=none' & K<'player'>'dcard=none'")[0], implem="memory"))
+        self.assertTrue(check(fsm, parseATLK("AG('step = 1' -> ~(K<'player'> 'dcard=Ac' | K<'player'> 'dcard=K' | K<'player'> 'dcard=Q'))")[0], implem="memory"))
+        
+        self.assertTrue(check(fsm, parseATLK("AG('step = 1' -> ~<'player'> X 'win')")[0], implem="memory"))
+        self.assertFalse(check(fsm, parseATLK("['dealer'] F 'win'")[0], implem="memory"))
+        self.assertTrue(check(fsm, parseATLK("['player'] X 'pcard=Ac'")[0], implem="memory"))
+        self.assertTrue(check(fsm, parseATLK("<'dealer'> X 'pcard=Ac'")[0], implem="memory"))
+        self.assertTrue(check(fsm, parseATLK("<'dealer'> G ~'win'")[0], implem="memory"))
+        
+        # Player can win
+        self.assertTrue(check(fsm, parseATLK("<'player'> F 'win'")[0], implem="memory"))
+        # Dealer can avoid fairness
+        self.assertTrue(check(fsm, parseATLK("<'dealer'> F 'FALSE'")[0], implem="memory"))
+        
+
+    def test_transmission_not_improved_mem(self):
+        fsm = self.transmission()
+        
+        self.assertFalse(check(fsm, parseATLK("<'sender'> F 'received'")[0], implem="memory"))
+        # False because transmitter cannot win if received is already true
+        # and he has no clue about it
+        self.assertFalse(check(fsm, parseATLK("<'transmitter'> G ~'received'")[0], implem="memory"))
+        self.assertFalse(check(fsm, parseATLK("<'sender'> X 'received'")[0], implem="memory"))
+        # False because transmitter cannot win if received is already true
+        # and he has no clue about it
+        self.assertFalse(check(fsm, parseATLK("<'transmitter'> X ~'received'")[0], implem="memory"))
+        self.assertFalse(check(fsm, parseATLK("<'transmitter'> F 'received'")[0], implem="memory"))
+        
+        # False because the sender does not know if the bit is already
+        # transmitted (and in this case, no strategy can avoid 'received')
+        self.assertFalse(check(fsm, parseATLK("<'sender'> G ~'received'")[0], implem="memory"))
+        
+    
+    def test_transmission_with_know_not_improved_mem(self):
+        fsm = self.transmission_with_knowledge()
+        
+        self.assertFalse(check(fsm, parseATLK("<'sender'> F 'received'")[0], implem="memory"))
+        self.assertTrue(check(fsm, parseATLK("<'transmitter'> G ~'received'")[0], implem="memory"))
+        self.assertFalse(check(fsm, parseATLK("<'sender'> X 'received'")[0], implem="memory"))
+        self.assertTrue(check(fsm, parseATLK("<'transmitter'> X ~'received'")[0], implem="memory"))
+        self.assertFalse(check(fsm, parseATLK("<'transmitter'> F 'received'")[0], implem="memory"))
+        self.assertTrue(check(fsm, parseATLK("<'sender'> G ~'received'")[0], implem="memory"))
+    
+    
+    @unittest.expectedFailure # MC algo does not deal with fairness on action for now
+    def test_transmission_fair_not_improved_mem(self):
+        fsm = self.transmission_fair()
+        
+        self.assertTrue(check(fsm, parseATLK("<'sender'> F 'received'")[0], implem="memory"))
+        self.assertTrue(check(fsm, parseATLK("<'transmitter'> G ~'received'")[0], implem="memory"))
+        self.assertFalse(check(fsm, parseATLK("<'sender'> X 'received'")[0], implem="memory"))
+        self.assertTrue(check(fsm, parseATLK("<'transmitter'> X ~'received'")[0], implem="memory"))
+        self.assertTrue(check(fsm, parseATLK("<'transmitter'> F 'received'")[0], implem="memory"))
+        
+        # False because the sender does not know if the bit is already
+        # transmitted (and in this case, no strategy can avoid 'received')
+        self.assertFalse(check(fsm, parseATLK("<'sender'> G ~'received'")[0], implem="memory"))
+    
+    
+    def test_transmission_post_fair_not_improved_mem(self):
+        fsm = self.transmission_post_fair()
+        
+        self.assertTrue(check(fsm, parseATLK("<'sender'> F 'received'")[0], implem="memory"))
+        self.assertTrue(check(fsm, parseATLK("<'transmitter'> G ~'received'")[0], implem="memory"))
+        self.assertFalse(check(fsm, parseATLK("<'sender'> X 'received'")[0], implem="memory"))
+        self.assertTrue(check(fsm, parseATLK("<'transmitter'> X ~'received'")[0], implem="memory"))
+        self.assertTrue(check(fsm, parseATLK("<'transmitter'> F 'received'")[0], implem="memory"))
+        
+        # False because the sender does not know if the bit is already
+        # transmitted (and in this case, no strategy can avoid 'received')
+        self.assertFalse(check(fsm, parseATLK("<'sender'> G ~'received'")[0], implem="memory"))
+        
         
     def test_cardgame_not_improved_partial(self):
         fsm = self.cardgame()

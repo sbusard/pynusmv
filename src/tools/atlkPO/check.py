@@ -6,6 +6,7 @@ from ..atlkFO.parsing import parseATLK
 from .eval import evalATLK as evalATLK_naive
 from .evalGen import evalATLK as evalATLK_gen
 from .evalOpt import evalATLK as evalATLK_opt
+from .evalMem import evalATLK as evalATLK_mem
 from .evalPartial import evalATLK as evalATLK_partial
 from pyparsing import ParseException
 from pynusmv.exception import PyNuSMVError
@@ -13,6 +14,7 @@ from pynusmv.exception import PyNuSMVError
 __implementations = {"naive" : evalATLK_naive,
                      "generator" : evalATLK_gen,
                      "optimized" : evalATLK_opt,
+                     "memory" : evalATLK_mem,
                      "partial" : evalATLK_partial}
 
 def check(mas, spec, variant="SF", implem="naive"):
@@ -34,11 +36,12 @@ def check(mas, spec, variant="SF", implem="naive"):
               evaluation:
               * "naive" the naive implementation;
               * "generator" the generator-based implementation;
-              * "optimized" an memory-optimized version;
+              * "optimized" a memory-optimized version;
+              * "memory" another memory-optimized version;
               * "partial" a version based on partial strategies.
                  
     If variant is not in {"SF", "FS", "FSF"}, the standard "SF" way is used.          
-    If implem is not in {"naive", "generator", "optimized", "partial"},
+    If implem is not in {"naive","generator","optimized","memory","partial"},
     the standard "naive" way is used.
     
     """
