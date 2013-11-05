@@ -5,6 +5,8 @@ These evaluation functions reimplement the algorithms and try to be more
 optimal.
 """
 
+import gc
+
 from pynusmv.dd import BDD
 from pynusmv.mc import eval_simple_expression
 from pynusmv.utils import fixpoint as fp
@@ -261,6 +263,7 @@ def split_eval(fsm, spec, common, rest):
                 
                 # then, get equiv sat
                 sat = sat | all_equiv_sat(fsm, winning, gamma)
+                gc.collect()
             else:
                 sat = sat | split_eval(fsm, spec, common | newcommon | splitted,
                                        newrest)
