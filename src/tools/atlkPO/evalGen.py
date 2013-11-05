@@ -5,6 +5,8 @@ These evaluation functions reimplement the algorithms with generators to
 decrease the memory consumption of the implementation.
 """
 
+import gc
+
 from pynusmv.dd import BDD
 from pynusmv.mc import eval_simple_expression
 from pynusmv.utils import fixpoint as fp
@@ -335,6 +337,7 @@ def eval_strat(fsm, spec):
         winning = (filter_strat(fsm, spec, strat, variant="SF").
                     forsome(fsm.bddEnc.inputsCube))
         sat = sat | all_equiv_sat(fsm, winning, agents)
+        gc.collect()
     
     # DEBUG Print number of strategies
     print("Eval_strat: {} strategies".format(nbstrats))
