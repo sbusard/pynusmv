@@ -172,8 +172,37 @@ def evalATLK(fsm, spec, variant="SF"):
         return ~nc(fsm,
                    [a.value for a in spec.group],
                    ~evalATLK(fsm, spec.child, variant=variant))
+    
+    elif type(spec) is CAX:
+        # [g] X p = ~<g> X ~p
+        newspec = CEX(spec.group, Not(spec.child))
+        return ~evalATLK(fsm, newspec, variant=variant)
+        
+    elif type(spec) is CAG:
+        # [g] G p = ~<g> F ~p
+        newspec = CEF(spec.group, Not(spec.child))
+        return ~evalATLK(fsm, newspec, variant=variant)
+        
+    elif type(spec) is CAU:
+        # [g][p U q] = ~<g>[ ~q W ~p & ~q ]
+        newspec = CEW(spec.group,
+                      Not(spec.right),
+                      And(Not(spec.left), Not(spec.right)))
+        return ~evalATLK(fsm, newspec, variant=variant)
+        
+    elif type(spec) is CAF:
+        # [g] F p = ~<g> G ~p
+        newspec = CEG(spec.group, Not(spec.child))
+        return ~evalATLK(fsm, newspec, variant=variant)
+        
+    elif type(spec) is CAW:
+        # [g][p W q] = ~<g>[~q U ~p & ~q]
+        newspec = CEU(spec.group,
+                      Not(spec.right),
+                      And(Not(spec.left), Not(spec.right)))
+        return ~evalATLK(fsm, newspec, variant=variant)
                    
-    elif type(spec) in {CEX, CAX, CEG, CAG, CEU, CAU, CEF, CAF, CEW, CAW}:
+    elif type(spec) in {CEX, CEG, CEU, CEF, CEW}:
         if variant == "SF":
             return eval_strat(fsm, spec)
         elif variant == "FS":
@@ -196,153 +225,6 @@ def evalATLK(fsm, spec, variant="SF"):
         # TODO Generate error
         print("[ERROR] CTLK evalATLK: unrecognized specification type", spec)
         return None
-        
-        
-def split_one(fsm, strats, gamma):
-    """
-    Split one equivalence class of strats and return triples composed of
-    the common non-conflicting part already encountered,
-    a split and the rest of strats to split.
-    
-    fsm -- the model
-    strats -- a BDD representing a set of states/inputs pairs
-    gamma -- a set of agents of fsm
-    
-    Return a generator of all triples of common parts, splits
-    and rest of strats.
-    
-    """
-    if strats.is_false():
-        yield (strats, strats, strats)
-        return
-        
-    else:
-        ngamma_cube = fsm.bddEnc.inputsCube - fsm.inputs_cube_for_agents(gamma)
-        common = BDD.false(fsm.bddEnc.DDmanager)
-        
-        while strats.isnot_false():
-            # Get one equivalence class
-            si = fsm.pick_one_state_inputs(strats)
-            s = si.forsome(fsm.bddEnc.inputsCube)
-            eqs = fsm.equivalent_states(s, gamma)
-            eqcl = strats & eqs
-            
-            # Remove it from strats
-            strats = strats - eqcl
-            
-            # The current equivalence class is conflicting
-            if((eqcl - (eqcl & si.forsome(fsm.bddEnc.statesCube | ngamma_cube)))
-                .isnot_false()):
-                # Split eqcl into non-conflicting subsets
-                while eqcl.isnot_false():
-                    si = fsm.pick_one_state_inputs(eqcl)
-                    ncss = eqcl & si.forsome(fsm.bddEnc.statesCube |ngamma_cube)
-                    eqcl = eqcl - ncss
-
-                    yield (common, ncss, strats)
-                return
-            
-            else:
-                # Add equivalence class to common
-                common = common | eqcl
-        
-        # strats is false, everything is in common
-        yield (common, strats, strats)
-
-
-def split(fsm, strats, gamma):
-    """
-    Split strats into all its non-conflicting greatest subsets.
-    
-    fsm -- the model
-    strats -- a BDD representing a set of states/inputs pairs
-    gamma -- a set of agents of fsm
-    
-    Return a generator of all non-conflicting greatest subsets of strats.
-    
-    """
-    if strats.is_false():
-        yield strats
-    else:
-        # Split one equivalence class
-        for common, splitted, rest in split_one(fsm, strats, gamma):
-            for strat in split(fsm, rest, gamma):
-                yield (common | strat | splitted)
-
-
-def all_equiv_sat(fsm, winning, agents):
-    """
-    Return the states s of winning such that all states indistinguishable
-    from s by agents are in winning.
-    
-    fsm -- a MAS representing the system;
-    winning -- a BDD representing a set of states of fsm;
-    agents -- a set of agents.
-    
-    """
-    # Get states for which all states belong to winning
-    # wineq is the set of states for which all equiv states are in winning
-    nwinning = ~winning & fsm.bddEnc.statesInputsMask
-    return ~(fsm.equivalent_states(nwinning &
-             fsm.reachable_states, frozenset(agents))) & winning
-
-
-def eval_strat(fsm, spec):
-    """
-    Return the BDD representing the set of states of fsm satisfying spec.
-    spec is a strategic operator <G> pi.
-    
-    fsm -- a MAS representing the system;
-    spec -- an AST-based ATLK specification with a top strategic operator.
-    
-    """
-    if type(spec) is CAX:
-        # [g] X p = ~<g> X ~p
-        newspec = CEX(spec.group, Not(spec.child))
-        return ~eval_strat(fsm, newspec)
-        
-    elif type(spec) is CAG:
-        # [g] G p = ~<g> F ~p
-        newspec = CEF(spec.group, Not(spec.child))
-        return ~eval_strat(fsm, newspec)
-        
-    elif type(spec) is CAU:
-        # [g][p U q] = ~<g>[ ~q W ~p & ~q ]
-        newspec = CEW(spec.group,
-                      Not(spec.right),
-                      And(Not(spec.left), Not(spec.right)))
-        return ~eval_strat(fsm, newspec)
-        
-    elif type(spec) is CAF:
-        # [g] F p = ~<g> G ~p
-        newspec = CEG(spec.group, Not(spec.child))
-        return ~eval_strat(fsm, newspec)
-        
-    elif type(spec) is CAW:
-        # [g][p W q] = ~<g>[~q U ~p & ~q]
-        newspec = CEU(spec.group,
-                      Not(spec.right),
-                      And(Not(spec.left), Not(spec.right)))
-        return ~eval_strat(fsm, newspec)
-    
-    sat = BDD.false(fsm.bddEnc.DDmanager)
-    agents = {atom.value for atom in spec.group}
-    
-    # Restrict protocol to reachable states to avoid splitting useless
-    # equivalence classes
-    strats = split(fsm, fsm.protocol(agents) & fsm.reachable_states, agents)
-    nbstrats = 0
-    for strat in strats:
-        nbstrats += 1
-        winning = (filter_strat(fsm, spec, strat, variant="SF").
-                    forsome(fsm.bddEnc.inputsCube))
-        sat = sat | all_equiv_sat(fsm, winning, agents)
-        gc.collect()
-    
-    # DEBUG Print number of strategies
-    print("Eval_strat: {} strategies".format(nbstrats))
-    
-    return sat
 
 
 
@@ -487,83 +369,76 @@ def nfair_gamma_si(fsm, agents, strat=None):
         return fp(inner, BDD.false(fsm.bddEnc.DDmanager))
 
 
-
-def eval_strat_improved(fsm, spec, strat=None):
+def split_one(fsm, strats, gamma):
     """
-    Return the BDD representing the set of states of fsm satisfying spec.
-    spec is a strategic operator <G> pi.
+    Split one equivalence class of strats and return triples composed of
+    the common non-conflicting part already encountered,
+    a split and the rest of strats to split.
     
-    Implement the improved algorithm alternating between splitting a conflicting
-    equvalence class and filtering winning state/inputs pairs.
+    fsm -- the model
+    strats -- a BDD representing a set of states/inputs pairs
+    gamma -- a set of agents of fsm
     
-    fsm -- a MAS representing the system;
-    spec -- an AST-based ATLK specification with a top strategic operator.
-    strat -- the strategy to consider (not necessarily uniform).
+    Return a generator of all triples of common parts, splits
+    and rest of strats.
     
     """
-    sat = BDD.false(fsm.bddEnc.DDmanager)
-    agents = {atom.value for atom in spec.group}
-    gamma = agents
-    ngamma_cube = fsm.bddEnc.inputsCube - fsm.inputs_cube_for_agents(gamma)
-    
-    if not strat:
-        strat = fsm.protocol(agents)
-    
-    if type(spec) is CAX:
-        # [g] X p = ~<g> X ~p
-        newspec = CEX(spec.group, Not(spec.child))
-        return ~evalATLK(fsm, newspec, "FS")
-
-    elif type(spec) is CAG:
-        # [g] G p = ~<g> F ~p
-        newspec = CEF(spec.group, Not(spec.child))
-        return ~evalATLK(fsm, newspec, "FS")
-
-    elif type(spec) is CAU:
-        # [g][p U q] = ~<g>[ ~q W ~p & ~q ]
-        newspec = CEW(spec.group,
-                      Not(spec.right),
-                      And(Not(spec.left), Not(spec.right)))
-        return ~evalATLK(fsm, newspec, "FS")
-
-    elif type(spec) is CAF:
-        # [g] F p = ~<g> G ~p
-        newspec = CEG(spec.group, Not(spec.child))
-        return ~evalATLK(fsm, newspec, "FS")
-
-    elif type(spec) is CAW:
-        # [g][p W q] = ~<g>[~q U ~p & ~q]
-        newspec = CEU(spec.group,
-                      Not(spec.right),
-                      And(Not(spec.left), Not(spec.right)))
-        return ~evalATLK(fsm, newspec, "FS")
-    
-    winning = filter_strat(fsm, spec, strat, variant="FS")
-    global filterings
-    filterings[spec] += 1
-    
-    # Get one conflicting equivalence class
-    if winning.is_false(): # no state/inputs pairs are winning => return false
-        return winning
-    
-    # TODO Improve this: if a pair is not conflicting now, it won't be 
-    # conflicting anymore. We should keep track of non-conflicting equivalence
-    # classes through recursive calls
-    
-    # Split one conflicting equivalence class
-    for common, splitted, rest in split_one(fsm, winning, gamma):
+    if strats.is_false():
+        yield (strats, strats, strats)
+        return
         
-        if splitted.is_false():
-            # No conflicting classes, return states that are winning for all eq
-            common = common.forsome(fsm.bddEnc.inputsCube)
-            sat = sat | all_equiv_sat(fsm, common, agents)
-            global strategies
-            strategies[spec] += 1
+    else:
+        ngamma_cube = fsm.bddEnc.inputsCube - fsm.inputs_cube_for_agents(gamma)
+        common = BDD.false(fsm.bddEnc.DDmanager)
         
-        else:
-            sat = sat | eval_strat_improved(fsm, spec, common | splitted | rest)
+        while strats.isnot_false():
+            # Get one equivalence class
+            si = fsm.pick_one_state_inputs(strats)
+            s = si.forsome(fsm.bddEnc.inputsCube)
+            eqs = fsm.equivalent_states(s, gamma)
+            eqcl = strats & eqs
+            
+            # Remove it from strats
+            strats = strats - eqcl
+            
+            # The current equivalence class is conflicting
+            if((eqcl - (eqcl & si.forsome(fsm.bddEnc.statesCube | ngamma_cube)))
+                .isnot_false()):
+                # Split eqcl into non-conflicting subsets
+                while eqcl.isnot_false():
+                    si = fsm.pick_one_state_inputs(eqcl)
+                    ncss = eqcl & si.forsome(fsm.bddEnc.statesCube |ngamma_cube)
+                    eqcl = eqcl - ncss
+
+                    yield (common, ncss, strats)
+                return
+            
+            else:
+                # Add equivalence class to common
+                common = common | eqcl
+        
+        # strats is false, everything is in common
+        yield (common, strats, strats)
+
+
+def split(fsm, strats, gamma):
+    """
+    Split strats into all its non-conflicting greatest subsets.
     
-    return sat
+    fsm -- the model
+    strats -- a BDD representing a set of states/inputs pairs
+    gamma -- a set of agents of fsm
+    
+    Return a generator of all non-conflicting greatest subsets of strats.
+    
+    """
+    if strats.is_false():
+        yield strats
+    else:
+        # Split one equivalence class
+        for common, splitted, rest in split_one(fsm, strats, gamma):
+            for strat in split(fsm, rest, gamma):
+                yield (common | strat | splitted)
 
 
 def filter_strat(fsm, spec, strat=None, variant="SF"):
@@ -615,6 +490,106 @@ def filter_strat(fsm, spec, strat=None, variant="SF"):
     
     
     return winning & fsm.bddEnc.statesInputsMask & fsm.protocol(agents)
+
+
+def all_equiv_sat(fsm, winning, agents):
+    """
+    Return the states s of winning such that all states indistinguishable
+    from s by agents are in winning.
+    
+    fsm -- a MAS representing the system;
+    winning -- a BDD representing a set of states of fsm;
+    agents -- a set of agents.
+    
+    """
+    # Get states for which all states belong to winning
+    # wineq is the set of states for which all equiv states are in winning
+    nwinning = ~winning & fsm.bddEnc.statesInputsMask
+    return ~(fsm.equivalent_states(nwinning &
+             fsm.reachable_states, frozenset(agents))) & winning
+
+
+def eval_strat(fsm, spec):
+    """
+    Return the BDD representing the set of states of fsm satisfying spec.
+    spec is a strategic operator <G> pi.
+    
+    fsm -- a MAS representing the system;
+    spec -- an AST-based ATLK specification with a top strategic operator.
+    
+    """    
+    sat = BDD.false(fsm.bddEnc.DDmanager)
+    agents = {atom.value for atom in spec.group}
+    
+    # Restrict protocol to reachable states to avoid splitting useless
+    # equivalence classes
+    strats = split(fsm, fsm.protocol(agents) & fsm.reachable_states, agents)
+    nbstrats = 0
+    for strat in strats:
+        nbstrats += 1
+        winning = (filter_strat(fsm, spec, strat, variant="SF").
+                    forsome(fsm.bddEnc.inputsCube))
+        sat = sat | all_equiv_sat(fsm, winning, agents)
+        
+        # Collect to avoid memory overflow
+        gc.collect()
+    
+    # DEBUG Print number of strategies
+    print("Eval_strat: {} strategies".format(nbstrats))
+    
+    return sat
+
+
+def eval_strat_improved(fsm, spec, strat=None):
+    """
+    Return the BDD representing the set of states of fsm satisfying spec.
+    spec is a strategic operator <G> pi.
+    
+    Implement the improved algorithm alternating between splitting a conflicting
+    equvalence class and filtering winning state/inputs pairs.
+    
+    fsm -- a MAS representing the system;
+    spec -- an AST-based ATLK specification with a top strategic operator.
+    strat -- the strategy to consider (not necessarily uniform).
+    
+    """
+    sat = BDD.false(fsm.bddEnc.DDmanager)
+    agents = {atom.value for atom in spec.group}
+    gamma = agents
+    ngamma_cube = fsm.bddEnc.inputsCube - fsm.inputs_cube_for_agents(gamma)
+    
+    if not strat:
+        strat = fsm.protocol(agents)
+    
+    winning = filter_strat(fsm, spec, strat, variant="FS")
+    global filterings
+    filterings[spec] += 1
+    
+    # Get one conflicting equivalence class
+    if winning.is_false(): # no state/inputs pairs are winning => return false
+        return winning
+    
+    # TODO Improve this: if a pair is not conflicting now, it won't be 
+    # conflicting anymore. We should keep track of non-conflicting equivalence
+    # classes through recursive calls
+    
+    # Split one conflicting equivalence class
+    for common, splitted, rest in split_one(fsm, winning, gamma):
+        
+        if splitted.is_false():
+            # No conflicting classes, return states that are winning for all eq
+            common = common.forsome(fsm.bddEnc.inputsCube)
+            sat = sat | all_equiv_sat(fsm, common, agents)
+            global strategies
+            strategies[spec] += 1
+            
+            # Collect to avoid memory overflow
+            gc.collect()
+        
+        else:
+            sat = sat | eval_strat_improved(fsm, spec, common | splitted | rest)
+    
+    return sat
     
     
 def eval_strat_FSF(fsm, spec):
@@ -630,36 +605,6 @@ def eval_strat_FSF(fsm, spec):
     
     """
     
-    if type(spec) is CAX:
-        # [g] X p = ~<g> X ~p
-        newspec = CEX(spec.group, Not(spec.child))
-        return ~eval_strat_FSF(fsm, newspec)
-        
-    elif type(spec) is CAG:
-        # [g] G p = ~<g> F ~p
-        newspec = CEF(spec.group, Not(spec.child))
-        return ~eval_strat_FSF(fsm, newspec)
-        
-    elif type(spec) is CAU:
-        # [g][p U q] = ~<g>[ ~q W ~p & ~q ]
-        newspec = CEW(spec.group,
-                      Not(spec.right),
-                      And(Not(spec.left), Not(spec.right)))
-        return ~eval_strat_FSF(fsm, newspec)
-        
-    elif type(spec) is CAF:
-        # [g] F p = ~<g> G ~p
-        newspec = CEG(spec.group, Not(spec.child))
-        return ~eval_strat_FSF(fsm, newspec)
-        
-    elif type(spec) is CAW:
-        # [g][p W q] = ~<g>[~q U ~p & ~q]
-        newspec = CEU(spec.group,
-                      Not(spec.right),
-                      And(Not(spec.left), Not(spec.right)))
-        return ~eval_strat_FSF(fsm, newspec)
-        
-        
     sat = BDD.false(fsm.bddEnc.DDmanager)
     agents = {atom.value for atom in spec.group}
     
@@ -677,6 +622,9 @@ def eval_strat_FSF(fsm, spec):
         winning = filter_strat(fsm, spec, strat, variant="FSF")
         winning = winning.forsome(fsm.bddEnc.inputsCube)
         sat = sat | all_equiv_sat(fsm, winning, agents)
+        
+        # Collect to avoid memory overflow
+        gc.collect()
     
     # DEBUG Print number of strategies
     #print("Eval_strat_FSF: {} strategies".format(nbstrats))
