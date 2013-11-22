@@ -644,19 +644,19 @@ def eval_strat(fsm, spec, states):
     states = fsm.equivalent_states(states, agents)
     
     nbstrats = 0
-    splitted_init = split(fsm, states & fsm.protocol(agents), agents)
-    for pustrat in splitted_init:
-        for strat in split_reach(fsm, agents, pustrat):
-            if config.partial.early.type == "full" and orig_states <= sat:
-                if config.debug:
-                    print("Partial strategies: {} strategies generated"
-                          .format(nbstrats))
-                return sat
-            
-            nbstrats += 1
-            winning = (filter_strat(fsm, spec, states, strat, variant="SF").
-                       forsome(fsm.bddEnc.inputsCube))
-            sat = sat | (all_equiv_sat(fsm, winning, agents) & states)
+    for strat in (strat
+                  for pustrat
+                  in split(fsm, states & fsm.protocol(agents), agents)
+                  for strat in split_reach(fsm, agents, pustrat)):
+        
+        # Early termination if sat contains all requested states
+        if config.partial.early.type == "full" and orig_states <= sat:
+            break
+        
+        nbstrats += 1
+        winning = (filter_strat(fsm, spec, states, strat, variant="SF").
+                   forsome(fsm.bddEnc.inputsCube))
+        sat = sat | (all_equiv_sat(fsm, winning, agents) & states)
     
     # DEBUG Print number of strategies
     if config.debug:
