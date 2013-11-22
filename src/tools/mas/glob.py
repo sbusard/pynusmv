@@ -25,7 +25,7 @@ import itertools
 
 
 # The current multi-agent system
-_mas = None
+__mas = None
 
 def reset_globals():
     """
@@ -34,8 +34,8 @@ def reset_globals():
     Must be called whenever (and before) pynusmv.init.init.deinit_nusmv
     is called.    
     """
-    global _mas
-    _mas = None
+    global __mas
+    __mas = None
 
 
 def _get_instances_args_for_module(modtree):
@@ -172,8 +172,8 @@ def mas():
     Return (and compute if needed) the multi-agent system represented by
     the currently read SMV model.
     """    
-    global _mas
-    if _mas is None:
+    global __mas
+    if __mas is None:
         # Check cmps
         if not nscompile.cmp_struct_get_read_model(nscompile.cvar.cmps):
             raise NuSMVNoReadFileError("Cannot build MAS; no read file.")
@@ -232,6 +232,6 @@ def mas():
         
         # Create the MAS
         fsm = _prop_database().master.bddFsm
-        _mas = MAS(fsm._ptr, localvars, inputvars, singletrans, freeit = False)
+        __mas = MAS(fsm._ptr, localvars, inputvars, singletrans, freeit = False)
         
-    return _mas
+    return __mas

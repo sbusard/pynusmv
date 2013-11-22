@@ -50,9 +50,9 @@ from .exception import (NuSMVLexerError,
 import os
 
 
-_bdd_encoding = None
-_prop_database = None
-_symb_table = None
+__bdd_encoding = None
+__prop_database = None
+__symb_table = None
 
 
 def _reset_globals():
@@ -61,10 +61,10 @@ def _reset_globals():
     structures.
     
     """    
-    global _bdd_encoding, _prop_database, _symb_table
-    _bdd_encoding = None
-    _prop_database = None
-    _symb_table = None
+    global __bdd_encoding, __prop_database, __symb_table
+    __bdd_encoding = None
+    __prop_database = None
+    __symb_table = None
     
     # Reset cmps
     nscompile.cmp_struct_reset(nscompile.cvar.cmps)
@@ -150,8 +150,8 @@ def flatten_hierarchy():
     if ret != 0:
         raise NuSMVCannotFlattenError("Cannot flatten the model.")
     
-    global _symb_table
-    _symb_table = SymbTable(nscompile.Compile_get_global_symb_table())
+    global __symb_table
+    __symb_table = SymbTable(nscompile.Compile_get_global_symb_table())
     
     
 def symb_table():
@@ -162,13 +162,13 @@ def symb_table():
     
     """
     # Flatten hierarchy if needed
-    global _symb_table
-    if _symb_table is None:
+    global __symb_table
+    if __symb_table is None:
         if nscompile.cmp_struct_get_flatten_hrc(nscompile.cvar.cmps):
-            _symb_table = SymbTable(nscompile.Compile_get_global_symb_table())
+            __symb_table = SymbTable(nscompile.Compile_get_global_symb_table())
         else:
             flatten_hierarchy()
-    return _symb_table
+    return __symb_table
     
     
 def encode_variables():
@@ -206,8 +206,8 @@ def encode_variables():
     nscompile.cmp_struct_set_encode_variables(nscompile.cvar.cmps)
     
     # Get global encoding
-    global _bdd_encoding
-    _bdd_encoding = BddEnc(nsenc.Enc_get_bdd_encoding())
+    global __bdd_encoding
+    __bdd_encoding = BddEnc(nsenc.Enc_get_bdd_encoding())
     
 
 def bdd_encoding():
@@ -218,13 +218,13 @@ def bdd_encoding():
     
     """
     # Encode variables if needed
-    global _bdd_encoding
-    if _bdd_encoding is None:
+    global __bdd_encoding
+    if __bdd_encoding is None:
         if nscompile.cmp_struct_get_encode_variables(nscompile.cvar.cmps):
-            _bdd_encoding = BddEnc(nsenc.Enc_get_bdd_encoding())
+            __bdd_encoding = BddEnc(nsenc.Enc_get_bdd_encoding())
         else:
             encode_variables()
-    return _bdd_encoding
+    return __bdd_encoding
     
 
 def build_flat_model():
@@ -335,10 +335,10 @@ def prop_database():
     if not nscompile.cmp_struct_get_flatten_hrc(nscompile.cvar.cmps):
         # Need a flat hierarchy
         raise NuSMVNeedFlatHierarchyError("Need flat hierarchy.")
-    global _prop_database
-    if _prop_database is None:
-        _prop_database = PropDb(nsprop.PropPkg_get_prop_database())
-    return _prop_database
+    global __prop_database
+    if __prop_database is None:
+        __prop_database = PropDb(nsprop.PropPkg_get_prop_database())
+    return __prop_database
     
 
 def compute_model():

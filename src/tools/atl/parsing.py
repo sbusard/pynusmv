@@ -72,16 +72,16 @@ def _logicals_(atomic):
 ATL parsing tool.
 
 _atl       := _atom | _logical | _strategic
-_logical    := '~' _atl | '(' _logical ')' | _atl '&' _atl |
-               _atl '|' _atl | _atl '->' _atl | _atl '<->' _atl
-_strategic  := '<' _group '>' 'F' _atl | '<' _group '>' 'G' _atl |
-               '<' _group '>' 'X' _atl |
-               '<' _group '>' '[' _atl 'U' _atl ']' |
-               '<' _group '>' '[' _atl 'W' _atl ']' |
-               '[' _group ']' 'F' _atl | '[' _group ']' 'G' _atl |
-               '[' _group ']' 'X' _atl |
-               '[' _group ']' '[' _atl 'U' _atl ']' |
-               '[' _group ']' '[' _atl 'W' _atl ']'
+_logical    := '~' __atl | '(' _logical ')' | __atl '&' __atl |
+               __atl '|' __atl | __atl '->' __atl | __atl '<->' __atl
+_strategic  := '<' _group '>' 'F' __atl | '<' _group '>' 'G' __atl |
+               '<' _group '>' 'X' __atl |
+               '<' _group '>' '[' __atl 'U' __atl ']' |
+               '<' _group '>' '[' __atl 'W' __atl ']' |
+               '[' _group ']' 'F' __atl | '[' _group ']' 'G' __atl |
+               '[' _group ']' 'X' __atl |
+               '[' _group ']' '[' __atl 'U' __atl ']' |
+               '[' _group ']' '[' __atl 'W' __atl ']'
 _agent      := _atom
 _group      := _agent | _agent ',' _group
 
@@ -98,12 +98,12 @@ The parser returns a structure embedding the structure of the parsed
 expression, represented using AST classes of .ast module.
 """
 
-_atl = None
+__atl = None
 
 def parseATL(spec):
     """Parse the spec and return the list of possible ASTs."""
-    global _atl
-    if _atl is None:
+    global __atl
+    if __atl is None:
         true = Literal("True")
         true.setParseAction(lambda tokens: TrueExp())
         false = Literal("False")
@@ -117,12 +117,12 @@ def parseATL(spec):
         
         proposition = true | false | atom
         
-        _atl = Forward()
+        __atl = Forward()
 
         notproposition = "~" + proposition
         notproposition.setParseAction(lambda tokens: Not(tokens[1]))
         formula = (proposition | notproposition |
-                   Suppress("(") + _atl + Suppress(")"))
+                   Suppress("(") + __atl + Suppress(")"))
 
         logical = Forward()
         
@@ -142,20 +142,20 @@ def parseATL(spec):
         ceg = Literal("<") + group + ">" + "G" + logical           
         ceg.setParseAction(lambda tokens: CEG(tokens[1], tokens[4]))
          
-        cau = Literal("[") + group + "]" + "[" + _atl + "U" + _atl + "]"
+        cau = Literal("[") + group + "]" + "[" + __atl + "U" + __atl + "]"
         cau.setParseAction(lambda tokens: CAU(tokens[1], tokens[4], tokens[6]))
-        ceu = Literal("<") + group + ">" + "[" + _atl + "U" + _atl + "]"   
+        ceu = Literal("<") + group + ">" + "[" + __atl + "U" + __atl + "]"   
         ceu.setParseAction(lambda tokens: CEU(tokens[1], tokens[4], tokens[6]))
                                                                 
-        caw = Literal("[") + group + "]" + "[" + _atl + "W" + _atl + "]"   
+        caw = Literal("[") + group + "]" + "[" + __atl + "W" + __atl + "]"   
         caw.setParseAction(lambda tokens: CAW(tokens[1], tokens[4], tokens[6]))
-        cew = Literal("<") + group + ">" + "[" + _atl + "W" + _atl + "]"   
+        cew = Literal("<") + group + ">" + "[" + __atl + "W" + __atl + "]"   
         cew.setParseAction(lambda tokens: CEW(tokens[1], tokens[4], tokens[6]))
 
         strategic = (cax | cex | caf | cef | cag | ceg | cau | ceu | caw | cew)
         
         logical << (formula | strategic)
 
-        _atl << (_logicals_(logical))
+        __atl << (_logicals_(logical))
     
-    return _atl.parseString(spec, parseAll = True)
+    return __atl.parseString(spec, parseAll = True)

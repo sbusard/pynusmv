@@ -416,7 +416,7 @@ def cag(fsm, agents, phi):
         return fp(inner, BDD.true(fsm.bddEnc.DDmanager))
     
     
-_fair_gamma_states = {}
+__fair_gamma_states = {}
 def fair_gamma_states(fsm, agents):
     """
     Return the set of states in which agents cannot avoid a fair path.
@@ -424,12 +424,12 @@ def fair_gamma_states(fsm, agents):
     fsm -- the model
     agents -- a list of agents names
     """
-    global _fair_gamma_states
     agents = frozenset(agents)
-    if agents not in _fair_gamma_states:
-        _fair_gamma_states[agents] = cag(fsm, agents,
-                                         BDD.true(fsm.bddEnc.DDmanager))
-    return _fair_gamma_states[agents]
+    # This condition has been commented because it causes a segmentation fault!!
+    #if agents not in __fair_gamma_states:
+    __fair_gamma_states[agents] = cag(fsm, agents,
+                                          BDD.true(fsm.bddEnc.DDmanager))
+    return __fair_gamma_states[agents]
     
     
 def cex(fsm, agents, phi):
@@ -495,7 +495,7 @@ def cew(fsm, agents, phi, psi):
               BDD.true(fsm.bddEnc.DDmanager))
     
     
-_nfair_gamma_states = {}
+__nfair_gamma_states = {}
 def nfair_gamma_states(fsm, agents):
     """
     Return the set of states in which agents cann avoid fair paths.
@@ -504,11 +504,10 @@ def nfair_gamma_states(fsm, agents):
     agents -- a list of agents names
     """
     # NFair_Gamma = not([Gamma] G True) = <Gamma> F False
-    global _nfair_gamma_states
     agents = frozenset(agents)
-    if agents not in _nfair_gamma_states:
+    if agents not in __nfair_gamma_states:
         if len(fsm.fairness_constraints) == 0:
-            _nfair_gamma_states[agents] = BDD.false(fsm.bddEnc.DDmanager)
+            __nfair_gamma_states[agents] = BDD.false(fsm.bddEnc.DDmanager)
         else:
             def inner(Z):
                 res = BDD.false(fsm.bddEnc.DDmanager)
@@ -520,6 +519,6 @@ def nfair_gamma_states(fsm, agents):
                                                 BDD.true(fsm.bddEnc.DDmanager)),
                                               agents)
                 return res
-            _nfair_gamma_states[agents] = fp(inner, 
-                                             BDD.false(fsm.bddEnc.DDmanager))
-    return _nfair_gamma_states[agents]
+            __nfair_gamma_states[agents] = fp(inner, 
+                                              BDD.false(fsm.bddEnc.DDmanager))
+    return __nfair_gamma_states[agents]

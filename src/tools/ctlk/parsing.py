@@ -72,17 +72,17 @@ def _logicals_(atomic):
 """
 ARCTL parsing tool.
 
-_ctlk       := _atom | _logical | _temporal | _epistemic
-_logical    := '~' _ctlk | '(' _logical ')' | _ctlk '&' _ctlk |
-               _ctlk '|' _ctlk | _ctlk '->' _ctlk | _ctlk '<->' _ctlk
-_temporal   := 'A' 'F' _ctlk | 'A' 'G' _ctlk | 'A' 'X' _ctlk |
-               'A' '[' _ctlk 'U' _ctlk ']' | 'A' '[' _ctlk 'W' _ctlk ']' |
-               'E' 'F' _ctlk | 'E' 'G' _ctlk | 'E' 'X' _ctlk |
-               'E' '[' _ctlk 'U' _ctlk ']' | 'E' '[' _ctlk 'W' _ctlk ']'
-_epistemic  := 'nK' '<' _agent '>' _ctlk | 'nE' '<' _group '>' _ctlk |
-               'nD' '<' _group '>' _ctlk | 'nC' '<' _group '>' _ctlk |
-               'K' '<' _agent '>' _ctlk | 'E' '<' _group '>' _ctlk |
-               'D' '<' _group '>' _ctlk | 'C' '<' _group '>' _ctlk
+__ctlk       := _atom | _logical | _temporal | _epistemic
+_logical    := '~' __ctlk | '(' _logical ')' | __ctlk '&' __ctlk |
+               __ctlk '|' __ctlk | __ctlk '->' __ctlk | __ctlk '<->' __ctlk
+_temporal   := 'A' 'F' __ctlk | 'A' 'G' __ctlk | 'A' 'X' __ctlk |
+               'A' '[' __ctlk 'U' __ctlk ']' | 'A' '[' __ctlk 'W' __ctlk ']' |
+               'E' 'F' __ctlk | 'E' 'G' __ctlk | 'E' 'X' __ctlk |
+               'E' '[' __ctlk 'U' __ctlk ']' | 'E' '[' __ctlk 'W' __ctlk ']'
+_epistemic  := 'nK' '<' _agent '>' __ctlk | 'nE' '<' _group '>' __ctlk |
+               'nD' '<' _group '>' __ctlk | 'nC' '<' _group '>' __ctlk |
+               'K' '<' _agent '>' __ctlk | 'E' '<' _group '>' __ctlk |
+               'D' '<' _group '>' __ctlk | 'C' '<' _group '>' __ctlk
 _agent      := _atom
 _group      := _agent | _agent ',' _group
 
@@ -99,12 +99,12 @@ The parser returns a structure embedding the structure of the parsed
 expression, represented using AST classes of .ast module.
 """
 
-_ctlk = None
+__ctlk = None
 
 def parseCTLK(spec):
     """Parse the spec and return the list of possible ASTs."""
-    global _ctlk
-    if _ctlk is None:
+    global __ctlk
+    if __ctlk is None:
         true = Literal("True")
         true.setParseAction(lambda tokens: TrueExp())
         false = Literal("False")
@@ -122,12 +122,12 @@ def parseCTLK(spec):
         
         proposition = true | false | init | reachable | atom
         
-        _ctlk = Forward()
+        __ctlk = Forward()
 
         notproposition = "~" + proposition
         notproposition.setParseAction(lambda tokens: Not(tokens[1]))
         formula = (proposition | notproposition |
-                   Suppress("(") + _ctlk + Suppress(")"))
+                   Suppress("(") + __ctlk + Suppress(")"))
 
         logical = Forward()
         
@@ -147,14 +147,14 @@ def parseCTLK(spec):
         ag = Literal("A") + "G" + logical           
         ag.setParseAction(lambda tokens: AG(tokens[2]))
          
-        eu = Literal("E") + "[" + _ctlk + "U" + _ctlk + "]"
+        eu = Literal("E") + "[" + __ctlk + "U" + __ctlk + "]"
         eu.setParseAction(lambda tokens: EU(tokens[2], tokens[4]))
-        au = Literal("A") + "[" + _ctlk + "U" + _ctlk + "]"   
+        au = Literal("A") + "[" + __ctlk + "U" + __ctlk + "]"   
         au.setParseAction(lambda tokens: AU(tokens[2], tokens[4]))
                                                                 
-        ew = Literal("E") + "[" + _ctlk + "W" + _ctlk + "]"   
+        ew = Literal("E") + "[" + __ctlk + "W" + __ctlk + "]"   
         ew.setParseAction(lambda tokens: EW(tokens[2], tokens[4]))
-        aw = Literal("A") + "[" + _ctlk + "W" + _ctlk + "]"   
+        aw = Literal("A") + "[" + __ctlk + "W" + __ctlk + "]"   
         aw.setParseAction(lambda tokens: AW(tokens[2], tokens[4]))
 
         temporal = (ex | ax | ef | af | eg | ag | eu | au | ew | aw)
@@ -184,6 +184,6 @@ def parseCTLK(spec):
         
         logical << (formula | epistemic | temporal)
 
-        _ctlk << (_logicals_(logical))
+        __ctlk << (_logicals_(logical))
     
-    return _ctlk.parseString(spec, parseAll = True)
+    return __ctlk.parseString(spec, parseAll = True)

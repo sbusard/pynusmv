@@ -14,7 +14,7 @@ from pynusmv.exception import PyNuSMVError
 # constraint.
 # FIXME Graphviz does not recognize gradient colors
 
-_fair_attr = None
+__fair_attr = None
 def fairness_attr(fsm):
     """
     Return a dictionary of fairness constraint -> DOT attributes to use in the
@@ -24,17 +24,17 @@ def fairness_attr(fsm):
     fsm -- the BddFsm of the model.
     
     """
-    global _fair_attr
-    if not _fair_attr:
-        _fair_attr = dict()
+    global __fair_attr
+    if not __fair_attr:
+        __fair_attr = dict()
         nbfair = len(fsm.fairness_constraints)
         curid = 0
         for f in fsm.fairness_constraints:
-            _fair_attr[f] = " ".join(str(val) for val in 
+            __fair_attr[f] = " ".join(str(val) for val in 
                                   rgb_to_hsv(curid/nbfair, 1, 1 - curid/nbfair))
             curid += 1
         
-    return _fair_attr
+    return __fair_attr
     
 
 def node(fsm, state, ids):

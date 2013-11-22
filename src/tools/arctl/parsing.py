@@ -73,18 +73,18 @@ def _logicals_(atomic):
 ARCTL parsing tool.
 
 _arctl       := _atom | _logical | _temporal
-_logical     := '~' _arctl | '(' _logical ')' | _arctl '&' _arctl |
-                _arctl '|' _arctl | _arctl '->' _arctl | _arctl '<->' _arctl
-_temporal    := 'A' '<' _action '>' 'F' _arctl |
-                'A' '<' _action '>' 'G' _arctl |
-                'A' '<' _action '>' 'X' _arctl |
-                'A' '<' _action '>' '[' _arctl 'U' _arctl ']' |
-                'A' '<' _action '>' '[' _arctl 'W' _arctl ']' |
-                'E' '<' _action '>' 'F' _arctl |
-                'E' '<' _action '>' 'G' _arctl |
-                'E' '<' _action '>' 'X' _arctl |
-                'E' '<' _action '>' '[' _arctl 'U' _arctl ']' |
-                'E' '<' _action '>' '[' _arctl 'W' _arctl ']'
+_logical     := '~' __arctl | '(' _logical ')' | __arctl '&' __arctl |
+                __arctl '|' __arctl | __arctl '->' __arctl | __arctl '<->' __arctl
+_temporal    := 'A' '<' _action '>' 'F' __arctl |
+                'A' '<' _action '>' 'G' __arctl |
+                'A' '<' _action '>' 'X' __arctl |
+                'A' '<' _action '>' '[' __arctl 'U' __arctl ']' |
+                'A' '<' _action '>' '[' __arctl 'W' __arctl ']' |
+                'E' '<' _action '>' 'F' __arctl |
+                'E' '<' _action '>' 'G' __arctl |
+                'E' '<' _action '>' 'X' __arctl |
+                'E' '<' _action '>' '[' __arctl 'U' __arctl ']' |
+                'E' '<' _action '>' '[' __arctl 'W' __arctl ']'
 _action      := _atom | '(' _action ')' | '~' _action | _action '&' _action |
                 _action '|' _action | _action '->' _action |
                 _action '<->' _action
@@ -101,12 +101,12 @@ The parser returns a structure embedding the structure of the parsed
 expression, represented using AST classes of .ast module.
 """
 
-_arctl = None
+__arctl = None
 
 def parseArctl(spec):
     """Parse the spec and return its AST."""
-    global _arctl
-    if _arctl is None:
+    global __arctl
+    if __arctl is None:
         true = Literal("True")
         true.setParseAction(lambda tokens: TrueExp())
         false = Literal("False")
@@ -116,14 +116,14 @@ def parseArctl(spec):
         
         action = _logicals_(atom)
         
-        _arctl = Forward()
+        __arctl = Forward()
         
         proposition = true | false | atom
 
         notproposition = "~" + proposition
         notproposition.setParseAction(lambda tokens: Not(tokens[1]))
         formula = (proposition | notproposition |
-                   Suppress("(") + _arctl + Suppress(")"))
+                   Suppress("(") + __arctl + Suppress(")"))
 
 
         temporal = Forward()
@@ -146,14 +146,14 @@ def parseArctl(spec):
         aag = a + "G" + temporal
         aag.setParseAction(lambda tokens: AaG(tokens[2], tokens[5]))
         
-        eau = e + "[" + _arctl + "U" + _arctl + "]"
+        eau = e + "[" + __arctl + "U" + __arctl + "]"
         eau.setParseAction(lambda tokens: EaU(tokens[2], tokens[5], tokens[7]))
-        aau = a + "[" + _arctl + "U" + _arctl + "]"
+        aau = a + "[" + __arctl + "U" + __arctl + "]"
         aau.setParseAction(lambda tokens: AaU(tokens[2], tokens[5], tokens[7]))
         
-        eaw = e + "[" + _arctl + "W" + _arctl + "]"
+        eaw = e + "[" + __arctl + "W" + __arctl + "]"
         eaw.setParseAction(lambda tokens: EaW(tokens[2], tokens[5], tokens[7]))
-        aaw = a + "[" + _arctl + "W" + _arctl + "]"
+        aaw = a + "[" + __arctl + "W" + __arctl + "]"
         aaw.setParseAction(lambda tokens: AaW(tokens[2], tokens[5], tokens[7]))
 
 
@@ -162,6 +162,6 @@ def parseArctl(spec):
       
         logical = _logicals_(temporal)
 
-        _arctl << logical
+        __arctl << logical
     
-    return _arctl.parseString(spec, parseAll = True)
+    return __arctl.parseString(spec, parseAll = True)

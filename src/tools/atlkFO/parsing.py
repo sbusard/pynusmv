@@ -73,25 +73,25 @@ def _logicals_(atomic):
 """
 ARCTL parsing tool.
 
-_atlk       := _atom | _logical | _temporal | _epistemic | _strategic
-_logical    := '~' _atlk | '(' _logical ')' | _atlk '&' _atlk |
-               _atlk '|' _atlk | _atlk '->' _atlk | _atlk '<->' _atlk
-_temporal   := 'A' 'F' _atlk | 'A' 'G' _atlk | 'A' 'X' _atlk |
-               'A' '[' _atlk 'U' _atlk ']' | 'A' '[' _atlk 'W' _atlk ']' |
-               'E' 'F' _atlk | 'E' 'G' _atlk | 'E' 'X' _atlk |
-               'E' '[' _atlk 'U' _atlk ']' | 'E' '[' _atlk 'W' _atlk ']'
-_epistemic  := 'nK' '<' _agent '>' _atlk | 'nE' '<' _group '>' _atlk |
-               'nD' '<' _group '>' _atlk | 'nC' '<' _group '>' _atlk |
-               'K' '<' _agent '>' _atlk | 'E' '<' _group '>' _atlk |
-               'D' '<' _group '>' _atlk | 'C' '<' _group '>' _atlk
-_strategic  := '<' _group '>' 'F' _atlk | '<' _group '>' 'G' _atlk |
-               '<' _group '>' 'X' _atlk |
-               '<' _group '>' '[' _atlk 'U' _atlk ']' |
-               '<' _group '>' '[' _atlk 'W' _atlk ']' |
-               '[' _group ']' 'F' _atlk | '[' _group ']' 'G' _atlk |
-               '[' _group ']' 'X' _atlk |
-               '[' _group ']' '[' _atlk 'U' _atlk ']' |
-               '[' _group ']' '[' _atlk 'W' _atlk ']'
+__atlk       := _atom | _logical | _temporal | _epistemic | _strategic
+_logical    := '~' __atlk | '(' _logical ')' | __atlk '&' __atlk |
+               __atlk '|' __atlk | __atlk '->' __atlk | __atlk '<->' __atlk
+_temporal   := 'A' 'F' __atlk | 'A' 'G' __atlk | 'A' 'X' __atlk |
+               'A' '[' __atlk 'U' __atlk ']' | 'A' '[' __atlk 'W' __atlk ']' |
+               'E' 'F' __atlk | 'E' 'G' __atlk | 'E' 'X' __atlk |
+               'E' '[' __atlk 'U' __atlk ']' | 'E' '[' __atlk 'W' __atlk ']'
+_epistemic  := 'nK' '<' _agent '>' __atlk | 'nE' '<' _group '>' __atlk |
+               'nD' '<' _group '>' __atlk | 'nC' '<' _group '>' __atlk |
+               'K' '<' _agent '>' __atlk | 'E' '<' _group '>' __atlk |
+               'D' '<' _group '>' __atlk | 'C' '<' _group '>' __atlk
+_strategic  := '<' _group '>' 'F' __atlk | '<' _group '>' 'G' __atlk |
+               '<' _group '>' 'X' __atlk |
+               '<' _group '>' '[' __atlk 'U' __atlk ']' |
+               '<' _group '>' '[' __atlk 'W' __atlk ']' |
+               '[' _group ']' 'F' __atlk | '[' _group ']' 'G' __atlk |
+               '[' _group ']' 'X' __atlk |
+               '[' _group ']' '[' __atlk 'U' __atlk ']' |
+               '[' _group ']' '[' __atlk 'W' __atlk ']'
 _agent      := _atom
 _group      := _agent | _agent ',' _group
 
@@ -108,12 +108,12 @@ The parser returns a structure embedding the structure of the parsed
 expression, represented using AST classes of .ast module.
 """
 
-_atlk = None
+__atlk = None
 
 def parseATLK(spec):
     """Parse the spec and return the list of possible ASTs."""
-    global _atlk
-    if _atlk is None:
+    global __atlk
+    if __atlk is None:
         true = Literal("True")
         true.setParseAction(lambda tokens: TrueExp())
         false = Literal("False")
@@ -131,12 +131,12 @@ def parseATLK(spec):
         
         proposition = true | false | init | reachable | atom
         
-        _atlk = Forward()
+        __atlk = Forward()
 
         notproposition = "~" + proposition
         notproposition.setParseAction(lambda tokens: Not(tokens[1]))
         formula = (proposition | notproposition |
-                   Suppress("(") + _atlk + Suppress(")"))
+                   Suppress("(") + __atlk + Suppress(")"))
 
         logical = Forward()
         
@@ -156,14 +156,14 @@ def parseATLK(spec):
         ag = Literal("A") + "G" + logical           
         ag.setParseAction(lambda tokens: AG(tokens[2]))
          
-        eu = Literal("E") + "[" + _atlk + "U" + _atlk + "]"
+        eu = Literal("E") + "[" + __atlk + "U" + __atlk + "]"
         eu.setParseAction(lambda tokens: EU(tokens[2], tokens[4]))
-        au = Literal("A") + "[" + _atlk + "U" + _atlk + "]"   
+        au = Literal("A") + "[" + __atlk + "U" + __atlk + "]"   
         au.setParseAction(lambda tokens: AU(tokens[2], tokens[4]))
                                                                 
-        ew = Literal("E") + "[" + _atlk + "W" + _atlk + "]"   
+        ew = Literal("E") + "[" + __atlk + "W" + __atlk + "]"   
         ew.setParseAction(lambda tokens: EW(tokens[2], tokens[4]))
-        aw = Literal("A") + "[" + _atlk + "W" + _atlk + "]"   
+        aw = Literal("A") + "[" + __atlk + "W" + __atlk + "]"   
         aw.setParseAction(lambda tokens: AW(tokens[2], tokens[4]))
 
         temporal = (ex | ax | ef | af | eg | ag | eu | au | ew | aw)
@@ -206,20 +206,20 @@ def parseATLK(spec):
         ceg = Literal("<") + group + ">" + "G" + logical           
         ceg.setParseAction(lambda tokens: CEG(tokens[1], tokens[4]))
          
-        cau = Literal("[") + group + "]" + "[" + _atlk + "U" + _atlk + "]"
+        cau = Literal("[") + group + "]" + "[" + __atlk + "U" + __atlk + "]"
         cau.setParseAction(lambda tokens: CAU(tokens[1], tokens[4], tokens[6]))
-        ceu = Literal("<") + group + ">" + "[" + _atlk + "U" + _atlk + "]"   
+        ceu = Literal("<") + group + ">" + "[" + __atlk + "U" + __atlk + "]"   
         ceu.setParseAction(lambda tokens: CEU(tokens[1], tokens[4], tokens[6]))
                                                                 
-        caw = Literal("[") + group + "]" + "[" + _atlk + "W" + _atlk + "]"   
+        caw = Literal("[") + group + "]" + "[" + __atlk + "W" + __atlk + "]"   
         caw.setParseAction(lambda tokens: CAW(tokens[1], tokens[4], tokens[6]))
-        cew = Literal("<") + group + ">" + "[" + _atlk + "W" + _atlk + "]"   
+        cew = Literal("<") + group + ">" + "[" + __atlk + "W" + __atlk + "]"   
         cew.setParseAction(lambda tokens: CEW(tokens[1], tokens[4], tokens[6]))
 
         strategic = (cax | cex | caf | cef | cag | ceg | cau | ceu | caw | cew)
         
         logical << (formula | epistemic | temporal | strategic)
 
-        _atlk << (_logicals_(logical))
+        __atlk << (_logicals_(logical))
     
-    return _atlk.parseString(spec, parseAll = True)
+    return __atlk.parseString(spec, parseAll = True)

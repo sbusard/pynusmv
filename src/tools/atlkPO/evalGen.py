@@ -22,9 +22,9 @@ from ..atlkFO.eval import (fair_states, ex, eg, eu, nk, ne, nd, nc)
 
 
 # A dictionary to keep track of number of strategies for improved algorithm
-strategies = {} 
+__strategies = {} 
 # A dictionary to keep track of number of filterings for improved algorithm
-filterings = {} 
+__filterings = {} 
 
 
 def evalATLK(fsm, spec, variant="SF"):
@@ -206,9 +206,9 @@ def evalATLK(fsm, spec, variant="SF"):
         if variant == "SF":
             return eval_strat(fsm, spec)
         elif variant == "FS":
-            global strategies, filterings
-            strategies[spec] = 0
-            filterings[spec] = 0
+            global __strategies, __filterings
+            __strategies[spec] = 0
+            __filterings[spec] = 0
             sat = eval_strat_improved(fsm, spec)
             
             # DEBUG Print number of strategies and filterings up to know
@@ -562,8 +562,8 @@ def eval_strat_improved(fsm, spec, strat=None):
         strat = fsm.protocol(agents)
     
     winning = filter_strat(fsm, spec, strat, variant="FS")
-    global filterings
-    filterings[spec] += 1
+    global __filterings
+    __filterings[spec] += 1
     
     # Get one conflicting equivalence class
     if winning.is_false(): # no state/inputs pairs are winning => return false
@@ -580,8 +580,8 @@ def eval_strat_improved(fsm, spec, strat=None):
             # No conflicting classes, return states that are winning for all eq
             common = common.forsome(fsm.bddEnc.inputsCube)
             sat = sat | all_equiv_sat(fsm, common, agents)
-            global strategies
-            strategies[spec] += 1
+            global __strategies
+            __strategies[spec] += 1
             
             # Collect to avoid memory overflow
             gc.collect()
