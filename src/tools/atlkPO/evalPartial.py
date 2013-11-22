@@ -12,9 +12,10 @@ from ..atlkFO.ast import (TrueExp, FalseExp, Init, Reachable,
                           AF, AG, AX, AU, AW, EF, EG, EX, EU, EW,
                           nK, nE, nD, nC, K, E, D, C,
                           CEF, CEG, CEX, CEU, CEW, CAF, CAG, CAX, CAU, CAW)
-                          
 
 from ..atlkFO.eval import (fair_states, ex, eg, eu, nk, ne, nd, nc)
+
+from . import config
 
 
 def evalATLK(fsm, spec, states=None, variant="SF"):
@@ -653,6 +654,41 @@ def eval_strat(fsm, spec, states):
             sat = sat | all_equiv_sat(fsm, winning, agents, states)
     
     # DEBUG Print number of strategies
-    print("Eval_strat: {} strategies".format(nbstrats))
+    if config.debug:
+        print("Partial strategies: {} strategies generated".format(nbstrats))
     
     return sat
+
+
+# ------------------------------------------------------------------------------
+# CACHING FUNCTIONS AND MANIPULATIONS
+# ------------------------------------------------------------------------------
+
+__evalATLK_cache = {}
+__orig_evalATLK = evalATLK
+def __cached_evalATLK(fsm, spec, states=None, variant="SF"):
+    if config.partial.caching:
+        if states is None:
+            states = fsm.init
+        
+        if (fsm, spec) in __evalATLK_cache.keys():
+            sat, unsat = __evalATLK_cache[(fsm, spec)]
+        else:
+            false = BDD.false(fsm.bddEnc.DDmanager)
+            sat, unsat = false, false
+
+        remaining = states - (sat + unsat)
+    
+        if remaining.isnot_false():
+            remsat = __orig_evalATLK(fsm, spec, remaining, variant)
+            remunsat = remaining - remsat
+            __evalATLK_cache[(fsm, spec)] = (sat + remsat, unsat + remunsat)
+        else:
+            remsat = BDD.false(fsm.bddEnc.DDmanager)
+    
+        return sat + remsat
+    
+    else:
+        return __orig_evalATLK(fsm, spec, states, variant)
+
+evalATLK = __cached_evalATLK
