@@ -546,22 +546,21 @@ def split(fsm, strats, gamma, pustrat=None):
                 yield (common | strat | splitted)
 
 
-def all_equiv_sat(fsm, winning, agents, states):
+def all_equiv_sat(fsm, winning, agents):
     """
-    Return the states s of winning & states such that all states
+    Return the states s of winning such that all states
     indistinguishable from s by agents are in winning.
     
     fsm -- a MAS representing the system;
     winning -- a BDD representing a set of states of fsm;
-    agents -- a set of agents;
-    states -- a set of states of fsm.
+    agents -- a set of agents.
     
     """
     # Get states for which all states belong to winning
     # wineq is the set of states for which all equiv states are in winning
     nwinning = ~winning & fsm.bddEnc.statesInputsMask
     return ~(fsm.equivalent_states(nwinning &
-             fsm.reachable_states, frozenset(agents))) & winning & states
+             fsm.reachable_states, frozenset(agents))) & winning
              
              
 def filter_strat(fsm, spec, states, strat=None, variant="SF"):
@@ -573,7 +572,7 @@ def filter_strat(fsm, spec, states, strat=None, variant="SF"):
     fsm -- a MAS representing the system;
     spec -- an AST-based ATLK specification with a top strategic operator;
             the operator is CEX, CEG, CEF, CEU or CEW.
-    states -- the set of states for which the filtering matters TODO update this
+    states -- the set of states for which the filtering matters;
     strat -- the subset of the system to consider.
     variant -- the variant of the algorithm to evaluate strategic operators;
                must be
@@ -641,17 +640,23 @@ def eval_strat(fsm, spec, states):
     agents = {atom.value for atom in spec.group}
     
     # Extend states with equivalent ones
+    orig_states = states
     states = fsm.equivalent_states(states, agents)
     
     nbstrats = 0
     splitted_init = split(fsm, states & fsm.protocol(agents), agents)
     for pustrat in splitted_init:
         for strat in split_reach(fsm, agents, pustrat):
+            if config.partial.early.type == "full" and orig_states <= sat:
+                if config.debug:
+                    print("Partial strategies: {} strategies generated"
+                          .format(nbstrats))
+                return sat
             
             nbstrats += 1
             winning = (filter_strat(fsm, spec, states, strat, variant="SF").
                        forsome(fsm.bddEnc.inputsCube))
-            sat = sat | all_equiv_sat(fsm, winning, agents, states)
+            sat = sat | (all_equiv_sat(fsm, winning, agents) & states)
     
     # DEBUG Print number of strategies
     if config.debug:

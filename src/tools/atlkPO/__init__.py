@@ -33,12 +33,11 @@ config.partial = AttrDict()
 # Early termination in partial strategies
 # ---------------------------------------
 config.partial.early = AttrDict()
-# Whether or not using early termination
-config.partial.early.activate = False
 # Early termination type used
+#   None: early termination not used
 #   full: when all the states satisfy the property
 #   partial: when sat grows, recompute new strategies
-config.partial.early.type = "full"
+config.partial.early.type = None
 # Early termination partial recomputation threshold: after how many strategies
 # we have to recompute the strategy with the remaining states
 config.partial.early.threshold = 1
@@ -64,11 +63,9 @@ config.partial.filtering = False
 
 config.partial.separation = AttrDict()
 
-# Whether or not use states set separation
-config.partial.separation.activate = False
-
 # Which technique to use
+#   None: states set separation not used
 #   random: a random state is picked, its equivalence class is chosen
 #   reach: the first reached state, from initial states,
 #          and its equivalence class are chosen
-config.partial.separation.type = "random"
+config.partial.separation.type = None
