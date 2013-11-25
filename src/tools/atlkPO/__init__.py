@@ -72,3 +72,19 @@ config.partial.separation = AttrDict()
 #   reach: the first reached state, from initial states,
 #          and its equivalence class are chosen
 config.partial.separation.type = None
+
+
+# Garbage collection
+# ------------------
+
+config.partial.garbage = AttrDict()
+
+# Which technique to use
+#   None: garbage collection is never called explicitely
+#   each: garbage collection is called after each strategy
+#   step: garbage collection is called after the corresponding number of 
+#         strategies
+config.partial.garbage.type = None
+
+# Number of strategies to check before calling again garbage collectin
+config.partial.garbage.step = 10

@@ -17,6 +17,8 @@ from ..atlkFO.eval import (fair_states, ex, eg, eu, nk, ne, nd, nc)
 
 from . import config
 
+import gc
+
 
 def evalATLK(fsm, spec, states=None, variant="SF"):
     """
@@ -635,7 +637,11 @@ def eval_strat(fsm, spec, states):
     spec -- an AST-based ATLK specification with a top strategic (<g>) operator;
     states -- a BDD representing a set of states of fsm.
     
-    """    
+    """
+    
+    if config.debug:
+        print("Evaluating partial strategies for ", spec)
+    
     sat = BDD.false(fsm.bddEnc.DDmanager)
     agents = {atom.value for atom in spec.group}
     
@@ -685,6 +691,13 @@ def eval_strat(fsm, spec, states):
                               " {} => {}".format(remaining_size, rem_count))
                     remaining_size = rem_count
                     break
+            
+            if config.partial.garbage.type == "each":
+                gc.collect()
+            
+            if (config.partial.garbage.type == "step"
+                and nbstrats % config.partial.garbage.step == 0):
+                gc.collect()
         
         else:
             # All strategies have been checked, the remaining states do not
