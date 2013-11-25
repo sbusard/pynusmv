@@ -18,11 +18,12 @@ class TestCheckPartial(unittest.TestCase):
     
     def setUp(self):
         init_nusmv()
-        #config.debug = True
-        config.partial.early.type = "full"
-        config.partial.caching = True
+        config.debug = True
+        #config.partial.early.type = "full"
+        #config.partial.caching = True
         #config.partial.garbage.type = "step"
         #config.partial.garbage.step = 4
+        #config.partial.filtering = True
     
     def tearDown(self):    
         glob.reset_globals()

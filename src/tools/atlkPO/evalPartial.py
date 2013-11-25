@@ -421,26 +421,32 @@ def nfair_gamma_si(fsm, agents, strat=None):
         return fp(inner, BDD.false(fsm.bddEnc.DDmanager))
         
         
-def split_reach(fsm, agents, pustrat):
+def split_reach(fsm, agents, pustrat, subsystem=None):
     """
     Return the set of maximal uniform strategies extending pustrat.
     
     fsm -- a MAS representing the system;
     agents -- a set of agents names;
     pustrat -- a partial uniform strategy represented as BDD-based set of
-               moves (state/action pairs).
+               moves (state/action pairs);
+    subsystem -- the subsystem in which building the strategies; the full system
+                 if None.
     
     """
     
-    new = (fsm.post(pustrat) - pustrat.forsome(fsm.bddEnc.inputsCube)).forsome(
-                fsm.bddEnc.inputsCube) & fsm.bddEnc.statesMask
+    if subsystem is None:
+        subsystem = BDD.true(fsm.bddEnc.DDmanager)
+    
+    new = (fsm.post(pustrat, subsystem) -
+           pustrat.forsome(fsm.bddEnc.inputsCube)).forsome(
+                                  fsm.bddEnc.inputsCube) & fsm.bddEnc.statesMask
 
     if new.is_false():
         yield pustrat
     
     else:
         for npustrat in split(fsm, new & fsm.protocol(agents), agents, pustrat):
-            for strat in split_reach(fsm, agents, pustrat | npustrat):
+            for strat in split_reach(fsm, agents, pustrat | npustrat,subsystem):
                 yield strat
         
 
@@ -588,6 +594,8 @@ def filter_strat(fsm, spec, states, strat=None, variant="SF"):
                  
     If variant is not in {"SF", "FS", "FSF"}, the standard "SF" way is used.
     """
+    if strat is None:
+        strat = BDD.true(fsm.bddEnc.DDmanager)
     
     sat = BDD.false(fsm.bddEnc.DDmanager)
     agents = {atom.value for atom in spec.group}
@@ -642,8 +650,17 @@ def eval_strat(fsm, spec, states):
     if config.debug:
         print("Evaluating partial strategies for ", spec)
     
+    if config.partial.filtering:
+        subsystem = filter_strat(fsm, spec, states, variant="SF")
+    else:
+        subsystem = BDD.true(fsm.bddEnc.DDmanager)
+    # if filtering is enabled, subsystem is the part of the system in which
+    # states can win
+    
     sat = BDD.false(fsm.bddEnc.DDmanager)
     agents = {atom.value for atom in spec.group}
+    
+    states = states & subsystem.forsome(fsm.bddEnc.inputsCube)
     
     orig_states = states
     
@@ -661,8 +678,9 @@ def eval_strat(fsm, spec, states):
         # Go through all strategies
         for strat in (strat
                       for pustrat
-                      in split(fsm, states & fsm.protocol(agents), agents)
-                      for strat in split_reach(fsm, agents, pustrat)):
+                      in split(fsm, states & fsm.protocol(agents) & subsystem,
+                               agents)
+                      for strat in split_reach(fsm, agents, pustrat,subsystem)):
         
             # Early termination if sat contains all requested states
             if config.partial.early.type == "full" and orig_states <= sat:
