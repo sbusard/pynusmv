@@ -149,7 +149,6 @@ class MAS(BddFsm):
             subsystem = BDD.true(self.bddEnc.DDmanager)
         
         states = states & subsystem
-        inputs = inputs & subsystem
         
         return super().post(states, inputs)
         

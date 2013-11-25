@@ -18,12 +18,12 @@ class TestCheckPartial(unittest.TestCase):
     
     def setUp(self):
         init_nusmv()
-        config.debug = True
-        #config.partial.early.type = "full"
-        #config.partial.caching = True
+        #config.debug = True
+        config.partial.early.type = "full"
+        config.partial.caching = True
+        config.partial.filtering = True
         #config.partial.garbage.type = "step"
         #config.partial.garbage.step = 4
-        #config.partial.filtering = True
     
     def tearDown(self):    
         glob.reset_globals()
@@ -111,6 +111,8 @@ class TestCheckPartial(unittest.TestCase):
         self.assertFalse(check(fsm, parseATLK("<'player'> G <'player'> F 'win'")[0], implem="partial"))
         
         self.assertFalse(check(fsm, parseATLK("<'player'> F <'player'>[~'lose' U 'win']")[0], implem="partial"))
+        
+        self.assertFalse(check(fsm, parseATLK("AG <'player'> X 'pcard = Ac'")[0], implem="partial"))
         
     
     def test_cardgame_post_fair_not_improved_partial(self):

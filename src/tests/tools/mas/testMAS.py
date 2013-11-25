@@ -397,3 +397,41 @@ class TestMAS(unittest.TestCase):
                          ((~p & q) | (p & q & ~qa)) & strat)
         self.assertEqual(fsm.pre_strat_si(~p & q, bb, qa),
                          (~p & q & qa))
+    
+    def test_post(self):
+        fsm = self.cardgame()
+        
+        s0 = eval_simple_expression(fsm, "step = 0")
+        s1 = eval_simple_expression(fsm, "step = 1")
+        s2 = eval_simple_expression(fsm, "step = 2")
+        pa = eval_simple_expression(fsm, "pcard = Ac")
+        pk = eval_simple_expression(fsm, "pcard = K")
+        pq = eval_simple_expression(fsm, "pcard = Q")
+        da = eval_simple_expression(fsm, "dcard = Ac")
+        dk = eval_simple_expression(fsm, "dcard = K")
+        dq = eval_simple_expression(fsm, "dcard = Q")
+        dda = eval_simple_expression(fsm, "ddcard = Ac")
+        ddk = eval_simple_expression(fsm, "ddcard = K")
+        ddq = eval_simple_expression(fsm, "ddcard = Q")
+        win = eval_simple_expression(fsm, "win")
+        lose = eval_simple_expression(fsm, "lose")
+        true = eval_simple_expression(fsm, "TRUE")
+        false = eval_simple_expression(fsm, "FALSE")
+        pan = eval_simple_expression(fsm, "player.action = none")
+        pak = eval_simple_expression(fsm, "player.action = keep")
+        pas = eval_simple_expression(fsm, "player.action = swap")
+        daqa = eval_simple_expression(fsm, "dealer.action = dealQA")
+        
+        self.assertEqual(fsm.post(s0 & fsm.reachable_states),
+                         s1 & fsm.reachable_states)
+        self.assertEqual(fsm.post(s0 & fsm.reachable_states, inputs=daqa),
+                         s1 & pq & da & fsm.reachable_states)
+        self.assertEqual(fsm.post(s0 & fsm.reachable_states,
+                                  subsystem=s0 & daqa),
+                         s1 & pq & da & fsm.reachable_states)
+        self.assertEqual(fsm.post(fsm.reachable_states,
+                                  subsystem=(s0 & daqa) | (s1 & pak)),
+                         ((s1 & pq & da) | (s2)) & fsm.reachable_states)
+        self.assertEqual(fsm.post(s1 & fsm.reachable_states,
+                        subsystem=(s1 & pa & dq & pak) | (s1 & pk & da & pas)),
+                         ((s2 & pa & dq) | (s2 & da & pq)) & fsm.reachable_states)
