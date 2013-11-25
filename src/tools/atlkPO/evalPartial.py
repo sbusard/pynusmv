@@ -639,28 +639,62 @@ def eval_strat(fsm, spec, states):
     sat = BDD.false(fsm.bddEnc.DDmanager)
     agents = {atom.value for atom in spec.group}
     
-    # Extend states with equivalent ones
     orig_states = states
-    states = fsm.equivalent_states(states, agents)
     
     nbstrats = 0
-    for strat in (strat
-                  for pustrat
-                  in split(fsm, states & fsm.protocol(agents), agents)
-                  for strat in split_reach(fsm, agents, pustrat)):
+    
+    remaining = states
+    
+    while remaining.isnot_false():
         
-        # Early termination if sat contains all requested states
-        if config.partial.early.type == "full" and orig_states <= sat:
-            break
+        # Extend states with equivalent ones
+        states = fsm.equivalent_states(remaining, agents)
         
-        nbstrats += 1
-        winning = (filter_strat(fsm, spec, states, strat, variant="SF").
-                   forsome(fsm.bddEnc.inputsCube))
-        sat = sat | (all_equiv_sat(fsm, winning, agents) & states)
+        remaining_size = fsm.count_states(remaining)
+
+        # Go through all strategies
+        for strat in (strat
+                      for pustrat
+                      in split(fsm, states & fsm.protocol(agents), agents)
+                      for strat in split_reach(fsm, agents, pustrat)):
+        
+            # Early termination if sat contains all requested states
+            if config.partial.early.type == "full" and orig_states <= sat:
+                remaining = BDD.false(fsm.bddEnc.DDmanager)
+                break
+        
+            nbstrats += 1
+            winning = (filter_strat(fsm, spec, states, strat, variant="SF").
+                       forsome(fsm.bddEnc.inputsCube))
+            old_sat = sat
+            sat = sat | (all_equiv_sat(fsm, winning, agents) & orig_states)
+            
+            if config.partial.early.type == "partial" and old_sat < sat:
+                if config.debug:
+                    print("Partial strategies: sat grows ({} strateg{})"
+                          .format(nbstrats, "ies" if nbstrats > 1 else "y"))
+                remaining = remaining - sat
+                break
+            
+            if config.partial.early.type == "threshold":
+                remaining = remaining - sat
+                rem_count = fsm.count_states(remaining)
+                if rem_count <= remaining_size * config.partial.early.threshold:
+                    if config.debug:
+                        print("Partial strategies: remaining states decrease:"
+                              " {} => {}".format(remaining_size, rem_count))
+                    remaining_size = rem_count
+                    break
+        
+        else:
+            # All strategies have been checked, the remaining states do not
+            # satisfy the specification
+            remaining = BDD.false(fsm.bddEnc.DDmanager)
     
     # DEBUG Print number of strategies
     if config.debug:
-        print("Partial strategies: {} strategies generated".format(nbstrats))
+        print("Partial strategies: {} strateg{} generated"
+              .format(nbstrats, "ies" if nbstrats > 1 else "y"))
     
     return sat
 

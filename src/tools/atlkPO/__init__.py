@@ -36,11 +36,14 @@ config.partial.early = AttrDict()
 # Early termination type used
 #   None: early termination not used
 #   full: when all the states satisfy the property
-#   partial: when sat grows, recompute new strategies
+#   partial: whenever sat grows, recompute the strategies with remaining states
+#   threshold: when remaining states decreases below the given threshold, 
+#              recompute the strategies for these remaining states
 config.partial.early.type = None
-# Early termination partial recomputation threshold: after how many strategies
-# we have to recompute the strategy with the remaining states
-config.partial.early.threshold = 1
+# Early termination recomputation threshold: what is the factor between
+# current remaining below which we have to recompute the strategies for 
+# remaining states
+config.partial.early.threshold = 0.75
 
 
 # Caching subformulas in partial strategies
