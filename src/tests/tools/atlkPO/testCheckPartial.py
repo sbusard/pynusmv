@@ -22,6 +22,7 @@ class TestCheckPartial(unittest.TestCase):
         config.partial.early.type = "full"
         config.partial.caching = True
         config.partial.filtering = True
+        #config.partial.separation.type = "reach"
         #config.partial.garbage.type = "step"
         #config.partial.garbage.step = 4
     

@@ -650,6 +650,8 @@ def eval_strat(fsm, spec, states):
     if config.debug:
         print("Evaluating partial strategies for ", spec)
     
+    
+    # Pre-filtering out losing states and actions
     if config.partial.filtering:
         subsystem = filter_strat(fsm, spec, states, variant="SF")
     else:
@@ -657,70 +659,117 @@ def eval_strat(fsm, spec, states):
     # if filtering is enabled, subsystem is the part of the system in which
     # states can win
     
+    
     sat = BDD.false(fsm.bddEnc.DDmanager)
     agents = {atom.value for atom in spec.group}
-    
     states = states & subsystem.forsome(fsm.bddEnc.inputsCube)
     
-    orig_states = states
+    all_states = states
     
-    nbstrats = 0
-    
-    remaining = states
-    
-    while remaining.isnot_false():
+    while all_states.isnot_false():
         
-        # Extend states with equivalent ones
-        states = fsm.equivalent_states(remaining, agents)
+        # ----- Separation of state space --------------------------------------
         
-        remaining_size = fsm.count_states(remaining)
+        # Put a subset of all_states in states and remove it from all_states
+        if config.partial.separation.type is None:
+            states = all_states
+            
+        if config.partial.separation.type == "random":
+            state = fsm.pick_one_state(all_states)
+            states = (fsm.equivalent_states(state, agents) &
+                      fsm.reachable_states & all_states)
+                      
+        if config.partial.separation.type == "reach":
+            reached = fsm.init
+            while (reached & all_states).is_false():
+                # Should not loop infinitely since we only are interested in
+                # reachable states
+                # WARNING We cannot restrict to subsystem to get the post-image
+                # since we are not sure that all_states are reachable in the
+                # subsystem anymore
+                reached = reached | fsm.post(reached)
+            state = fsm.pick_one_state(reached & all_states)
+            states = (fsm.equivalent_states(state, agents) &
+                      fsm.reachable_states & all_states)
+        
+        
+        # Remove states from all_states
+        all_states = all_states - states
+    
+        orig_states = states
+        remaining = states
+        nbstrats = 0
+    
+        while remaining.isnot_false():
+        
+            # Extend states with equivalent ones
+            states = (fsm.equivalent_states(remaining, agents) &
+                      fsm.reachable_states)
+        
+            remaining_size = fsm.count_states(remaining)
 
-        # Go through all strategies
-        for strat in (strat
-                      for pustrat
-                      in split(fsm, states & fsm.protocol(agents) & subsystem,
-                               agents)
-                      for strat in split_reach(fsm, agents, pustrat,subsystem)):
-        
-            # Early termination if sat contains all requested states
-            if config.partial.early.type == "full" and orig_states <= sat:
-                remaining = BDD.false(fsm.bddEnc.DDmanager)
-                break
-        
-            nbstrats += 1
-            winning = (filter_strat(fsm, spec, states, strat, variant="SF").
-                       forsome(fsm.bddEnc.inputsCube))
-            old_sat = sat
-            sat = sat | (all_equiv_sat(fsm, winning, agents) & orig_states)
+            # Go through all strategies
+            for strat in (strat
+                          for pustrat in split(fsm, states & subsystem, agents)
+                          for strat
+                          in split_reach(fsm, agents, pustrat,subsystem)):
             
-            if config.partial.early.type == "partial" and old_sat < sat:
-                if config.debug:
-                    print("Partial strategies: sat grows ({} strateg{})"
-                          .format(nbstrats, "ies" if nbstrats > 1 else "y"))
-                remaining = remaining - sat
-                break
+                # Check the strategy
+                nbstrats += 1
+                winning = (filter_strat(fsm, spec, states, strat, variant="SF").
+                           forsome(fsm.bddEnc.inputsCube))
+                old_sat = sat
+                sat = sat | (all_equiv_sat(fsm, winning, agents) & orig_states)
             
-            if config.partial.early.type == "threshold":
-                remaining = remaining - sat
-                rem_count = fsm.count_states(remaining)
-                if rem_count <= remaining_size * config.partial.early.threshold:
-                    if config.debug:
-                        print("Partial strategies: remaining states decrease:"
-                              " {} => {}".format(remaining_size, rem_count))
-                    remaining_size = rem_count
+            
+                # ----- EARLY TERMINATION --------------------------------------
+            
+                # Early termination if sat contains all requested states
+                if config.partial.early.type == "full" and orig_states <= sat:
+                    remaining = BDD.false(fsm.bddEnc.DDmanager)
                     break
             
-            if config.partial.garbage.type == "each":
-                gc.collect()
+                # Early termination of sat grows
+                if config.partial.early.type == "partial" and old_sat < sat:
+                    if config.debug:
+                        print("Partial strategies: sat grows ({} strateg{})"
+                              .format(nbstrats, "ies" if nbstrats > 1 else "y"))
+                          
+                    remaining = remaining - sat
+                    break
             
-            if (config.partial.garbage.type == "step"
-                and nbstrats % config.partial.garbage.step == 0):
-                gc.collect()
+                # Early termination if remaining states decrease enough
+                if config.partial.early.type == "threshold":
+                    remaining = remaining - sat
+                    rem_count = fsm.count_states(remaining)
+                    if (rem_count <= 
+                        remaining_size * config.partial.early.threshold):
+                        if config.debug:
+                            print("Partial strategies:",
+                                  "remaining states decrease:",
+                                  "{} => {}".format(remaining_size, rem_count))
+                              
+                        remaining_size = rem_count
+                        break
+            
+                # --------------------------------------------------------------
+            
+            
+                # ----- Garbage collection -------------------------------------
+                if (config.partial.garbage.type == "each" or
+                    (config.partial.garbage.type == "step"
+                        and nbstrats % config.partial.garbage.step == 0)):
+                    gc.collect()
         
-        else:
-            # All strategies have been checked, the remaining states do not
-            # satisfy the specification
-            remaining = BDD.false(fsm.bddEnc.DDmanager)
+            else:
+                # All strategies have been checked, the remaining states do not
+                # satisfy the specification
+                remaining = BDD.false(fsm.bddEnc.DDmanager)
+        
+        
+        # Remove from remaining subsets to check the ones we already have the
+        # truth value
+        all_states = all_states - sat
     
     # DEBUG Print number of strategies
     if config.debug:
