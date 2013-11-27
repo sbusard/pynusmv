@@ -647,9 +647,15 @@ def eval_strat(fsm, spec, states):
     
     """
     
+    agents = {atom.value for atom in spec.group}
+    
     if config.debug:
         print("Evaluating partial strategies for ", spec)
     
+    
+    # Extend with equivalent states
+    states = (fsm.equivalent_states(states, agents) &
+              fsm.reachable_states)
     
     # Pre-filtering out losing states and actions
     if config.partial.filtering:
@@ -659,10 +665,16 @@ def eval_strat(fsm, spec, states):
     # if filtering is enabled, subsystem is the part of the system in which
     # states can win
     
+    # if filtering is enabled, we can remove, from states, the set of states
+    # for which not all equivalent states are in subsystem. Indeed, if a state
+    # is not in subsystem, there is not strategy in this state to win,
+    # thus no uniform strategy to win, thus its entire equivalence class
+    # cannot win
+    states = (states & all_equiv_sat(fsm,
+                                     subsystem.forsome(fsm.bddEnc.inputsCube), 
+                                     agents))
     
     sat = BDD.false(fsm.bddEnc.DDmanager)
-    agents = {atom.value for atom in spec.group}
-    states = states & subsystem.forsome(fsm.bddEnc.inputsCube)
     
     all_states = states
     
