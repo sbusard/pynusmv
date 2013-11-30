@@ -4,6 +4,38 @@ in the ATLK_irF model-checking tool used to tune the behaviour of different
 algorithms.
 config is the main object containing configuration variables, and these
 variables are accessible through attributes of config.
+
+
+The list of parameters follows. Every indentation is a sub-parameter;
+for example, config.partial.early.type is type under early under partial.
+Top-level parameters are sub-parameters of config.
+
+ debug (boolean): printing or not debugging information
+ partial (set of parameters): set of parameters for partial strategies
+    early: set of parameters for early termination of partial strategies
+        type (string): type of early termination
+            - None: no early termination
+            - full: stop when all Z states are in sat
+            - partial: whenever sat grows, recompute strategies for the rest
+            - threshold: when remaining states decrease of threshold,
+                         recompute the strategies
+        threshold (int): the threshold for early termination with threshold
+    caching (boolean): whether or not caching states satisfying or not
+                       sub-formulas
+    filtering (boolean): activate filtering
+    separation: separating Z states into sub-sets to check one at a time
+        type (string): type of separation
+            - None: no separation
+            - random: pick a random state in Z and take its equivalence class
+            -reach: pick first reachable state from initial ones and take
+                    its equivalence class
+    garbage: explicit call to garbage collection
+        type (string): type to garbage collection calls
+            - None: no explicit call to garbage collection
+            - each: collect after every strategy
+            - step: collect every step strategies
+        step (int): number of strategies between each collection when type is
+                    step
 """
 
 class AttrDict(dict):
@@ -87,4 +119,4 @@ config.partial.garbage = AttrDict()
 config.partial.garbage.type = None
 
 # Number of strategies to check before calling again garbage collectin
-config.partial.garbage.step = 10
+config.partial.garbage.step = 100
