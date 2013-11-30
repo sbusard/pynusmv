@@ -27,8 +27,8 @@ Top-level parameters are sub-parameters of config.
         type (string): type of separation
             - None: no separation
             - random: pick a random state in Z and take its equivalence class
-            -reach: pick first reachable state from initial ones and take
-                    its equivalence class
+            - reach: pick first reachable state from initial ones and take
+                     its equivalence class
     garbage: explicit call to garbage collection
         type (string): type to garbage collection calls
             - None: no explicit call to garbage collection

@@ -62,14 +62,20 @@ def evalATLK(fsm, spec, states=None, variant="SF"):
         return states - evalATLK(fsm, spec.child, states, variant=variant)
         
     elif type(spec) is And:
+        # TODO We can be smarter by evaluating the second member
+        # only on states satisfying the first member
         return (evalATLK(fsm, spec.left, states, variant=variant)
                 & evalATLK(fsm, spec.right, states, variant=variant))
         
     elif type(spec) is Or:
+        # TODO We can be smarter by evaluating the second member
+        # only on states not satisfying the first member
         return (evalATLK(fsm, spec.left, states, variant=variant)
                 | evalATLK(fsm, spec.right, states, variant=variant))
         
     elif type(spec) is Implies:
+        # TODO We can be smarter by evaluating the second member
+        # only on states satisfying the first member
         # p -> q = ~p | q
         p = spec.left
         q = spec.right
