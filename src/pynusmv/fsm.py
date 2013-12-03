@@ -303,7 +303,8 @@ class BddFsm(PointerWrapper):
         """
         # Apply mask before counting states
         bdd = bdd & self.bddEnc.statesMask
-        return bddEnc.BddEnc_count_states_of_bdd(self.bddEnc._ptr, bdd._ptr)
+        return int(bddEnc.
+                         BddEnc_count_states_of_bdd(self.bddEnc._ptr, bdd._ptr))
         
         
     def count_inputs(self, bdd):
@@ -316,7 +317,22 @@ class BddFsm(PointerWrapper):
         """
         # Apply mask before counting inputs
         bdd = bdd & self.bddEnc.inputsMask
-        return bddEnc.BddEnc_count_inputs_of_bdd(self.bddEnc._ptr, bdd._ptr)
+        return int(bddEnc.
+                         BddEnc_count_inputs_of_bdd(self.bddEnc._ptr, bdd._ptr))
+    
+    
+    def count_states_inputs(self, bdd):
+        """
+        Return the number of state/inputs pairs of the given BDD
+        
+        :param bdd: the concerned BDD
+        :type bdd: :class:`BDD <pynusmv.dd.BDD>`
+        
+        """
+        # Apply mask before counting inputs
+        bdd = bdd & self.bddEnc.statesInputsMask
+        return int(bddEnc.
+                  BddEnc_count_states_inputs_of_bdd(self.bddEnc._ptr, bdd._ptr))
         
         
     def pick_all_states(self, bdd):
