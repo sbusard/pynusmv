@@ -9,6 +9,7 @@ from pynusmv.nusmv.dd import dd as nsdd
 from tools.mas import glob
 
 from tools.atlkPO.eval import split
+from tools.atlkPO.evalPartial import split as split_partial
 
 
 class TestSplit(unittest.TestCase):
@@ -23,6 +24,12 @@ class TestSplit(unittest.TestCase):
     
     def little(self):
         glob.load_from_file("tests/tools/atlkPO/models/little.smv")
+        fsm = glob.mas()
+        self.assertIsNotNone(fsm)
+        return fsm
+        
+    def cardgame3(self):
+        glob.load_from_file("tests/tools/atlkPO/models/cardgame3.smv")
         fsm = glob.mas()
         self.assertIsNotNone(fsm)
         return fsm
@@ -181,3 +188,17 @@ class TestSplit(unittest.TestCase):
         
         self.assertSetEqual({commstrat | firststrat, commstrat | secstrat},
                             strats)
+    
+    def test_split_cardgame3(self):
+        fsm = self.cardgame3()
+        agents = {'player'}
+        
+        strats = set()
+        nbstrats = 0
+        for strat in split(fsm, fsm.protocol(agents), agents):
+            nbstrats += 1
+            self.assertTrue(strat not in strats)
+            strats.add(strat)
+        self.assertEqual(nbstrats, 8)
+        self.assertEqual(len(strats), nbstrats)
+        

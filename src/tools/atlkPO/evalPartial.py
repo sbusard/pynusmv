@@ -550,7 +550,10 @@ def split(fsm, strats, gamma, pustrat=None):
     """
     if not pustrat:
         pustrat = BDD.false(fsm.bddEnc.DDmanager)
-        
+    
+    strats = strats & fsm.bddEnc.statesInputsMask
+    pustrat = pustrat & fsm.bddEnc.statesInputsMask
+    
     if strats.is_false():
         yield strats
     else:
@@ -658,7 +661,6 @@ def eval_strat(fsm, spec, states):
     if config.debug:
         print("Evaluating partial strategies for ", spec)
     
-    
     # Extend with equivalent states
     states = (fsm.equivalent_states(states, agents) &
               fsm.reachable_states)
@@ -667,7 +669,7 @@ def eval_strat(fsm, spec, states):
     if config.partial.filtering:
         subsystem = filter_strat(fsm, spec, states, variant="SF")
     else:
-        subsystem = BDD.true(fsm.bddEnc.DDmanager)
+        subsystem = fsm.protocol(agents)
     # if filtering is enabled, subsystem is the part of the system in which
     # states can win
     
@@ -683,6 +685,8 @@ def eval_strat(fsm, spec, states):
     sat = BDD.false(fsm.bddEnc.DDmanager)
     
     all_states = states
+    
+    nbstrats = 0
     
     while all_states.isnot_false():
         
@@ -710,28 +714,27 @@ def eval_strat(fsm, spec, states):
             states = (fsm.equivalent_states(state, agents) &
                       fsm.reachable_states & all_states)
         
+        # ----------------------------------------------------------------------
+        
         
         # Remove states from all_states
         all_states = all_states - states
     
         orig_states = states
         remaining = states
-        nbstrats = 0
     
-        while remaining.isnot_false():
-        
+        while remaining.isnot_false():        
             # Extend states with equivalent ones
             states = (fsm.equivalent_states(remaining, agents) &
                       fsm.reachable_states)
         
             remaining_size = fsm.count_states(remaining)
-
+            
             # Go through all strategies
             for strat in (strat
                           for pustrat in split(fsm, states & subsystem, agents)
                           for strat
-                          in split_reach(fsm, agents, pustrat,subsystem)):
-            
+                          in split_reach(fsm, agents, pustrat,subsystem)):            
                 # Check the strategy
                 nbstrats += 1
                 winning = (filter_strat(fsm, spec, states, strat, variant="SF").
