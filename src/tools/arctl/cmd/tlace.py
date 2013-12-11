@@ -14,6 +14,8 @@ from tools.arctl.check import checkArctl
 from tools.arctl.tlace.explain import explain_witness, explain_countex
 from tools.arctl.tlace.xml import xml_representation
 
+from pyparsing import ParseException
+
 
 class ARCTL_TLACE_shell(cmd.Cmd):
 
@@ -71,6 +73,9 @@ class ARCTL_TLACE_shell(cmd.Cmd):
                     print(xml_representation(self.fsm, wit, spec))
                     
             except PyNuSMVError as e:
+                print("[ERROR]", e)
+                
+            except ParseException as e:
                 print("[ERROR]", e)
                 
                 

@@ -12,6 +12,8 @@ from pynusmv.exception import PyNuSMVError
 from tools.arctl.parsing import parseArctl
 from tools.arctl.check import checkArctl
 
+from pyparsing import ParseException
+
 
 def print_bdd(bdd):
     """Print bdd at stdout."""
@@ -91,14 +93,17 @@ class ARCTLshell(cmd.Cmd):
                 if res:
                     print("The specification", arg, "is true,",
                           "witnessed by")
-                    print_path(wit, inp, loop)
+                    #print_path(wit, inp, loop)
                         
                 else:
                     print("The specification", arg, "is false,",
                           "as shown by")
-                    print_path(wit, inp, loop)
+                    #print_path(wit, inp, loop)
                     
             except PyNuSMVError as e:
+                print("[ERROR]", e)
+                
+            except ParseException as e:
                 print("[ERROR]", e)
                 
                 

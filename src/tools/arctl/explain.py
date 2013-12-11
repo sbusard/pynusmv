@@ -325,7 +325,7 @@ def explain_eau(fsm, state, alpha, phi, psi):
     path = [s]
     for states in paths[::-1]:
         sp = fsm.pick_one_state(fsm.post(s, alpha) & states)
-        i = fsm.pick_one_inputs(fsm.get_inputs_between_states(s, sp))
+        i = fsm.pick_one_inputs(fsm.get_inputs_between_states(s, sp) & alpha)
         path.append(i)
         path.append(sp)
         s = sp
