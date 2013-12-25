@@ -424,12 +424,16 @@ def fair_gamma_states(fsm, agents):
     fsm -- the model
     agents -- a list of agents names
     """
-    agents = frozenset(agents)
-    # This condition has been commented because it causes a segmentation fault!!
-    #if agents not in __fair_gamma_states:
-    __fair_gamma_states[agents] = cag(fsm, agents,
-                                          BDD.true(fsm.bddEnc.DDmanager))
-    return __fair_gamma_states[agents]
+    return cag(fsm, agents, BDD.true(fsm.bddEnc.DDmanager))
+    
+    # WARNING !!! The following code performs a segmentation fault
+    # The problem seems to come from the condition
+    #global _fair_gamma_states
+    #agents = frozenset(agents)
+    #if agents not in _fair_gamma_states:
+    #    _fair_gamma_states[agents] = cag(fsm, agents,
+    #                                     BDD.true(fsm.bddEnc.DDmanager))
+    #return _fair_gamma_states[agents]
     
     
 def cex(fsm, agents, phi):
