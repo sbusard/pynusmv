@@ -78,7 +78,7 @@ def edge(fsm, source, inputs, target, ids):
     
     fsm -- the BddFsm of the model
     source -- the source of the transition
-    inputs -- the action of the transition
+    inputs -- the action of the transition, or None
     target -- the target of the transition
     ids -- a dictionary of the ids of some states.
            Must contain source and target.
@@ -87,7 +87,9 @@ def edge(fsm, source, inputs, target, ids):
     attr = set()
     
     # Label
-    attr.add("label=\"" + "\\n".join(var+"="+val for var, val in inputs.get_str_values().items()) + "\"")
+    if inputs is not None:
+        attr.add("label=\"" + "\\n".join(var+"="+val for var, val
+                                     in inputs.get_str_values().items()) + "\"")
     
     # Fairness
     fair_styles = set()
@@ -119,8 +121,10 @@ def dumpDot(fsm):
     states = fsm.pick_all_states(fsm.reachable_states)
     transitions = {(s1,i,s2)
                    for s1 in states for s2 in states
-                   for i in fsm.pick_all_inputs(
-                                         fsm.get_inputs_between_states(s1,s2))}
+                   for i in (fsm.pick_all_inputs(
+                                         fsm.get_inputs_between_states(s1,s2))
+                             if len(fsm.bddEnc.get_inputs_vars()) > 0
+                             else {None})}
     
     print("digraph {")
     

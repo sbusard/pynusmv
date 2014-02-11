@@ -587,6 +587,36 @@ class BddEnc(PointerWrapper):
         nsset.Set_ReleaseSet(varset)
         
         return Cube(cube_ptr, self.DDmanager, freeit=True)
+    
+    
+    def get_inputs_vars(self):
+        """
+        Return the set of inputs variables names.
+        
+        :rtype: frozenset(str)
+        
+        """
+        
+        from . import glob
+        
+        master = glob.prop_database().master
+        sexp_fsm = nsprop.Prop_get_scalar_sexp_fsm(master._ptr)
+        st = glob.symb_table()
+        
+        variables = nssexp.SexpFsm_get_vars_list(sexp_fsm)
+        
+        varnames = set()
+        ite = nsutils.NodeList_get_first_iter(variables)
+        while not nsutils.ListIter_is_end(ite):
+            var_node = nsutils.NodeList_get_elem_at(variables, ite)
+            varname = nsnode.sprint_node(var_node)
+            isVar = nssymbtable.SymbTable_is_symbol_input_var(st._ptr, var_node)
+            if isVar:
+                varnames.add(varname)
+            ite = nsutils.ListIter_get_next(ite)
+        
+        return frozenset(varnames)
+        
         
                    
 class SymbTable(PointerWrapper):
