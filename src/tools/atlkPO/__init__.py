@@ -54,6 +54,21 @@ config = AttrDict()
 # Whether or not printing debug information at console
 config.debug = False
 
+# Garbage collection
+# ------------------
+
+config.garbage = AttrDict()
+
+# Which technique to use
+#   None: garbage collection is never called explicitely
+#   each: garbage collection is called after each strategy
+#   step: garbage collection is called after the corresponding number of 
+#         strategies
+config.garbage.type = None
+
+# Number of strategies to check before calling again garbage collection
+config.garbage.step = 100
+
 
 
 # ---------------------------------------------------
@@ -104,19 +119,3 @@ config.partial.separation = AttrDict()
 #   reach: the first reached state, from initial states,
 #          and its equivalence class are chosen
 config.partial.separation.type = None
-
-
-# Garbage collection
-# ------------------
-
-config.partial.garbage = AttrDict()
-
-# Which technique to use
-#   None: garbage collection is never called explicitely
-#   each: garbage collection is called after each strategy
-#   step: garbage collection is called after the corresponding number of 
-#         strategies
-config.partial.garbage.type = None
-
-# Number of strategies to check before calling again garbage collectin
-config.partial.garbage.step = 100

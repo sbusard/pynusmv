@@ -777,9 +777,9 @@ def eval_strat(fsm, spec, states):
             
             
                 # ----- Garbage collection -------------------------------------
-                if (config.partial.garbage.type == "each" or
-                    (config.partial.garbage.type == "step"
-                        and nbstrats % config.partial.garbage.step == 0)):
+                if (config.garbage.type == "each" or
+                    (config.garbage.type == "step"
+                        and nbstrats % config.garbage.step == 0)):
                     gc.collect()
         
             else:

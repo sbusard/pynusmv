@@ -20,6 +20,8 @@ from ..atlkFO.ast import (TrueExp, FalseExp, Init, Reachable,
 
 from ..atlkFO.eval import (fair_states, ex, eg, eu, nk, ne, nd, nc)
 
+from . import config
+
 
 # A dictionary to keep track of number of strategies for improved algorithm
 __strategies = {} 
@@ -531,8 +533,11 @@ def eval_strat(fsm, spec):
                     forsome(fsm.bddEnc.inputsCube))
         sat = sat | all_equiv_sat(fsm, winning, agents)
         
-        # Collect to avoid memory overflow
-        gc.collect()
+        # ----- Garbage collection -------------------------------------
+        if (config.garbage.type == "each" or
+            (config.garbage.type == "step"
+                and nbstrats % config.garbage.step == 0)):
+            gc.collect()
     
     # DEBUG Print number of strategies
     print("Eval_strat: {} strategies".format(nbstrats))
