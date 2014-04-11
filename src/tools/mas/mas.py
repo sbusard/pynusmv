@@ -1,11 +1,10 @@
 from pynusmv.dd import BDD
-from pynusmv.fsm import BddFsm
+from pynusmv.fsm import BddFsm, BddTrans
 from pynusmv.nusmv.node import node as nsnode
 from pynusmv.nusmv.parser import parser as nsparser
 from pynusmv.nusmv.dd import dd as nsdd
 from .exception import UnknownAgentError
 from .glob import symb_table
-from .bddTrans import BddTrans
 
 class MAS(BddFsm):
     """

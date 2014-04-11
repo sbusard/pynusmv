@@ -18,7 +18,6 @@ from pynusmv.glob import (load_from_file,
                                prop_database as _prop_database,
                                compute_model as _compute_model)
                                
-from .bddTrans import BddTrans
 from .mas import MAS
 
 import itertools
