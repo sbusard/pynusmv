@@ -77,6 +77,8 @@ class BDD(PointerWrapper):
         :type other: :class:`BDD`
         
         """
+        if not isinstance(other, BDD):
+            return False
         if nsdd.bdd_equal(self._ptr, other._ptr):
             return True
         else:
