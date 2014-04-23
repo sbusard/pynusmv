@@ -16,6 +16,7 @@ represented and stored by NuSMV:
 
 __all__ = ['BddFsm', 'BddEnc', 'SymbTable', 'BddTrans']
 
+import tempfile
 
 from .nusmv.fsm.bdd import bdd as bddFsm
 from .nusmv.enc.bdd import bdd as bddEnc
@@ -459,6 +460,23 @@ class BddFsm(PointerWrapper):
         propDb = glob.prop_database()
         return propDb.master.bddFsm
         # TODO Remove this and use glob module instead
+    
+    
+    @staticmethod
+    def from_string(model):
+        """
+        Return the FSM corresponding to the model defined by the given string.
+        
+        :param model: a String representing the SMV model
+        
+        """
+        # Create temp file
+        with tempfile.NamedTemporaryFile(suffix=".smv") as tmp:
+            tmp.write(model.encode("UTF-8"))
+            tmp.flush()
+            return BddFsm.from_filename(tmp.name)
+        
+        
 
 
 class BddEnc(PointerWrapper):

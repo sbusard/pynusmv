@@ -4,7 +4,7 @@ from pynusmv.init import init_nusmv, deinit_nusmv
 from pynusmv.fsm import BddFsm
 from pynusmv.dd import BDD
 from pynusmv.mc import eval_simple_expression as evalSexp
-from pynusmv.exception import NuSMVBddPickingError
+from pynusmv.exception import NuSMVBddPickingError, NuSMVCannotFlattenError
 
 class TestFsm(unittest.TestCase):
     
@@ -380,3 +380,21 @@ class TestFsm(unittest.TestCase):
         self.assertIsNotNone(fsm)
         
         self.assertEqual(len(fsm.fairness_constraints), 0)
+    
+    
+    def test_from_string(self):
+        model = """
+        MODULE main
+            VAR test : 0..1;
+        """
+        fsm = BddFsm.from_string(model)
+        self.assertIsNotNone(fsm)
+    
+    
+    def test_from_string_fail(self):
+        model = """
+        MODULE main
+            VAR qsdf : sdfqsdf;
+        """
+        with self.assertRaises(NuSMVCannotFlattenError):
+            fsm = BddFsm.from_string(model)
