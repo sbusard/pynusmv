@@ -10,10 +10,12 @@ and the propositions database.
 
 """
 
-__all__ = ['load_from_file', 'flatten_hierarchy', 'symb_table',
+__all__ = ['load_from_file', 'load_from_string',
+           'flatten_hierarchy', 'symb_table',
            'encode_variables', 'bdd_encoding', 'build_flat_model',
            'build_model', 'prop_database', 'compute_model']
 
+import tempfile
 
 from .nusmv.parser import parser as nsparser
 from .nusmv.opt import opt as nsopt
@@ -68,6 +70,20 @@ def _reset_globals():
     
     # Reset cmps
     nscompile.cmp_struct_reset(nscompile.cvar.cmps)
+
+
+def load_from_string(model):
+    """
+    Load a model from a string representing the model.
+    
+    :param model: a String representing the model
+    
+    """
+    # Create temp file
+    with tempfile.NamedTemporaryFile(suffix=".smv") as tmp:
+        tmp.write(model.encode("UTF-8"))
+        tmp.flush()
+        load_from_file(tmp.name)
 
 
 def load_from_file(filepath):
