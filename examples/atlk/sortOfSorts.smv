@@ -1,0 +1,159 @@
+--------------------------------------------------------------------------------
+--- Modelization of the sorting problem proposed by Peter Winkler
+--- http://cacm.acm.org/magazines/2014/5/174346-puzzled-a-sort-of-sorts/abstract
+---
+---
+--- The sorting game is composed of three cards (1, 2, 3) and three places on
+--- the table. The game is won when 1 is on top of 2, that is on top of 3, all
+--- on the left-most place on the table. The game starts in any configuration
+--- (e.g. 1 on the left, 2 on the middle, 3 on the right; or 1 on top of 2 on
+--- the left, 3 on the middle, nothing on the right). At each step, the player
+--- can take one card on the top of a stack and put in on another (possibly
+--- empty) stack. Nevertheless, the player has no memory so, if 2 is on top of 1
+--- on the left, 3 is on the middle, and if the player moves 2 on top of 3, he
+--- does not know anymore where 3 is.
+---
+--- Author <simon.busard@uclouvain.be> Simon Busard
+--------------------------------------------------------------------------------
+
+
+MODULE Player(topleft, topmiddle, topright)
+
+    IVAR action : {leftToMiddle, leftToRight,
+                   middleToLeft, middleToRight,
+                   rightToLeft, rightToMiddle};
+    
+    --- Protocol
+    TRANS
+    action in case topleft != 0 & topmiddle != 0 & topright != 0:
+                        {leftToMiddle, leftToRight,
+                         middleToLeft, middleToRight,
+                         rightToLeft, rightToMiddle};
+                   topleft = 0 & topmiddle != 0 & topright != 0:
+                        {middleToLeft, middleToRight,
+                         rightToLeft, rightToMiddle};
+                   topleft != 0 & topmiddle = 0 & topright != 0:
+                        {leftToMiddle, leftToRight,
+                         rightToLeft, rightToMiddle};
+                   topleft != 0 & topmiddle != 0 & topright = 0:
+                        {leftToMiddle, leftToRight,
+                         middleToLeft, middleToRight};
+                   topleft = 0 & topmiddle = 0 & topright != 0:
+                        {rightToLeft, rightToMiddle};
+                   topleft != 0 & topmiddle = 0 & topright = 0:
+                        {leftToMiddle, leftToRight};
+                   topleft = 0 & topmiddle != 0 & topright = 0:
+                        {middleToLeft, middleToRight};
+                   topleft = 0 & topmiddle = 0 & topright = 0:
+                        {leftToMiddle, leftToRight,
+                         middleToLeft, middleToRight,
+                         rightToLeft, rightToMiddle};
+              esac
+
+
+MODULE main
+
+    
+    VAR
+    --- stacks are modelled with arrays, 1 being the top, 3 the bottom
+    --- they contain 0..3 values, 0 being empty, 1, 2, 3 the cards
+    left   : array 1..3 of 0..3;
+    middle : array 1..3 of 0..3;
+    right  : array 1..3 of 0..3;
+    player : Player(left[1], middle[1], right[1]);
+    
+    INIT
+    --- Sum of left, middle and right is 6
+      left[1]   + left[2]   + left[3]
+    + middle[1] + middle[2] + middle[3]
+    + right[1]  + right[2]  + right[3]   = 6
+    
+    --- 1, 2, 3 belong to left, middle or right
+    INIT
+    1 in {left[1],   left[2],   left[3],
+          middle[1], middle[2], middle[3],
+          right[1],  right[2],  right[3]}
+    INIT
+    2 in {left[1],   left[2],   left[3],
+          middle[1], middle[2], middle[3],
+          right[1],  right[2],  right[3]}
+    INIT
+    3 in {left[1],   left[2],   left[3],
+          middle[1], middle[2], middle[3],
+          right[1],  right[2],  right[3]}
+    
+    --- must be stacked
+    INIT
+      (left[3] != 0 -> left[2] != 0)
+    & (left[2] != 0 -> left[1] != 0)
+    & (middle[3] != 0 -> middle[2] != 0)
+    & (middle[2] != 0 -> middle[1] != 0)
+    & (right[3] != 0 -> right[2] != 0)
+    & (right[2] != 0 -> right[1] != 0)
+    
+    --- Moving cards
+    TRANS
+    case player.action = leftToMiddle :
+              next(middle[3]) = middle[2]
+            & next(middle[2]) = middle[1]
+            & next(middle[1]) = left[1]
+            & next(left[1])   = left[2]
+            & next(left[2])   = left[3]
+            & next(left[3])   = 0
+            & next(right[1]) = right[1]
+            & next(right[2]) = right[2]
+            & next(right[3]) = right[3];
+         player.action = leftToRight :
+              next(right[3])  = right[2]
+            & next(right[2])  = right[1]
+            & next(right[1])  = left[1]
+            & next(left[1])   = left[2]
+            & next(left[2])   = left[3]
+            & next(left[3])   = 0
+            & next(middle[1]) = middle[1]
+            & next(middle[2]) = middle[2]
+            & next(middle[3]) = middle[3];
+         player.action = middleToLeft :
+              next(left[3])   = left[2]
+            & next(left[2])   = left[1]
+            & next(left[1])   = middle[1]
+            & next(middle[1]) = middle[2]
+            & next(middle[2]) = middle[3]
+            & next(middle[3]) = 0
+            & next(right[1])  = right[1]
+            & next(right[2])  = right[2]
+            & next(right[3])  = right[3];
+         player.action = middleToRight :
+              next(right[3])  = right[2]
+            & next(right[2])  = right[1]
+            & next(right[1])  = middle[1]
+            & next(middle[1]) = middle[2]
+            & next(middle[2]) = middle[3]
+            & next(middle[3]) = 0
+            & next(left[1])   = left[1]
+            & next(left[2])   = left[2]
+            & next(left[3])   = left[3];
+         player.action = rightToLeft :
+              next(left[3])   = left[2]
+            & next(left[2])   = left[1]
+            & next(left[1])   = right[1]
+            & next(right[1])  = right[2]
+            & next(right[2])  = right[3]
+            & next(right[3])  = 0
+            & next(middle[1]) = middle[1]
+            & next(middle[2]) = middle[2]
+            & next(middle[3]) = middle[3];
+         player.action = rightToMiddle :
+              next(middle[3]) = middle[2]
+            & next(middle[2]) = middle[1]
+            & next(middle[1]) = right[1]
+            & next(right[1])  = right[2]
+            & next(right[2])  = right[3]
+            & next(right[3])  = 0
+            & next(left[1])   = left[1]
+            & next(left[2])   = left[2]
+            & next(left[3])   = left[3];
+    esac
+    
+    DEFINE
+    win := left[1] = 1 & left[2] = 2 & left[3] = 3;
