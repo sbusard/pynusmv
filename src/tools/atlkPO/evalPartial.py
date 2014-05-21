@@ -774,8 +774,13 @@ def eval_strat(fsm, spec, states):
                         break
             
                 # --------------------------------------------------------------
-            
-            
+                
+                
+                if config.debug and nbstrats % 1000 == 0:
+                    print("Partial strategies: {} strateg{} checked so far"
+                          .format(nbstrats, "ies" if nbstrats > 1 else "y"))
+                
+                
                 # ----- Garbage collection -------------------------------------
                 if (config.garbage.type == "each" or
                     (config.garbage.type == "step"
