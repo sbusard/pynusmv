@@ -545,7 +545,7 @@ def eval_strat(fsm, spec):
     return sat
 
 
-def eval_strat_improved(fsm, spec, strat=None):
+def eval_strat_improved(fsm, spec, toSplit=None, toKeep=None):
     """
     Return the BDD representing the set of states of fsm satisfying spec.
     spec is a strategic operator <G> pi.
@@ -555,7 +555,8 @@ def eval_strat_improved(fsm, spec, strat=None):
     
     fsm -- a MAS representing the system;
     spec -- an AST-based ATLK specification with a top strategic operator.
-    strat -- the strategy to consider (not necessarily uniform).
+    toSplit -- the part of strategy to split (not necessarily uniform).
+    toKeep -- the other part of strategy to keep (uniform).
     
     """
     sat = BDD.false(fsm.bddEnc.DDmanager)
@@ -563,10 +564,14 @@ def eval_strat_improved(fsm, spec, strat=None):
     gamma = agents
     ngamma_cube = fsm.bddEnc.inputsCube - fsm.inputs_cube_for_agents(gamma)
     
-    if not strat:
-        strat = fsm.protocol(agents)
+    if not toSplit and not toKeep:
+        toSplit = fsm.protocol(agents)
+        toKeep = BDD.false(fsm.bddEnc.DDmanager)
+        
     
-    winning = filter_strat(fsm, spec, strat, variant="FS")
+    winning = filter_strat(fsm, spec, toSplit | toKeep, variant="FS")
+    toSplit = toSplit & winning
+    toKeep = toKeep & winning
     global __filterings
     __filterings[spec] += 1
     
@@ -574,16 +579,12 @@ def eval_strat_improved(fsm, spec, strat=None):
     if winning.is_false(): # no state/inputs pairs are winning => return false
         return winning
     
-    # TODO Improve this: if a pair is not conflicting now, it won't be 
-    # conflicting anymore. We should keep track of non-conflicting equivalence
-    # classes through recursive calls
-    
     # Split one conflicting equivalence class
-    for common, splitted, rest in split_one(fsm, winning, gamma):
+    for common, splitted, rest in split_one(fsm, toSplit, gamma):
         
         if splitted.is_false():
             # No conflicting classes, return states that are winning for all eq
-            common = common.forsome(fsm.bddEnc.inputsCube)
+            common = (common | toKeep).forsome(fsm.bddEnc.inputsCube)
             sat = sat | all_equiv_sat(fsm, common, agents)
             global __strategies
             __strategies[spec] += 1
@@ -592,7 +593,9 @@ def eval_strat_improved(fsm, spec, strat=None):
             gc.collect()
         
         else:
-            sat = sat | eval_strat_improved(fsm, spec, common | splitted | rest)
+            sat = sat | eval_strat_improved(fsm, spec, 
+                                            toSplit=rest,
+                                            toKeep=common | splitted | toKeep)
     
     return sat
     

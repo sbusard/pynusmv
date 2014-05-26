@@ -474,7 +474,7 @@ def nfair_gamma_si(fsm, agents, strat=None):
 
 
 
-def eval_strat_improved(fsm, spec, strat=None):
+def eval_strat_improved(fsm, spec, toSplit=None, toKeep=None):
     """
     Return the BDD representing the set of states of fsm satisfying spec.
     spec is a strategic operator <G> pi.
@@ -484,7 +484,8 @@ def eval_strat_improved(fsm, spec, strat=None):
     
     fsm -- a MAS representing the system;
     spec -- an AST-based ATLK specification with a top strategic operator.
-    strat -- the strategy to consider (not necessarily uniform).
+    toSplit -- the part of the strategy to split (not necessarily uniform).
+    toKeep -- the part of the strategy to keep (uniform).
     
     """
     sat = BDD.false(fsm.bddEnc.DDmanager)
@@ -492,8 +493,9 @@ def eval_strat_improved(fsm, spec, strat=None):
     gamma = agents
     ngamma_cube = fsm.bddEnc.inputsCube - fsm.inputs_cube_for_agents(gamma)
     
-    if not strat:
-        strat = fsm.protocol(agents)
+    if not toSplit and not toKeep:
+        toSplit = fsm.protocol(agents)
+        toKeep = BDD.false(fsm.bddEnc.DDmanager)
     
     if type(spec) is CAX:
         # [g] X p = ~<g> X ~p
@@ -524,7 +526,9 @@ def eval_strat_improved(fsm, spec, strat=None):
                       And(Not(spec.left), Not(spec.right)))
         return ~evalATLK(fsm, newspec, "FS")
     
-    winning = filter_strat(fsm, spec, strat, variant="FS")
+    winning = filter_strat(fsm, spec, toSplit | toKeep, variant="FS")
+    toSplit = toSplit & winning
+    toKeep = toKeep & winning
     
     # Get one conflicting equivalence class
     if winning.is_false(): # no state/inputs pairs are winning => return false
@@ -535,15 +539,17 @@ def eval_strat_improved(fsm, spec, strat=None):
     # classes through recursive calls
     
     # Split one conflicting equivalence class
-    for common, splitted, rest in split_one(fsm, winning, gamma):
+    for common, splitted, rest in split_one(fsm, toSplit, gamma):
         
         if splitted.is_false():
             # No conflicting classes, return states that are winning for all eq
-            common = common.forsome(fsm.bddEnc.inputsCube)
+            common = (common | toKeep).forsome(fsm.bddEnc.inputsCube)
             sat = sat | all_equiv_sat(fsm, common, agents)
         
         else:
-            sat = sat | eval_strat_improved(fsm, spec, common | splitted | rest)
+            sat = sat | eval_strat_improved(fsm, spec,
+                                            toSplit=rest,
+                                            toKeep=toKeep | common | splitted)
     
     return sat
 
