@@ -218,12 +218,12 @@ def evalATLK(fsm, spec, states=None, variant="SF"):
         if variant == "SF":
             return eval_strat(fsm, spec, states)
         elif variant == "FS":
-            print("[WARNING] CTLK evalATLK: no improved evaluation for now",
+            print("[WARNING] evalATLK: no improved evaluation for now",
                   " basic evaluation used instead.")
             #return eval_strat_improved(fsm, spec, states)
             return eval_strat(fsm, spec, states)
         elif variant == "FSF":
-            print("[WARNING] CTLK evalATLK: no FSF evaluation for now",
+            print("[WARNING] evalATLK: no FSF evaluation for now",
                   " basic evaluation used instead.")
             #return eval_strat_FSF(fsm, spec, states)
             return eval_strat(fsm, spec, states)
@@ -232,7 +232,7 @@ def evalATLK(fsm, spec, states=None, variant="SF"):
         
     else:
         # TODO Generate error
-        print("[ERROR] CTLK evalATLK: unrecognized specification type", spec)
+        print("[ERROR] evalATLK: unrecognized specification type", spec)
         return None
 
 

@@ -207,7 +207,7 @@ def evalATLK(fsm, spec):
         
     else:
         # TODO Generate error
-        print("[ERROR] CTLK evalATLK: unrecognized specification type", spec)
+        print("[ERROR] evalATLK: unrecognized specification type", spec)
         return None
     
 def fair_states(fsm):
