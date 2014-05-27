@@ -122,6 +122,16 @@ def process(allargs):
     config.partial.filtering = args.filtering
     config.partial.separation.type = args.separation
     
+    # Warnings for FS variant with partial implementation
+    if args.variant == "FS" and args.implementation == "partial":
+        # early termination
+        if config.partial.early.type not in {None, "full"}:
+            print("Warning: {} early termination is not implemented for "
+                  "partial FS variant.".format(str(config.parial.early.type)))
+        # filtering
+        if not config.partial.filtering:
+            print("Warning: filtering is always used for partial FS variant.")
+    
     # Check given property, if any
     if args.property:
         try:

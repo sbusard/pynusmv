@@ -19,6 +19,18 @@ from . import config
 
 import gc
 
+# A dictionary to keep track of number of strategies for improved algorithm
+__strategies = {} 
+# A dictionary to keep track of number of filterings for improved algorithm
+__filterings = {} 
+# A dictionary to keep track of number of ignorings for improved algorithm
+__ignorings = {}
+
+class StrategyFound(Exception):
+    """Exception used to tell that a strategy has been found for all states."""
+    def __init__(self, satisfied):
+        self.satisfied = satisfied
+
 
 def evalATLK(fsm, spec, states=None, variant="SF"):
     """
@@ -218,10 +230,7 @@ def evalATLK(fsm, spec, states=None, variant="SF"):
         if variant == "SF":
             return eval_strat(fsm, spec, states)
         elif variant == "FS":
-            print("[WARNING] evalATLK: no improved evaluation for now",
-                  " basic evaluation used instead.")
-            #return eval_strat_improved(fsm, spec, states)
-            return eval_strat(fsm, spec, states)
+            return eval_strat_improved(fsm, spec, states)
         elif variant == "FSF":
             print("[WARNING] evalATLK: no FSF evaluation for now",
                   " basic evaluation used instead.")
@@ -723,7 +732,7 @@ def eval_strat(fsm, spec, states):
         orig_states = states
         remaining = states
     
-        while remaining.isnot_false():        
+        while remaining.isnot_false():
             # Extend states with equivalent ones
             states = (fsm.equivalent_states(remaining, agents) &
                       fsm.reachable_states)
@@ -804,6 +813,161 @@ def eval_strat(fsm, spec, states):
     
     return sat
 
+
+def eval_strat_improved(fsm, spec, states):
+    """
+    Return the BDD representing the subset of states satisfying spec.
+    spec is a strategic operator <G> pi.
+    
+    fsm -- a MAS representing the system;
+    spec -- an AST-based ATLK specification with a top strategic (<g>) operator;
+    states -- a BDD representing a set of states of fsm.
+    """
+    
+    if config.debug:
+        print("Evaluating partial strategies for ", spec)
+        
+    __strategies[spec] = 0
+    __filterings[spec] = 0
+    __ignorings[spec] = 0
+    
+    agents = {atom.value for atom in spec.group}
+    gamma = agents
+    ngamma_cube = fsm.bddEnc.inputsCube - fsm.inputs_cube_for_agents(gamma)
+    
+    all_states = states
+    sat = BDD.false(fsm.bddEnc.DDmanager)
+    
+    while all_states.isnot_false():
+        
+        if config.debug:
+            print("Starting with a new subset of states.")
+        
+        # ----- Separation of state space --------------------------------------
+        
+        # Put a subset of all_states in states and remove it from all_states
+        if config.partial.separation.type is None:
+            states = all_states
+            
+        if config.partial.separation.type == "random":
+            state = fsm.pick_one_state(all_states)
+            states = (fsm.equivalent_states(state, agents) &
+                      fsm.reachable_states & all_states)
+                      
+        if config.partial.separation.type == "reach":
+            reached = fsm.init
+            while (reached & all_states).is_false():
+                # Should not loop infinitely since we only are interested in
+                # reachable states
+                # WARNING We cannot restrict to subsystem to get the post-image
+                # since we are not sure that all_states are reachable in the
+                # subsystem anymore
+                reached = reached | fsm.post(reached)
+            state = fsm.pick_one_state(reached & all_states)
+            states = (fsm.equivalent_states(state, agents) &
+                      fsm.reachable_states & all_states)
+        
+        # ----------------------------------------------------------------------
+        
+        
+        # Remove states from all_states
+        all_states = all_states - states
+    
+        try:
+            sat = sat | eval_strat_recur(fsm, spec, states)
+        except StrategyFound as e:
+            sat = sat | e.satisfied
+        
+        all_states = all_states - sat
+    
+    if config.debug:
+        print("{} strategies, {} filterings, {} ignorings computed."
+              .format(__strategies[spec], __filterings[spec],
+                      __ignorings[spec]))
+                      
+    return sat
+    
+
+
+def eval_strat_recur(fsm, spec, states, toSplit=None, toKeep=None):
+    """
+    Return the BDD representing the subset of states satisfying spec.
+    spec is a strategic operator <G> pi.
+    
+    fsm -- a MAS representing the system;
+    spec -- an AST-based ATLK specification with a top strategic (<g>) operator;
+    states -- a BDD representing a set of states of fsm;
+    toSplit -- the part of the strategy to split (not necessarily uniform).
+    toKeep -- the part of the strategy to keep (uniform).
+    
+    """
+    
+    global __filterings, __strategies, __ignorings
+    
+    sat = BDD.false(fsm.bddEnc.DDmanager)
+    agents = {atom.value for atom in spec.group}
+    gamma = agents
+    ngamma_cube = fsm.bddEnc.inputsCube - fsm.inputs_cube_for_agents(gamma)
+    
+    if not toSplit and not toKeep:
+        # Limit the strategies to consider to the states reachable from states
+        toSplit = fsm.protocol(agents) & reach(fsm, states)
+        toKeep = BDD.false(fsm.bddEnc.DDmanager)
+    
+    orig_states = states
+    states = (fsm.equivalent_states(states, agents) & fsm.reachable_states)
+    
+    winning = filter_strat(fsm, spec, states, strat=toSplit | toKeep,
+                           variant="FS")
+    __filterings[spec] += 1
+    
+    toSplit = toSplit & winning
+    toKeep = toKeep & winning
+    
+    # Get one conflicting equivalence class
+    if winning.is_false(): # no state/inputs pairs are winning => return false
+        return winning
+    
+    
+    # Ignore if no state can be winning, that is, there are no full
+    # equivalence class of states in winning
+    losing = states - winning.forsome(fsm.bddEnc.inputsCube)
+    if (states - fsm.equivalent_states(losing, agents)).is_false():
+        if config.debug:
+            print("Ignoring strategies.")
+        __ignorings[spec] += 1
+        return BDD.false(fsm.bddEnc.DDmanager)
+    
+    
+    # Split one conflicting equivalence class
+    for common, splitted, rest in split_one(fsm, toSplit, gamma,
+                                            toSplit | toKeep):
+        
+        if splitted.is_false():
+            # No conflicting classes, return states that are winning for all eq
+            common = (common | toKeep).forsome(fsm.bddEnc.inputsCube)
+            sat = sat | all_equiv_sat(fsm, common, agents)
+            global __strategies
+            __strategies[spec] += 1
+            
+            # Early termination if sat contains all requested states
+            if config.partial.early.type == "full" and orig_states <= sat:
+                if config.debug:
+                    print("Full strategy found.")
+                raise StrategyFound(sat)
+            
+            # Collect to avoid memory overflow
+            if (config.garbage.type == "each" or config.garbage.type == "step"
+                and __strategies[spec] % config.garbage.step == 0):
+                
+                gc.collect()
+        
+        else:
+            sat = sat | eval_strat_recur(fsm, spec, states,
+                                         toSplit=rest,
+                                         toKeep=toKeep | common | splitted)
+    
+    return sat
 
 # ------------------------------------------------------------------------------
 # CACHING FUNCTIONS AND MANIPULATIONS

@@ -202,3 +202,108 @@ class TestCheckPartial(unittest.TestCase):
         
         self.assertTrue(check(fsm, parseATLK("<'sender'> F 'received'")[0]))
         self.assertTrue(check(fsm, parseATLK("<'sender'> F 'received'")[0], implem="partial"))
+    
+    
+    def test_cardgame_improved_partial(self):
+        fsm = self.cardgame()
+        
+        self.assertTrue(check(fsm, parseATLK("K<'player'>'pcard=none' & K<'player'>'dcard=none'")[0], implem="partial", variant="FS"))
+        self.assertTrue(check(fsm, parseATLK("AG('step = 1' -> ~(K<'player'> 'dcard=Ac' | K<'player'> 'dcard=K' | K<'player'> 'dcard=Q'))")[0], implem="partial", variant="FS"))
+        
+        self.assertTrue(check(fsm, parseATLK("<'dealer'> X 'pcard=Ac'")[0], implem="partial", variant="FS"))
+        self.assertFalse(check(fsm, parseATLK("<'dealer'> G ~'win'")[0], implem="partial", variant="FS"))
+        self.assertTrue(check(fsm, parseATLK("['player'] X 'pcard=Ac'")[0], implem="partial", variant="FS"))
+        self.assertTrue(check(fsm, parseATLK("['dealer'] F 'win'")[0], implem="partial", variant="FS"))
+        self.assertTrue(check(fsm, parseATLK("AG('step = 1' -> ~<'player'> X 'win')")[0], implem="partial", variant="FS"))
+        self.assertFalse(check(fsm, parseATLK("<'player'> F 'win'")[0], implem="partial", variant="FS"))
+        
+        self.assertTrue(check(fsm, parseATLK("EG ~'win'")[0], implem="partial", variant="FS"))
+        self.assertTrue(check(fsm, parseATLK("EF 'win'")[0], implem="partial", variant="FS"))
+        self.assertFalse(check(fsm, parseATLK("AF 'win'")[0], implem="partial", variant="FS"))
+        
+        self.assertFalse(check(fsm, parseATLK("<'player'> G <'player'> F 'win'")[0], implem="partial", variant="FS"))
+        
+        self.assertFalse(check(fsm, parseATLK("<'player'> F <'player'>[~'lose' U 'win']")[0], implem="partial", variant="FS"))
+        
+        self.assertFalse(check(fsm, parseATLK("AG <'player'> X 'pcard = Ac'")[0], implem="partial", variant="FS"))
+        
+    
+    def test_cardgame_post_fair_improved_partial(self):
+        fsm = self.cardgame_post_fair()
+        
+        self.assertTrue(check(fsm, parseATLK("K<'player'>'pcard=none' & K<'player'>'dcard=none'")[0], implem="partial", variant="FS"))
+        self.assertTrue(check(fsm, parseATLK("AG('step = 1' -> ~(K<'player'> 'dcard=Ac' | K<'player'> 'dcard=K' | K<'player'> 'dcard=Q'))")[0], implem="partial", variant="FS"))
+        
+        self.assertTrue(check(fsm, parseATLK("AG('step = 1' -> ~<'player'> X 'win')")[0], implem="partial", variant="FS"))
+        self.assertFalse(check(fsm, parseATLK("['dealer'] F 'win'")[0], implem="partial", variant="FS"))
+        self.assertTrue(check(fsm, parseATLK("['player'] X 'pcard=Ac'")[0], implem="partial", variant="FS"))
+        self.assertTrue(check(fsm, parseATLK("<'dealer'> X 'pcard=Ac'")[0], implem="partial", variant="FS"))
+        self.assertTrue(check(fsm, parseATLK("<'dealer'> G ~'win'")[0], implem="partial", variant="FS"))
+        
+        # Player can win
+        self.assertTrue(check(fsm, parseATLK("<'player'> F 'win'")[0], implem="partial", variant="FS"))
+        # Dealer can avoid fairness
+        self.assertTrue(check(fsm, parseATLK("<'dealer'> F 'FALSE'")[0], implem="partial", variant="FS"))
+        
+        self.assertTrue(check(fsm, parseATLK("EG ~'win'")[0], implem="partial", variant="FS"))
+        self.assertTrue(check(fsm, parseATLK("EF 'win'")[0], implem="partial", variant="FS"))
+        self.assertFalse(check(fsm, parseATLK("AF 'win'")[0], implem="partial", variant="FS"))
+        
+        self.assertTrue(check(fsm, parseATLK("<'player'> G <'player'> F 'win'")[0], implem="partial", variant="FS"))
+        
+        self.assertTrue(check(fsm, parseATLK("<'player'> F <'player'>[~'lose' U 'win']")[0], implem="partial", variant="FS"))
+        
+
+    def test_transmission_improved_partial(self):
+        fsm = self.transmission()
+        
+        self.assertFalse(check(fsm, parseATLK("<'sender'> F 'received'")[0], implem="partial", variant="FS"))
+        # False because transmitter cannot win if received is already true
+        # and he has no clue about it
+        self.assertFalse(check(fsm, parseATLK("<'transmitter'> G ~'received'")[0], implem="partial", variant="FS"))
+        self.assertFalse(check(fsm, parseATLK("<'sender'> X 'received'")[0], implem="partial", variant="FS"))
+        # False because transmitter cannot win if received is already true
+        # and he has no clue about it
+        self.assertFalse(check(fsm, parseATLK("<'transmitter'> X ~'received'")[0], implem="partial", variant="FS"))
+        self.assertFalse(check(fsm, parseATLK("<'transmitter'> F 'received'")[0], implem="partial", variant="FS"))
+        
+        # False because the sender does not know if the bit is already
+        # transmitted (and in this case, no strategy can avoid 'received')
+        self.assertFalse(check(fsm, parseATLK("<'sender'> G ~'received'")[0], implem="partial", variant="FS"))
+        
+        self.assertTrue(check(fsm, parseATLK("EF 'received'")[0], implem="partial", variant="FS"))
+        self.assertTrue(check(fsm, parseATLK("EG ~'received'")[0], implem="partial", variant="FS"))
+        self.assertFalse(check(fsm, parseATLK("AG ~'received'")[0], implem="partial", variant="FS"))
+        self.assertFalse(check(fsm, parseATLK("AF 'received'")[0], implem="partial", variant="FS"))
+        self.assertTrue(check(fsm, parseATLK("AF ~'received'")[0], implem="partial", variant="FS"))
+        
+    
+    def test_transmission_with_know_improved_partial(self):
+        fsm = self.transmission_with_knowledge()
+        
+        self.assertFalse(check(fsm, parseATLK("<'sender'> F 'received'")[0], implem="partial", variant="FS"))
+        self.assertTrue(check(fsm, parseATLK("<'transmitter'> G ~'received'")[0], implem="partial", variant="FS"))
+        self.assertFalse(check(fsm, parseATLK("<'sender'> X 'received'")[0], implem="partial", variant="FS"))
+        self.assertTrue(check(fsm, parseATLK("<'transmitter'> X ~'received'")[0], implem="partial", variant="FS"))
+        self.assertFalse(check(fsm, parseATLK("<'transmitter'> F 'received'")[0], implem="partial", variant="FS"))
+        self.assertTrue(check(fsm, parseATLK("<'sender'> G ~'received'")[0], implem="partial", variant="FS"))
+    
+    
+    def test_transmission_post_fair_improved_partial(self):
+        fsm = self.transmission_post_fair()
+        
+        self.assertTrue(check(fsm, parseATLK("<'sender'> F 'received'")[0], implem="partial", variant="FS"))
+        self.assertTrue(check(fsm, parseATLK("<'transmitter'> G ~'received'")[0], implem="partial", variant="FS"))
+        self.assertFalse(check(fsm, parseATLK("<'sender'> X 'received'")[0], implem="partial", variant="FS"))
+        self.assertTrue(check(fsm, parseATLK("<'transmitter'> X ~'received'")[0], implem="partial", variant="FS"))
+        self.assertTrue(check(fsm, parseATLK("<'transmitter'> F 'received'")[0], implem="partial", variant="FS"))
+        
+        # False because the sender does not know if the bit is already
+        # transmitted (and in this case, no strategy can avoid 'received')
+        self.assertFalse(check(fsm, parseATLK("<'sender'> G ~'received'")[0], implem="partial", variant="FS"))
+        
+        self.assertTrue(check(fsm, parseATLK("EF 'received'")[0], implem="partial", variant="FS"))
+        self.assertTrue(check(fsm, parseATLK("EG ~'received'")[0], implem="partial", variant="FS"))
+        self.assertFalse(check(fsm, parseATLK("AG ~'received'")[0], implem="partial", variant="FS"))
+        self.assertFalse(check(fsm, parseATLK("AF 'received'")[0], implem="partial", variant="FS"))
+        self.assertTrue(check(fsm, parseATLK("AF ~'received'")[0], implem="partial", variant="FS"))
