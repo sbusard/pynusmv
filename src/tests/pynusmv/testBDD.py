@@ -41,8 +41,24 @@ class TestBDD(unittest.TestCase):
         self.assertIsNotNone(false)
         self.assertTrue(false.is_false())
         self.assertFalse(false.is_true())
+        self.assertTrue(false.isnot_true())
         self.assertFalse(false.isnot_false())
         self.assertTrue(false.isnot_true())
+    
+    
+    def test_dup(self):
+        (fsm, enc, manager) = self.init_model()
+        
+        false = BDD.false(manager)
+        true = BDD.true(manager)
+        init = fsm.init
+        
+        self.assertEqual(false, false.dup())
+        self.assertEqual(true, true.dup())
+        self.assertEqual(init, init.dup())
+        
+        self.assertNotEqual(true, init.dup())
+        self.assertNotEqual(init, false.dup())
         
         
     def test_true_false_equalities(self):
