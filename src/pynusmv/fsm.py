@@ -748,10 +748,16 @@ class BddTrans(PointerWrapper):
         """
         Return a new BddTrans from the given trans.
         
-        symb_table -- the symbols table used to flatten the trans.
-        trans -- the given trans. Not flattened. Already parsed.
-        context -- an additional context, in which trans will be flattened,
-                   if not None. Already parsed.
+        :param symb_table: the symbols table used to flatten the trans
+        :type symb_table: :class:`SymbTable`
+        :param trans: the parsed string of the trans, not flattened
+        :param context: an additional parsed context, in which trans will be
+                        flattened, if not None
+        :rtype: :class:`BddTrans`
+        :raise: a :exc:`NuSMVFlatteningError 
+                <pynusmv.exception.NuSMVFlatteningError>`
+                if `trans` cannot be flattened under `context`
+        
         """
         
         flattrans, err = nscompile.FlattenSexp(symb_table._ptr, trans,
@@ -789,10 +795,17 @@ class BddTrans(PointerWrapper):
         """
         Return a new BddTrans from the given strtrans, in given strcontex.
         
-        symb_table -- the symbols table used to flatten the trans.
-        strtrans -- the given trans as a string.
-        context -- an additional context, in which trans will be flattened,
-                   if not None. A string representing the context.
+        :param symb_table: the symbols table used to flatten the trans
+        :type symb_table: :class:`SymbTable`
+        :param strtrans: the string representing the trans
+        :type strtrans: str
+        :param strcontext: an additional string representing a context,
+                           in which trans will be flattened, if not None
+        :rtype: :class:`BddTrans`
+        :raise: a :exc:`NuSMVTypeCheckingError 
+                <pynusmv.exception.NuSMVTypeCheckingError>`
+                if `strtrans` is wrongly typed under `context`
+        
         """
         type_checker = nssymbtable.SymbTable_get_type_checker(symb_table._ptr)
         

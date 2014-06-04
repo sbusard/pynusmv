@@ -77,6 +77,7 @@ def load_from_string(model):
     Load a model from a string representing the model.
     
     :param model: a String representing the model
+    :type model: str
     
     """
     # Create temp file
@@ -91,6 +92,7 @@ def load_from_file(filepath):
     Load a model from an SMV file and store it in global data structures.
     
     :param filepath: the path to the SMV file
+    :type filepath: str
     
     """
     # Check file
