@@ -16,13 +16,16 @@ class MAS(BddFsm):
     epistemic -- a dictionary of agent->the NuSMV node-based TRANS of the agent.
     """
     
-    def __init__(self, ptr, variables, inputvars,
+    def __init__(self, ptr, variables, observed, inputvars,
                  epistemic = None, freeit = False):
         """
         Create a new MAS.
         
         ptr -- the pointer of the NuSMV FSM
         variables -- a dictionary of agents' variables (agent->Set of vars)
+                     representing the local variables of agents
+        observed -- a dictionary of agents' known variables (agent->Set of vars)
+                    representing the variables observed by each agent
         inputvars -- a dictionary of agents' input variables
                      (agent->Set of input vars)
         epistemic -- a dictionary of epistemic relations (agent->EPISTEMIC)
@@ -31,7 +34,8 @@ class MAS(BddFsm):
         super().__init__(ptr, freeit = freeit)
         self._epistemic = epistemic and epistemic or {}
         self._epistemic_trans = {}
-        self._agents_variables = variables
+        self._agents_local_variables = variables
+        self._agents_observed_variables = observed
         self._agents_inputvars = inputvars
         self._protocols = {}
         
@@ -43,9 +47,15 @@ class MAS(BddFsm):
         
     
     @property
-    def agents_variables(self):
-        """The state variables of each agent (as a dictionary)."""
-        return self._agents_variables
+    def agents_local_variables(self):
+        """The local state variables of each agent (as a dictionary)."""
+        return self._agents_local_variables
+        
+    
+    @property
+    def agents_observed_variables(self):
+        """The state variables observed by each agent (as a dictionary)."""
+        return self._agents_observed_variables
         
     
     @property

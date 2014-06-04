@@ -224,6 +224,8 @@ def mas():
         localvars = {ag: {nsnode.sprint_node(v).partition('.')[2]
                           for v in localvars[ag]}
                      for ag in localvars.keys()}
+        observedvars = {ag: {nsnode.sprint_node(v) for v in variables[ag]}
+                        for ag in variables.keys()}
         inputvars = {ag: {nsnode.sprint_node(v).partition('.')[2]
                           for v in inputvars[ag]}
                      for ag in inputvars.keys()}
@@ -231,6 +233,7 @@ def mas():
         
         # Create the MAS
         fsm = _prop_database().master.bddFsm
-        __mas = MAS(fsm._ptr, localvars, inputvars, singletrans, freeit = False)
+        __mas = MAS(fsm._ptr, localvars, observedvars, inputvars, singletrans,
+                    freeit=False)
         
     return __mas

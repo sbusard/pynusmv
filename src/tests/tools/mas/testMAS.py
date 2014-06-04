@@ -194,14 +194,29 @@ class TestMAS(unittest.TestCase):
         self.assertSetEqual({'c1','c2','c3'}, fsm.agents)
         
     
-    def test_variables(self):
+    def test_local_variables(self):
         fsm = self.model()
         
-        self.assertSetEqual({'c1','c2','c3'}, set(fsm.agents_variables.keys()))
+        self.assertSetEqual({'c1','c2','c3'},
+                            set(fsm.agents_local_variables.keys()))
         
-        self.assertSetEqual(fsm.agents_variables['c1'], {'coin', 'payer'})
-        self.assertSetEqual(fsm.agents_variables['c2'], {'coin', 'payer'})
-        self.assertSetEqual(fsm.agents_variables['c3'], {'coin', 'payer'})
+        self.assertSetEqual(fsm.agents_local_variables['c1'], {'coin', 'payer'})
+        self.assertSetEqual(fsm.agents_local_variables['c2'], {'coin', 'payer'})
+        self.assertSetEqual(fsm.agents_local_variables['c3'], {'coin', 'payer'})
+        
+        
+    def test_observed_variables(self):
+        fsm = self.model()
+        
+        self.assertSetEqual({'c1','c2','c3'},
+                            set(fsm.agents_observed_variables.keys()))
+        
+        self.assertSetEqual(fsm.agents_observed_variables['c1'],
+                            {'c1.coin', 'c1.payer', 'c3.coin', 'countsay'})
+        self.assertSetEqual(fsm.agents_observed_variables['c2'],
+                            {'c2.coin', 'c2.payer', 'c1.coin', 'countsay'})
+        self.assertSetEqual(fsm.agents_observed_variables['c3'],
+                            {'c3.coin', 'c3.payer', 'c2.coin', 'countsay'})
         
         
     def test_input_variables(self):
