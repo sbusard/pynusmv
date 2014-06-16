@@ -1,0 +1,328 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>pynusmv.model &mdash; PyNuSMV 0.8 documentation</title>
+    
+    <link rel="stylesheet" href="../../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '0.8',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="top" title="PyNuSMV 0.8 documentation" href="../../index.html" />
+    <link rel="up" title="Module code" href="../index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../index.html">PyNuSMV 0.8 documentation</a> &raquo;</li>
+          <li><a href="../index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for pynusmv.model</h1><div class="highlight"><pre>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">The :mod:`pynusmv.model` module provides a way to define NuSMV modules in</span>
+<span class="sd">Python: the :class:`Module` represents a generic NuSMV module, and must be</span>
+<span class="sd">subclassed to define specific NuSMV modules.</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">inspect</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">collections</span>
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;Module&#39;</span><span class="p">]</span>
+
+
+<span class="k">class</span> <span class="nc">_ModuleMetaClass</span><span class="p">(</span><span class="nb">type</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    The meta class for modules, allowing modules to be printed.</span>
+<span class="sd">    </span>
+<span class="sd">    A module can define:</span>
+<span class="sd">    * a `NAME` member, used as the name of the module; if absent, the name of</span>
+<span class="sd">      the class is used.</span>
+<span class="sd">    * a `ARGS` member, used as the list of arguments of the module; if ARGS is</span>
+<span class="sd">      not defined, the module is declared without arguments.</span>
+<span class="sd">    * a set of members with name of sections of a standard NuSMV module:</span>
+<span class="sd">      VAR, IVAR, FROZENVAR, DEFINE, CONSTANTS, ASSIGN, TRANS, INIT, INVAR,</span>
+<span class="sd">      FAIRNESS, JUSTICE, COMPASSION.</span>
+<span class="sd">    </span>
+<span class="sd">    The string representation of the module is then its NuSMV code.</span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    
+    <span class="c"># The list of module members that will be printed</span>
+    <span class="n">_MODULE_SECTIONS</span> <span class="o">=</span> <span class="p">{</span><span class="s">&quot;VAR&quot;</span><span class="p">,</span> <span class="s">&quot;IVAR&quot;</span><span class="p">,</span> <span class="s">&quot;FROZENVAR&quot;</span><span class="p">,</span> <span class="s">&quot;DEFINE&quot;</span><span class="p">,</span> <span class="s">&quot;CONSTANTS&quot;</span><span class="p">,</span>
+                        <span class="s">&quot;ASSIGN&quot;</span><span class="p">,</span> <span class="s">&quot;TRANS&quot;</span><span class="p">,</span> <span class="s">&quot;INIT&quot;</span><span class="p">,</span> <span class="s">&quot;INVAR&quot;</span><span class="p">,</span> <span class="s">&quot;FAIRNESS&quot;</span><span class="p">,</span>
+                        <span class="s">&quot;JUSTICE&quot;</span><span class="p">,</span> <span class="s">&quot;COMPASSION&quot;</span><span class="p">}</span>
+    
+    <span class="k">def</span> <span class="nf">_trim</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">string</span><span class="p">,</span> <span class="n">indentation</span><span class="o">=</span><span class="s">&quot;&quot;</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Reformat `string` (:class:`str`) with the following rules:</span>
+<span class="sd">        </span>
+<span class="sd">        * tabulations are converted into spaces;</span>
+<span class="sd">        * leading and trailing empty lines are removed;</span>
+<span class="sd">        * every line is indented with its relative indentation to the least</span>
+<span class="sd">          indented non-empty line;</span>
+<span class="sd">        * the whole content is finally indented with `indentation`</span>
+<span class="sd">          (:class:`str`).</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">string</span><span class="p">:</span>
+            <span class="k">return</span> <span class="s">&#39;&#39;</span>
+        <span class="c"># Convert tabs to spaces (following the normal Python rules)</span>
+        <span class="c"># and split into a list of lines:</span>
+        <span class="n">lines</span> <span class="o">=</span> <span class="n">string</span><span class="o">.</span><span class="n">expandtabs</span><span class="p">()</span><span class="o">.</span><span class="n">splitlines</span><span class="p">()</span>
+        <span class="c"># Determine minimum indentation (first line doesn&#39;t count):</span>
+        <span class="n">indent</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">maxsize</span>
+        <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">lines</span><span class="p">[</span><span class="mi">1</span><span class="p">:]:</span>
+            <span class="n">stripped</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">lstrip</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">stripped</span><span class="p">:</span>
+                <span class="n">indent</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">indent</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">line</span><span class="p">)</span> <span class="o">-</span> <span class="nb">len</span><span class="p">(</span><span class="n">stripped</span><span class="p">))</span>
+        <span class="c"># Remove indentation (first line is special):</span>
+        <span class="n">trimmed</span> <span class="o">=</span> <span class="p">[</span><span class="n">lines</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">()]</span>
+        <span class="k">if</span> <span class="n">indent</span> <span class="o">&lt;</span> <span class="n">sys</span><span class="o">.</span><span class="n">maxsize</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">lines</span><span class="p">[</span><span class="mi">1</span><span class="p">:]:</span>
+                <span class="n">trimmed</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">line</span><span class="p">[</span><span class="n">indent</span><span class="p">:]</span><span class="o">.</span><span class="n">rstrip</span><span class="p">())</span>
+        <span class="c"># Strip off trailing and leading blank lines:</span>
+        <span class="k">while</span> <span class="n">trimmed</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">trimmed</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]:</span>
+            <span class="n">trimmed</span><span class="o">.</span><span class="n">pop</span><span class="p">()</span>
+        <span class="k">while</span> <span class="n">trimmed</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">trimmed</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span>
+            <span class="n">trimmed</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+        <span class="c"># Return a single string:</span>
+        <span class="k">return</span> <span class="s">&#39;</span><span class="se">\n</span><span class="s">&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">indentation</span> <span class="o">+</span> <span class="n">line</span> <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">trimmed</span><span class="p">)</span>
+    
+    <span class="k">def</span> <span class="nf">_representation</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">section</span><span class="p">,</span> <span class="n">body</span><span class="p">,</span> <span class="n">indentation</span><span class="o">=</span><span class="s">&quot;&quot;</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return the representation of `section` with `body`. Section name is</span>
+<span class="sd">        indented with `indentation`, section body with two `indentations`.</span>
+<span class="sd">        `section`should be one of the following, and he format of `body` should</span>
+<span class="sd">        satisfy the following rules.</span>
+<span class="sd">        </span>
+<span class="sd">        CONSTANTS section</span>
+<span class="sd">            If `body` is a string (:class:`str`), it is used as</span>
+<span class="sd">            the body of the constants declaration. Otherwise, `body` must be a</span>
+<span class="sd">            sequence (other than string) and it is used as the defined</span>
+<span class="sd">            constants.</span>
+<span class="sd">        </span>
+<span class="sd">        VAR, IVAR, FROZENVAR, DEFINE, ASSIGN sections</span>
+<span class="sd">            If `body` is a string (:class:`str`), it is used as the body of the</span>
+<span class="sd">            declaration. If it is a dictionary (:class:`dict`), keys are used as</span>
+<span class="sd">            names of variables (or input variables, define, etc.) and values as</span>
+<span class="sd">            bodies of the declaration. Otherwise, `body` must be a sequence</span>
+<span class="sd">            other than a string and a dictionary, and each element is treated</span>
+<span class="sd">            separately, and joined with line returns to build the body of the</span>
+<span class="sd">            section:</span>
+<span class="sd">            </span>
+<span class="sd">            * if the element is a string (:class:`str`), it is kept as it is;</span>
+<span class="sd">            * if the lement is a sequence other than a string, the first element</span>
+<span class="sd">              is used as the name of the variable (or input varriable, define,</span>
+<span class="sd">              etc.) and the second one as the body of the declaration.</span>
+<span class="sd">        </span>
+<span class="sd">        TRANS, INIT, INVAR, FAIRNESS, JUSTICE, COMPASSION sections</span>
+<span class="sd">            If the attribute is a string, it is used as the body of the section.</span>
+<span class="sd">            If it is a sequence other than a string, the string representation</span>
+<span class="sd">            of the elements of the sequence are joined with line returns to</span>
+<span class="sd">            build the body of the section.</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">separators</span> <span class="o">=</span> <span class="p">{</span><span class="s">&quot;VAR&quot;</span><span class="p">:</span> <span class="s">&quot; : &quot;</span><span class="p">,</span> <span class="s">&quot;IVAR&quot;</span><span class="p">:</span> <span class="s">&quot; : &quot;</span><span class="p">,</span> <span class="s">&quot;FROZENVAR&quot;</span><span class="p">:</span> <span class="s">&quot; : &quot;</span><span class="p">,</span>
+                      <span class="s">&quot;DEFINE&quot;</span><span class="p">:</span> <span class="s">&quot; := &quot;</span><span class="p">,</span> <span class="s">&quot;ASSIGN&quot;</span><span class="p">:</span> <span class="s">&quot; := &quot;</span><span class="p">}</span>
+        
+        <span class="k">if</span> <span class="n">section</span> <span class="o">==</span> <span class="s">&quot;CONSTANTS&quot;</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">body</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+                <span class="n">body</span> <span class="o">=</span> <span class="n">cls</span><span class="o">.</span><span class="n">_trim</span><span class="p">(</span><span class="n">body</span><span class="p">)</span>
+                <span class="n">strbodies</span> <span class="o">=</span> <span class="p">[</span><span class="n">body</span> <span class="o">+</span> <span class="p">(</span><span class="s">&quot;&quot;</span> <span class="k">if</span> <span class="n">body</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s">&quot;;&quot;</span><span class="p">)</span> <span class="k">else</span> <span class="s">&quot;;&quot;</span><span class="p">)]</span>
+            <span class="k">else</span><span class="p">:</span> <span class="c"># body must be a sequence of declared constants</span>
+                <span class="n">strbodies</span> <span class="o">=</span> <span class="p">[</span><span class="s">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">body</span><span class="p">)</span> <span class="o">+</span> <span class="s">&quot;;&quot;</span><span class="p">]</span>
+        
+        <span class="k">elif</span> <span class="n">section</span> <span class="ow">in</span> <span class="p">{</span><span class="s">&quot;VAR&quot;</span><span class="p">,</span> <span class="s">&quot;IVAR&quot;</span><span class="p">,</span> <span class="s">&quot;FROZENVAR&quot;</span><span class="p">,</span> <span class="s">&quot;DEFINE&quot;</span><span class="p">,</span> <span class="s">&quot;ASSIGN&quot;</span><span class="p">}:</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">body</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+                <span class="n">body</span> <span class="o">=</span> <span class="n">cls</span><span class="o">.</span><span class="n">_trim</span><span class="p">(</span><span class="n">body</span><span class="p">)</span>
+                <span class="n">strbodies</span> <span class="o">=</span> <span class="p">[</span><span class="n">body</span> <span class="o">+</span> <span class="p">(</span><span class="s">&quot;&quot;</span> <span class="k">if</span> <span class="n">body</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s">&quot;;&quot;</span><span class="p">)</span> <span class="k">else</span> <span class="s">&quot;;&quot;</span><span class="p">)]</span>
+            <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">body</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+                <span class="n">strbodies</span> <span class="o">=</span> <span class="p">[</span><span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">key</span><span class="p">)</span> <span class="o">+</span> <span class="n">separators</span><span class="p">[</span><span class="n">section</span><span class="p">]</span>
+                                       <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="o">+</span> <span class="s">&quot;;&quot;</span>
+                                       <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">body</span><span class="o">.</span><span class="n">items</span><span class="p">())]</span>
+            <span class="k">else</span><span class="p">:</span> <span class="c"># body must be a sequence</span>
+                <span class="n">strbodies</span> <span class="o">=</span> <span class="p">[]</span>
+                <span class="k">for</span> <span class="n">declaration</span> <span class="ow">in</span> <span class="n">body</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">declaration</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+                        <span class="n">strbodies</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">declaration</span>
+                                  <span class="o">+</span> <span class="p">(</span><span class="s">&quot;&quot;</span> <span class="k">if</span> <span class="n">declaration</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s">&quot;;&quot;</span><span class="p">)</span> <span class="k">else</span> <span class="s">&quot;;&quot;</span><span class="p">))</span>
+                    <span class="k">else</span><span class="p">:</span> <span class="c"># declaration must be a sequence of &gt;= two elements</span>
+                        <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="o">=</span> <span class="n">declaration</span><span class="p">[:</span><span class="mi">2</span><span class="p">]</span>
+                        <span class="n">strbodies</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">key</span><span class="p">)</span> <span class="o">+</span> <span class="n">separators</span><span class="p">[</span><span class="n">section</span><span class="p">]</span>
+                                         <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="o">+</span> <span class="s">&quot;;&quot;</span><span class="p">)</span>
+                <span class="n">strbodies</span> <span class="o">=</span> <span class="p">[</span><span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">strbodies</span><span class="p">)]</span>
+        
+        <span class="k">else</span><span class="p">:</span> <span class="c"># section is TRANS, INIT, INVAR, FAIRNESS, JUSTICE, COMPASSION</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">body</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+                <span class="n">strbodies</span> <span class="o">=</span> <span class="p">[</span><span class="n">cls</span><span class="o">.</span><span class="n">_trim</span><span class="p">(</span><span class="n">body</span><span class="p">)]</span>
+            <span class="k">else</span><span class="p">:</span> <span class="c"># body must be a sequence</span>
+                <span class="n">strbodies</span> <span class="o">=</span> <span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">expr</span><span class="p">)</span> <span class="k">for</span> <span class="n">expr</span> <span class="ow">in</span> <span class="n">body</span><span class="p">]</span>
+        
+        <span class="n">result</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">strbody</span> <span class="ow">in</span> <span class="n">strbodies</span><span class="p">:</span>
+            <span class="n">result</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">indentation</span> <span class="o">+</span> <span class="n">section</span> <span class="o">+</span> <span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span>
+                           <span class="o">+</span> <span class="n">cls</span><span class="o">.</span><span class="n">_trim</span><span class="p">(</span><span class="n">strbody</span><span class="p">,</span> <span class="n">indentation</span> <span class="o">*</span> <span class="mi">2</span><span class="p">)))</span>
+        <span class="k">return</span> <span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
+    
+    <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="n">cls</span><span class="p">):</span>        
+        <span class="n">indentation</span> <span class="o">=</span> <span class="s">&quot; &quot;</span> <span class="o">*</span> <span class="mi">4</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">name</span> <span class="o">=</span> <span class="n">cls</span><span class="o">.</span><span class="n">NAME</span>
+        <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
+            <span class="n">name</span> <span class="o">=</span> <span class="n">cls</span><span class="o">.</span><span class="n">__name__</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">args</span> <span class="o">=</span> <span class="s">&quot;(&quot;</span> <span class="o">+</span> <span class="s">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">cls</span><span class="o">.</span><span class="n">ARGS</span><span class="p">)</span> <span class="o">+</span> <span class="s">&quot;)&quot;</span>
+        <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
+            <span class="n">args</span> <span class="o">=</span> <span class="s">&quot;&quot;</span>
+        
+        <span class="n">sections</span> <span class="o">=</span> <span class="p">{</span><span class="n">section</span><span class="p">:</span> <span class="n">value</span> <span class="k">for</span> <span class="n">section</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">inspect</span><span class="o">.</span><span class="n">getmembers</span><span class="p">(</span><span class="n">cls</span><span class="p">)</span>
+                                   <span class="k">if</span> <span class="n">section</span> <span class="ow">in</span> <span class="n">cls</span><span class="o">.</span><span class="n">_MODULE_SECTIONS</span><span class="p">}</span>
+        
+        <span class="n">representation</span> <span class="o">=</span> <span class="p">[</span><span class="s">&quot;MODULE &quot;</span> <span class="o">+</span> <span class="n">name</span> <span class="o">+</span> <span class="n">args</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">section</span><span class="p">,</span> <span class="n">body</span> <span class="ow">in</span> <span class="n">sections</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">representation</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">cls</span><span class="o">.</span><span class="n">_representation</span><span class="p">(</span><span class="n">section</span><span class="p">,</span> <span class="n">body</span><span class="p">,</span>
+                                                      <span class="n">indentation</span><span class="p">))</span>
+        <span class="k">return</span> <span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">representation</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="Module"><a class="viewcode-back" href="../../pynusmv.html#pynusmv.model.Module">[docs]</a><span class="k">class</span> <span class="nc">Module</span><span class="p">(</span><span class="nb">object</span><span class="p">,</span> <span class="n">metaclass</span><span class="o">=</span><span class="n">_ModuleMetaClass</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A generic module.</span>
+<span class="sd">    </span>
+<span class="sd">    To create a new module, the user must subclass the :class:`Module` class and</span>
+<span class="sd">    add class attributes with names corresponding to sections of NuSMV module</span>
+<span class="sd">    definitions: `VAR`, `IVAR`, `FROZENVAR`, `DEFINE`, `CONSTANTS`, `ASSIGN`,</span>
+<span class="sd">    `TRANS`, `INIT`, `INVAR`, `FAIRNESS`, `JUSTICE`, `COMPASSION`.</span>
+<span class="sd">    </span>
+<span class="sd">    In addition to these attributes, the `ARGS` and `NAME` attributes can be </span>
+<span class="sd">    defined. If `NAME` is defined, it overrides module name for NuSMV module</span>
+<span class="sd">    name. If `ARGS` is defined, it must be a sequence object (accepted by</span>
+<span class="sd">    the `&quot;&quot;.join` method) where each element&#39;s string representation is an</span>
+<span class="sd">    argument of the module.</span>
+<span class="sd">    </span>
+<span class="sd">    Treatment of the section depends of the type of the section and the value</span>
+<span class="sd">    of the corresponding attribute.</span>
+<span class="sd">    </span>
+<span class="sd">    CONSTANTS section</span>
+<span class="sd">        If `body` is a string (:class:`str`), it is used as</span>
+<span class="sd">        the body of the constants declaration. Otherwise, `body` must be a</span>
+<span class="sd">        sequence (other than string) and it is used as the defined</span>
+<span class="sd">        constants.</span>
+<span class="sd">    </span>
+<span class="sd">    VAR, IVAR, FROZENVAR, DEFINE, ASSIGN sections</span>
+<span class="sd">        If `body` is a string (:class:`str`), it is used as the body of the</span>
+<span class="sd">        declaration. If it is a dictionary (:class:`dict`), keys are used as</span>
+<span class="sd">        names of variables (or input variables, define, etc.) and values as</span>
+<span class="sd">        bodies of the declaration. Otherwise, `body` must be a sequence</span>
+<span class="sd">        other than a string and a dictionary, and each element is treated</span>
+<span class="sd">        separately, and joined with line returns to build the body of the</span>
+<span class="sd">        section:</span>
+<span class="sd">        </span>
+<span class="sd">        * if the element is a string (:class:`str`), it is kept as it is;</span>
+<span class="sd">        * if the lement is a sequence other than a string, the first element</span>
+<span class="sd">          is used as the name of the variable (or input varriable, define,</span>
+<span class="sd">          etc.) and the second one as the body of the declaration.</span>
+<span class="sd">    </span>
+<span class="sd">    TRANS, INIT, INVAR, FAIRNESS, JUSTICE, COMPASSION sections</span>
+<span class="sd">        If the attribute is a string, it is used as the body of the section.</span>
+<span class="sd">        If it is a sequence other than a string, the string representation</span>
+<span class="sd">        of the elements of the sequence are joined with line returns to</span>
+<span class="sd">        build the body of the section.</span>
+<span class="sd">    </span>
+<span class="sd">    </span>
+<span class="sd">    Example ::</span>
+<span class="sd">    </span>
+<span class="sd">        class Counter(Module):</span>
+<span class="sd">            NAME = &quot;counter&quot;</span>
+<span class="sd">            ARGS = [&quot;run&quot;]</span>
+<span class="sd">            VAR = {&quot;c&quot;: &quot;0..2&quot;}</span>
+<span class="sd">            INIT = [&quot;c = 0&quot;]</span>
+<span class="sd">            TRANS = &quot;next(c) = run ? c+1 mod 2 : c&quot;</span>
+<span class="sd">    </span>
+<span class="sd">    defines the module ::</span>
+<span class="sd">    </span>
+<span class="sd">        MODULE counter(run)</span>
+<span class="sd">            VAR c : 0..2;</span>
+<span class="sd">            INIT c = 0</span>
+<span class="sd">            TRANS next(c) = run ? c+1 mod 2 : c</span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    
+    <span class="k">pass</span>
+        </div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../index.html">PyNuSMV 0.8 documentation</a> &raquo;</li>
+          <li><a href="../index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2013, Simon Busard.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

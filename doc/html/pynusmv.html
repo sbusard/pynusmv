@@ -59,13 +59,14 @@ implementation details by providing wrappers to NuSMV functions and data
 structures. In particular, NuSMV models can be read, parsed and compiled, giving
 full access to SMV&#8217;s rich modeling language and vast collection of existing
 models.</p>
-<p>PyNuSMV is composed of several modules, each one proposing some NuSMV
-functionalities:</p>
+<p>PyNuSMV is composed of several modules, each one proposing some functionalities:</p>
 <ul class="simple">
 <li><a class="reference internal" href="#module-pynusmv.init" title="pynusmv.init"><tt class="xref py py-mod docutils literal"><span class="pre">init</span></tt></a> contains all the functions needed to initialize and 
 close NuSMV. These functions need to be used before any other access to PyNuSMV.</li>
 <li><a class="reference internal" href="#module-pynusmv.glob" title="pynusmv.glob"><tt class="xref py py-mod docutils literal"><span class="pre">glob</span></tt></a> provides functionalities to read and build a model 
 from an SMV source file.</li>
+<li><a class="reference internal" href="#module-pynusmv.model" title="pynusmv.model"><tt class="xref py py-mod docutils literal"><span class="pre">model</span></tt></a> provides functionalities to define NuSMV models
+in Python.</li>
 <li><a class="reference internal" href="#module-pynusmv.dd" title="pynusmv.dd"><tt class="xref py py-mod docutils literal"><span class="pre">dd</span></tt></a> provides BDD-related structures like generic BDD, lists 
 of BDDs and BDD-represented states and input values.</li>
 <li><a class="reference internal" href="#module-pynusmv.exception" title="pynusmv.exception"><tt class="xref py py-mod docutils literal"><span class="pre">exception</span></tt></a> groups all the PyNuSMV-related 
@@ -86,6 +87,296 @@ expressions of the SMV language.</li>
 <a class="reference internal" href="#pynusmv.init.init_nusmv" title="pynusmv.init.init_nusmv"><tt class="xref py py-func docutils literal"><span class="pre">pynusmv.init.init_nusmv()</span></tt></a> function to initialize NuSMV; do not forget 
 to also call <a class="reference internal" href="#pynusmv.init.deinit_nusmv" title="pynusmv.init.deinit_nusmv"><tt class="xref py py-func docutils literal"><span class="pre">pynusmv.init.deinit_nusmv()</span></tt></a> when you do not need PyNuSMV 
 anymore to clean everything needed by NuSMV to run.</p>
+</div>
+<div class="section" id="module-pynusmv.init">
+<span id="init-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">init</span></tt> Module<a class="headerlink" href="#module-pynusmv.init" title="Permalink to this headline">¶</a></h2>
+<p>The <a class="reference internal" href="#module-pynusmv.init" title="pynusmv.init"><tt class="xref py py-mod docutils literal"><span class="pre">pynusmv.init</span></tt></a> module provides functions to initialize and quit NuSMV.</p>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last"><a class="reference internal" href="#pynusmv.init.init_nusmv" title="pynusmv.init.init_nusmv"><tt class="xref py py-func docutils literal"><span class="pre">init_nusmv()</span></tt></a> should be called before any other call to
+pynusmv functions; <a class="reference internal" href="#pynusmv.init.deinit_nusmv" title="pynusmv.init.deinit_nusmv"><tt class="xref py py-func docutils literal"><span class="pre">deinit_nusmv()</span></tt></a> should be called after using
+pynusmv.</p>
+</div>
+<dl class="function">
+<dt id="pynusmv.init.init_nusmv">
+<tt class="descclassname">pynusmv.init.</tt><tt class="descname">init_nusmv</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/pynusmv/init.html#init_nusmv"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynusmv.init.init_nusmv" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize NuSMV. Must be called only once before calling 
+<a class="reference internal" href="#pynusmv.init.deinit_nusmv" title="pynusmv.init.deinit_nusmv"><tt class="xref py py-func docutils literal"><span class="pre">deinit_nusmv()</span></tt></a>.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pynusmv.init.deinit_nusmv">
+<tt class="descclassname">pynusmv.init.</tt><tt class="descname">deinit_nusmv</tt><big>(</big><em>ddinfo=False</em><big>)</big><a class="reference internal" href="_modules/pynusmv/init.html#deinit_nusmv"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynusmv.init.deinit_nusmv" title="Permalink to this definition">¶</a></dt>
+<dd><p>Quit NuSMV. Must be called only once, after calling <a class="reference internal" href="#pynusmv.init.init_nusmv" title="pynusmv.init.init_nusmv"><tt class="xref py py-func docutils literal"><span class="pre">init_nusmv()</span></tt></a>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>ddinfo</strong> &#8211; Whether or not display Decision Diagrams statistics.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="pynusmv.init.reset_nusmv">
+<tt class="descclassname">pynusmv.init.</tt><tt class="descname">reset_nusmv</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/pynusmv/init.html#reset_nusmv"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynusmv.init.reset_nusmv" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reset NuSMV, i.e. deinit it and init it again. Cannot be called before
+<a class="reference internal" href="#pynusmv.init.init_nusmv" title="pynusmv.init.init_nusmv"><tt class="xref py py-func docutils literal"><span class="pre">init_nusmv()</span></tt></a>.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-pynusmv.glob">
+<span id="glob-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">glob</span></tt> Module<a class="headerlink" href="#module-pynusmv.glob" title="Permalink to this headline">¶</a></h2>
+<p>The <a class="reference internal" href="#module-pynusmv.glob" title="pynusmv.glob"><tt class="xref py py-mod docutils literal"><span class="pre">pynusmv.glob</span></tt></a> module provide some functions to access global NuSMV
+functionalities. These functions are used to feed an SMV model to NuSMV and
+build the different structures representing the model, like flattening the 
+model, building its BDD encoding and getting the BDD-encoded FSM.</p>
+<p>Besides the functions, this module provides an access to main globally stored
+data structures like the flat hierarchy, the BDD encoding, the symbols table
+and the propositions database.</p>
+<dl class="function">
+<dt id="pynusmv.glob.load_from_file">
+<tt class="descclassname">pynusmv.glob.</tt><tt class="descname">load_from_file</tt><big>(</big><em>filepath</em><big>)</big><a class="reference internal" href="_modules/pynusmv/glob.html#load_from_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynusmv.glob.load_from_file" title="Permalink to this definition">¶</a></dt>
+<dd><p>Load a model from an SMV file and store it in global data structures.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>filepath</strong> (<em>str</em>) &#8211; the path to the SMV file</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="pynusmv.glob.load_from_string">
+<tt class="descclassname">pynusmv.glob.</tt><tt class="descname">load_from_string</tt><big>(</big><em>model</em><big>)</big><a class="headerlink" href="#pynusmv.glob.load_from_string" title="Permalink to this definition">¶</a></dt>
+<dd><p>Load a model from a string representing the model.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>model</strong> (<em>str</em>) &#8211; a String representing the model</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="pynusmv.glob.flatten_hierarchy">
+<tt class="descclassname">pynusmv.glob.</tt><tt class="descname">flatten_hierarchy</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/pynusmv/glob.html#flatten_hierarchy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynusmv.glob.flatten_hierarchy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Flatten the read model and store it in global data structures.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Raise :</th><td class="field-body">a <a class="reference internal" href="#pynusmv.exception.NuSMVNoReadFileError" title="pynusmv.exception.NuSMVNoReadFileError"><tt class="xref py py-exc docutils literal"><span class="pre">NuSMVNoReadFileError</span></tt></a> if no model is read yet</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Raise :</th><td class="field-body">a <a class="reference internal" href="#pynusmv.exception.NuSMVCannotFlattenError" title="pynusmv.exception.NuSMVCannotFlattenError"><tt class="xref py py-exc docutils literal"><span class="pre">NuSMVCannotFlattenError</span></tt></a> if an error occurred
+during flattening</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Raise :</th><td class="field-body">a <a class="reference internal" href="#pynusmv.exception.NuSMVModelAlreadyFlattenedError" title="pynusmv.exception.NuSMVModelAlreadyFlattenedError"><tt class="xref py py-exc docutils literal"><span class="pre">NuSMVModelAlreadyFlattenedError</span></tt></a> if the model is
+already flattened</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last">In case of type checking errors, a message is printed at stderr
+and a <a class="reference internal" href="#pynusmv.exception.NuSMVCannotFlattenError" title="pynusmv.exception.NuSMVCannotFlattenError"><tt class="xref py py-exc docutils literal"><span class="pre">NuSMVCannotFlattenError</span></tt></a> is raised.</p>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="pynusmv.glob.symb_table">
+<tt class="descclassname">pynusmv.glob.</tt><tt class="descname">symb_table</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/pynusmv/glob.html#symb_table"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynusmv.glob.symb_table" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the main symbols table of the current model.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference internal" href="#pynusmv.fsm.SymbTable" title="pynusmv.fsm.SymbTable"><tt class="xref py py-class docutils literal"><span class="pre">SymbTable</span></tt></a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="pynusmv.glob.encode_variables">
+<tt class="descclassname">pynusmv.glob.</tt><tt class="descname">encode_variables</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/pynusmv/glob.html#encode_variables"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynusmv.glob.encode_variables" title="Permalink to this definition">¶</a></dt>
+<dd><p>Encode the BDD variables of the current model and store it in global data
+structures.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Raise :</th><td class="field-body">a <a class="reference internal" href="#pynusmv.exception.NuSMVNeedFlatHierarchyError" title="pynusmv.exception.NuSMVNeedFlatHierarchyError"><tt class="xref py py-exc docutils literal"><span class="pre">NuSMVNeedFlatHierarchyError</span></tt></a> if the model is not
+flattened</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Raise :</th><td class="field-body">a <a class="reference internal" href="#pynusmv.exception.NuSMVModelAlreadyEncodedError" title="pynusmv.exception.NuSMVModelAlreadyEncodedError"><tt class="xref py py-exc docutils literal"><span class="pre">NuSMVModelAlreadyEncodedError</span></tt></a>
+if the variables are already encoded</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="pynusmv.glob.bdd_encoding">
+<tt class="descclassname">pynusmv.glob.</tt><tt class="descname">bdd_encoding</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/pynusmv/glob.html#bdd_encoding"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynusmv.glob.bdd_encoding" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the main bdd encoding of the current model.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><tt class="xref py py-class docutils literal"><span class="pre">BddEnc</span></tt></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="pynusmv.glob.build_flat_model">
+<tt class="descclassname">pynusmv.glob.</tt><tt class="descname">build_flat_model</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/pynusmv/glob.html#build_flat_model"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynusmv.glob.build_flat_model" title="Permalink to this definition">¶</a></dt>
+<dd><p>Build the Sexp FSM (Simple Expression FSM) of the current model and store it
+in global data structures.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Raise :</th><td class="field-body">a <a class="reference internal" href="#pynusmv.exception.NuSMVNeedFlatHierarchyError" title="pynusmv.exception.NuSMVNeedFlatHierarchyError"><tt class="xref py py-exc docutils literal"><span class="pre">NuSMVNeedFlatHierarchyError</span></tt></a> if the model is not
+flattened</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Raise :</th><td class="field-body">a <a class="reference internal" href="#pynusmv.exception.NuSMVFlatModelAlreadyBuiltError" title="pynusmv.exception.NuSMVFlatModelAlreadyBuiltError"><tt class="xref py py-exc docutils literal"><span class="pre">NuSMVFlatModelAlreadyBuiltError</span></tt></a> if the Sexp FSM
+isalready built</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="pynusmv.glob.build_model">
+<tt class="descclassname">pynusmv.glob.</tt><tt class="descname">build_model</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/pynusmv/glob.html#build_model"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynusmv.glob.build_model" title="Permalink to this definition">¶</a></dt>
+<dd><p>Build the BDD FSM of the current model and store it in global data
+structures.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Raise :</th><td class="field-body">a <a class="reference internal" href="#pynusmv.exception.NuSMVNeedFlatModelError" title="pynusmv.exception.NuSMVNeedFlatModelError"><tt class="xref py py-exc docutils literal"><span class="pre">NuSMVNeedFlatModelError</span></tt></a> if the Sexp FSM
+of the model is not built yet</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Raise :</th><td class="field-body">a <a class="reference internal" href="#pynusmv.exception.NuSMVNeedVariablesEncodedError" title="pynusmv.exception.NuSMVNeedVariablesEncodedError"><tt class="xref py py-exc docutils literal"><span class="pre">NuSMVNeedVariablesEncodedError</span></tt></a> if the variables
+of the model are not encoded yet</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Raise :</th><td class="field-body">a <a class="reference internal" href="#pynusmv.exception.NuSMVModelAlreadyBuiltError" title="pynusmv.exception.NuSMVModelAlreadyBuiltError"><tt class="xref py py-exc docutils literal"><span class="pre">NuSMVModelAlreadyBuiltError</span></tt></a> if the BDD FSM
+of the model is already built</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="pynusmv.glob.prop_database">
+<tt class="descclassname">pynusmv.glob.</tt><tt class="descname">prop_database</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/pynusmv/glob.html#prop_database"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynusmv.glob.prop_database" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the global properties database.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference internal" href="#pynusmv.prop.PropDb" title="pynusmv.prop.PropDb"><tt class="xref py py-class docutils literal"><span class="pre">PropDb</span></tt></a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="pynusmv.glob.compute_model">
+<tt class="descclassname">pynusmv.glob.</tt><tt class="descname">compute_model</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/pynusmv/glob.html#compute_model"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynusmv.glob.compute_model" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the read model and store its parts in global data structures.
+This function is a shortcut for calling all the steps of the model building
+that are not yet performed.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-pynusmv.model">
+<span id="model-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">model</span></tt> Module<a class="headerlink" href="#module-pynusmv.model" title="Permalink to this headline">¶</a></h2>
+<p>The <a class="reference internal" href="#module-pynusmv.model" title="pynusmv.model"><tt class="xref py py-mod docutils literal"><span class="pre">pynusmv.model</span></tt></a> module provides a way to define NuSMV modules in
+Python: the <a class="reference internal" href="#pynusmv.model.Module" title="pynusmv.model.Module"><tt class="xref py py-class docutils literal"><span class="pre">Module</span></tt></a> class represents a generic NuSMV module, and must be
+subclassed to define specific NuSMV modules.</p>
+<dl class="class">
+<dt id="pynusmv.model.Module">
+<em class="property">class </em><tt class="descclassname">pynusmv.model.</tt><tt class="descname">Module</tt><a class="reference internal" href="_modules/pynusmv/model.html#Module"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynusmv.model.Module" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">builtins.object</span></tt></p>
+<p>A generic module.</p>
+<p>To create a new module, the user must subclass the <a class="reference internal" href="#pynusmv.model.Module" title="pynusmv.model.Module"><tt class="xref py py-class docutils literal"><span class="pre">Module</span></tt></a> class and
+add class attributes with names corresponding to sections of NuSMV module
+definitions: <cite>VAR</cite>, <cite>IVAR</cite>, <cite>FROZENVAR</cite>, <cite>DEFINE</cite>, <cite>CONSTANTS</cite>, <cite>ASSIGN</cite>,
+<cite>TRANS</cite>, <cite>INIT</cite>, <cite>INVAR</cite>, <cite>FAIRNESS</cite>, <cite>JUSTICE</cite>, <cite>COMPASSION</cite>.</p>
+<p>In addition to these attributes, the <cite>ARGS</cite> and <cite>NAME</cite> attributes can be 
+defined. If <cite>NAME</cite> is defined, it overrides module name for the NuSMV module
+name. If <cite>ARGS</cite> is defined, it must be a sequence object where each
+element&#8217;s string representation is an argument of the module.</p>
+<p>Treatment of the section depends of the type of the section and the value
+of the corresponding attribute.</p>
+<dl class="docutils">
+<dt>CONSTANTS section</dt>
+<dd>If the value of the section is a string (<tt class="xref py py-class docutils literal"><span class="pre">str</span></tt>), it is used as
+the body of the constants declaration. Otherwise, the value must be a
+sequence and it is used as the defined constants.</dd>
+<dt>VAR, IVAR, FROZENVAR, DEFINE, ASSIGN sections</dt>
+<dd><blockquote class="first">
+<div><p>If the value of the section is a string (<tt class="xref py py-class docutils literal"><span class="pre">str</span></tt>), it is used as
+the body of the declaration. If it is a dictionary (<tt class="xref py py-class docutils literal"><span class="pre">dict</span></tt>), keys
+are used as names of variables (or input variables, define, etc.) and
+values as bodies of the declaration. Otherwise, the value must be a
+sequence, and each element is treated  separately, and joined with line
+returns to build the body of the section:</p>
+<ul class="simple">
+<li>if the element is a string (<tt class="xref py py-class docutils literal"><span class="pre">str</span></tt>), it is kept as it is;</li>
+<li>otherwise, the element must be a sequence, and the first element is
+used as the name of the variable (or input variable, define, etc.) and
+the second one as the body of the declaration.</li>
+</ul>
+</div></blockquote>
+<dl class="last docutils">
+<dt>TRANS, INIT, INVAR, FAIRNESS, JUSTICE, COMPASSION sections</dt>
+<dd>If the value of the section is a string (<tt class="xref py py-class docutils literal"><span class="pre">str</span></tt>), it is used as
+the body of the section. Otherwise, it must be a sequence and the
+string representation of the elements of the sequence are declared
+as different sections</dd>
+</dl>
+</dd>
+</dl>
+<p>For example, the class</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="k">class</span> <span class="nc">TwoCounter</span><span class="p">(</span><span class="n">Module</span><span class="p">):</span>
+    <span class="n">NAME</span> <span class="o">=</span> <span class="s">&quot;twoCounter&quot;</span>
+    <span class="n">ARGS</span> <span class="o">=</span> <span class="p">[</span><span class="s">&quot;run&quot;</span><span class="p">]</span>
+    <span class="n">VAR</span> <span class="o">=</span> <span class="p">{</span><span class="s">&quot;c1&quot;</span><span class="p">:</span> <span class="s">&quot;0..2&quot;</span><span class="p">,</span>
+           <span class="s">&quot;c2&quot;</span><span class="p">:</span> <span class="s">&quot;0..2&quot;</span><span class="p">}</span>
+    <span class="n">INIT</span> <span class="o">=</span> <span class="p">[</span><span class="s">&quot;c1 = 0&quot;</span><span class="p">,</span>
+            <span class="s">&quot;c2 = 0&quot;</span><span class="p">]</span>
+    <span class="n">TRANS</span> <span class="o">=</span> <span class="s">&quot;&quot;&quot;</span>
+<span class="s">            next(c1) = run ? c1+1 mod 2 : c1 &amp;</span>
+<span class="s">            next(c2) = run ? c2+1 mod 2 : c2</span>
+<span class="s">            &quot;&quot;&quot;</span>
+</pre></div>
+</div>
+<p>defines the module</p>
+<div class="highlight-python"><pre>MODULE twoCounter(run)
+    VAR
+        c1 : 0..2;
+        c2 : 0..2;
+    INIT
+        c1 = 0
+    INIT
+        c2 = 0
+    TRANS
+        next(c1) = run ? c1+1 mod 2 : c1 &amp;
+        next(c2) = run ? c2+1 mod 2 : c2</pre>
+</div>
+</dd></dl>
+
 </div>
 <div class="section" id="module-pynusmv.dd">
 <span id="dd-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">dd</span></tt> Module<a class="headerlink" href="#module-pynusmv.dd" title="Permalink to this headline">¶</a></h2>
@@ -696,6 +987,20 @@ and actions of given BDDs.</p>
 </table>
 </dd></dl>
 
+<dl class="method">
+<dt id="pynusmv.fsm.BddFsm.count_states_inputs">
+<tt class="descname">count_states_inputs</tt><big>(</big><em>bdd</em><big>)</big><a class="headerlink" href="#pynusmv.fsm.BddFsm.count_states_inputs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the number of state/inputs pairs of the given BDD</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>bdd</strong> (<a class="reference internal" href="#pynusmv.dd.BDD" title="pynusmv.dd.BDD"><tt class="xref py py-class docutils literal"><span class="pre">BDD</span></tt></a>) &#8211; the concerned BDD</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
 <dl class="attribute">
 <dt id="pynusmv.fsm.BddFsm.fairness_constraints">
 <tt class="descname">fairness_constraints</tt><a class="reference internal" href="_modules/pynusmv/fsm.html#BddFsm.fairness_constraints"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynusmv.fsm.BddFsm.fairness_constraints" title="Permalink to this definition">¶</a></dt>
@@ -716,6 +1021,37 @@ and actions of given BDDs.</p>
 </table>
 </dd></dl>
 
+<dl class="staticmethod">
+<dt id="pynusmv.fsm.BddFsm.from_modules">
+<em class="property">static </em><tt class="descname">from_modules</tt><big>(</big><em>*modules</em><big>)</big><a class="headerlink" href="#pynusmv.fsm.BddFsm.from_modules" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the FSM corresponding to the model defined by the given list
+of modules.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>modules</strong> (a list of <a class="reference internal" href="#pynusmv.model.Module" title="pynusmv.model.Module"><tt class="xref py py-class docutils literal"><span class="pre">Module</span></tt></a>
+subclasses) &#8211; the modules defining the NuSMV model. Must contain a
+<cite>main</cite> module.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="pynusmv.fsm.BddFsm.from_string">
+<em class="property">static </em><tt class="descname">from_string</tt><big>(</big><em>model</em><big>)</big><a class="headerlink" href="#pynusmv.fsm.BddFsm.from_string" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the FSM corresponding to the model defined by the given string.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>model</strong> &#8211; a String representing the SMV model</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
 <dl class="method">
 <dt id="pynusmv.fsm.BddFsm.get_inputs_between_states">
 <tt class="descname">get_inputs_between_states</tt><big>(</big><em>current</em>, <em>next</em><big>)</big><a class="reference internal" href="_modules/pynusmv/fsm.html#BddFsm.get_inputs_between_states"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynusmv.fsm.BddFsm.get_inputs_between_states" title="Permalink to this definition">¶</a></dt>
@@ -727,7 +1063,7 @@ and actions of given BDDs.</p>
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
 <li><strong>current</strong> (<a class="reference internal" href="#pynusmv.dd.BDD" title="pynusmv.dd.BDD"><tt class="xref py py-class docutils literal"><span class="pre">BDD</span></tt></a>) &#8211; the source states</li>
-<li><strong>current</strong> &#8211; the destination states</li>
+<li><strong>next</strong> (<a class="reference internal" href="#pynusmv.dd.BDD" title="pynusmv.dd.BDD"><tt class="xref py py-class docutils literal"><span class="pre">BDD</span></tt></a>) &#8211; the destination states</li>
 </ul>
 </td>
 </tr>
@@ -988,6 +1324,20 @@ used to manage BDDs, the symbols table or the state and inputs masks.</p>
 </table>
 </dd></dl>
 
+<dl class="method">
+<dt id="pynusmv.fsm.BddEnc.get_inputs_vars">
+<tt class="descname">get_inputs_vars</tt><big>(</big><big>)</big><a class="headerlink" href="#pynusmv.fsm.BddEnc.get_inputs_vars" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the set of inputs variables names.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">frozenset(str)</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
 <dl class="attribute">
 <dt id="pynusmv.fsm.BddEnc.inputsCube">
 <tt class="descname">inputsCube</tt><a class="headerlink" href="#pynusmv.fsm.BddEnc.inputsCube" title="Permalink to this definition">¶</a></dt>
@@ -1088,6 +1438,60 @@ used to manage BDDs, the symbols table or the state and inputs masks.</p>
 <p>Python class for transition relation encoded with BDDs.</p>
 <p>A BddTrans represents a transition relation and provides pre and post
 operations on BDDs, possibly restricted to given actions.</p>
+<dl class="staticmethod">
+<dt id="pynusmv.fsm.BddTrans.from_string">
+<em class="property">static </em><tt class="descname">from_string</tt><big>(</big><em>symb_table</em>, <em>strtrans</em>, <em>strcontext=None</em><big>)</big><a class="headerlink" href="#pynusmv.fsm.BddTrans.from_string" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a new BddTrans from the given strtrans, in given strcontex.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>symb_table</strong> (<a class="reference internal" href="#pynusmv.fsm.SymbTable" title="pynusmv.fsm.SymbTable"><tt class="xref py py-class docutils literal"><span class="pre">SymbTable</span></tt></a>) &#8211; the symbols table used to flatten the trans</li>
+<li><strong>strtrans</strong> (<em>str</em>) &#8211; the string representing the trans</li>
+<li><strong>strcontext</strong> &#8211; an additional string representing a context,
+in which trans will be flattened, if not None</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><p class="first"><a class="reference internal" href="#pynusmv.fsm.BddTrans" title="pynusmv.fsm.BddTrans"><tt class="xref py py-class docutils literal"><span class="pre">BddTrans</span></tt></a></p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Raise :</th><td class="field-body"><p class="first last">a <a class="reference internal" href="#pynusmv.exception.NuSMVTypeCheckingError" title="pynusmv.exception.NuSMVTypeCheckingError"><tt class="xref py py-exc docutils literal"><span class="pre">NuSMVTypeCheckingError</span></tt></a>
+if <cite>strtrans</cite> is wrongly typed under <cite>context</cite></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="pynusmv.fsm.BddTrans.from_trans">
+<em class="property">static </em><tt class="descname">from_trans</tt><big>(</big><em>symb_table</em>, <em>trans</em>, <em>context=None</em><big>)</big><a class="headerlink" href="#pynusmv.fsm.BddTrans.from_trans" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a new BddTrans from the given trans.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>symb_table</strong> (<a class="reference internal" href="#pynusmv.fsm.SymbTable" title="pynusmv.fsm.SymbTable"><tt class="xref py py-class docutils literal"><span class="pre">SymbTable</span></tt></a>) &#8211; the symbols table used to flatten the trans</li>
+<li><strong>trans</strong> &#8211; the parsed string of the trans, not flattened</li>
+<li><strong>context</strong> &#8211; an additional parsed context, in which trans will be
+flattened, if not None</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><p class="first"><a class="reference internal" href="#pynusmv.fsm.BddTrans" title="pynusmv.fsm.BddTrans"><tt class="xref py py-class docutils literal"><span class="pre">BddTrans</span></tt></a></p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Raise :</th><td class="field-body"><p class="first last">a <a class="reference internal" href="#pynusmv.exception.NuSMVFlatteningError" title="pynusmv.exception.NuSMVFlatteningError"><tt class="xref py py-exc docutils literal"><span class="pre">NuSMVFlatteningError</span></tt></a>
+if <cite>trans</cite> cannot be flattened under <cite>context</cite></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
 <dl class="attribute">
 <dt id="pynusmv.fsm.BddTrans.monolithic">
 <tt class="descname">monolithic</tt><a class="reference internal" href="_modules/pynusmv/fsm.html#BddTrans.monolithic"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynusmv.fsm.BddTrans.monolithic" title="Permalink to this definition">¶</a></dt>
@@ -1147,410 +1551,13 @@ operations on BDDs, possibly restricted to given actions.</p>
 </dd></dl>
 
 </div>
-<div class="section" id="module-pynusmv.glob">
-<span id="glob-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">glob</span></tt> Module<a class="headerlink" href="#module-pynusmv.glob" title="Permalink to this headline">¶</a></h2>
-<p>The <a class="reference internal" href="#module-pynusmv.glob" title="pynusmv.glob"><tt class="xref py py-mod docutils literal"><span class="pre">pynusmv.glob</span></tt></a> module provide some functions to access global NuSMV
-functionalities. These functions are used to feed an SMV model to NuSMV and
-build the different structures representing the model, like flattening the 
-model, building its BDD encoding and getting the BDD-encoded FSM.</p>
-<p>Besides the functions, this module provides an access to main globally stored
-data structures like the flat hierarchy, the BDD encoding, the symbols table
-and the propositions database.</p>
-<dl class="function">
-<dt id="pynusmv.glob.load_from_file">
-<tt class="descclassname">pynusmv.glob.</tt><tt class="descname">load_from_file</tt><big>(</big><em>filepath</em><big>)</big><a class="reference internal" href="_modules/pynusmv/glob.html#load_from_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynusmv.glob.load_from_file" title="Permalink to this definition">¶</a></dt>
-<dd><p>Load a model from an SMV file and store it in global data structures.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>filepath</strong> &#8211; the path to the SMV file</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="function">
-<dt id="pynusmv.glob.flatten_hierarchy">
-<tt class="descclassname">pynusmv.glob.</tt><tt class="descname">flatten_hierarchy</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/pynusmv/glob.html#flatten_hierarchy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynusmv.glob.flatten_hierarchy" title="Permalink to this definition">¶</a></dt>
-<dd><p>Flatten the read model and store it in global data structures.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Raise :</th><td class="field-body">a <a class="reference internal" href="#pynusmv.exception.NuSMVNoReadFileError" title="pynusmv.exception.NuSMVNoReadFileError"><tt class="xref py py-exc docutils literal"><span class="pre">NuSMVNoReadFileError</span></tt></a> if no model is read yet</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Raise :</th><td class="field-body">a <a class="reference internal" href="#pynusmv.exception.NuSMVCannotFlattenError" title="pynusmv.exception.NuSMVCannotFlattenError"><tt class="xref py py-exc docutils literal"><span class="pre">NuSMVCannotFlattenError</span></tt></a> if an error occurred
-during flattening</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Raise :</th><td class="field-body">a <a class="reference internal" href="#pynusmv.exception.NuSMVModelAlreadyFlattenedError" title="pynusmv.exception.NuSMVModelAlreadyFlattenedError"><tt class="xref py py-exc docutils literal"><span class="pre">NuSMVModelAlreadyFlattenedError</span></tt></a> if the model is
-already flattened</td>
-</tr>
-</tbody>
-</table>
-<div class="admonition warning">
-<p class="first admonition-title">Warning</p>
-<p class="last">In case of type checking errors, a message is printed at stderr
-and a <a class="reference internal" href="#pynusmv.exception.NuSMVCannotFlattenError" title="pynusmv.exception.NuSMVCannotFlattenError"><tt class="xref py py-exc docutils literal"><span class="pre">NuSMVCannotFlattenError</span></tt></a> is raised.</p>
-</div>
-</dd></dl>
-
-<dl class="function">
-<dt id="pynusmv.glob.symb_table">
-<tt class="descclassname">pynusmv.glob.</tt><tt class="descname">symb_table</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/pynusmv/glob.html#symb_table"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynusmv.glob.symb_table" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return the main symbols table of the current model.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference internal" href="#pynusmv.fsm.SymbTable" title="pynusmv.fsm.SymbTable"><tt class="xref py py-class docutils literal"><span class="pre">SymbTable</span></tt></a></td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="function">
-<dt id="pynusmv.glob.encode_variables">
-<tt class="descclassname">pynusmv.glob.</tt><tt class="descname">encode_variables</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/pynusmv/glob.html#encode_variables"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynusmv.glob.encode_variables" title="Permalink to this definition">¶</a></dt>
-<dd><p>Encode the BDD variables of the current model and store it in global data
-structures.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Raise :</th><td class="field-body">a <a class="reference internal" href="#pynusmv.exception.NuSMVNeedFlatHierarchyError" title="pynusmv.exception.NuSMVNeedFlatHierarchyError"><tt class="xref py py-exc docutils literal"><span class="pre">NuSMVNeedFlatHierarchyError</span></tt></a> if the model is not
-flattened</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Raise :</th><td class="field-body">a <a class="reference internal" href="#pynusmv.exception.NuSMVModelAlreadyEncodedError" title="pynusmv.exception.NuSMVModelAlreadyEncodedError"><tt class="xref py py-exc docutils literal"><span class="pre">NuSMVModelAlreadyEncodedError</span></tt></a>
-if the variables are already encoded</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="function">
-<dt id="pynusmv.glob.bdd_encoding">
-<tt class="descclassname">pynusmv.glob.</tt><tt class="descname">bdd_encoding</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/pynusmv/glob.html#bdd_encoding"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynusmv.glob.bdd_encoding" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return the main bdd encoding of the current model.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><tt class="xref py py-class docutils literal"><span class="pre">BddEnc</span></tt></td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="function">
-<dt id="pynusmv.glob.build_flat_model">
-<tt class="descclassname">pynusmv.glob.</tt><tt class="descname">build_flat_model</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/pynusmv/glob.html#build_flat_model"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynusmv.glob.build_flat_model" title="Permalink to this definition">¶</a></dt>
-<dd><p>Build the Sexp FSM (Simple Expression FSM) of the current model and store it
-in global data structures.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Raise :</th><td class="field-body">a <a class="reference internal" href="#pynusmv.exception.NuSMVNeedFlatHierarchyError" title="pynusmv.exception.NuSMVNeedFlatHierarchyError"><tt class="xref py py-exc docutils literal"><span class="pre">NuSMVNeedFlatHierarchyError</span></tt></a> if the model is not
-flattened</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Raise :</th><td class="field-body">a <a class="reference internal" href="#pynusmv.exception.NuSMVFlatModelAlreadyBuiltError" title="pynusmv.exception.NuSMVFlatModelAlreadyBuiltError"><tt class="xref py py-exc docutils literal"><span class="pre">NuSMVFlatModelAlreadyBuiltError</span></tt></a> if the Sexp FSM
-isalready built</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="function">
-<dt id="pynusmv.glob.build_model">
-<tt class="descclassname">pynusmv.glob.</tt><tt class="descname">build_model</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/pynusmv/glob.html#build_model"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynusmv.glob.build_model" title="Permalink to this definition">¶</a></dt>
-<dd><p>Build the BDD FSM of the current model and store it in global data
-structures.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Raise :</th><td class="field-body">a <a class="reference internal" href="#pynusmv.exception.NuSMVNeedFlatModelError" title="pynusmv.exception.NuSMVNeedFlatModelError"><tt class="xref py py-exc docutils literal"><span class="pre">NuSMVNeedFlatModelError</span></tt></a> if the Sexp FSM
-of the model is not built yet</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Raise :</th><td class="field-body">a <a class="reference internal" href="#pynusmv.exception.NuSMVNeedVariablesEncodedError" title="pynusmv.exception.NuSMVNeedVariablesEncodedError"><tt class="xref py py-exc docutils literal"><span class="pre">NuSMVNeedVariablesEncodedError</span></tt></a> if the variables
-of the model are not encoded yet</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Raise :</th><td class="field-body">a <a class="reference internal" href="#pynusmv.exception.NuSMVModelAlreadyBuiltError" title="pynusmv.exception.NuSMVModelAlreadyBuiltError"><tt class="xref py py-exc docutils literal"><span class="pre">NuSMVModelAlreadyBuiltError</span></tt></a> if the BDD FSM
-of the model is already built</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="function">
-<dt id="pynusmv.glob.prop_database">
-<tt class="descclassname">pynusmv.glob.</tt><tt class="descname">prop_database</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/pynusmv/glob.html#prop_database"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynusmv.glob.prop_database" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return the global properties database.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference internal" href="#pynusmv.prop.PropDb" title="pynusmv.prop.PropDb"><tt class="xref py py-class docutils literal"><span class="pre">PropDb</span></tt></a></td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="function">
-<dt id="pynusmv.glob.compute_model">
-<tt class="descclassname">pynusmv.glob.</tt><tt class="descname">compute_model</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/pynusmv/glob.html#compute_model"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynusmv.glob.compute_model" title="Permalink to this definition">¶</a></dt>
-<dd><p>Compute the read model and store its parts in global data structures.
-This function is a shortcut for calling all the steps of the model building
-that are not yet performed.</p>
-</dd></dl>
-
-</div>
-<div class="section" id="module-pynusmv.init">
-<span id="init-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">init</span></tt> Module<a class="headerlink" href="#module-pynusmv.init" title="Permalink to this headline">¶</a></h2>
-<p>The <a class="reference internal" href="#module-pynusmv.init" title="pynusmv.init"><tt class="xref py py-mod docutils literal"><span class="pre">pynusmv.init</span></tt></a> module provides functions to initialize and quit NuSMV.</p>
-<div class="admonition warning">
-<p class="first admonition-title">Warning</p>
-<p class="last"><a class="reference internal" href="#pynusmv.init.init_nusmv" title="pynusmv.init.init_nusmv"><tt class="xref py py-func docutils literal"><span class="pre">init_nusmv()</span></tt></a> should be called before any other call to
-pynusmv functions; <a class="reference internal" href="#pynusmv.init.deinit_nusmv" title="pynusmv.init.deinit_nusmv"><tt class="xref py py-func docutils literal"><span class="pre">deinit_nusmv()</span></tt></a> should be called after using
-pynusmv.</p>
-</div>
-<dl class="function">
-<dt id="pynusmv.init.init_nusmv">
-<tt class="descclassname">pynusmv.init.</tt><tt class="descname">init_nusmv</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/pynusmv/init.html#init_nusmv"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynusmv.init.init_nusmv" title="Permalink to this definition">¶</a></dt>
-<dd><p>Initialize NuSMV. Must be called only once before calling 
-<a class="reference internal" href="#pynusmv.init.deinit_nusmv" title="pynusmv.init.deinit_nusmv"><tt class="xref py py-func docutils literal"><span class="pre">deinit_nusmv()</span></tt></a>.</p>
-</dd></dl>
-
-<dl class="function">
-<dt id="pynusmv.init.deinit_nusmv">
-<tt class="descclassname">pynusmv.init.</tt><tt class="descname">deinit_nusmv</tt><big>(</big><em>ddinfo=False</em><big>)</big><a class="reference internal" href="_modules/pynusmv/init.html#deinit_nusmv"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynusmv.init.deinit_nusmv" title="Permalink to this definition">¶</a></dt>
-<dd><p>Quit NuSMV. Must be called only once, after calling <a class="reference internal" href="#pynusmv.init.init_nusmv" title="pynusmv.init.init_nusmv"><tt class="xref py py-func docutils literal"><span class="pre">init_nusmv()</span></tt></a>.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>ddinfo</strong> &#8211; Whether or not display Decision Diagrams statistics.</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="function">
-<dt id="pynusmv.init.reset_nusmv">
-<tt class="descclassname">pynusmv.init.</tt><tt class="descname">reset_nusmv</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/pynusmv/init.html#reset_nusmv"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynusmv.init.reset_nusmv" title="Permalink to this definition">¶</a></dt>
-<dd><p>Reset NuSMV, i.e. deinit it and init it again. Cannot be called before
-<a class="reference internal" href="#pynusmv.init.init_nusmv" title="pynusmv.init.init_nusmv"><tt class="xref py py-func docutils literal"><span class="pre">init_nusmv()</span></tt></a>.</p>
-</dd></dl>
-
-</div>
-<div class="section" id="module-pynusmv.mc">
-<span id="mc-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">mc</span></tt> Module<a class="headerlink" href="#module-pynusmv.mc" title="Permalink to this headline">¶</a></h2>
-<p>The <a class="reference internal" href="#module-pynusmv.mc" title="pynusmv.mc"><tt class="xref py py-mod docutils literal"><span class="pre">pynusmv.mc</span></tt></a> module provides some functions of NuSMV dealing with model
-checking, like CTL model checking.</p>
-<dl class="function">
-<dt id="pynusmv.mc.eval_simple_expression">
-<tt class="descclassname">pynusmv.mc.</tt><tt class="descname">eval_simple_expression</tt><big>(</big><em>fsm</em>, <em>sexp</em><big>)</big><a class="reference internal" href="_modules/pynusmv/mc.html#eval_simple_expression"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynusmv.mc.eval_simple_expression" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return the set of states of <cite>fsm</cite> satisfying <cite>sexp</cite>, as a BDD.
-<cite>sexp</cite> is first parsed, then evaluated on <cite>fsm</cite>.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>fsm</strong> (<a class="reference internal" href="#pynusmv.fsm.BddFsm" title="pynusmv.fsm.BddFsm"><tt class="xref py py-class docutils literal"><span class="pre">BddFsm</span></tt></a>) &#8211; the concerned FSM</li>
-<li><strong>sexp</strong> &#8211; a simple expression, as a string</li>
-</ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><a class="reference internal" href="#pynusmv.dd.BDD" title="pynusmv.dd.BDD"><tt class="xref py py-class docutils literal"><span class="pre">BDD</span></tt></a></p>
-</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="function">
-<dt id="pynusmv.mc.eval_ctl_spec">
-<tt class="descclassname">pynusmv.mc.</tt><tt class="descname">eval_ctl_spec</tt><big>(</big><em>fsm</em>, <em>spec</em>, <em>context=None</em><big>)</big><a class="reference internal" href="_modules/pynusmv/mc.html#eval_ctl_spec"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynusmv.mc.eval_ctl_spec" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return the set of states of <cite>fsm</cite> satisfying <cite>spec</cite> in <cite>context</cite>, as a BDD.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>fsm</strong> (<a class="reference internal" href="#pynusmv.fsm.BddFsm" title="pynusmv.fsm.BddFsm"><tt class="xref py py-class docutils literal"><span class="pre">BddFsm</span></tt></a>) &#8211; the concerned FSM</li>
-<li><strong>spec</strong> (<a class="reference internal" href="#pynusmv.prop.Spec" title="pynusmv.prop.Spec"><tt class="xref py py-class docutils literal"><span class="pre">Spec</span></tt></a>) &#8211; a specification about <cite>fsm</cite></li>
-<li><strong>context</strong> (<a class="reference internal" href="#pynusmv.prop.Spec" title="pynusmv.prop.Spec"><tt class="xref py py-class docutils literal"><span class="pre">Spec</span></tt></a>) &#8211; the context in which evaluate <cite>spec</cite></li>
-</ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><a class="reference internal" href="#pynusmv.dd.BDD" title="pynusmv.dd.BDD"><tt class="xref py py-class docutils literal"><span class="pre">BDD</span></tt></a></p>
-</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="function">
-<dt id="pynusmv.mc.explainEX">
-<tt class="descclassname">pynusmv.mc.</tt><tt class="descname">explainEX</tt><big>(</big><em>fsm</em>, <em>state</em>, <em>a</em><big>)</big><a class="reference internal" href="_modules/pynusmv/mc.html#explainEX"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynusmv.mc.explainEX" title="Permalink to this definition">¶</a></dt>
-<dd><p>Explain why <cite>state</cite> of <cite>fsm</cite> satisfies <cite>EX phi</cite>, where <cite>a</cite> is
-the set of states of <cite>fsm</cite> satisfying <cite>phi</cite>, represented by a BDD.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>fsm</strong> (<a class="reference internal" href="#pynusmv.fsm.BddFsm" title="pynusmv.fsm.BddFsm"><tt class="xref py py-class docutils literal"><span class="pre">BddFsm</span></tt></a>) &#8211; the system</li>
-<li><strong>state</strong> (<a class="reference internal" href="#pynusmv.dd.State" title="pynusmv.dd.State"><tt class="xref py py-class docutils literal"><span class="pre">State</span></tt></a>) &#8211; a state of <cite>fsm</cite></li>
-<li><strong>a</strong> (<a class="reference internal" href="#pynusmv.dd.BDD" title="pynusmv.dd.BDD"><tt class="xref py py-class docutils literal"><span class="pre">BDD</span></tt></a>) &#8211; the set of states of <cite>fsm</cite> satisfying <cite>phi</cite></li>
-</ul>
-</td>
-</tr>
-</tbody>
-</table>
-<p>Return <cite>(s, i, s&#8217;)</cite> tuple where <cite>s</cite> (<a class="reference internal" href="#pynusmv.dd.State" title="pynusmv.dd.State"><tt class="xref py py-class docutils literal"><span class="pre">State</span></tt></a>)
-is the given state, <cite>s&#8217;</cite> (<a class="reference internal" href="#pynusmv.dd.State" title="pynusmv.dd.State"><tt class="xref py py-class docutils literal"><span class="pre">State</span></tt></a>) is a successor
-of <cite>s</cite> belonging to <cite>a</cite> and <cite>i</cite> (<a class="reference internal" href="#pynusmv.dd.Inputs" title="pynusmv.dd.Inputs"><tt class="xref py py-class docutils literal"><span class="pre">Inputs</span></tt></a>)
-is the inputs to go from <cite>s</cite> to <cite>s&#8217;</cite> in <cite>fsm</cite>.</p>
-</dd></dl>
-
-<dl class="function">
-<dt id="pynusmv.mc.explainEU">
-<tt class="descclassname">pynusmv.mc.</tt><tt class="descname">explainEU</tt><big>(</big><em>fsm</em>, <em>state</em>, <em>a</em>, <em>b</em><big>)</big><a class="reference internal" href="_modules/pynusmv/mc.html#explainEU"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynusmv.mc.explainEU" title="Permalink to this definition">¶</a></dt>
-<dd><p>Explain why <cite>state</cite> of <cite>fsm</cite> satisfies <cite>E[phi U psi]</cite>,
-where <cite>a is the set of states of `fsm</cite> satisfying <cite>phi</cite>
-and <cite>b</cite> is the set of states of <cite>fsm</cite> satisfying <cite>psi</cite>, both represented
-by BDDs.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>fsm</strong> (<a class="reference internal" href="#pynusmv.fsm.BddFsm" title="pynusmv.fsm.BddFsm"><tt class="xref py py-class docutils literal"><span class="pre">BddFsm</span></tt></a>) &#8211; the system</li>
-<li><strong>state</strong> (<a class="reference internal" href="#pynusmv.dd.State" title="pynusmv.dd.State"><tt class="xref py py-class docutils literal"><span class="pre">State</span></tt></a>) &#8211; a state of <cite>fsm</cite></li>
-<li><strong>a</strong> (<a class="reference internal" href="#pynusmv.dd.BDD" title="pynusmv.dd.BDD"><tt class="xref py py-class docutils literal"><span class="pre">BDD</span></tt></a>) &#8211; the set of states of <cite>fsm</cite> satisfying <cite>phi</cite></li>
-<li><strong>b</strong> (<a class="reference internal" href="#pynusmv.dd.BDD" title="pynusmv.dd.BDD"><tt class="xref py py-class docutils literal"><span class="pre">BDD</span></tt></a>) &#8211; the set of states of <cite>fsm</cite> satisfying <cite>psi</cite></li>
-</ul>
-</td>
-</tr>
-</tbody>
-</table>
-<p>Return a tuple <cite>t</cite> composed of states (<a class="reference internal" href="#pynusmv.dd.State" title="pynusmv.dd.State"><tt class="xref py py-class docutils literal"><span class="pre">State</span></tt></a>)
-and inputs (<a class="reference internal" href="#pynusmv.dd.Inputs" title="pynusmv.dd.Inputs"><tt class="xref py py-class docutils literal"><span class="pre">Inputs</span></tt></a>),
-such that <cite>t[0]</cite> is <cite>state</cite>, <cite>t[-1]</cite> belongs to <cite>b</cite>, and every other state
-of <cite>t</cite> belongs to <cite>a</cite>. The states of <cite>t</cite> are separated by inputs.
-Furthermore, <cite>t</cite> represents a path in <cite>fsm</cite>.</p>
-</dd></dl>
-
-<dl class="function">
-<dt id="pynusmv.mc.explainEG">
-<tt class="descclassname">pynusmv.mc.</tt><tt class="descname">explainEG</tt><big>(</big><em>fsm</em>, <em>state</em>, <em>a</em><big>)</big><a class="reference internal" href="_modules/pynusmv/mc.html#explainEG"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynusmv.mc.explainEG" title="Permalink to this definition">¶</a></dt>
-<dd><p>Explain why <cite>state</cite> of <cite>fsm</cite> satisfies <cite>EG phi</cite>,
-where <cite>a</cite> the set of states of <cite>fsm</cite> satisfying <cite>phi</cite>, represented by a BDD.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>fsm</strong> (<a class="reference internal" href="#pynusmv.fsm.BddFsm" title="pynusmv.fsm.BddFsm"><tt class="xref py py-class docutils literal"><span class="pre">BddFsm</span></tt></a>) &#8211; the system</li>
-<li><strong>state</strong> (<a class="reference internal" href="#pynusmv.dd.State" title="pynusmv.dd.State"><tt class="xref py py-class docutils literal"><span class="pre">State</span></tt></a>) &#8211; a state of <cite>fsm</cite></li>
-<li><strong>a</strong> (<a class="reference internal" href="#pynusmv.dd.BDD" title="pynusmv.dd.BDD"><tt class="xref py py-class docutils literal"><span class="pre">BDD</span></tt></a>) &#8211; the set of states of <cite>fsm</cite> satisfying <cite>phi</cite></li>
-</ul>
-</td>
-</tr>
-</tbody>
-</table>
-<p>Return a tuple <cite>(t, (i, loop))</cite>
-where <cite>t</cite> is a tuple composed of states (<a class="reference internal" href="#pynusmv.dd.State" title="pynusmv.dd.State"><tt class="xref py py-class docutils literal"><span class="pre">State</span></tt></a>)
-and inputs (<a class="reference internal" href="#pynusmv.dd.Inputs" title="pynusmv.dd.Inputs"><tt class="xref py py-class docutils literal"><span class="pre">Inputs</span></tt></a>),
-such that <cite>t[0]</cite> is state and every other state of <cite>t</cite>
-belongs to <cite>a</cite>. The states of <cite>t</cite> are separated by inputs.
-Furthermore, <cite>t</cite> represents a path in <cite>fsm</cite>.
-<cite>loop</cite> represents the start of the loop contained in <cite>t</cite>,
-i.e. <cite>t[-1]</cite> can lead to <cite>loop</cite> through <cite>i</cite>, and <cite>loop</cite> is a state of <cite>t</cite>.</p>
-</dd></dl>
-
-</div>
-<div class="section" id="module-pynusmv.parser">
-<span id="parser-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">parser</span></tt> Module<a class="headerlink" href="#module-pynusmv.parser" title="Permalink to this headline">¶</a></h2>
-<p>The <a class="reference internal" href="#module-pynusmv.parser" title="pynusmv.parser"><tt class="xref py py-mod docutils literal"><span class="pre">pynusmv.parser</span></tt></a> module provides functions to parse strings
-and return corresponding ASTs.</p>
-<dl class="function">
-<dt id="pynusmv.parser.parse_simple_expression">
-<tt class="descclassname">pynusmv.parser.</tt><tt class="descname">parse_simple_expression</tt><big>(</big><em>expression</em><big>)</big><a class="reference internal" href="_modules/pynusmv/parser.html#parse_simple_expression"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynusmv.parser.parse_simple_expression" title="Permalink to this definition">¶</a></dt>
-<dd><p>Parse a simple expression.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>expression</strong> (<em>string</em>) &#8211; the expression to parse</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Raise :</th><td class="field-body">a <a class="reference internal" href="#pynusmv.exception.NuSMVParsingError" title="pynusmv.exception.NuSMVParsingError"><tt class="xref py py-exc docutils literal"><span class="pre">NuSMVParsingError</span></tt></a>
-if a parsing error occurs</td>
-</tr>
-</tbody>
-</table>
-<div class="admonition warning">
-<p class="first admonition-title">Warning</p>
-<p class="last">Returned value is a SWIG wrapper for the NuSMV node_ptr.
-It is the responsibility of the caller to manage it.</p>
-</div>
-</dd></dl>
-
-<dl class="function">
-<dt id="pynusmv.parser.parse_next_expression">
-<tt class="descclassname">pynusmv.parser.</tt><tt class="descname">parse_next_expression</tt><big>(</big><em>expression</em><big>)</big><a class="reference internal" href="_modules/pynusmv/parser.html#parse_next_expression"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynusmv.parser.parse_next_expression" title="Permalink to this definition">¶</a></dt>
-<dd><p>Parse a &#8220;next&#8221; expression.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>expression</strong> (<em>string</em>) &#8211; the expression to parse</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Raise :</th><td class="field-body">a <a class="reference internal" href="#pynusmv.exception.NuSMVParsingError" title="pynusmv.exception.NuSMVParsingError"><tt class="xref py py-exc docutils literal"><span class="pre">NuSMVParsingError</span></tt></a>
-if a parsing error occurs</td>
-</tr>
-</tbody>
-</table>
-<div class="admonition warning">
-<p class="first admonition-title">Warning</p>
-<p class="last">Returned value is a SWIG wrapper for the NuSMV node_ptr.
-It is the responsibility of the caller to manage it.</p>
-</div>
-</dd></dl>
-
-<dl class="function">
-<dt id="pynusmv.parser.parse_identifier">
-<tt class="descclassname">pynusmv.parser.</tt><tt class="descname">parse_identifier</tt><big>(</big><em>expression</em><big>)</big><a class="reference internal" href="_modules/pynusmv/parser.html#parse_identifier"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynusmv.parser.parse_identifier" title="Permalink to this definition">¶</a></dt>
-<dd><p>Parse an identifier</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>expression</strong> (<em>string</em>) &#8211; the identifier to parse</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Raise :</th><td class="field-body">a <a class="reference internal" href="#pynusmv.exception.NuSMVParsingError" title="pynusmv.exception.NuSMVParsingError"><tt class="xref py py-exc docutils literal"><span class="pre">NuSMVParsingError</span></tt></a>
-if a parsing error occurs</td>
-</tr>
-</tbody>
-</table>
-<div class="admonition warning">
-<p class="first admonition-title">Warning</p>
-<p class="last">Returned value is a SWIG wrapper for the NuSMV node_ptr.
-It is the responsibility of the caller to manage it.</p>
-</div>
-</dd></dl>
-
-</div>
 <div class="section" id="module-pynusmv.prop">
 <span id="prop-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">prop</span></tt> Module<a class="headerlink" href="#module-pynusmv.prop" title="Permalink to this headline">¶</a></h2>
 <p>The <a class="reference internal" href="#module-pynusmv.prop" title="pynusmv.prop"><tt class="xref py py-mod docutils literal"><span class="pre">pynusmv.prop</span></tt></a> module contains classes and functions dealing with
 properties and specifications of models.</p>
 <dl class="data">
 <dt id="pynusmv.prop.propTypes">
-<tt class="descclassname">pynusmv.prop.</tt><tt class="descname">propTypes</tt><em class="property"> = {'Compute': 106, 'Comparison': 107, 'PSL': 104, 'Invariant': 105, 'CTL': 102, 'LTL': 103, 'NoType': 101}</em><a class="headerlink" href="#pynusmv.prop.propTypes" title="Permalink to this definition">¶</a></dt>
+<tt class="descclassname">pynusmv.prop.</tt><tt class="descname">propTypes</tt><em class="property"> = {'Comparison': 107, 'PSL': 104, 'CTL': 102, 'Invariant': 105, 'Compute': 106, 'LTL': 103, 'NoType': 101}</em><a class="headerlink" href="#pynusmv.prop.propTypes" title="Permalink to this definition">¶</a></dt>
 <dd><p>The possible types of properties. This gives access to NuSMV internal types
 without dealing with <cite>pynusmv.nusmv</cite> modules.</p>
 </dd></dl>
@@ -1961,6 +1968,206 @@ proposition.</p>
 </dd></dl>
 
 </div>
+<div class="section" id="module-pynusmv.parser">
+<span id="parser-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">parser</span></tt> Module<a class="headerlink" href="#module-pynusmv.parser" title="Permalink to this headline">¶</a></h2>
+<p>The <a class="reference internal" href="#module-pynusmv.parser" title="pynusmv.parser"><tt class="xref py py-mod docutils literal"><span class="pre">pynusmv.parser</span></tt></a> module provides functions to parse strings
+and return corresponding ASTs.</p>
+<dl class="function">
+<dt id="pynusmv.parser.parse_simple_expression">
+<tt class="descclassname">pynusmv.parser.</tt><tt class="descname">parse_simple_expression</tt><big>(</big><em>expression</em><big>)</big><a class="reference internal" href="_modules/pynusmv/parser.html#parse_simple_expression"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynusmv.parser.parse_simple_expression" title="Permalink to this definition">¶</a></dt>
+<dd><p>Parse a simple expression.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>expression</strong> (<em>string</em>) &#8211; the expression to parse</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Raise :</th><td class="field-body">a <a class="reference internal" href="#pynusmv.exception.NuSMVParsingError" title="pynusmv.exception.NuSMVParsingError"><tt class="xref py py-exc docutils literal"><span class="pre">NuSMVParsingError</span></tt></a>
+if a parsing error occurs</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last">Returned value is a SWIG wrapper for the NuSMV node_ptr.
+It is the responsibility of the caller to manage it.</p>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="pynusmv.parser.parse_next_expression">
+<tt class="descclassname">pynusmv.parser.</tt><tt class="descname">parse_next_expression</tt><big>(</big><em>expression</em><big>)</big><a class="reference internal" href="_modules/pynusmv/parser.html#parse_next_expression"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynusmv.parser.parse_next_expression" title="Permalink to this definition">¶</a></dt>
+<dd><p>Parse a &#8220;next&#8221; expression.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>expression</strong> (<em>string</em>) &#8211; the expression to parse</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Raise :</th><td class="field-body">a <a class="reference internal" href="#pynusmv.exception.NuSMVParsingError" title="pynusmv.exception.NuSMVParsingError"><tt class="xref py py-exc docutils literal"><span class="pre">NuSMVParsingError</span></tt></a>
+if a parsing error occurs</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last">Returned value is a SWIG wrapper for the NuSMV node_ptr.
+It is the responsibility of the caller to manage it.</p>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="pynusmv.parser.parse_identifier">
+<tt class="descclassname">pynusmv.parser.</tt><tt class="descname">parse_identifier</tt><big>(</big><em>expression</em><big>)</big><a class="reference internal" href="_modules/pynusmv/parser.html#parse_identifier"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynusmv.parser.parse_identifier" title="Permalink to this definition">¶</a></dt>
+<dd><p>Parse an identifier</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>expression</strong> (<em>string</em>) &#8211; the identifier to parse</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Raise :</th><td class="field-body">a <a class="reference internal" href="#pynusmv.exception.NuSMVParsingError" title="pynusmv.exception.NuSMVParsingError"><tt class="xref py py-exc docutils literal"><span class="pre">NuSMVParsingError</span></tt></a>
+if a parsing error occurs</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last">Returned value is a SWIG wrapper for the NuSMV node_ptr.
+It is the responsibility of the caller to manage it.</p>
+</div>
+</dd></dl>
+
+</div>
+<div class="section" id="module-pynusmv.mc">
+<span id="mc-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">mc</span></tt> Module<a class="headerlink" href="#module-pynusmv.mc" title="Permalink to this headline">¶</a></h2>
+<p>The <a class="reference internal" href="#module-pynusmv.mc" title="pynusmv.mc"><tt class="xref py py-mod docutils literal"><span class="pre">pynusmv.mc</span></tt></a> module provides some functions of NuSMV dealing with model
+checking, like CTL model checking.</p>
+<dl class="function">
+<dt id="pynusmv.mc.eval_simple_expression">
+<tt class="descclassname">pynusmv.mc.</tt><tt class="descname">eval_simple_expression</tt><big>(</big><em>fsm</em>, <em>sexp</em><big>)</big><a class="reference internal" href="_modules/pynusmv/mc.html#eval_simple_expression"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynusmv.mc.eval_simple_expression" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the set of states of <cite>fsm</cite> satisfying <cite>sexp</cite>, as a BDD.
+<cite>sexp</cite> is first parsed, then evaluated on <cite>fsm</cite>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>fsm</strong> (<a class="reference internal" href="#pynusmv.fsm.BddFsm" title="pynusmv.fsm.BddFsm"><tt class="xref py py-class docutils literal"><span class="pre">BddFsm</span></tt></a>) &#8211; the concerned FSM</li>
+<li><strong>sexp</strong> &#8211; a simple expression, as a string</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><a class="reference internal" href="#pynusmv.dd.BDD" title="pynusmv.dd.BDD"><tt class="xref py py-class docutils literal"><span class="pre">BDD</span></tt></a></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="pynusmv.mc.eval_ctl_spec">
+<tt class="descclassname">pynusmv.mc.</tt><tt class="descname">eval_ctl_spec</tt><big>(</big><em>fsm</em>, <em>spec</em>, <em>context=None</em><big>)</big><a class="reference internal" href="_modules/pynusmv/mc.html#eval_ctl_spec"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynusmv.mc.eval_ctl_spec" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the set of states of <cite>fsm</cite> satisfying <cite>spec</cite> in <cite>context</cite>, as a BDD.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>fsm</strong> (<a class="reference internal" href="#pynusmv.fsm.BddFsm" title="pynusmv.fsm.BddFsm"><tt class="xref py py-class docutils literal"><span class="pre">BddFsm</span></tt></a>) &#8211; the concerned FSM</li>
+<li><strong>spec</strong> (<a class="reference internal" href="#pynusmv.prop.Spec" title="pynusmv.prop.Spec"><tt class="xref py py-class docutils literal"><span class="pre">Spec</span></tt></a>) &#8211; a specification about <cite>fsm</cite></li>
+<li><strong>context</strong> (<a class="reference internal" href="#pynusmv.prop.Spec" title="pynusmv.prop.Spec"><tt class="xref py py-class docutils literal"><span class="pre">Spec</span></tt></a>) &#8211; the context in which evaluate <cite>spec</cite></li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><a class="reference internal" href="#pynusmv.dd.BDD" title="pynusmv.dd.BDD"><tt class="xref py py-class docutils literal"><span class="pre">BDD</span></tt></a></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="pynusmv.mc.explainEX">
+<tt class="descclassname">pynusmv.mc.</tt><tt class="descname">explainEX</tt><big>(</big><em>fsm</em>, <em>state</em>, <em>a</em><big>)</big><a class="reference internal" href="_modules/pynusmv/mc.html#explainEX"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynusmv.mc.explainEX" title="Permalink to this definition">¶</a></dt>
+<dd><p>Explain why <cite>state</cite> of <cite>fsm</cite> satisfies <cite>EX phi</cite>, where <cite>a</cite> is
+the set of states of <cite>fsm</cite> satisfying <cite>phi</cite>, represented by a BDD.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>fsm</strong> (<a class="reference internal" href="#pynusmv.fsm.BddFsm" title="pynusmv.fsm.BddFsm"><tt class="xref py py-class docutils literal"><span class="pre">BddFsm</span></tt></a>) &#8211; the system</li>
+<li><strong>state</strong> (<a class="reference internal" href="#pynusmv.dd.State" title="pynusmv.dd.State"><tt class="xref py py-class docutils literal"><span class="pre">State</span></tt></a>) &#8211; a state of <cite>fsm</cite></li>
+<li><strong>a</strong> (<a class="reference internal" href="#pynusmv.dd.BDD" title="pynusmv.dd.BDD"><tt class="xref py py-class docutils literal"><span class="pre">BDD</span></tt></a>) &#8211; the set of states of <cite>fsm</cite> satisfying <cite>phi</cite></li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<p>Return <cite>(s, i, s&#8217;)</cite> tuple where <cite>s</cite> (<a class="reference internal" href="#pynusmv.dd.State" title="pynusmv.dd.State"><tt class="xref py py-class docutils literal"><span class="pre">State</span></tt></a>)
+is the given state, <cite>s&#8217;</cite> (<a class="reference internal" href="#pynusmv.dd.State" title="pynusmv.dd.State"><tt class="xref py py-class docutils literal"><span class="pre">State</span></tt></a>) is a successor
+of <cite>s</cite> belonging to <cite>a</cite> and <cite>i</cite> (<a class="reference internal" href="#pynusmv.dd.Inputs" title="pynusmv.dd.Inputs"><tt class="xref py py-class docutils literal"><span class="pre">Inputs</span></tt></a>)
+is the inputs to go from <cite>s</cite> to <cite>s&#8217;</cite> in <cite>fsm</cite>.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pynusmv.mc.explainEU">
+<tt class="descclassname">pynusmv.mc.</tt><tt class="descname">explainEU</tt><big>(</big><em>fsm</em>, <em>state</em>, <em>a</em>, <em>b</em><big>)</big><a class="reference internal" href="_modules/pynusmv/mc.html#explainEU"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynusmv.mc.explainEU" title="Permalink to this definition">¶</a></dt>
+<dd><p>Explain why <cite>state</cite> of <cite>fsm</cite> satisfies <cite>E[phi U psi]</cite>,
+where <cite>a is the set of states of `fsm</cite> satisfying <cite>phi</cite>
+and <cite>b</cite> is the set of states of <cite>fsm</cite> satisfying <cite>psi</cite>, both represented
+by BDDs.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>fsm</strong> (<a class="reference internal" href="#pynusmv.fsm.BddFsm" title="pynusmv.fsm.BddFsm"><tt class="xref py py-class docutils literal"><span class="pre">BddFsm</span></tt></a>) &#8211; the system</li>
+<li><strong>state</strong> (<a class="reference internal" href="#pynusmv.dd.State" title="pynusmv.dd.State"><tt class="xref py py-class docutils literal"><span class="pre">State</span></tt></a>) &#8211; a state of <cite>fsm</cite></li>
+<li><strong>a</strong> (<a class="reference internal" href="#pynusmv.dd.BDD" title="pynusmv.dd.BDD"><tt class="xref py py-class docutils literal"><span class="pre">BDD</span></tt></a>) &#8211; the set of states of <cite>fsm</cite> satisfying <cite>phi</cite></li>
+<li><strong>b</strong> (<a class="reference internal" href="#pynusmv.dd.BDD" title="pynusmv.dd.BDD"><tt class="xref py py-class docutils literal"><span class="pre">BDD</span></tt></a>) &#8211; the set of states of <cite>fsm</cite> satisfying <cite>psi</cite></li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<p>Return a tuple <cite>t</cite> composed of states (<a class="reference internal" href="#pynusmv.dd.State" title="pynusmv.dd.State"><tt class="xref py py-class docutils literal"><span class="pre">State</span></tt></a>)
+and inputs (<a class="reference internal" href="#pynusmv.dd.Inputs" title="pynusmv.dd.Inputs"><tt class="xref py py-class docutils literal"><span class="pre">Inputs</span></tt></a>),
+such that <cite>t[0]</cite> is <cite>state</cite>, <cite>t[-1]</cite> belongs to <cite>b</cite>, and every other state
+of <cite>t</cite> belongs to <cite>a</cite>. The states of <cite>t</cite> are separated by inputs.
+Furthermore, <cite>t</cite> represents a path in <cite>fsm</cite>.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pynusmv.mc.explainEG">
+<tt class="descclassname">pynusmv.mc.</tt><tt class="descname">explainEG</tt><big>(</big><em>fsm</em>, <em>state</em>, <em>a</em><big>)</big><a class="reference internal" href="_modules/pynusmv/mc.html#explainEG"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynusmv.mc.explainEG" title="Permalink to this definition">¶</a></dt>
+<dd><p>Explain why <cite>state</cite> of <cite>fsm</cite> satisfies <cite>EG phi</cite>,
+where <cite>a</cite> the set of states of <cite>fsm</cite> satisfying <cite>phi</cite>, represented by a BDD.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>fsm</strong> (<a class="reference internal" href="#pynusmv.fsm.BddFsm" title="pynusmv.fsm.BddFsm"><tt class="xref py py-class docutils literal"><span class="pre">BddFsm</span></tt></a>) &#8211; the system</li>
+<li><strong>state</strong> (<a class="reference internal" href="#pynusmv.dd.State" title="pynusmv.dd.State"><tt class="xref py py-class docutils literal"><span class="pre">State</span></tt></a>) &#8211; a state of <cite>fsm</cite></li>
+<li><strong>a</strong> (<a class="reference internal" href="#pynusmv.dd.BDD" title="pynusmv.dd.BDD"><tt class="xref py py-class docutils literal"><span class="pre">BDD</span></tt></a>) &#8211; the set of states of <cite>fsm</cite> satisfying <cite>phi</cite></li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<p>Return a tuple <cite>(t, (i, loop))</cite>
+where <cite>t</cite> is a tuple composed of states (<a class="reference internal" href="#pynusmv.dd.State" title="pynusmv.dd.State"><tt class="xref py py-class docutils literal"><span class="pre">State</span></tt></a>)
+and inputs (<a class="reference internal" href="#pynusmv.dd.Inputs" title="pynusmv.dd.Inputs"><tt class="xref py py-class docutils literal"><span class="pre">Inputs</span></tt></a>),
+such that <cite>t[0]</cite> is state and every other state of <cite>t</cite>
+belongs to <cite>a</cite>. The states of <cite>t</cite> are separated by inputs.
+Furthermore, <cite>t</cite> represents a path in <cite>fsm</cite>.
+<cite>loop</cite> represents the start of the loop contained in <cite>t</cite>,
+i.e. <cite>t[-1]</cite> can lead to <cite>loop</cite> through <cite>i</cite>, and <cite>loop</cite> is a state of <cite>t</cite>.</p>
+</dd></dl>
+
+</div>
 <div class="section" id="module-pynusmv.utils">
 <span id="utils-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">utils</span></tt> Module<a class="headerlink" href="#module-pynusmv.utils" title="Permalink to this headline">¶</a></h2>
 <p>The <a class="reference internal" href="#module-pynusmv.utils" title="pynusmv.utils"><tt class="xref py py-mod docutils literal"><span class="pre">pynusmv.utils</span></tt></a> module contains some secondary functions and classes
@@ -2016,14 +2223,15 @@ if the pointer have to be freed.</p>
   <h3><a href="index.html">Table Of Contents</a></h3>
   <ul>
 <li><a class="reference internal" href="#">PyNuSMV Reference</a><ul>
+<li><a class="reference internal" href="#module-pynusmv.init"><tt class="docutils literal"><span class="pre">init</span></tt> Module</a></li>
+<li><a class="reference internal" href="#module-pynusmv.glob"><tt class="docutils literal"><span class="pre">glob</span></tt> Module</a></li>
+<li><a class="reference internal" href="#module-pynusmv.model"><tt class="docutils literal"><span class="pre">model</span></tt> Module</a></li>
 <li><a class="reference internal" href="#module-pynusmv.dd"><tt class="docutils literal"><span class="pre">dd</span></tt> Module</a></li>
 <li><a class="reference internal" href="#module-pynusmv.exception"><tt class="docutils literal"><span class="pre">exception</span></tt> Module</a></li>
 <li><a class="reference internal" href="#module-pynusmv.fsm"><tt class="docutils literal"><span class="pre">fsm</span></tt> Module</a></li>
-<li><a class="reference internal" href="#module-pynusmv.glob"><tt class="docutils literal"><span class="pre">glob</span></tt> Module</a></li>
-<li><a class="reference internal" href="#module-pynusmv.init"><tt class="docutils literal"><span class="pre">init</span></tt> Module</a></li>
-<li><a class="reference internal" href="#module-pynusmv.mc"><tt class="docutils literal"><span class="pre">mc</span></tt> Module</a></li>
-<li><a class="reference internal" href="#module-pynusmv.parser"><tt class="docutils literal"><span class="pre">parser</span></tt> Module</a></li>
 <li><a class="reference internal" href="#module-pynusmv.prop"><tt class="docutils literal"><span class="pre">prop</span></tt> Module</a></li>
+<li><a class="reference internal" href="#module-pynusmv.parser"><tt class="docutils literal"><span class="pre">parser</span></tt> Module</a></li>
+<li><a class="reference internal" href="#module-pynusmv.mc"><tt class="docutils literal"><span class="pre">mc</span></tt> Module</a></li>
 <li><a class="reference internal" href="#module-pynusmv.utils"><tt class="docutils literal"><span class="pre">utils</span></tt> Module</a></li>
 </ul>
 </li>

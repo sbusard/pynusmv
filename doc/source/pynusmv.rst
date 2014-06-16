@@ -8,6 +8,30 @@ PyNuSMV Reference
     :undoc-members:
     :show-inheritance:
 
+:mod:`init` Module
+------------------
+
+.. automodule:: pynusmv.init
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+:mod:`glob` Module
+------------------
+
+.. automodule:: pynusmv.glob
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+:mod:`model` Module
+-------------------
+
+.. automodule:: pynusmv.model
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 :mod:`dd` Module
 ----------------
 
@@ -32,26 +56,10 @@ PyNuSMV Reference
     :undoc-members:
     :show-inheritance:
 
-:mod:`glob` Module
+:mod:`prop` Module
 ------------------
 
-.. automodule:: pynusmv.glob
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-:mod:`init` Module
-------------------
-
-.. automodule:: pynusmv.init
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-:mod:`mc` Module
-----------------
-
-.. automodule:: pynusmv.mc
+.. automodule:: pynusmv.prop
     :members:
     :undoc-members:
     :show-inheritance:
@@ -64,10 +72,10 @@ PyNuSMV Reference
     :undoc-members:
     :show-inheritance:
 
-:mod:`prop` Module
-------------------
+:mod:`mc` Module
+----------------
 
-.. automodule:: pynusmv.prop
+.. automodule:: pynusmv.mc
     :members:
     :undoc-members:
     :show-inheritance:
@@ -79,4 +87,3 @@ PyNuSMV Reference
     :members:
     :undoc-members:
     :show-inheritance:
-
