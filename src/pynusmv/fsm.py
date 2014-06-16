@@ -475,6 +475,21 @@ class BddFsm(PointerWrapper):
             tmp.write(model.encode("UTF-8"))
             tmp.flush()
             return BddFsm.from_filename(tmp.name)
+    
+    
+    @staticmethod
+    def from_modules(*modules):
+        """
+        Return the FSM corresponding to the model defined by the given list
+        of modules.
+        
+        :param modules: the modules defining the NuSMV model. Must contain a
+                        `main` module.
+        :type modules: a list of :class:`Module <pynusmv.model.Module>`
+                       subclasses
+        
+        """
+        return from_string("\n".join(str(module) for module in modules))
         
         
 
