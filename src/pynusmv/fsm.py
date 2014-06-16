@@ -288,8 +288,8 @@ class BddFsm(PointerWrapper):
         
         :param current: the source states
         :type current: :class:`BDD <pynusmv.dd.BDD>`
-        :param current: the destination states
-        :type current: :class:`BDD <pynusmv.dd.BDD>`
+        :param next: the destination states
+        :type next: :class:`BDD <pynusmv.dd.BDD>`
         :rtype: :class:`BDD <pynusmv.dd.BDD>`
         
         """
@@ -459,7 +459,6 @@ class BddFsm(PointerWrapper):
         glob.compute_model()
         propDb = glob.prop_database()
         return propDb.master.bddFsm
-        # TODO Remove this and use glob module instead
     
     
     @staticmethod

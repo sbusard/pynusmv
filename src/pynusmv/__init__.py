@@ -7,13 +7,14 @@ structures. In particular, NuSMV models can be read, parsed and compiled, giving
 full access to SMV's rich modeling language and vast collection of existing
 models.
 
-PyNuSMV is composed of several modules, each one proposing some NuSMV
-functionalities:
+PyNuSMV is composed of several modules, each one proposing some functionalities:
 
 * :mod:`init <pynusmv.init>` contains all the functions needed to initialize and 
   close NuSMV. These functions need to be used before any other access to PyNuSMV.
 * :mod:`glob <pynusmv.glob>` provides functionalities to read and build a model 
   from an SMV source file.
+* :mod:`model <pynusmv.model>` provides functionalities to define NuSMV models
+  in Python.
 * :mod:`dd <pynusmv.dd>` provides BDD-related structures like generic BDD, lists 
   of BDDs and BDD-represented states and input values.
 * :mod:`exception <pynusmv.exception>` groups all the PyNuSMV-related 
@@ -36,7 +37,7 @@ functionalities:
 """
 
 __all__ = ['dd', 'exception', 'fsm', 'glob', 'init', 'mc', 'nusmv', 'parser',
-           'prop', 'utils']
+           'prop', 'utils', 'model']
 
 from . import dd
 from . import fsm
@@ -47,3 +48,4 @@ from . import nusmv
 from . import parser
 from . import prop
 from . import utils
+from . import model
