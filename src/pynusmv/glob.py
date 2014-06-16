@@ -87,6 +87,19 @@ def load_from_string(model):
         load_from_file(tmp.name)
 
 
+def load_from_modules(*modules):
+    """
+    Load a model from a set of modules representing the model.
+    
+    :param modules: the modules defining the NuSMV model. Must contain a
+                    `main` module.
+    :type modules: a list of :class:`Module <pynusmv.model.Module>`
+                   subclasses
+    
+    """
+    load_from_string("\n".join(str(module) for module in modules))
+
+
 def load_from_file(filepath):
     """
     Load a model from an SMV file and store it in global data structures.
