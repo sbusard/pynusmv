@@ -12,7 +12,7 @@ import collections
 __all__ = ['Module']
 
 
-class _ModuleMetaClass(type):
+class ModuleMetaClass(type):
     """
     The meta class for modules, allowing modules to be printed.
     
@@ -168,7 +168,7 @@ class _ModuleMetaClass(type):
         return "\n".join(representation)
 
 
-class Module(object, metaclass=_ModuleMetaClass):
+class Module(object, metaclass=ModuleMetaClass):
     """
     A generic module.
     
@@ -203,11 +203,11 @@ class Module(object, metaclass=_ModuleMetaClass):
           used as the name of the variable (or input variable, define, etc.) and
           the second one as the body of the declaration.
 
-      TRANS, INIT, INVAR, FAIRNESS, JUSTICE, COMPASSION sections
-          If the value of the section is a string (:class:`str`), it is used as
-          the body of the section. Otherwise, it must be a sequence and the
-          string representation of the elements of the sequence are declared
-          as different sections
+    TRANS, INIT, INVAR, FAIRNESS, JUSTICE, COMPASSION sections
+        If the value of the section is a string (:class:`str`), it is used as
+        the body of the section. Otherwise, it must be a sequence and the
+        string representation of the elements of the sequence are declared
+        as different sections.
     
     
     For example, the class ::
@@ -241,4 +241,15 @@ class Module(object, metaclass=_ModuleMetaClass):
     """
     
     pass
-        
+
+
+class Model:
+    """
+    A NuSMV model. It is composed of a set of NuSMV modules.
+    
+    """
+    def __init__(self, *modules):
+        self.modules = modules
+    
+    def __str__(self):
+        return "\n".join(str(module) for module in self.modules)

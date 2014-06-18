@@ -16,6 +16,7 @@ __all__ = ['load_from_file', 'load_from_string',
            'build_model', 'prop_database', 'compute_model']
 
 import tempfile
+import os
 
 from .nusmv.parser import parser as nsparser
 from .nusmv.opt import opt as nsopt
@@ -34,6 +35,7 @@ from .nusmv.fsm.bdd import bdd as nsbddfsm
 from .nusmv.trace import trace as nstrace
 from .nusmv.trace.exec import exec as nstraceexec
 
+from .model import Model
 from .fsm import BddEnc, SymbTable
 from .parser import Error, NuSMVParsingError
 from .prop import PropDb
@@ -72,6 +74,30 @@ def _reset_globals():
     nscompile.cmp_struct_reset(nscompile.cvar.cmps)
 
 
+def load(model):
+    """
+    Load the given model. This model can be of several forms:
+    
+    * a file path; in this case, the model is loaded from the file;
+    * a string; in this case, `model` is the body of the model;
+    * a list of modules (list of :class:`Module <pynusmv.model.Module>`
+      subclasses); in this case, the model is represented by the set of 
+      modules;
+    * a model (:class:`Model <pynusmv.model.Model`); in this case, this model
+      is loaded.
+    
+    """
+    if isinstance(str, model):
+        if os.path.isfile(model):
+            load_from_file(model)
+        else:
+            load_from_string(model)
+    elif isinstance(Model, model):
+        load_from_model(model)
+    else: # model must be a list of modules
+        load_from_modules(*model)
+
+
 def load_from_string(model):
     """
     Load a model from a string representing the model.
@@ -98,6 +124,17 @@ def load_from_modules(*modules):
     
     """
     load_from_string("\n".join(str(module) for module in modules))
+
+
+def load_from_model(model):
+    """
+    Load the given model.
+    
+    :param model: the model to load.
+    :type model: :class:`Model <pynusmv.model.Model>`
+    
+    """
+    load_from_string(str(model))
 
 
 def load_from_file(filepath):
