@@ -29,6 +29,15 @@ class ModuleMetaClass(type):
     
     """
     
+    @classmethod
+    def __prepare__(metacls, name, bases, **keywords):
+        return collections.OrderedDict()
+    
+    def __new__(cls, name, bases, namespace, **keywords):
+        result = type.__new__(cls, name, bases, dict(namespace))
+        result.members = tuple(namespace)
+        return result
+    
     # The list of module members that will be printed
     _MODULE_SECTIONS = {"VAR", "IVAR", "FROZENVAR", "DEFINE", "CONSTANTS",
                         "ASSIGN", "TRANS", "INIT", "INVAR", "FAIRNESS",
@@ -158,12 +167,11 @@ class ModuleMetaClass(type):
         except AttributeError:
             args = ""
         
-        sections = {section: value for section, value in inspect.getmembers(cls)
-                                   if section in cls._MODULE_SECTIONS}
-        
         representation = ["MODULE " + name + args]
-        for section, body in sections.items():
-            representation.append(cls._representation(section, body,
+        for section in [member for member in cls.members
+                               if member in cls._MODULE_SECTIONS]:
+            representation.append(cls._representation(section,
+                                                      cls.__dict__[section],
                                                       indentation))
         return "\n".join(representation)
 
