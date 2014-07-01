@@ -76,3 +76,19 @@ def fixpoint(funct, start):
         old = new
         new = funct(old)
     return old
+
+
+def update(old, new):
+    """
+    Update `old` with `new`. `old` is assumed to have the `extend` or `update`
+    method, and `new` is assumed to be a good argument for the corresponding
+    method.
+    
+    :param old: the data to update.
+    :param new: the date to update with.
+    
+    """
+    try:
+        old.extend(new)
+    except AttributeError:
+        old.update(new)
