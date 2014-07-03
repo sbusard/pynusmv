@@ -32,22 +32,6 @@ PyNuSMV Reference
     :undoc-members:
     :show-inheritance:
 
-:mod:`dd` Module
-----------------
-
-.. automodule:: pynusmv.dd
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-:mod:`exception` Module
------------------------
-
-.. automodule:: pynusmv.exception
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
 :mod:`fsm` Module
 -----------------
 
@@ -64,6 +48,14 @@ PyNuSMV Reference
     :undoc-members:
     :show-inheritance:
 
+:mod:`dd` Module
+----------------
+
+.. automodule:: pynusmv.dd
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 :mod:`parser` Module
 --------------------
 
@@ -76,6 +68,14 @@ PyNuSMV Reference
 ----------------
 
 .. automodule:: pynusmv.mc
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+:mod:`exception` Module
+-----------------------
+
+.. automodule:: pynusmv.exception
     :members:
     :undoc-members:
     :show-inheritance:
