@@ -1504,7 +1504,7 @@ class ModuleMetaClass(type):
                     newnamespace[member] = internal
             elif isinstance(namespace[member], Declaration):
                 decl = namespace[member]
-                decl.name = member
+                decl.name = Identifier(member)
                 if decl.section not in newnamespace:
                     newnamespace[decl.section] = collections.OrderedDict()
                 newnamespace[decl.section][decl] = decl.type
