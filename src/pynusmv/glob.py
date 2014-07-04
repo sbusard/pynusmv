@@ -19,7 +19,6 @@ import os
 
 from .nusmv.parser import parser as nsparser
 from .nusmv.opt import opt as nsopt
-from .nusmv.node import node as nsnode
 from .nusmv.compile import compile as nscompile
 from .nusmv.enc import enc as nsenc
 from .nusmv.enc.bool import bool as nsboolenc
@@ -29,13 +28,12 @@ from .nusmv.prop import prop as nsprop
 from .nusmv.compile.symb_table import symb_table as nssymb_table
 from .nusmv.fsm import fsm as nsfsm
 from .nusmv.set import set as nsset
-from .nusmv.opt import opt as nsopt
 from .nusmv.fsm.bdd import bdd as nsbddfsm
 from .nusmv.trace import trace as nstrace
 from .nusmv.trace.exec import exec as nstraceexec
 
 from .fsm import BddEnc, SymbTable
-from .parser import _Error, NuSMVParsingError
+from .parser import NuSMVParsingError
 from .prop import PropDb
 from .exception import (NuSMVLexerError,
                         NuSMVNoReadModelError,
@@ -48,8 +46,6 @@ from .exception import (NuSMVLexerError,
                         NuSMVNeedFlatModelError,
                         NuSMVModelAlreadyBuiltError,
                         NuSMVNeedVariablesEncodedError)
-
-import os
 
 
 __bdd_encoding = None
@@ -156,13 +152,7 @@ def load_from_file(filepath):
     # Raise exceptions if needed
     errors = nsparser.Parser_get_syntax_errors_list()
     if errors is not None:
-        errlist = []
-        while errors is not None:
-            error = nsnode.car(errors)
-            err = nsparser.Parser_get_syntax_error(error)
-            errlist.append(_Error(*err[1:]))
-            errors = nsnode.cdr(errors)
-        raise NuSMVParsingError(tuple(errlist))
+        raise NuSMVParsingError.from_nusmv_errors_list(errors)
 
     # Update cmps
     nscompile.cmp_struct_set_read_model(nscompile.cvar.cmps)

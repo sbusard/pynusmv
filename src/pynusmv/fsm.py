@@ -21,7 +21,6 @@ import tempfile
 from .nusmv.fsm.bdd import bdd as bddFsm
 from .nusmv.enc.bdd import bdd as bddEnc
 from .nusmv.enc.base import base as nsbaseEnc
-from .nusmv.cmd import cmd as nscmd
 from .nusmv.trans.bdd import bdd as nsbddtrans
 from .nusmv.set import set as nsset
 from .nusmv.compile.symb_table import symb_table as nssymbtable
@@ -34,12 +33,12 @@ from .nusmv.utils import utils as nsutils
 from .nusmv.fsm import fsm as nsfsm
 from .nusmv.opt import opt as nsopt
 from .nusmv.compile.type_checking import type_checking as nstype_checking
-from .nusmv.parser import parser as nsparser
 
 from .dd import BDD, State, Inputs, StateInputs, DDManager, Cube
-from .utils import PointerWrapper, fixpoint
-from .exception import NuSMVBddPickingError
-from .parser import parse_simple_expression, parse_next_expression
+from .utils import PointerWrapper
+from .exception import (NuSMVBddPickingError, NuSMVFlatteningError,
+                        NuSMVTypeCheckingError)
+from .parser import parse_next_expression
 
 
 class BddFsm(PointerWrapper):
@@ -170,9 +169,9 @@ class BddFsm(PointerWrapper):
                 self.bddEnc.DDmanager,
                 freeit=True)
         else:
-            return BDD(bddFsm.BddFsm_get_constrained_backward_image(
-                self._ptr, states._ptr, inputs._ptr),
-                self.bddEnc.DDmanager, freeit=True)
+            return BDD(bddFsm.BddFsm_get_constrained_backward_image
+                       (self._ptr, states._ptr, inputs._ptr),
+                       self.bddEnc.DDmanager, freeit=True)
 
     def weak_pre(self, states):
         """
@@ -206,9 +205,9 @@ class BddFsm(PointerWrapper):
             return BDD(bddFsm.BddFsm_get_forward_image(self._ptr, states._ptr),
                        self.bddEnc.DDmanager, freeit=True)
         else:
-            return BDD(bddFsm.BddFsm_get_constrained_forward_image(
-                self._ptr, states._ptr, inputs._ptr),
-                self.bddEnc.DDmanager, freeit=True)
+            return BDD(bddFsm.BddFsm_get_constrained_forward_image
+                       (self._ptr, states._ptr, inputs._ptr),
+                       self.bddEnc.DDmanager, freeit=True)
 
     def pick_one_state(self, bdd):
         """
@@ -272,21 +271,21 @@ class BddFsm(PointerWrapper):
             raise NuSMVBddPickingError("Cannot pick state/inputs from BDD.")
         return StateInputs(si, self, freeit=True)
 
-    def get_inputs_between_states(self, current, next):
+    def get_inputs_between_states(self, current, next_):
         """
         Return the BDD representing the possible inputs between `current` and
-        `next`.
+        `next_`.
 
         :param current: the source states
         :type current: :class:`BDD <pynusmv.dd.BDD>`
-        :param next: the destination states
-        :type next: :class:`BDD <pynusmv.dd.BDD>`
+        :param next_: the destination states
+        :type next_: :class:`BDD <pynusmv.dd.BDD>`
         :rtype: :class:`BDD <pynusmv.dd.BDD>`
 
         """
         inputs = bddFsm.BddFsm_states_to_states_get_inputs(self._ptr,
                                                            current._ptr,
-                                                           next._ptr)
+                                                           next_._ptr)
         return BDD(inputs, self.bddEnc.DDmanager, freeit=True)
 
     def count_states(self, bdd):
@@ -428,9 +427,9 @@ class BddFsm(PointerWrapper):
                 self.bddEnc.DDmanager)
         return self._reachable
 
-    # ==========================================================================
-    # ===== Static methods ===================================================
-    # ==========================================================================
+    # =========================================================================
+    # ===== Static methods ====================================================
+    # =========================================================================
 
     @staticmethod
     def from_filename(filepath):
@@ -473,7 +472,7 @@ class BddFsm(PointerWrapper):
                        subclasses
 
         """
-        return from_string("\n".join(str(module) for module in modules))
+        return BddFsm.from_string("\n".join(str(module) for module in modules))
 
 
 class BddTrans(PointerWrapper):
@@ -559,9 +558,9 @@ class BddTrans(PointerWrapper):
         img = bddEnc.BddEnc_next_state_var_to_state_var(self._enc._ptr, img)
         return BDD(img, self._manager, freeit=True)
 
-    # ==========================================================================
-    # ===== Static methods ===================================================
-    # ==========================================================================
+    # =========================================================================
+    # ===== Static methods ====================================================
+    # =========================================================================
 
     @staticmethod
     def from_trans(symb_table, trans, context=None):

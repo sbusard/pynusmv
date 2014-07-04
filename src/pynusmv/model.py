@@ -71,7 +71,6 @@ __all__ = [
     "Def",
     "Module"]
 
-import inspect
 import sys
 import collections
 
@@ -226,7 +225,7 @@ class Expression(Element):
         from .parser import parseAllString, next_expression
         if isinstance(item, str):
             item = parseAllString(next_expression, item)
-        return In(self, other)
+        return In(self, item)
 
 
 class Identifier(Expression):
@@ -241,10 +240,8 @@ class Identifier(Expression):
             return self.source
         return str(self.name)
 
-    def __hash__(self):
-        return 17 + 23 * hash("Identifier") + 23 ** 2 * hash(self.name)
-
     def _equals(self, other):
+        """Return whether `self` is equals to `other`."""
         if isinstance(self, type(other)):
             return self.name == other.name
         else:
@@ -267,6 +264,7 @@ class ComplexIdentifier(Expression):
         return "".join(str(element) for element in self.body)
 
     def _equals(self, other):
+        """Return whether `self` is equals to `other`."""
         if isinstance(self, type(other)):
             return self.body == other.body
         else:
@@ -294,6 +292,7 @@ class Boolean(Constant):
         return str(self.value)
 
     def _equals(self, other):
+        """Return whether `self` is equals to `other`."""
         if isinstance(self, type(other)):
             return self.value == other.value
         else:
@@ -316,6 +315,7 @@ class Word(Constant):
         return str(self.value)
 
     def _equals(self, other):
+        """Return whether `self` is equals to `other`."""
         if isinstance(self, type(other)):
             return self.value == other.value
         else:
@@ -339,6 +339,7 @@ class Range(Constant):
         return str(self.start) + ".." + str(self.stop)
 
     def _equals(self, other):
+        """Return whether `self` is equals to `other`."""
         if isinstance(self, type(other)):
             return self.start == other.start and self.stop == other.stop
         else:
@@ -368,6 +369,7 @@ class Conversion(Function):
         return str(self.target_type) + "(" + str(self.value) + ")"
 
     def _equals(self, other):
+        """Return whether `self` is equals to `other`."""
         if isinstance(self, type(other)):
             return (self.target_type == other.target_type and
                     self.value._equals(other.value))
@@ -396,6 +398,7 @@ class WordFunction(Function):
                 + ", " + str(self.size) + ")")
 
     def _equals(self, other):
+        """Return whether `self` is equals to `other`."""
         if isinstance(self, type(other)):
             return (self.function == other.function and
                     self.value._equals(other.value) and
@@ -423,6 +426,7 @@ class Count(Function):
         return "count(" + str(self.value) + ")"
 
     def _equals(self, other):
+        """Return whether `self` is equals to `other`."""
         if isinstance(self, type(other)):
             if len(self.value) != len(other.value):
                 return False
@@ -450,6 +454,7 @@ class Next(Expression):
         return "next(" + str(self.value) + ")"
 
     def _equals(self, other):
+        """Return whether `self` is equals to `other`."""
         if isinstance(self, type(other)):
             return self.value._equals(other.value)
         else:
@@ -472,6 +477,7 @@ class Init(Expression):
         return "init(" + str(self.value) + ")"
 
     def _equals(self, other):
+        """Return whether `self` is equals to `other`."""
         if isinstance(self, type(other)):
             return self.value._equals(other.value)
         else:
@@ -493,9 +499,10 @@ class Case(Expression):
             return self.source
         return ("case " + "\n".join(str(cond) + ": " + str(body) + ";"
                                     for cond, body in self.values.items())
-                        + " esac")
+                + " esac")
 
     def _equals(self, other):
+        """Return whether `self` is equals to `other`."""
         if isinstance(self, type(other)):
             return self.values == other.values
         else:
@@ -518,6 +525,7 @@ class Subscript(Expression):
         return "[" + str(self.index) + "]"
 
     def _equals(self, other):
+        """Return whether `self` is equals to `other`."""
         if isinstance(self, type(other)):
             return self.index._equals(other.index)
         else:
@@ -541,6 +549,7 @@ class BitSelection(Expression):
         return "[" + str(self.start) + ":" + str(self.stop) + "]"
 
     def _equals(self, other):
+        """Return whether `self` is equals to `other`."""
         if isinstance(self, type(other)):
             return (self.start._equals(other.start) and
                     self.stop._equals(other.stop))
@@ -567,6 +576,7 @@ class ArrayAccess(Expression):
                                          for access in self.accesses)
 
     def _equals(self, other):
+        """Return whether `self` is equals to `other`."""
         if isinstance(self, type(other)):
             return (self.array._equals(other.array) and
                     self.accesses == other.accesses)
@@ -591,6 +601,7 @@ class Set(Expression):
         return "{" + ", ".join(str(element) for element in self.elements) + "}"
 
     def _equals(self, other):
+        """Return whether `self` is equals to `other`."""
         if isinstance(self, type(other)):
             return frozenset(self.elements) == frozenset(other.elements)
         else:
@@ -626,10 +637,11 @@ class Not(Operator):
 
     def __str__(self):
         if self.source:
-            self.source
+            return self.source
         return "! " + self._enclose(self.value)
 
     def _equals(self, other):
+        """Return whether `self` is equals to `other`."""
         if isinstance(self, type(other)):
             return self.value._equals(other.value)
         else:
@@ -655,6 +667,7 @@ class Concat(Operator):
         return self._enclose(self.left) + "::" + self._enclose(self.right)
 
     def _equals(self, other):
+        """Return whether `self` is equals to `other`."""
         if isinstance(self, type(other)):
             return (self.left._equals(other.left) and
                     self.right._equals(other.right))
@@ -681,6 +694,7 @@ class Minus(Operator):
         return "- " + self._enclose(self.value)
 
     def _equals(self, other):
+        """Return whether `self` is equals to `other`."""
         if isinstance(self, type(other)):
             return self.value._equals(other.value)
         else:
@@ -706,6 +720,7 @@ class Mult(Operator):
         return self._enclose(self.left) + " * " + self._enclose(self.right)
 
     def _equals(self, other):
+        """Return whether `self` is equals to `other`."""
         if isinstance(self, type(other)):
             return ((self.left._equals(other.left) and
                      self.right._equals(other.right)) or
@@ -735,6 +750,7 @@ class Div(Operator):
         return self._enclose(self.left) + " / " + self._enclose(self.right)
 
     def _equals(self, other):
+        """Return whether `self` is equals to `other`."""
         if isinstance(self, type(other)):
             return (self.left._equals(other.left) and
                     self.right._equals(other.right))
@@ -762,6 +778,7 @@ class Mod(Operator):
         return self._enclose(self.left) + " mod " + self._enclose(self.right)
 
     def _equals(self, other):
+        """Return whether `self` is equals to `other`."""
         if isinstance(self, type(other)):
             return (self.left._equals(other.left) and
                     self.right._equals(other.right))
@@ -789,6 +806,7 @@ class Add(Operator):
         return self._enclose(self.left) + " + " + self._enclose(self.right)
 
     def _equals(self, other):
+        """Return whether `self` is equals to `other`."""
         if isinstance(self, type(other)):
             return ((self.left._equals(other.left) and
                      self.right._equals(other.right)) or
@@ -818,6 +836,7 @@ class Sub(Operator):
         return self._enclose(self.left) + " - " + self._enclose(self.right)
 
     def _equals(self, other):
+        """Return whether `self` is equals to `other`."""
         if isinstance(self, type(other)):
             return (self.left._equals(other.left) and
                     self.right._equals(other.right))
@@ -845,6 +864,7 @@ class ShiftL(Operator):
         return self._enclose(self.left) + " << " + self._enclose(self.right)
 
     def _equals(self, other):
+        """Return whether `self` is equals to `other`."""
         if isinstance(self, type(other)):
             return (self.left._equals(other.left) and
                     self.right._equals(other.right))
@@ -872,6 +892,7 @@ class ShiftR(Operator):
         return self._enclose(self.left) + " >> " + self._enclose(self.right)
 
     def _equals(self, other):
+        """Return whether `self` is equals to `other`."""
         if isinstance(self, type(other)):
             return (self.left._equals(other.left) and
                     self.right._equals(other.right))
@@ -899,6 +920,7 @@ class Union(Operator):
         return self._enclose(self.left) + " union " + self._enclose(self.right)
 
     def _equals(self, other):
+        """Return whether `self` is equals to `other`."""
         if isinstance(self, type(other)):
             return ((self.left._equals(other.left) and
                      self.right._equals(other.right)) or
@@ -928,6 +950,7 @@ class In(Operator):
         return self._enclose(self.left) + " in " + self._enclose(self.right)
 
     def _equals(self, other):
+        """Return whether `self` is equals to `other`."""
         if isinstance(self, type(other)):
             return (self.left._equals(other.left) and
                     self.right._equals(other.right))
@@ -955,6 +978,7 @@ class Eq(Operator):
         return self._enclose(self.left) + " = " + self._enclose(self.right)
 
     def _equals(self, other):
+        """Return whether `self` is equals to `other`."""
         if isinstance(self, type(other)):
             return ((self.left._equals(other.left) and
                      self.right._equals(other.right)) or
@@ -991,6 +1015,7 @@ class Neq(Operator):
         return self._enclose(self.left) + " != " + self._enclose(self.right)
 
     def _equals(self, other):
+        """Return whether `self` is equals to `other`."""
         if isinstance(self, type(other)):
             return ((not self.left._equals(other.left) or
                      not self.right._equals(other.right)) and
@@ -1027,6 +1052,7 @@ class Lt(Operator):
         return self._enclose(self.left) + " < " + self._enclose(self.right)
 
     def _equals(self, other):
+        """Return whether `self` is equals to `other`."""
         if isinstance(self, type(other)):
             return (self.left._equals(other.left) and
                     self.right._equals(other.right))
@@ -1054,6 +1080,7 @@ class Gt(Operator):
         return self._enclose(self.left) + " > " + self._enclose(self.right)
 
     def _equals(self, other):
+        """Return whether `self` is equals to `other`."""
         if isinstance(self, type(other)):
             return (self.left._equals(other.left) and
                     self.right._equals(other.right))
@@ -1081,6 +1108,7 @@ class Le(Operator):
         return self._enclose(self.left) + " <= " + self._enclose(self.right)
 
     def _equals(self, other):
+        """Return whether `self` is equals to `other`."""
         if isinstance(self, type(other)):
             return (self.left._equals(other.left) and
                     self.right._equals(other.right))
@@ -1108,6 +1136,7 @@ class Ge(Operator):
         return self._enclose(self.left) + " >= " + self._enclose(self.right)
 
     def _equals(self, other):
+        """Return whether `self` is equals to `other`."""
         if isinstance(self, type(other)):
             return (self.left._equals(other.left) and
                     self.right._equals(other.right))
@@ -1135,6 +1164,7 @@ class And(Operator):
         return self._enclose(self.left) + " & " + self._enclose(self.right)
 
     def _equals(self, other):
+        """Return whether `self` is equals to `other`."""
         if isinstance(self, type(other)):
             return ((self.left._equals(other.left) and
                      self.right._equals(other.right)) or
@@ -1164,6 +1194,7 @@ class Or(Operator):
         return self._enclose(self.left) + " | " + self._enclose(self.right)
 
     def _equals(self, other):
+        """Return whether `self` is equals to `other`."""
         if isinstance(self, type(other)):
             return ((self.left._equals(other.left) and
                      self.right._equals(other.right)) or
@@ -1193,6 +1224,7 @@ class Xor(Operator):
         return self._enclose(self.left) + " xor " + self._enclose(self.right)
 
     def _equals(self, other):
+        """Return whether `self` is equals to `other`."""
         if isinstance(self, type(other)):
             return ((self.left._equals(other.left) and
                      self.right._equals(other.right)) or
@@ -1222,6 +1254,7 @@ class Xnor(Operator):
         return self._enclose(self.left) + " xnor " + self._enclose(self.right)
 
     def _equals(self, other):
+        """Return whether `self` is equals to `other`."""
         if isinstance(self, type(other)):
             return ((self.left._equals(other.left) and
                      self.right._equals(other.right)) or
@@ -1254,6 +1287,7 @@ class Ite(Operator):
                 + self._enclose(self.right))
 
     def _equals(self, other):
+        """Return whether `self` is equals to `other`."""
         if isinstance(self, type(other)):
             return (self.condition._equals(other.condition) and
                     self.left._equals(other.left) and
@@ -1282,6 +1316,7 @@ class Iff(Operator):
         return self._enclose(self.left) + " <-> " + self._enclose(self.right)
 
     def _equals(self, other):
+        """Return whether `self` is equals to `other`."""
         if isinstance(self, type(other)):
             return ((self.left._equals(other.left) and
                      self.right._equals(other.right)) or
@@ -1311,6 +1346,7 @@ class Implies(Operator):
         return self._enclose(self.left) + " -> " + self._enclose(self.right)
 
     def _equals(self, other):
+        """Return whether `self` is equals to `other`."""
         if isinstance(self, type(other)):
             return (self.left._equals(other.left) and
                     self.right._equals(other.right))
@@ -1455,8 +1491,15 @@ class MappingSection(Section):
         self.separator = separator
         self.indentation = indentation
 
-    def update_body(self, otherbody):
-        self.body.update(otherbody)
+    def update_body(self, new_values):
+        """
+        Update the body of this section with `new_values`.
+
+        :param new_values: the new values with which to update the current
+                           body.
+
+        """
+        self.body.update(new_values)
 
     def __str__(self):
         if self.source:
@@ -1524,6 +1567,12 @@ class ListingSection(Section):
         self.indentation = indentation
 
     def update_body(self, otherbody):
+        """
+        Update the body of this section with `new_values`.
+
+        :param new_values: the new values with which to update the current
+                           body.
+        """
         self.body += otherbody
 
     def __str__(self):
@@ -1610,34 +1659,40 @@ class Declaration(Identifier):
 
     @property
     def name(self):
+        """The name of the declared identifier."""
         if not self._name:
             raise AttributeError("Unknown declaration name.")
         return self._name
 
     @name.setter
     def name(self, name):
+        """Update the name of the declared identifier."""
         self._name = name
 
 
 class Var(Declaration):
+    """A declared VAR."""
 
     def __init__(self, type_, name=None):
         super().__init__(type_, "VAR", name=name)
 
 
 class IVar(Declaration):
+    """A declared IVAR."""
 
     def __init__(self, type_, name=None):
         super().__init__(type_, "IVAR", name=name)
 
 
 class FVar(Declaration):
+    """A declared FROZENVAR."""
 
     def __init__(self, type_, name=None):
         super().__init__(type_, "FROZENVAR", name=name)
 
 
 class Def(Declaration):
+    """A declared DEFINE."""
 
     def __init__(self, type_, name=None):
         super().__init__(type_, "DEFINE", name=name)
@@ -1691,15 +1746,15 @@ class ModuleMetaClass(type):
                  "COMPASSION": ("bodies",)}
 
     @classmethod
-    def __prepare__(metacls, name, bases, **keywords):
+    def __prepare__(mcs, name, bases, **keywords):
         return collections.OrderedDict()
 
-    def __new__(cls, name, bases, namespace, **keywords):
+    def __new__(mcs, name, bases, namespace, **keywords):
         newnamespace = collections.OrderedDict()
         # Update namespace with sections and declared identifiers
         for member in namespace:
-            if member in cls._sections:
-                internal = cls._section_internal(member, namespace[member])
+            if member in mcs._sections:
+                internal = mcs._section_internal(member, namespace[member])
                 if member in newnamespace:
                     update(newnamespace[member], internal)
                 else:
@@ -1713,13 +1768,13 @@ class ModuleMetaClass(type):
             else:
                 newnamespace[member] = namespace[member]
 
-        result = type.__new__(cls, name, bases, dict(newnamespace))
+        result = type.__new__(mcs, name, bases, dict(newnamespace))
         result.members = tuple(newnamespace)
         result.source = None
         return result
 
     @classmethod
-    def _section_internal(cls, section, body):
+    def _section_internal(mcs, section, body):
         """
         Return the internal representation of `body` of `section`.
 
@@ -1812,10 +1867,10 @@ class ModuleMetaClass(type):
             "JUSTICE": ("bodies", _justice_constraint_body),
             "COMPASSION": ("bodies", _compassion_constraint_body)}
 
-        if section not in cls._sections:
+        if section not in mcs._sections:
             raise Exception("Unknown section: {}.".format(section))
 
-        if cls._sections[section][0] == "mapping":
+        if mcs._sections[section][0] == "mapping":
             section_parser, key_parser, value_parser = (_sections_parsers
                                                         [section][-3:])
             if isinstance(body, collections.abc.Mapping):
@@ -1850,8 +1905,8 @@ class ModuleMetaClass(type):
 
                 return res
 
-        elif (cls._sections[section][0] == "enumeration" or
-              cls._sections[section][0] == "bodies"):
+        elif (mcs._sections[section][0] == "enumeration" or
+              mcs._sections[section][0] == "bodies"):
 
             if isinstance(body, str):
                 body = [body]
@@ -1874,7 +1929,7 @@ class ModuleMetaClass(type):
         else:
             raise Exception("Unknown section type: "
                             "{} for section {}.".format(
-                                _sections[section][0],
+                                mcs._sections[section][0],
                                 section))
 
     def _trim(cls, string, indentation=""):
@@ -1950,7 +2005,7 @@ class ModuleMetaClass(type):
         else:
             raise Exception("Unknown section type: "
                             "{} for section {}.".format(
-                                _sections[section][0],
+                                cls._sections[section][0],
                                 section))
 
     def __str__(cls):

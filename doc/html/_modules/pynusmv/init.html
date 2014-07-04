@@ -55,7 +55,7 @@
 <span class="sd">.. warning:: :func:`init_nusmv` should be called before any other call to</span>
 <span class="sd">   pynusmv functions; :func:`deinit_nusmv` should be called after using</span>
 <span class="sd">   pynusmv.</span>
-<span class="sd">   </span>
+
 <span class="sd">&quot;&quot;&quot;</span>
 
 
@@ -64,7 +64,6 @@
 
 <span class="kn">import</span> <span class="nn">weakref</span>
 <span class="kn">import</span> <span class="nn">gc</span>
-<span class="kn">import</span> <span class="nn">sys</span>
 
 <span class="kn">from</span> <span class="nn">.nusmv.cinit</span> <span class="kn">import</span> <span class="n">cinit</span> <span class="k">as</span> <span class="n">nscinit</span>
 <span class="kn">from</span> <span class="nn">.nusmv.opt</span> <span class="kn">import</span> <span class="n">opt</span> <span class="k">as</span> <span class="n">nsopt</span>
@@ -80,7 +79,7 @@
 
 <div class="viewcode-block" id="init_nusmv"><a class="viewcode-back" href="../../pynusmv.html#pynusmv.init.init_nusmv">[docs]</a><span class="k">def</span> <span class="nf">init_nusmv</span><span class="p">():</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Initialize NuSMV. Must be called only once before calling </span>
+<span class="sd">    Initialize NuSMV. Must be called only once before calling</span>
 <span class="sd">    :func:`deinit_nusmv`.</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -129,7 +128,7 @@
             <span class="s">&quot;Cannot deinitialize NuSMV before initialization.&quot;</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="c"># First garbage collect with Python</span>
-        <span class="n">gc</span><span class="o">.</span><span class="n">collect</span>
+        <span class="n">gc</span><span class="o">.</span><span class="n">collect</span><span class="p">()</span>
         <span class="c"># Then garbage collect with PyNuSMV</span>
         <span class="k">for</span> <span class="n">elem</span> <span class="ow">in</span> <span class="n">__collector</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">elem</span><span class="p">()</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>

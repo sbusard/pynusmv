@@ -52,7 +52,7 @@
 <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">The :mod:`pynusmv.glob` module provide some functions to access global NuSMV</span>
 <span class="sd">functionalities. These functions are used to feed an SMV model to NuSMV and</span>
-<span class="sd">build the different structures representing the model, like flattening the </span>
+<span class="sd">build the different structures representing the model, like flattening the</span>
 <span class="sd">model, building its BDD encoding and getting the BDD-encoded FSM.</span>
 
 <span class="sd">Besides the functions, this module provides an access to main globally stored</span>
@@ -70,7 +70,6 @@
 
 <span class="kn">from</span> <span class="nn">.nusmv.parser</span> <span class="kn">import</span> <span class="n">parser</span> <span class="k">as</span> <span class="n">nsparser</span>
 <span class="kn">from</span> <span class="nn">.nusmv.opt</span> <span class="kn">import</span> <span class="n">opt</span> <span class="k">as</span> <span class="n">nsopt</span>
-<span class="kn">from</span> <span class="nn">.nusmv.node</span> <span class="kn">import</span> <span class="n">node</span> <span class="k">as</span> <span class="n">nsnode</span>
 <span class="kn">from</span> <span class="nn">.nusmv.compile</span> <span class="kn">import</span> <span class="nb">compile</span> <span class="k">as</span> <span class="n">nscompile</span>
 <span class="kn">from</span> <span class="nn">.nusmv.enc</span> <span class="kn">import</span> <span class="n">enc</span> <span class="k">as</span> <span class="n">nsenc</span>
 <span class="kn">from</span> <span class="nn">.nusmv.enc.bool</span> <span class="kn">import</span> <span class="nb">bool</span> <span class="k">as</span> <span class="n">nsboolenc</span>
@@ -80,13 +79,12 @@
 <span class="kn">from</span> <span class="nn">.nusmv.compile.symb_table</span> <span class="kn">import</span> <span class="n">symb_table</span> <span class="k">as</span> <span class="n">nssymb_table</span>
 <span class="kn">from</span> <span class="nn">.nusmv.fsm</span> <span class="kn">import</span> <span class="n">fsm</span> <span class="k">as</span> <span class="n">nsfsm</span>
 <span class="kn">from</span> <span class="nn">.nusmv.set</span> <span class="kn">import</span> <span class="nb">set</span> <span class="k">as</span> <span class="n">nsset</span>
-<span class="kn">from</span> <span class="nn">.nusmv.opt</span> <span class="kn">import</span> <span class="n">opt</span> <span class="k">as</span> <span class="n">nsopt</span>
 <span class="kn">from</span> <span class="nn">.nusmv.fsm.bdd</span> <span class="kn">import</span> <span class="n">bdd</span> <span class="k">as</span> <span class="n">nsbddfsm</span>
 <span class="kn">from</span> <span class="nn">.nusmv.trace</span> <span class="kn">import</span> <span class="n">trace</span> <span class="k">as</span> <span class="n">nstrace</span>
 <span class="kn">from</span> <span class="nn">.nusmv.trace.exec</span> <span class="kn">import</span> <span class="k">exec</span> <span class="k">as</span> <span class="n">nstraceexec</span>
 
 <span class="kn">from</span> <span class="nn">.fsm</span> <span class="kn">import</span> <span class="n">BddEnc</span><span class="p">,</span> <span class="n">SymbTable</span>
-<span class="kn">from</span> <span class="nn">.parser</span> <span class="kn">import</span> <span class="n">_Error</span><span class="p">,</span> <span class="n">NuSMVParsingError</span>
+<span class="kn">from</span> <span class="nn">.parser</span> <span class="kn">import</span> <span class="n">NuSMVParsingError</span>
 <span class="kn">from</span> <span class="nn">.prop</span> <span class="kn">import</span> <span class="n">PropDb</span>
 <span class="kn">from</span> <span class="nn">.exception</span> <span class="kn">import</span> <span class="p">(</span><span class="n">NuSMVLexerError</span><span class="p">,</span>
                         <span class="n">NuSMVNoReadModelError</span><span class="p">,</span>
@@ -99,8 +97,6 @@
                         <span class="n">NuSMVNeedFlatModelError</span><span class="p">,</span>
                         <span class="n">NuSMVModelAlreadyBuiltError</span><span class="p">,</span>
                         <span class="n">NuSMVNeedVariablesEncodedError</span><span class="p">)</span>
-
-<span class="kn">import</span> <span class="nn">os</span>
 
 
 <span class="n">__bdd_encoding</span> <span class="o">=</span> <span class="bp">None</span>
@@ -130,7 +126,7 @@
 <span class="sd">    * a file path; in this case, the model is loaded from the file;</span>
 <span class="sd">    * NuSMV modelling code; in this case, `model` is the code for the model;</span>
 <span class="sd">    * a list of modules (list of :class:`Module &lt;pynusmv.model.Module&gt;`</span>
-<span class="sd">      subclasses); in this case, the model is represented by the set of </span>
+<span class="sd">      subclasses); in this case, the model is represented by the set of</span>
 <span class="sd">      modules.</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -207,13 +203,7 @@
     <span class="c"># Raise exceptions if needed</span>
     <span class="n">errors</span> <span class="o">=</span> <span class="n">nsparser</span><span class="o">.</span><span class="n">Parser_get_syntax_errors_list</span><span class="p">()</span>
     <span class="k">if</span> <span class="n">errors</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
-        <span class="n">errlist</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="k">while</span> <span class="n">errors</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
-            <span class="n">error</span> <span class="o">=</span> <span class="n">nsnode</span><span class="o">.</span><span class="n">car</span><span class="p">(</span><span class="n">errors</span><span class="p">)</span>
-            <span class="n">err</span> <span class="o">=</span> <span class="n">nsparser</span><span class="o">.</span><span class="n">Parser_get_syntax_error</span><span class="p">(</span><span class="n">error</span><span class="p">)</span>
-            <span class="n">errlist</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">_Error</span><span class="p">(</span><span class="o">*</span><span class="n">err</span><span class="p">[</span><span class="mi">1</span><span class="p">:]))</span>
-            <span class="n">errors</span> <span class="o">=</span> <span class="n">nsnode</span><span class="o">.</span><span class="n">cdr</span><span class="p">(</span><span class="n">errors</span><span class="p">)</span>
-        <span class="k">raise</span> <span class="n">NuSMVParsingError</span><span class="p">(</span><span class="nb">tuple</span><span class="p">(</span><span class="n">errlist</span><span class="p">))</span>
+        <span class="k">raise</span> <span class="n">NuSMVParsingError</span><span class="o">.</span><span class="n">from_nusmv_errors_list</span><span class="p">(</span><span class="n">errors</span><span class="p">)</span>
 
     <span class="c"># Update cmps</span>
     <span class="n">nscompile</span><span class="o">.</span><span class="n">cmp_struct_set_read_model</span><span class="p">(</span><span class="n">nscompile</span><span class="o">.</span><span class="n">cvar</span><span class="o">.</span><span class="n">cmps</span><span class="p">)</span>
@@ -225,15 +215,15 @@
 
 <span class="sd">    :raise: a :exc:`NuSMVNoReadModelError</span>
 <span class="sd">            &lt;pynusmv.exception.NuSMVNoReadModelError&gt;` if no model is read yet</span>
-<span class="sd">    :raise: a :exc:`NuSMVCannotFlattenError </span>
+<span class="sd">    :raise: a :exc:`NuSMVCannotFlattenError</span>
 <span class="sd">            &lt;pynusmv.exception.NuSMVCannotFlattenError&gt;` if an error occurred</span>
 <span class="sd">            during flattening</span>
-<span class="sd">    :raise: a :exc:`NuSMVModelAlreadyFlattenedError </span>
-<span class="sd">            &lt;pynusmv.exception.NuSMVModelAlreadyFlattenedError&gt;` if the model is</span>
-<span class="sd">            already flattened</span>
+<span class="sd">    :raise: a :exc:`NuSMVModelAlreadyFlattenedError</span>
+<span class="sd">            &lt;pynusmv.exception.NuSMVModelAlreadyFlattenedError&gt;` if the model</span>
+<span class="sd">            is already flattened</span>
 
-<span class="sd">    .. warning:: In case of type checking errors, a message is printed at stderr</span>
-<span class="sd">       and a :exc:`NuSMVCannotFlattenError </span>
+<span class="sd">    .. warning:: In case of type checking errors, a message is printed at</span>
+<span class="sd">       stderr and a :exc:`NuSMVCannotFlattenError</span>
 <span class="sd">       &lt;pynusmv.exception.NuSMVCannotFlattenError&gt;` is raised.</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -277,9 +267,9 @@
 <span class="sd">    Encode the BDD variables of the current model and store it in global data</span>
 <span class="sd">    structures.</span>
 
-<span class="sd">    :raise: a :exc:`NuSMVNeedFlatHierarchyError </span>
-<span class="sd">            &lt;pynusmv.exception.NuSMVNeedFlatHierarchyError&gt;` if the model is not</span>
-<span class="sd">            flattened</span>
+<span class="sd">    :raise: a :exc:`NuSMVNeedFlatHierarchyError</span>
+<span class="sd">            &lt;pynusmv.exception.NuSMVNeedFlatHierarchyError&gt;` if the model is</span>
+<span class="sd">            not flattened</span>
 <span class="sd">    :raise: a :exc:`NuSMVModelAlreadyEncodedError</span>
 <span class="sd">            &lt;pynusmv.exception.NuSMVModelAlreadyEncodedError&gt;`</span>
 <span class="sd">            if the variables are already encoded</span>
@@ -330,15 +320,15 @@
 </div>
 <div class="viewcode-block" id="build_flat_model"><a class="viewcode-back" href="../../pynusmv.html#pynusmv.glob.build_flat_model">[docs]</a><span class="k">def</span> <span class="nf">build_flat_model</span><span class="p">():</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Build the Sexp FSM (Simple Expression FSM) of the current model and store it</span>
-<span class="sd">    in global data structures.</span>
+<span class="sd">    Build the Sexp FSM (Simple Expression FSM) of the current model and store</span>
+<span class="sd">    it in global data structures.</span>
 
 <span class="sd">    :raise: a :exc:`NuSMVNeedFlatHierarchyError</span>
-<span class="sd">            &lt;pynusmv.exception.NuSMVNeedFlatHierarchyError&gt;` if the model is not</span>
-<span class="sd">            flattened</span>
+<span class="sd">            &lt;pynusmv.exception.NuSMVNeedFlatHierarchyError&gt;` if the model is</span>
+<span class="sd">            not flattened</span>
 <span class="sd">    :raise: a :exc:`NuSMVFlatModelAlreadyBuiltError</span>
-<span class="sd">            &lt;pynusmv.exception.NuSMVFlatModelAlreadyBuiltError&gt;` if the Sexp FSM</span>
-<span class="sd">            isalready built</span>
+<span class="sd">            &lt;pynusmv.exception.NuSMVFlatModelAlreadyBuiltError&gt;` if the Sexp</span>
+<span class="sd">            FSM is already built</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="c"># Check cmps</span>
@@ -378,8 +368,8 @@
 <span class="sd">            &lt;pynusmv.exception.NuSMVNeedFlatModelError&gt;` if the Sexp FSM</span>
 <span class="sd">            of the model is not built yet</span>
 <span class="sd">    :raise: a :exc:`NuSMVNeedVariablesEncodedError</span>
-<span class="sd">            &lt;pynusmv.exception.NuSMVNeedVariablesEncodedError&gt;` if the variables</span>
-<span class="sd">            of the model are not encoded yet</span>
+<span class="sd">            &lt;pynusmv.exception.NuSMVNeedVariablesEncodedError&gt;` if the</span>
+<span class="sd">            variables of the model are not encoded yet</span>
 <span class="sd">    :raise: a :exc:`NuSMVModelAlreadyBuiltError</span>
 <span class="sd">            &lt;pynusmv.exception.NuSMVModelAlreadyBuiltError&gt;` if the BDD FSM</span>
 <span class="sd">            of the model is already built</span>

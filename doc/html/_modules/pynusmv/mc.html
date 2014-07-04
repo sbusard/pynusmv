@@ -50,8 +50,8 @@
             
   <h1>Source code for pynusmv.mc</h1><div class="highlight"><pre>
 <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">The :mod:`pynusmv.mc` module provides some functions of NuSMV dealing with model</span>
-<span class="sd">checking, like CTL model checking.</span>
+<span class="sd">The :mod:`pynusmv.mc` module provides some functions of NuSMV dealing with</span>
+<span class="sd">model checking, like CTL model checking.</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;eval_simple_expression&#39;</span><span class="p">,</span> <span class="s">&#39;eval_ctl_spec&#39;</span><span class="p">,</span> <span class="s">&#39;explainEX&#39;</span><span class="p">,</span> <span class="s">&#39;explainEU&#39;</span><span class="p">,</span>
@@ -62,7 +62,6 @@
 <span class="kn">from</span> <span class="nn">.nusmv.dd</span> <span class="kn">import</span> <span class="n">dd</span> <span class="k">as</span> <span class="n">nsdd</span>
 <span class="kn">from</span> <span class="nn">.nusmv.mc</span> <span class="kn">import</span> <span class="n">mc</span>
 
-<span class="kn">from</span> <span class="nn">.fsm</span> <span class="kn">import</span> <span class="n">BddFsm</span>
 <span class="kn">from</span> <span class="nn">.dd</span> <span class="kn">import</span> <span class="n">BDD</span><span class="p">,</span> <span class="n">State</span><span class="p">,</span> <span class="n">Inputs</span><span class="p">,</span> <span class="n">BDDList</span>
 <span class="kn">from</span> <span class="nn">.prop</span> <span class="kn">import</span> <span class="n">atom</span>
 
@@ -179,8 +178,8 @@
 </div>
 <div class="viewcode-block" id="explainEG"><a class="viewcode-back" href="../../pynusmv.html#pynusmv.mc.explainEG">[docs]</a><span class="k">def</span> <span class="nf">explainEG</span><span class="p">(</span><span class="n">fsm</span><span class="p">,</span> <span class="n">state</span><span class="p">,</span> <span class="n">a</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Explain why `state` of `fsm` satisfies `EG phi`,</span>
-<span class="sd">    where `a` the set of states of `fsm` satisfying `phi`, represented by a BDD.</span>
+<span class="sd">    Explain why `state` of `fsm` satisfies `EG phi`, where `a` the set of</span>
+<span class="sd">    states of `fsm` satisfying `phi`, represented by a BDD.</span>
 
 <span class="sd">    :param fsm: the system</span>
 <span class="sd">    :type fsm: :class:`BddFsm &lt;pynusmv.fsm.BddFsm&gt;`</span>

@@ -50,20 +50,29 @@ __all__ = [
 from .exception import NuSMVParsingError, _Error
 
 from .utils import update
-from .model import *
+from .model import (Identifier, ComplexIdentifier, Boolean, Word, Range,
+                    Conversion, WordFunction, Count, Next, Init, Case,
+                    Subscript, BitSelection, ArrayAccess, Set, Not, Concat,
+                    Minus, Mult, Div, Mod, Add, Sub, ShiftL, ShiftR, Union, In,
+                    Eq, Neq, Lt, Gt, Le, Ge, And, Or, Xor, Xnor, Ite, Iff,
+                    Implies, TBoolean, TWord, TEnum, TRange, TArray, TModule,
+                    Variables, InputVariables, FrozenVariables, Defines,
+                    Assigns, Constants, Trans, SInit, Invar, Fairness, Justice,
+                    Compassion)
 
 from .nusmv.parser import parser as nsparser
 from .nusmv.node import node as nsnode
 
-from pyparsing import (Word as PWord, Keyword, Forward, Optional, Literal,
-                       OneOrMore, NotAny, FollowedBy, Suppress, ZeroOrMore,
+from pyparsing import (Word as PWord, Forward, Optional, Literal,
+                       OneOrMore, FollowedBy, Suppress, ZeroOrMore,
                        Combine, Group,
-                       oneOf, infixNotation, delimitedList, restOfLine,
-                       alphas, alphanums, nums, opAssoc,
-                       ParserElement,
-                       getTokensEndLoc)
+                       oneOf, delimitedList, restOfLine,
+                       alphas, alphanums, nums,
+                       ParserElement)
 from collections import OrderedDict
 from functools import reduce
+
+ParserElement.enablePackrat()
 
 
 def parse_simple_expression(expression):
@@ -81,14 +90,8 @@ def parse_simple_expression(expression):
     """
     node, err = nsparser.ReadSimpExprFromString(expression)
     if err:
-        errlist = []
         errors = nsparser.Parser_get_syntax_errors_list()
-        while errors is not None:
-            error = nsnode.car(errors)
-            err = nsparser.Parser_get_syntax_error(error)
-            errlist.append(_Error(*err[1:]))
-            errors = nsnode.cdr(errors)
-        raise NuSMVParsingError(tuple(errlist))
+        raise NuSMVParsingError.from_nusmv_errors_list(errors)
     else:
         return nsnode.car(node)  # Get rid of the top SIMPWFF node
 
@@ -108,14 +111,8 @@ def parse_next_expression(expression):
     """
     node, err = nsparser.ReadNextExprFromString(expression)
     if err:
-        errlist = []
         errors = nsparser.Parser_get_syntax_errors_list()
-        while errors is not None:
-            error = nsnode.car(errors)
-            err = nsparser.Parser_get_syntax_error(error)
-            errlist.append(_Error(*err[1:]))
-            errors = nsnode.cdr(errors)
-        raise NuSMVParsingError(tuple(errlist))
+        raise NuSMVParsingError.from_nusmv_errors_list(errors)
     else:
         return nsnode.car(node)  # Get rid of the top NEXTWFF node
 
@@ -135,19 +132,13 @@ def parse_identifier(expression):
     """
     node, err = nsparser.ReadIdentifierExprFromString(expression)
     if err:
-        errlist = []
         errors = nsparser.Parser_get_syntax_errors_list()
-        while errors is not None:
-            error = nsnode.car(errors)
-            err = nsparser.Parser_get_syntax_error(error)
-            errlist.append(_Error(*err[1:]))
-            errors = nsnode.cdr(errors)
-        raise NuSMVParsingError(tuple(errlist))
+        raise NuSMVParsingError.from_nusmv_errors_list(errors)
     else:
         return nsnode.car(node)  # Get rid of the top COMPID node
 
 
-def _reduce_list_to_expr(l):
+def _reduce_list_to_expr(list_):
     """
     Reduces l to its token representation.
 
@@ -159,9 +150,9 @@ def _reduce_list_to_expr(l):
             "=": Eq, "!=": Neq, "<": Lt, ">": Gt, "<=": Le, ">=": Ge,
             "|": Or, "xor": Xor, "xnor": Xnor}
 
-    res = l[0]
-    for op, t in zip(l[1::2], l[2::2]):
-        res = _otc[op](res, t)
+    res = list_[0]
+    for operator, token in zip(list_[1::2], list_[2::2]):
+        res = _otc[operator](res, token)
     return res
 
 
@@ -175,11 +166,9 @@ simple_expression = Forward()
 _cip = Forward()
 _cip <<= Optional("." + Literal("self") + _cip
                   | "." + identifier + _cip
-                  | "[" + simple_expression + "]" + _cip
-                  )
+                  | "[" + simple_expression + "]" + _cip)
 _complex_identifier = ((FollowedBy("self") + Literal("self") + _cip)
-                       | (identifier + _cip)
-                       )
+                       | (identifier + _cip))
 _complex_identifier.setParseAction(lambda s, l, t: ComplexIdentifier(t))
 
 _define_identifier = _complex_identifier
@@ -215,30 +204,19 @@ constant = (_word_constant
 
 # Basic expressions
 _basic_expr = Forward()
-_conversion = (
-    Literal("word1") +
-    Suppress("(") +
-    _basic_expr +
-    Suppress(")") | Literal("bool") +
-    Suppress("(") +
-    _basic_expr +
-    Suppress(")") | Literal("toint") +
-    Suppress("(") +
-    _basic_expr +
-    Suppress(")") | Literal("signed") +
-    Suppress("(") +
-    _basic_expr +
-    Suppress(")") | Literal("unsigned") +
-    Suppress("(") +
-    _basic_expr +
-    Suppress(")"))
+_conversion = (Literal("word1") + Suppress("(") + _basic_expr + Suppress(")")
+               | Literal("bool") + Suppress("(") + _basic_expr + Suppress(")")
+               | Literal("toint") + Suppress("(") + _basic_expr + Suppress(")")
+               | Literal("signed") + Suppress("(") + _basic_expr
+               + Suppress(")")
+               | Literal("unsigned") + Suppress("(") + _basic_expr
+               + Suppress(")"))
 _conversion.setParseAction(lambda s, l, t: Conversion(t[0], t[1]))
 
 _word_function = (Literal("extend") + Suppress("(") + _basic_expr + ","
                   + _basic_expr + Suppress(")")
                   | Literal("resize") + Suppress("(") + _basic_expr + ","
-                  + _basic_expr + Suppress(")")
-                  )
+                  + _basic_expr + Suppress(")"))
 _word_function.setParseAction(lambda s, l, t: WordFunction(t[0], t[1], t[2]))
 
 _count = (Literal("count") + Suppress("(") + delimitedList(_basic_expr)
@@ -248,13 +226,6 @@ _count.setParseAction(lambda s, l, t: Count(t[1]))
 _next = Literal("next") + Suppress("(") + _basic_expr + Suppress(")")
 _next.setParseAction(lambda s, l, t: Next(t[1]))
 
-
-def _case_action(string, location, tokens):
-    print(tokens)
-    d = OrderedDict()
-    for key, value in zip(tokens[::2], tokens[1::2]):
-        d[key] = value
-    return d
 _case_case = _basic_expr + Suppress(":") + _basic_expr + Suppress(";")
 _case_body = OneOrMore(_case_case)
 _case_body.setParseAction(lambda s, l, t: OrderedDict(zip(t[::2], t[1::2])))
@@ -268,16 +239,14 @@ _base = (_complex_identifier ^
           | _next
           | Suppress("(") + _basic_expr + Suppress(")")
           | _case
-          | constant
-          )
-         )
+          | constant))
 
 _ap = Forward()
 _array_subscript = Suppress("[") + _basic_expr + Suppress("]")
 _array_subscript.setParseAction(lambda s, l, t: Subscript(t[0]))
 
 _word_bit_selection = (Suppress("[") + _basic_expr + Suppress(":")
-                                     + _basic_expr + Suppress("]"))
+                       + _basic_expr + Suppress("]"))
 _word_bit_selection.setParseAction(lambda s, l, t: BitSelection(t[0], t[1]))
 
 _ap <<= Optional(_array_subscript + _ap | _word_bit_selection + _ap)
@@ -373,15 +342,13 @@ _simple_type_specifier <<= (_boolean_type
                             | _word_type
                             | _enum_type
                             | _array_type
-                            | _range_type
-                            )
+                            | _range_type)
 
 _module_type_specifier = (Optional("process") + identifier
                           + Optional(Suppress("(")
                                      +
                                      Optional(delimitedList(simple_expression))
-                                     + Suppress(")"))
-                          )
+                                     + Suppress(")")))
 _module_type_specifier.setParseAction(
     lambda s, l, t: TModule(t[1], t[2:] if len(t) >= 3 else [], process=True)
     if t[0] == "process"
@@ -473,8 +440,7 @@ justice_constraint.setParseAction(lambda s, l, t: Justice(list(t)))
 _compassion_constraint_body = (Suppress("(")
                                + simple_expression + Suppress(",")
                                + simple_expression + Suppress(")")
-                               + Optional(Suppress(";"))
-                               )
+                               + Optional(Suppress(";")))
 _compassion_constraint_body.setParseAction(lambda s, l, t: [t[0], t[1]])
 compassion_constraint = Suppress("COMPASSION") + _compassion_constraint_body
 compassion_constraint.setParseAction(lambda s, l, t: Compassion(list(t)))
@@ -496,8 +462,7 @@ _module_element = (var_section
 _module_args = (Suppress("(") + Optional(Group(delimitedList(identifier))) +
                 Suppress(")"))
 module = (Suppress("MODULE") + identifier + Optional(_module_args)
-          + ZeroOrMore(_module_element)
-          )
+          + ZeroOrMore(_module_element))
 
 
 def _create_module(string, location, tokens):

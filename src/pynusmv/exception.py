@@ -21,6 +21,9 @@ __all__ = ['PyNuSMVError', 'MissingManagerError', 'NuSMVLexerError',
 
 from collections import namedtuple
 
+from .nusmv.parser import parser as nsparser
+from .nusmv.node import node as nsnode
+
 
 class PyNuSMVError(Exception):
 
@@ -202,6 +205,21 @@ class NuSMVParsingError(PyNuSMVError):
         """
         super().__init__(self)
         self._errors = errors
+
+    @staticmethod
+    def from_nusmv_errors_list(errors):
+        """
+        Create a new NuSMVParsingError from the given list of NuSMV errors.
+
+        :param errors: the list of errors from NuSMV
+        """
+        errlist = []
+        while errors is not None:
+            error = nsnode.car(errors)
+            err = nsparser.Parser_get_syntax_error(error)
+            errlist.append(_Error(*err[1:]))
+            errors = nsnode.cdr(errors)
+        return NuSMVParsingError(tuple(errlist))
 
     def __str__(self):
         return "\n".join([str(err) for err in self._errors])

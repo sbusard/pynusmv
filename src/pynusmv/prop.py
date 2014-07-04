@@ -19,7 +19,7 @@ from .nusmv.compile.symb_table import symb_table as nssymb_table
 from .fsm import BddFsm
 from .utils import PointerWrapper
 from . import parser
-from .exception import NuSMVParserError, NuSMVTypeCheckingError
+from .exception import NuSMVTypeCheckingError
 
 
 propTypes = {

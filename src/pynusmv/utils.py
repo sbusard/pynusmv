@@ -11,7 +11,7 @@ __all__ = ['PointerWrapper', 'fixpoint', 'update']
 from pynusmv.init import _register_wrapper
 
 
-class PointerWrapper:
+class PointerWrapper(object):
 
     """
     Superclass wrapper for NuSMV pointers.

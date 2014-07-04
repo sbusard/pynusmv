@@ -13,7 +13,6 @@ __all__ = ['init_nusmv', 'deinit_nusmv', 'reset_nusmv']
 
 import weakref
 import gc
-import sys
 
 from .nusmv.cinit import cinit as nscinit
 from .nusmv.opt import opt as nsopt
@@ -78,7 +77,7 @@ def deinit_nusmv(ddinfo=False):
             "Cannot deinitialize NuSMV before initialization.")
     else:
         # First garbage collect with Python
-        gc.collect
+        gc.collect()
         # Then garbage collect with PyNuSMV
         for elem in __collector:
             if elem() is not None:

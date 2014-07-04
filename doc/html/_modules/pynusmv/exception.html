@@ -50,7 +50,8 @@
             
   <h1>Source code for pynusmv.exception</h1><div class="highlight"><pre>
 <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">The :mod:`pynusmv.exception` module provides all the exceptions used in PyNuSMV.</span>
+<span class="sd">The :mod:`pynusmv.exception` module provides all the exceptions used in</span>
+<span class="sd">PyNuSMV.</span>
 <span class="sd">Every particular exception raised by a PyNuSMV function is a sub-class</span>
 <span class="sd">of the :class:`PyNuSMVError` class, such that one can catch all PyNuSMV by</span>
 <span class="sd">catching :class:`PyNuSMVError` exceptions.</span>
@@ -70,6 +71,9 @@
 
 
 <span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">namedtuple</span>
+
+<span class="kn">from</span> <span class="nn">.nusmv.parser</span> <span class="kn">import</span> <span class="n">parser</span> <span class="k">as</span> <span class="n">nsparser</span>
+<span class="kn">from</span> <span class="nn">.nusmv.node</span> <span class="kn">import</span> <span class="n">node</span> <span class="k">as</span> <span class="n">nsnode</span>
 
 
 <div class="viewcode-block" id="PyNuSMVError"><a class="viewcode-back" href="../../pynusmv.html#pynusmv.exception.PyNuSMVError">[docs]</a><span class="k">class</span> <span class="nc">PyNuSMVError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
@@ -253,6 +257,21 @@
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_errors</span> <span class="o">=</span> <span class="n">errors</span>
 
+    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="NuSMVParsingError.from_nusmv_errors_list"><a class="viewcode-back" href="../../pynusmv.html#pynusmv.exception.NuSMVParsingError.from_nusmv_errors_list">[docs]</a>    <span class="k">def</span> <span class="nf">from_nusmv_errors_list</span><span class="p">(</span><span class="n">errors</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Create a new NuSMVParsingError from the given list of NuSMV errors.</span>
+
+<span class="sd">        :param errors: the list of errors from NuSMV</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">errlist</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">while</span> <span class="n">errors</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">error</span> <span class="o">=</span> <span class="n">nsnode</span><span class="o">.</span><span class="n">car</span><span class="p">(</span><span class="n">errors</span><span class="p">)</span>
+            <span class="n">err</span> <span class="o">=</span> <span class="n">nsparser</span><span class="o">.</span><span class="n">Parser_get_syntax_error</span><span class="p">(</span><span class="n">error</span><span class="p">)</span>
+            <span class="n">errlist</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">_Error</span><span class="p">(</span><span class="o">*</span><span class="n">err</span><span class="p">[</span><span class="mi">1</span><span class="p">:]))</span>
+            <span class="n">errors</span> <span class="o">=</span> <span class="n">nsnode</span><span class="o">.</span><span class="n">cdr</span><span class="p">(</span><span class="n">errors</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">NuSMVParsingError</span><span class="p">(</span><span class="nb">tuple</span><span class="p">(</span><span class="n">errlist</span><span class="p">))</span>
+</div>
     <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="nb">str</span><span class="p">(</span><span class="n">err</span><span class="p">)</span> <span class="k">for</span> <span class="n">err</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_errors</span><span class="p">])</span>
 

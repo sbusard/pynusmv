@@ -72,7 +72,6 @@
 <span class="kn">from</span> <span class="nn">.nusmv.fsm.bdd</span> <span class="kn">import</span> <span class="n">bdd</span> <span class="k">as</span> <span class="n">bddFsm</span>
 <span class="kn">from</span> <span class="nn">.nusmv.enc.bdd</span> <span class="kn">import</span> <span class="n">bdd</span> <span class="k">as</span> <span class="n">bddEnc</span>
 <span class="kn">from</span> <span class="nn">.nusmv.enc.base</span> <span class="kn">import</span> <span class="n">base</span> <span class="k">as</span> <span class="n">nsbaseEnc</span>
-<span class="kn">from</span> <span class="nn">.nusmv.cmd</span> <span class="kn">import</span> <span class="n">cmd</span> <span class="k">as</span> <span class="n">nscmd</span>
 <span class="kn">from</span> <span class="nn">.nusmv.trans.bdd</span> <span class="kn">import</span> <span class="n">bdd</span> <span class="k">as</span> <span class="n">nsbddtrans</span>
 <span class="kn">from</span> <span class="nn">.nusmv.set</span> <span class="kn">import</span> <span class="nb">set</span> <span class="k">as</span> <span class="n">nsset</span>
 <span class="kn">from</span> <span class="nn">.nusmv.compile.symb_table</span> <span class="kn">import</span> <span class="n">symb_table</span> <span class="k">as</span> <span class="n">nssymbtable</span>
@@ -85,12 +84,12 @@
 <span class="kn">from</span> <span class="nn">.nusmv.fsm</span> <span class="kn">import</span> <span class="n">fsm</span> <span class="k">as</span> <span class="n">nsfsm</span>
 <span class="kn">from</span> <span class="nn">.nusmv.opt</span> <span class="kn">import</span> <span class="n">opt</span> <span class="k">as</span> <span class="n">nsopt</span>
 <span class="kn">from</span> <span class="nn">.nusmv.compile.type_checking</span> <span class="kn">import</span> <span class="n">type_checking</span> <span class="k">as</span> <span class="n">nstype_checking</span>
-<span class="kn">from</span> <span class="nn">.nusmv.parser</span> <span class="kn">import</span> <span class="n">parser</span> <span class="k">as</span> <span class="n">nsparser</span>
 
 <span class="kn">from</span> <span class="nn">.dd</span> <span class="kn">import</span> <span class="n">BDD</span><span class="p">,</span> <span class="n">State</span><span class="p">,</span> <span class="n">Inputs</span><span class="p">,</span> <span class="n">StateInputs</span><span class="p">,</span> <span class="n">DDManager</span><span class="p">,</span> <span class="n">Cube</span>
-<span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">PointerWrapper</span><span class="p">,</span> <span class="n">fixpoint</span>
-<span class="kn">from</span> <span class="nn">.exception</span> <span class="kn">import</span> <span class="n">NuSMVBddPickingError</span>
-<span class="kn">from</span> <span class="nn">.parser</span> <span class="kn">import</span> <span class="n">parse_simple_expression</span><span class="p">,</span> <span class="n">parse_next_expression</span>
+<span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">PointerWrapper</span>
+<span class="kn">from</span> <span class="nn">.exception</span> <span class="kn">import</span> <span class="p">(</span><span class="n">NuSMVBddPickingError</span><span class="p">,</span> <span class="n">NuSMVFlatteningError</span><span class="p">,</span>
+                        <span class="n">NuSMVTypeCheckingError</span><span class="p">)</span>
+<span class="kn">from</span> <span class="nn">.parser</span> <span class="kn">import</span> <span class="n">parse_next_expression</span>
 
 
 <div class="viewcode-block" id="BddFsm"><a class="viewcode-back" href="../../pynusmv.html#pynusmv.fsm.BddFsm">[docs]</a><span class="k">class</span> <span class="nc">BddFsm</span><span class="p">(</span><span class="n">PointerWrapper</span><span class="p">):</span>
@@ -98,7 +97,7 @@
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Python class for FSM structure, encoded into BDDs.</span>
 
-<span class="sd">    The BddFsm provides some functionalities on the FSM: getting initial and </span>
+<span class="sd">    The BddFsm provides some functionalities on the FSM: getting initial and</span>
 <span class="sd">    reachable states as a BDD, getting or replacing the transition relation,</span>
 <span class="sd">    getting fairness, state and inputs constraints, getting pre and post images</span>
 <span class="sd">    of BDDs, possibly through particular actions, picking and counting states</span>
@@ -214,12 +213,16 @@
 
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">inputs</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">BDD</span><span class="p">(</span><span class="n">bddFsm</span><span class="o">.</span><span class="n">BddFsm_get_backward_image</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_ptr</span><span class="p">,</span> <span class="n">states</span><span class="o">.</span><span class="n">_ptr</span><span class="p">),</span>
-                       <span class="bp">self</span><span class="o">.</span><span class="n">bddEnc</span><span class="o">.</span><span class="n">DDmanager</span><span class="p">,</span> <span class="n">freeit</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">BDD</span><span class="p">(</span>
+                <span class="n">bddFsm</span><span class="o">.</span><span class="n">BddFsm_get_backward_image</span><span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_ptr</span><span class="p">,</span>
+                    <span class="n">states</span><span class="o">.</span><span class="n">_ptr</span><span class="p">),</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">bddEnc</span><span class="o">.</span><span class="n">DDmanager</span><span class="p">,</span>
+                <span class="n">freeit</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">BDD</span><span class="p">(</span><span class="n">bddFsm</span><span class="o">.</span><span class="n">BddFsm_get_constrained_backward_image</span><span class="p">(</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_ptr</span><span class="p">,</span> <span class="n">states</span><span class="o">.</span><span class="n">_ptr</span><span class="p">,</span> <span class="n">inputs</span><span class="o">.</span><span class="n">_ptr</span><span class="p">),</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">bddEnc</span><span class="o">.</span><span class="n">DDmanager</span><span class="p">,</span> <span class="n">freeit</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">BDD</span><span class="p">(</span><span class="n">bddFsm</span><span class="o">.</span><span class="n">BddFsm_get_constrained_backward_image</span>
+                       <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_ptr</span><span class="p">,</span> <span class="n">states</span><span class="o">.</span><span class="n">_ptr</span><span class="p">,</span> <span class="n">inputs</span><span class="o">.</span><span class="n">_ptr</span><span class="p">),</span>
+                       <span class="bp">self</span><span class="o">.</span><span class="n">bddEnc</span><span class="o">.</span><span class="n">DDmanager</span><span class="p">,</span> <span class="n">freeit</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
 </div>
 <div class="viewcode-block" id="BddFsm.weak_pre"><a class="viewcode-back" href="../../pynusmv.html#pynusmv.fsm.BddFsm.weak_pre">[docs]</a>    <span class="k">def</span> <span class="nf">weak_pre</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">states</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -253,16 +256,16 @@
             <span class="k">return</span> <span class="n">BDD</span><span class="p">(</span><span class="n">bddFsm</span><span class="o">.</span><span class="n">BddFsm_get_forward_image</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_ptr</span><span class="p">,</span> <span class="n">states</span><span class="o">.</span><span class="n">_ptr</span><span class="p">),</span>
                        <span class="bp">self</span><span class="o">.</span><span class="n">bddEnc</span><span class="o">.</span><span class="n">DDmanager</span><span class="p">,</span> <span class="n">freeit</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">BDD</span><span class="p">(</span><span class="n">bddFsm</span><span class="o">.</span><span class="n">BddFsm_get_constrained_forward_image</span><span class="p">(</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_ptr</span><span class="p">,</span> <span class="n">states</span><span class="o">.</span><span class="n">_ptr</span><span class="p">,</span> <span class="n">inputs</span><span class="o">.</span><span class="n">_ptr</span><span class="p">),</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">bddEnc</span><span class="o">.</span><span class="n">DDmanager</span><span class="p">,</span> <span class="n">freeit</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">BDD</span><span class="p">(</span><span class="n">bddFsm</span><span class="o">.</span><span class="n">BddFsm_get_constrained_forward_image</span>
+                       <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_ptr</span><span class="p">,</span> <span class="n">states</span><span class="o">.</span><span class="n">_ptr</span><span class="p">,</span> <span class="n">inputs</span><span class="o">.</span><span class="n">_ptr</span><span class="p">),</span>
+                       <span class="bp">self</span><span class="o">.</span><span class="n">bddEnc</span><span class="o">.</span><span class="n">DDmanager</span><span class="p">,</span> <span class="n">freeit</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
 </div>
 <div class="viewcode-block" id="BddFsm.pick_one_state"><a class="viewcode-back" href="../../pynusmv.html#pynusmv.fsm.BddFsm.pick_one_state">[docs]</a>    <span class="k">def</span> <span class="nf">pick_one_state</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bdd</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Return a BDD representing a state of `bdd`.</span>
 
 <span class="sd">        :rtype: :class:`State &lt;pynusmv.dd.State&gt;`</span>
-<span class="sd">        :raise: a :exc:`NuSMVBddPickingError </span>
+<span class="sd">        :raise: a :exc:`NuSMVBddPickingError</span>
 <span class="sd">                &lt;pynusmv.exception.NuSMVBddPickingError&gt;`</span>
 <span class="sd">                if `bdd` is false or an error occurs while picking one state</span>
 
@@ -284,7 +287,7 @@
 <span class="sd">        Return a BDD representing an inputs of `bdd`.</span>
 
 <span class="sd">        :rtype: :class:`Inputs &lt;pynusmv.dd.Inputs&gt;`</span>
-<span class="sd">        :raise: a :exc:`NuSMVBddPickingError </span>
+<span class="sd">        :raise: a :exc:`NuSMVBddPickingError</span>
 <span class="sd">                &lt;pynusmv.exception.NuSMVBddPickingError&gt;`</span>
 <span class="sd">                if `bdd` is false or an error occurs while picking one inputs</span>
 
@@ -305,7 +308,7 @@
 <span class="sd">        Return a BDD representing a state/inputs pair of `bdd`.</span>
 
 <span class="sd">        :rtype: :class:`StateInputs &lt;pynusmv.dd.StateInputs&gt;`</span>
-<span class="sd">        :raise: a :exc:`NuSMVBddPickingError </span>
+<span class="sd">        :raise: a :exc:`NuSMVBddPickingError</span>
 <span class="sd">                &lt;pynusmv.exception.NuSMVBddPickingError&gt;`</span>
 <span class="sd">                if `bdd` is false or an error occurs while picking one pair</span>
 
@@ -319,21 +322,21 @@
             <span class="k">raise</span> <span class="n">NuSMVBddPickingError</span><span class="p">(</span><span class="s">&quot;Cannot pick state/inputs from BDD.&quot;</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">StateInputs</span><span class="p">(</span><span class="n">si</span><span class="p">,</span> <span class="bp">self</span><span class="p">,</span> <span class="n">freeit</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
 </div>
-<div class="viewcode-block" id="BddFsm.get_inputs_between_states"><a class="viewcode-back" href="../../pynusmv.html#pynusmv.fsm.BddFsm.get_inputs_between_states">[docs]</a>    <span class="k">def</span> <span class="nf">get_inputs_between_states</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">current</span><span class="p">,</span> <span class="nb">next</span><span class="p">):</span>
+<div class="viewcode-block" id="BddFsm.get_inputs_between_states"><a class="viewcode-back" href="../../pynusmv.html#pynusmv.fsm.BddFsm.get_inputs_between_states">[docs]</a>    <span class="k">def</span> <span class="nf">get_inputs_between_states</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">current</span><span class="p">,</span> <span class="n">next_</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Return the BDD representing the possible inputs between `current` and</span>
-<span class="sd">        `next`.</span>
+<span class="sd">        `next_`.</span>
 
 <span class="sd">        :param current: the source states</span>
 <span class="sd">        :type current: :class:`BDD &lt;pynusmv.dd.BDD&gt;`</span>
-<span class="sd">        :param next: the destination states</span>
-<span class="sd">        :type next: :class:`BDD &lt;pynusmv.dd.BDD&gt;`</span>
+<span class="sd">        :param next_: the destination states</span>
+<span class="sd">        :type next_: :class:`BDD &lt;pynusmv.dd.BDD&gt;`</span>
 <span class="sd">        :rtype: :class:`BDD &lt;pynusmv.dd.BDD&gt;`</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">inputs</span> <span class="o">=</span> <span class="n">bddFsm</span><span class="o">.</span><span class="n">BddFsm_states_to_states_get_inputs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_ptr</span><span class="p">,</span>
                                                            <span class="n">current</span><span class="o">.</span><span class="n">_ptr</span><span class="p">,</span>
-                                                           <span class="nb">next</span><span class="o">.</span><span class="n">_ptr</span><span class="p">)</span>
+                                                           <span class="n">next_</span><span class="o">.</span><span class="n">_ptr</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">BDD</span><span class="p">(</span><span class="n">inputs</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">bddEnc</span><span class="o">.</span><span class="n">DDmanager</span><span class="p">,</span> <span class="n">freeit</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
 </div>
 <div class="viewcode-block" id="BddFsm.count_states"><a class="viewcode-back" href="../../pynusmv.html#pynusmv.fsm.BddFsm.count_states">[docs]</a>    <span class="k">def</span> <span class="nf">count_states</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bdd</span><span class="p">):</span>
@@ -372,8 +375,10 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c"># Apply mask before counting inputs</span>
         <span class="n">bdd</span> <span class="o">=</span> <span class="n">bdd</span> <span class="o">&amp;</span> <span class="bp">self</span><span class="o">.</span><span class="n">bddEnc</span><span class="o">.</span><span class="n">statesInputsMask</span>
-        <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="n">bddEnc</span><span class="o">.</span>
-                   <span class="n">BddEnc_count_states_inputs_of_bdd</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">bddEnc</span><span class="o">.</span><span class="n">_ptr</span><span class="p">,</span> <span class="n">bdd</span><span class="o">.</span><span class="n">_ptr</span><span class="p">))</span>
+        <span class="k">return</span> <span class="nb">int</span><span class="p">(</span>
+            <span class="n">bddEnc</span><span class="o">.</span> <span class="n">BddEnc_count_states_inputs_of_bdd</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">bddEnc</span><span class="o">.</span><span class="n">_ptr</span><span class="p">,</span>
+                <span class="n">bdd</span><span class="o">.</span><span class="n">_ptr</span><span class="p">))</span>
 </div>
 <div class="viewcode-block" id="BddFsm.pick_all_states"><a class="viewcode-back" href="../../pynusmv.html#pynusmv.fsm.BddFsm.pick_all_states">[docs]</a>    <span class="k">def</span> <span class="nf">pick_all_states</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bdd</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -467,13 +472,15 @@
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_reachable</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
             <span class="c"># self._reachable = fixpoint(lambda Z: (self.init | self.post(Z)),</span>
             <span class="c">#                           BDD.false(self.bddEnc.DDmanager))</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_reachable</span> <span class="o">=</span> <span class="n">BDD</span><span class="p">(</span><span class="n">bddFsm</span><span class="o">.</span><span class="n">BddFsm_get_reachable_states</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_ptr</span><span class="p">),</span>
-                                  <span class="bp">self</span><span class="o">.</span><span class="n">bddEnc</span><span class="o">.</span><span class="n">DDmanager</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_reachable</span> <span class="o">=</span> <span class="n">BDD</span><span class="p">(</span>
+                <span class="n">bddFsm</span><span class="o">.</span><span class="n">BddFsm_get_reachable_states</span><span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_ptr</span><span class="p">),</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">bddEnc</span><span class="o">.</span><span class="n">DDmanager</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_reachable</span>
 
-    <span class="c"># ==========================================================================</span>
-    <span class="c"># ===== Static methods ===================================================</span>
-    <span class="c"># ==========================================================================</span>
+    <span class="c"># =========================================================================</span>
+    <span class="c"># ===== Static methods ====================================================</span>
+    <span class="c"># =========================================================================</span>
 </div>
     <span class="nd">@staticmethod</span>
 <div class="viewcode-block" id="BddFsm.from_filename"><a class="viewcode-back" href="../../pynusmv.html#pynusmv.fsm.BddFsm.from_filename">[docs]</a>    <span class="k">def</span> <span class="nf">from_filename</span><span class="p">(</span><span class="n">filepath</span><span class="p">):</span>
@@ -516,7 +523,7 @@
 <span class="sd">                       subclasses</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="n">from_string</span><span class="p">(</span><span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">module</span><span class="p">)</span> <span class="k">for</span> <span class="n">module</span> <span class="ow">in</span> <span class="n">modules</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">BddFsm</span><span class="o">.</span><span class="n">from_string</span><span class="p">(</span><span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">module</span><span class="p">)</span> <span class="k">for</span> <span class="n">module</span> <span class="ow">in</span> <span class="n">modules</span><span class="p">))</span>
 
 </div></div>
 <div class="viewcode-block" id="BddTrans"><a class="viewcode-back" href="../../pynusmv.html#pynusmv.fsm.BddTrans">[docs]</a><span class="k">class</span> <span class="nc">BddTrans</span><span class="p">(</span><span class="n">PointerWrapper</span><span class="p">):</span>
@@ -602,9 +609,9 @@
         <span class="n">img</span> <span class="o">=</span> <span class="n">bddEnc</span><span class="o">.</span><span class="n">BddEnc_next_state_var_to_state_var</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_enc</span><span class="o">.</span><span class="n">_ptr</span><span class="p">,</span> <span class="n">img</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">BDD</span><span class="p">(</span><span class="n">img</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_manager</span><span class="p">,</span> <span class="n">freeit</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
 
-    <span class="c"># ==========================================================================</span>
-    <span class="c"># ===== Static methods ===================================================</span>
-    <span class="c"># ==========================================================================</span>
+    <span class="c"># =========================================================================</span>
+    <span class="c"># ===== Static methods ====================================================</span>
+    <span class="c"># =========================================================================</span>
 </div>
     <span class="nd">@staticmethod</span>
 <div class="viewcode-block" id="BddTrans.from_trans"><a class="viewcode-back" href="../../pynusmv.html#pynusmv.fsm.BddTrans.from_trans">[docs]</a>    <span class="k">def</span> <span class="nf">from_trans</span><span class="p">(</span><span class="n">symb_table</span><span class="p">,</span> <span class="n">trans</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
@@ -617,7 +624,7 @@
 <span class="sd">        :param context: an additional parsed context, in which trans will be</span>
 <span class="sd">                        flattened, if not None</span>
 <span class="sd">        :rtype: :class:`BddTrans`</span>
-<span class="sd">        :raise: a :exc:`NuSMVFlatteningError </span>
+<span class="sd">        :raise: a :exc:`NuSMVFlatteningError</span>
 <span class="sd">                &lt;pynusmv.exception.NuSMVFlatteningError&gt;`</span>
 <span class="sd">                if `trans` cannot be flattened under `context`</span>
 
@@ -663,7 +670,7 @@
 <span class="sd">        :param strcontext: an additional string representing a context,</span>
 <span class="sd">                           in which trans will be flattened, if not None</span>
 <span class="sd">        :rtype: :class:`BddTrans`</span>
-<span class="sd">        :raise: a :exc:`NuSMVTypeCheckingError </span>
+<span class="sd">        :raise: a :exc:`NuSMVTypeCheckingError</span>
 <span class="sd">                &lt;pynusmv.exception.NuSMVTypeCheckingError&gt;`</span>
 <span class="sd">                if `strtrans` is wrongly typed under `context`</span>
 

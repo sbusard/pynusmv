@@ -83,7 +83,7 @@
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Python class for BDD structure.</span>
 
-<span class="sd">    The BDD represents a BDD in NuSMV and provides a set of operations on this </span>
+<span class="sd">    The BDD represents a BDD in NuSMV and provides a set of operations on this</span>
 <span class="sd">    BDD.</span>
 <span class="sd">    Thanks to operator overloading, it is possible to write compact expressions</span>
 <span class="sd">    on BDDs. The available operations are:</span>
@@ -93,10 +93,11 @@
 <span class="sd">    * ``~a`` and ``-a`` compute the negation of ``a``</span>
 <span class="sd">    * ``a - b`` computes ``a &amp; ~b``</span>
 <span class="sd">    * ``a ^ b`` computes the exclusive-OR (XOR) of ``a`` and ``b``</span>
-<span class="sd">    * ``a == b``, ``a &lt;= b``, ``a &lt; b``, ``a &gt; b`` and ``a &gt;= b`` compare ``a`` </span>
+<span class="sd">    * ``a == b``, ``a &lt;= b``, ``a &lt; b``, ``a &gt; b`` and ``a &gt;= b`` compare ``a``</span>
 <span class="sd">      and ``b``</span>
 
-<span class="sd">    Any BDD operation raises a :exc:`MissingManagerError &lt;pynusmv.exception.MissingManagerError&gt;` whenever the manager</span>
+<span class="sd">    Any BDD operation raises a :exc:`MissingManagerError</span>
+<span class="sd">    &lt;pynusmv.exception.MissingManagerError&gt;` whenever the manager</span>
 <span class="sd">    of the BDD is None and a manager is needed to perform the operation.</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -393,7 +394,7 @@
     <span class="c"># ==========================================================================</span>
 </div>
     <span class="k">def</span> <span class="nf">__lt__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
-        <span class="k">return</span> <span class="p">(</span><span class="bp">self</span> <span class="o">&lt;=</span> <span class="n">other</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="p">(</span><span class="bp">self</span> <span class="o">==</span> <span class="n">other</span><span class="p">)</span>
+        <span class="k">return</span> <span class="p">(</span><span class="bp">self</span> <span class="o">&lt;=</span> <span class="n">other</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span> <span class="o">==</span> <span class="n">other</span>
 
     <span class="k">def</span> <span class="nf">__le__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">leq</span><span class="p">(</span><span class="n">other</span><span class="p">)</span>
@@ -470,8 +471,8 @@
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    A BDD list stored as NuSMV nodes.</span>
 
-<span class="sd">    The BDDList class implements a NuSMV nodes-based BDD list and can be used as </span>
-<span class="sd">    any Python list.</span>
+<span class="sd">    The BDDList class implements a NuSMV nodes-based BDD list and can be used</span>
+<span class="sd">    as any Python list.</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="c"># BDDLists are freed when destroyed, as well as the content.</span>
@@ -499,11 +500,11 @@
 
     <span class="k">def</span> <span class="nf">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">ptr</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ptr</span>
-        <span class="n">l</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">length</span> <span class="o">=</span> <span class="mi">0</span>
         <span class="k">while</span> <span class="n">ptr</span><span class="p">:</span>
-            <span class="n">l</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="n">length</span> <span class="o">+=</span> <span class="mi">1</span>
             <span class="n">ptr</span> <span class="o">=</span> <span class="n">nsnode</span><span class="o">.</span><span class="n">cdr</span><span class="p">(</span><span class="n">ptr</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">l</span>
+        <span class="k">return</span> <span class="n">length</span>
 
     <span class="k">def</span> <span class="nf">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">val</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -513,7 +514,7 @@
 
 <span class="sd">        .. note:: cannot access elements with negative indices.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">val</span><span class="p">)</span> <span class="ow">is</span> <span class="nb">int</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">val</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
             <span class="k">if</span> <span class="n">val</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="ne">IndexError</span><span class="p">(</span><span class="s">&quot;BDDList index out of range&quot;</span><span class="p">)</span>
             <span class="n">ptr</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ptr</span>
@@ -531,7 +532,7 @@
             <span class="k">else</span><span class="p">:</span>
                 <span class="k">return</span> <span class="bp">None</span>
 
-        <span class="k">elif</span> <span class="nb">type</span><span class="p">(</span><span class="n">val</span><span class="p">)</span> <span class="ow">is</span> <span class="nb">slice</span><span class="p">:</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">val</span><span class="p">,</span> <span class="nb">slice</span><span class="p">):</span>
             <span class="c"># TODO Implement slicing</span>
             <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s">&quot;BDDList slice not implemented&quot;</span><span class="p">)</span>
 
@@ -551,13 +552,13 @@
 
 <div class="viewcode-block" id="BDDList.to_tuple"><a class="viewcode-back" href="../../pynusmv.html#pynusmv.dd.BDDList.to_tuple">[docs]</a>    <span class="k">def</span> <span class="nf">to_tuple</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Return a tuple containing all BDDs of self.       </span>
+<span class="sd">        Return a tuple containing all BDDs of self.</span>
 <span class="sd">        The returned BDDs are copies of the ones of self.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">l</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">elem</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">:</span>
-            <span class="n">l</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">elem</span><span class="p">)</span>
-        <span class="k">return</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">l</span><span class="p">)</span>
+            <span class="n">result</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">elem</span><span class="p">)</span>
+        <span class="k">return</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
 
     <span class="c"># ==========================================================================</span>
     <span class="c"># ===== Class methods ====================================================</span>
@@ -580,17 +581,17 @@
 
         <span class="c"># Reverse tuple before, because we build the list reversely.</span>
         <span class="n">bddtuple</span> <span class="o">=</span> <span class="n">bddtuple</span><span class="p">[::</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
-        <span class="n">n</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="n">nodes</span> <span class="o">=</span> <span class="bp">None</span>
         <span class="n">manager</span> <span class="o">=</span> <span class="bp">None</span>
         <span class="k">for</span> <span class="n">elem</span> <span class="ow">in</span> <span class="n">bddtuple</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">elem</span><span class="p">:</span>
-                <span class="n">e</span> <span class="o">=</span> <span class="n">nsnode</span><span class="o">.</span><span class="n">bdd2node</span><span class="p">(</span><span class="n">nsdd</span><span class="o">.</span><span class="n">bdd_dup</span><span class="p">(</span><span class="n">elem</span><span class="o">.</span><span class="n">_ptr</span><span class="p">))</span>
+                <span class="n">enode</span> <span class="o">=</span> <span class="n">nsnode</span><span class="o">.</span><span class="n">bdd2node</span><span class="p">(</span><span class="n">nsdd</span><span class="o">.</span><span class="n">bdd_dup</span><span class="p">(</span><span class="n">elem</span><span class="o">.</span><span class="n">_ptr</span><span class="p">))</span>
                 <span class="k">if</span> <span class="n">manager</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
                     <span class="n">manager</span> <span class="o">=</span> <span class="n">elem</span><span class="o">.</span><span class="n">_manager</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="n">e</span> <span class="o">=</span> <span class="n">elem</span>
-            <span class="n">n</span> <span class="o">=</span> <span class="n">nsnode</span><span class="o">.</span><span class="n">cons</span><span class="p">(</span><span class="n">e</span><span class="p">,</span> <span class="n">n</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">BDDList</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">manager</span><span class="p">,</span> <span class="n">freeit</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+                <span class="n">enode</span> <span class="o">=</span> <span class="n">elem</span>
+            <span class="n">nodes</span> <span class="o">=</span> <span class="n">nsnode</span><span class="o">.</span><span class="n">cons</span><span class="p">(</span><span class="n">enode</span><span class="p">,</span> <span class="n">nodes</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">BDDList</span><span class="p">(</span><span class="n">nodes</span><span class="p">,</span> <span class="n">manager</span><span class="p">,</span> <span class="n">freeit</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
 
 </div></div>
 <div class="viewcode-block" id="State"><a class="viewcode-back" href="../../pynusmv.html#pynusmv.dd.State">[docs]</a><span class="k">class</span> <span class="nc">State</span><span class="p">(</span><span class="n">BDD</span><span class="p">):</span>
@@ -623,20 +624,20 @@
             <span class="n">table</span><span class="o">.</span><span class="n">_ptr</span><span class="p">,</span> <span class="n">layers</span><span class="p">)</span>
 
         <span class="c"># Get assign symbols (BddEnc)</span>
-        <span class="n">assignList</span> <span class="o">=</span> <span class="n">nsbddEnc</span><span class="o">.</span><span class="n">BddEnc_assign_symbols</span><span class="p">(</span><span class="n">enc</span><span class="o">.</span><span class="n">_ptr</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ptr</span><span class="p">,</span>
-                                                    <span class="n">symbols</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="bp">None</span><span class="p">)</span>
+        <span class="n">assign_list</span> <span class="o">=</span> <span class="n">nsbddEnc</span><span class="o">.</span><span class="n">BddEnc_assign_symbols</span><span class="p">(</span><span class="n">enc</span><span class="o">.</span><span class="n">_ptr</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ptr</span><span class="p">,</span>
+                                                     <span class="n">symbols</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="bp">None</span><span class="p">)</span>
 
         <span class="n">values</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="c"># Traverse the symbols to print variables of the state</span>
-        <span class="n">asList_ptr</span> <span class="o">=</span> <span class="n">assignList</span>
-        <span class="k">while</span> <span class="n">asList_ptr</span><span class="p">:</span>
-            <span class="n">assignment</span> <span class="o">=</span> <span class="n">nsnode</span><span class="o">.</span><span class="n">car</span><span class="p">(</span><span class="n">asList_ptr</span><span class="p">)</span>
+        <span class="n">assign_list_ptr</span> <span class="o">=</span> <span class="n">assign_list</span>
+        <span class="k">while</span> <span class="n">assign_list_ptr</span><span class="p">:</span>
+            <span class="n">assignment</span> <span class="o">=</span> <span class="n">nsnode</span><span class="o">.</span><span class="n">car</span><span class="p">(</span><span class="n">assign_list_ptr</span><span class="p">)</span>
             <span class="n">var</span> <span class="o">=</span> <span class="n">nsnode</span><span class="o">.</span><span class="n">car</span><span class="p">(</span><span class="n">assignment</span><span class="p">)</span>
             <span class="n">val</span> <span class="o">=</span> <span class="n">nsnode</span><span class="o">.</span><span class="n">cdr</span><span class="p">(</span><span class="n">assignment</span><span class="p">)</span>
             <span class="n">values</span><span class="p">[</span><span class="n">nsnode</span><span class="o">.</span><span class="n">sprint_node</span><span class="p">(</span><span class="n">var</span><span class="p">)]</span> <span class="o">=</span> <span class="n">nsnode</span><span class="o">.</span><span class="n">sprint_node</span><span class="p">(</span><span class="n">val</span><span class="p">)</span>
-            <span class="n">asList_ptr</span> <span class="o">=</span> <span class="n">nsnode</span><span class="o">.</span><span class="n">cdr</span><span class="p">(</span><span class="n">asList_ptr</span><span class="p">)</span>
+            <span class="n">assign_list_ptr</span> <span class="o">=</span> <span class="n">nsnode</span><span class="o">.</span><span class="n">cdr</span><span class="p">(</span><span class="n">assign_list_ptr</span><span class="p">)</span>
 
-        <span class="n">nsnode</span><span class="o">.</span><span class="n">free_list</span><span class="p">(</span><span class="n">assignList</span><span class="p">)</span>
+        <span class="n">nsnode</span><span class="o">.</span><span class="n">free_list</span><span class="p">(</span><span class="n">assign_list</span><span class="p">)</span>
 
         <span class="n">nsutils</span><span class="o">.</span><span class="n">NodeList_destroy</span><span class="p">(</span><span class="n">symbols</span><span class="p">)</span>
 
@@ -691,20 +692,20 @@
             <span class="n">table</span><span class="o">.</span><span class="n">_ptr</span><span class="p">,</span> <span class="n">layers</span><span class="p">)</span>
 
         <span class="c"># Get assign symbols (BddEnc)</span>
-        <span class="n">assignList</span> <span class="o">=</span> <span class="n">nsbddEnc</span><span class="o">.</span><span class="n">BddEnc_assign_symbols</span><span class="p">(</span><span class="n">enc</span><span class="o">.</span><span class="n">_ptr</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ptr</span><span class="p">,</span>
-                                                    <span class="n">symbols</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="bp">None</span><span class="p">)</span>
+        <span class="n">assign_list</span> <span class="o">=</span> <span class="n">nsbddEnc</span><span class="o">.</span><span class="n">BddEnc_assign_symbols</span><span class="p">(</span><span class="n">enc</span><span class="o">.</span><span class="n">_ptr</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ptr</span><span class="p">,</span>
+                                                     <span class="n">symbols</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="bp">None</span><span class="p">)</span>
 
         <span class="n">values</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="c"># Traverse the symbols to print variables of the state</span>
-        <span class="n">asList_ptr</span> <span class="o">=</span> <span class="n">assignList</span>
-        <span class="k">while</span> <span class="n">asList_ptr</span><span class="p">:</span>
-            <span class="n">assignment</span> <span class="o">=</span> <span class="n">nsnode</span><span class="o">.</span><span class="n">car</span><span class="p">(</span><span class="n">asList_ptr</span><span class="p">)</span>
+        <span class="n">assign_list_ptr</span> <span class="o">=</span> <span class="n">assign_list</span>
+        <span class="k">while</span> <span class="n">assign_list_ptr</span><span class="p">:</span>
+            <span class="n">assignment</span> <span class="o">=</span> <span class="n">nsnode</span><span class="o">.</span><span class="n">car</span><span class="p">(</span><span class="n">assign_list_ptr</span><span class="p">)</span>
             <span class="n">var</span> <span class="o">=</span> <span class="n">nsnode</span><span class="o">.</span><span class="n">car</span><span class="p">(</span><span class="n">assignment</span><span class="p">)</span>
             <span class="n">val</span> <span class="o">=</span> <span class="n">nsnode</span><span class="o">.</span><span class="n">cdr</span><span class="p">(</span><span class="n">assignment</span><span class="p">)</span>
             <span class="n">values</span><span class="p">[</span><span class="n">nsnode</span><span class="o">.</span><span class="n">sprint_node</span><span class="p">(</span><span class="n">var</span><span class="p">)]</span> <span class="o">=</span> <span class="n">nsnode</span><span class="o">.</span><span class="n">sprint_node</span><span class="p">(</span><span class="n">val</span><span class="p">)</span>
-            <span class="n">asList_ptr</span> <span class="o">=</span> <span class="n">nsnode</span><span class="o">.</span><span class="n">cdr</span><span class="p">(</span><span class="n">asList_ptr</span><span class="p">)</span>
+            <span class="n">assign_list_ptr</span> <span class="o">=</span> <span class="n">nsnode</span><span class="o">.</span><span class="n">cdr</span><span class="p">(</span><span class="n">assign_list_ptr</span><span class="p">)</span>
 
-        <span class="n">nsnode</span><span class="o">.</span><span class="n">free_list</span><span class="p">(</span><span class="n">assignList</span><span class="p">)</span>
+        <span class="n">nsnode</span><span class="o">.</span><span class="n">free_list</span><span class="p">(</span><span class="n">assign_list</span><span class="p">)</span>
 
         <span class="n">nsutils</span><span class="o">.</span><span class="n">NodeList_destroy</span><span class="p">(</span><span class="n">symbols</span><span class="p">)</span>
 
@@ -719,7 +720,7 @@
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Return a new Inputs of fsm from bdd.</span>
 
-<span class="sd">        :param bdd: a BDD representing a single inputs variables </span>
+<span class="sd">        :param bdd: a BDD representing a single inputs variables</span>
 <span class="sd">                    valuation</span>
 <span class="sd">        :type bdd: :class:`BDD`</span>
 <span class="sd">        :param fsm: the FSM from which the BDD comes from</span>
@@ -764,20 +765,20 @@
         <span class="n">nsutils</span><span class="o">.</span><span class="n">NodeList_destroy</span><span class="p">(</span><span class="n">isymbols</span><span class="p">)</span>
 
         <span class="c"># Get assign symbols (BddEnc)</span>
-        <span class="n">assignList</span> <span class="o">=</span> <span class="n">nsbddEnc</span><span class="o">.</span><span class="n">BddEnc_assign_symbols</span><span class="p">(</span><span class="n">enc</span><span class="o">.</span><span class="n">_ptr</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ptr</span><span class="p">,</span>
-                                                    <span class="n">symbols</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="bp">None</span><span class="p">)</span>
+        <span class="n">assign_list</span> <span class="o">=</span> <span class="n">nsbddEnc</span><span class="o">.</span><span class="n">BddEnc_assign_symbols</span><span class="p">(</span><span class="n">enc</span><span class="o">.</span><span class="n">_ptr</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ptr</span><span class="p">,</span>
+                                                     <span class="n">symbols</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="bp">None</span><span class="p">)</span>
 
         <span class="n">values</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="c"># Traverse the symbols to print variables of the state</span>
-        <span class="n">asList_ptr</span> <span class="o">=</span> <span class="n">assignList</span>
-        <span class="k">while</span> <span class="n">asList_ptr</span><span class="p">:</span>
-            <span class="n">assignment</span> <span class="o">=</span> <span class="n">nsnode</span><span class="o">.</span><span class="n">car</span><span class="p">(</span><span class="n">asList_ptr</span><span class="p">)</span>
+        <span class="n">assign_list_ptr</span> <span class="o">=</span> <span class="n">assign_list</span>
+        <span class="k">while</span> <span class="n">assign_list_ptr</span><span class="p">:</span>
+            <span class="n">assignment</span> <span class="o">=</span> <span class="n">nsnode</span><span class="o">.</span><span class="n">car</span><span class="p">(</span><span class="n">assign_list_ptr</span><span class="p">)</span>
             <span class="n">var</span> <span class="o">=</span> <span class="n">nsnode</span><span class="o">.</span><span class="n">car</span><span class="p">(</span><span class="n">assignment</span><span class="p">)</span>
             <span class="n">val</span> <span class="o">=</span> <span class="n">nsnode</span><span class="o">.</span><span class="n">cdr</span><span class="p">(</span><span class="n">assignment</span><span class="p">)</span>
             <span class="n">values</span><span class="p">[</span><span class="n">nsnode</span><span class="o">.</span><span class="n">sprint_node</span><span class="p">(</span><span class="n">var</span><span class="p">)]</span> <span class="o">=</span> <span class="n">nsnode</span><span class="o">.</span><span class="n">sprint_node</span><span class="p">(</span><span class="n">val</span><span class="p">)</span>
-            <span class="n">asList_ptr</span> <span class="o">=</span> <span class="n">nsnode</span><span class="o">.</span><span class="n">cdr</span><span class="p">(</span><span class="n">asList_ptr</span><span class="p">)</span>
+            <span class="n">assign_list_ptr</span> <span class="o">=</span> <span class="n">nsnode</span><span class="o">.</span><span class="n">cdr</span><span class="p">(</span><span class="n">assign_list_ptr</span><span class="p">)</span>
 
-        <span class="n">nsnode</span><span class="o">.</span><span class="n">free_list</span><span class="p">(</span><span class="n">assignList</span><span class="p">)</span>
+        <span class="n">nsnode</span><span class="o">.</span><span class="n">free_list</span><span class="p">(</span><span class="n">assign_list</span><span class="p">)</span>
 
         <span class="n">nsutils</span><span class="o">.</span><span class="n">NodeList_destroy</span><span class="p">(</span><span class="n">symbols</span><span class="p">)</span>
 
@@ -807,8 +808,13 @@
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_manager</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">MissingManagerError</span><span class="p">()</span>
-        <span class="k">return</span> <span class="n">Cube</span><span class="p">(</span><span class="n">nsdd</span><span class="o">.</span><span class="n">bdd_cube_diff</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_manager</span><span class="o">.</span><span class="n">_ptr</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ptr</span><span class="p">,</span> <span class="n">other</span><span class="o">.</span><span class="n">_ptr</span><span class="p">),</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">_manager</span><span class="p">,</span> <span class="n">freeit</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">Cube</span><span class="p">(</span>
+            <span class="n">nsdd</span><span class="o">.</span><span class="n">bdd_cube_diff</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_manager</span><span class="o">.</span><span class="n">_ptr</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_ptr</span><span class="p">,</span>
+                <span class="n">other</span><span class="o">.</span><span class="n">_ptr</span><span class="p">),</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_manager</span><span class="p">,</span>
+            <span class="n">freeit</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
 </div>
 <div class="viewcode-block" id="Cube.intersection"><a class="viewcode-back" href="../../pynusmv.html#pynusmv.dd.Cube.intersection">[docs]</a>    <span class="k">def</span> <span class="nf">intersection</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -843,8 +849,13 @@
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_manager</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">MissingManagerError</span><span class="p">()</span>
-        <span class="k">return</span> <span class="n">BDD</span><span class="p">(</span><span class="n">nsdd</span><span class="o">.</span><span class="n">bdd_cube_union</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_manager</span><span class="o">.</span><span class="n">_ptr</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ptr</span><span class="p">,</span> <span class="n">other</span><span class="o">.</span><span class="n">_ptr</span><span class="p">),</span>
-                   <span class="bp">self</span><span class="o">.</span><span class="n">_manager</span><span class="p">,</span> <span class="n">freeit</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">BDD</span><span class="p">(</span>
+            <span class="n">nsdd</span><span class="o">.</span><span class="n">bdd_cube_union</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_manager</span><span class="o">.</span><span class="n">_ptr</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_ptr</span><span class="p">,</span>
+                <span class="n">other</span><span class="o">.</span><span class="n">_ptr</span><span class="p">),</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_manager</span><span class="p">,</span>
+            <span class="n">freeit</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
 </div>
     <span class="k">def</span> <span class="nf">__sub__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">other</span><span class="p">)</span>

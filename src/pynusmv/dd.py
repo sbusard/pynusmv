@@ -343,7 +343,7 @@ class BDD(PointerWrapper):
     # ==========================================================================
 
     def __lt__(self, other):
-        return (self <= other) and not (self == other)
+        return (self <= other) and not self == other
 
     def __le__(self, other):
         return self.leq(other)
@@ -449,11 +449,11 @@ class BDDList(PointerWrapper):
 
     def __len__(self):
         ptr = self._ptr
-        l = 0
+        length = 0
         while ptr:
-            l += 1
+            length += 1
             ptr = nsnode.cdr(ptr)
-        return l
+        return length
 
     def __getitem__(self, val):
         """
@@ -504,10 +504,10 @@ class BDDList(PointerWrapper):
         Return a tuple containing all BDDs of self.
         The returned BDDs are copies of the ones of self.
         """
-        l = []
+        result = []
         for elem in self:
-            l.append(elem)
-        return tuple(l)
+            result.append(elem)
+        return tuple(result)
 
     # ==========================================================================
     # ===== Class methods ====================================================
@@ -530,17 +530,17 @@ class BDDList(PointerWrapper):
 
         # Reverse tuple before, because we build the list reversely.
         bddtuple = bddtuple[::-1]
-        n = None
+        nodes = None
         manager = None
         for elem in bddtuple:
             if elem:
-                e = nsnode.bdd2node(nsdd.bdd_dup(elem._ptr))
+                enode = nsnode.bdd2node(nsdd.bdd_dup(elem._ptr))
                 if manager is None:
                     manager = elem._manager
             else:
-                e = elem
-            n = nsnode.cons(e, n)
-        return BDDList(n, manager, freeit=True)
+                enode = elem
+            nodes = nsnode.cons(enode, nodes)
+        return BDDList(nodes, manager, freeit=True)
 
 
 class State(BDD):
@@ -573,20 +573,20 @@ class State(BDD):
             table._ptr, layers)
 
         # Get assign symbols (BddEnc)
-        assignList = nsbddEnc.BddEnc_assign_symbols(enc._ptr, self._ptr,
-                                                    symbols, 0, None)
+        assign_list = nsbddEnc.BddEnc_assign_symbols(enc._ptr, self._ptr,
+                                                     symbols, 0, None)
 
         values = {}
         # Traverse the symbols to print variables of the state
-        asList_ptr = assignList
-        while asList_ptr:
-            assignment = nsnode.car(asList_ptr)
+        assign_list_ptr = assign_list
+        while assign_list_ptr:
+            assignment = nsnode.car(assign_list_ptr)
             var = nsnode.car(assignment)
             val = nsnode.cdr(assignment)
             values[nsnode.sprint_node(var)] = nsnode.sprint_node(val)
-            asList_ptr = nsnode.cdr(asList_ptr)
+            assign_list_ptr = nsnode.cdr(assign_list_ptr)
 
-        nsnode.free_list(assignList)
+        nsnode.free_list(assign_list)
 
         nsutils.NodeList_destroy(symbols)
 
@@ -641,20 +641,20 @@ class Inputs(BDD):
             table._ptr, layers)
 
         # Get assign symbols (BddEnc)
-        assignList = nsbddEnc.BddEnc_assign_symbols(enc._ptr, self._ptr,
-                                                    symbols, 0, None)
+        assign_list = nsbddEnc.BddEnc_assign_symbols(enc._ptr, self._ptr,
+                                                     symbols, 0, None)
 
         values = {}
         # Traverse the symbols to print variables of the state
-        asList_ptr = assignList
-        while asList_ptr:
-            assignment = nsnode.car(asList_ptr)
+        assign_list_ptr = assign_list
+        while assign_list_ptr:
+            assignment = nsnode.car(assign_list_ptr)
             var = nsnode.car(assignment)
             val = nsnode.cdr(assignment)
             values[nsnode.sprint_node(var)] = nsnode.sprint_node(val)
-            asList_ptr = nsnode.cdr(asList_ptr)
+            assign_list_ptr = nsnode.cdr(assign_list_ptr)
 
-        nsnode.free_list(assignList)
+        nsnode.free_list(assign_list)
 
         nsutils.NodeList_destroy(symbols)
 
@@ -714,20 +714,20 @@ class StateInputs(BDD):
         nsutils.NodeList_destroy(isymbols)
 
         # Get assign symbols (BddEnc)
-        assignList = nsbddEnc.BddEnc_assign_symbols(enc._ptr, self._ptr,
-                                                    symbols, 0, None)
+        assign_list = nsbddEnc.BddEnc_assign_symbols(enc._ptr, self._ptr,
+                                                     symbols, 0, None)
 
         values = {}
         # Traverse the symbols to print variables of the state
-        asList_ptr = assignList
-        while asList_ptr:
-            assignment = nsnode.car(asList_ptr)
+        assign_list_ptr = assign_list
+        while assign_list_ptr:
+            assignment = nsnode.car(assign_list_ptr)
             var = nsnode.car(assignment)
             val = nsnode.cdr(assignment)
             values[nsnode.sprint_node(var)] = nsnode.sprint_node(val)
-            asList_ptr = nsnode.cdr(asList_ptr)
+            assign_list_ptr = nsnode.cdr(assign_list_ptr)
 
-        nsnode.free_list(assignList)
+        nsnode.free_list(assign_list)
 
         nsutils.NodeList_destroy(symbols)
 

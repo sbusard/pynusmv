@@ -11,7 +11,6 @@ from .nusmv.node import node as nsnode
 from .nusmv.dd import dd as nsdd
 from .nusmv.mc import mc
 
-from .fsm import BddFsm
 from .dd import BDD, State, Inputs, BDDList
 from .prop import atom
 

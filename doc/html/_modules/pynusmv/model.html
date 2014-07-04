@@ -51,25 +51,77 @@
   <h1>Source code for pynusmv.model</h1><div class="highlight"><pre>
 <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">The :mod:`pynusmv.model` module provides a way to define NuSMV modules in</span>
-<span class="sd">Python: the :class:`Module` class represents a generic NuSMV module, and must be</span>
-<span class="sd">subclassed to define specific NuSMV modules. This module also defines the set</span>
-<span class="sd">of AST elements of the language.</span>
+<span class="sd">Python: the :class:`Module` class represents a generic NuSMV module, and must</span>
+<span class="sd">be subclassed to define specific NuSMV modules. This module also defines the</span>
+<span class="sd">set of AST elements of the language.</span>
 
 <span class="sd">&quot;&quot;&quot;</span>
 
-<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s">&quot;Identifier&quot;</span><span class="p">,</span> <span class="s">&quot;ComplexIdentifier&quot;</span><span class="p">,</span> <span class="s">&quot;Boolean&quot;</span><span class="p">,</span> <span class="s">&quot;Word&quot;</span><span class="p">,</span> <span class="s">&quot;Range&quot;</span><span class="p">,</span>
-           <span class="s">&quot;Conversion&quot;</span><span class="p">,</span> <span class="s">&quot;WordFunction&quot;</span><span class="p">,</span> <span class="s">&quot;Count&quot;</span><span class="p">,</span> <span class="s">&quot;Next&quot;</span><span class="p">,</span> <span class="s">&quot;Init&quot;</span><span class="p">,</span> <span class="s">&quot;Case&quot;</span><span class="p">,</span>
-           <span class="s">&quot;Subscript&quot;</span><span class="p">,</span> <span class="s">&quot;BitSelection&quot;</span><span class="p">,</span> <span class="s">&quot;ArrayAccess&quot;</span><span class="p">,</span> <span class="s">&quot;Set&quot;</span><span class="p">,</span> <span class="s">&quot;Not&quot;</span><span class="p">,</span> <span class="s">&quot;Concat&quot;</span><span class="p">,</span>
-           <span class="s">&quot;Minus&quot;</span><span class="p">,</span> <span class="s">&quot;Mult&quot;</span><span class="p">,</span> <span class="s">&quot;Div&quot;</span><span class="p">,</span> <span class="s">&quot;Mod&quot;</span><span class="p">,</span> <span class="s">&quot;Add&quot;</span><span class="p">,</span> <span class="s">&quot;Sub&quot;</span><span class="p">,</span> <span class="s">&quot;ShiftL&quot;</span><span class="p">,</span> <span class="s">&quot;ShiftR&quot;</span><span class="p">,</span>
-           <span class="s">&quot;Union&quot;</span><span class="p">,</span> <span class="s">&quot;In&quot;</span><span class="p">,</span> <span class="s">&quot;Eq&quot;</span><span class="p">,</span> <span class="s">&quot;Neq&quot;</span><span class="p">,</span> <span class="s">&quot;Lt&quot;</span><span class="p">,</span> <span class="s">&quot;Gt&quot;</span><span class="p">,</span> <span class="s">&quot;Le&quot;</span><span class="p">,</span> <span class="s">&quot;Ge&quot;</span><span class="p">,</span> <span class="s">&quot;And&quot;</span><span class="p">,</span> <span class="s">&quot;Or&quot;</span><span class="p">,</span>
-           <span class="s">&quot;Xor&quot;</span><span class="p">,</span> <span class="s">&quot;Xnor&quot;</span><span class="p">,</span> <span class="s">&quot;Ite&quot;</span><span class="p">,</span> <span class="s">&quot;Iff&quot;</span><span class="p">,</span> <span class="s">&quot;Implies&quot;</span><span class="p">,</span> <span class="s">&quot;TBoolean&quot;</span><span class="p">,</span> <span class="s">&quot;TWord&quot;</span><span class="p">,</span> <span class="s">&quot;TEnum&quot;</span><span class="p">,</span>
-           <span class="s">&quot;TRange&quot;</span><span class="p">,</span> <span class="s">&quot;TArray&quot;</span><span class="p">,</span> <span class="s">&quot;TModule&quot;</span><span class="p">,</span> <span class="s">&quot;Variables&quot;</span><span class="p">,</span> <span class="s">&quot;InputVariables&quot;</span><span class="p">,</span>
-           <span class="s">&quot;FrozenVariables&quot;</span><span class="p">,</span> <span class="s">&quot;Defines&quot;</span><span class="p">,</span> <span class="s">&quot;Assigns&quot;</span><span class="p">,</span> <span class="s">&quot;Constants&quot;</span><span class="p">,</span> <span class="s">&quot;Trans&quot;</span><span class="p">,</span>
-           <span class="s">&quot;SInit&quot;</span><span class="p">,</span> <span class="s">&quot;Invar&quot;</span><span class="p">,</span> <span class="s">&quot;Fairness&quot;</span><span class="p">,</span> <span class="s">&quot;Justice&quot;</span><span class="p">,</span> <span class="s">&quot;Compassion&quot;</span><span class="p">,</span>
-           <span class="s">&quot;Var&quot;</span><span class="p">,</span> <span class="s">&quot;IVar&quot;</span><span class="p">,</span> <span class="s">&quot;FVar&quot;</span><span class="p">,</span> <span class="s">&quot;Def&quot;</span><span class="p">,</span>
-           <span class="s">&quot;Module&quot;</span><span class="p">]</span>
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s">&quot;Identifier&quot;</span><span class="p">,</span>
+    <span class="s">&quot;ComplexIdentifier&quot;</span><span class="p">,</span>
+    <span class="s">&quot;Boolean&quot;</span><span class="p">,</span>
+    <span class="s">&quot;Word&quot;</span><span class="p">,</span>
+    <span class="s">&quot;Range&quot;</span><span class="p">,</span>
+    <span class="s">&quot;Conversion&quot;</span><span class="p">,</span>
+    <span class="s">&quot;WordFunction&quot;</span><span class="p">,</span>
+    <span class="s">&quot;Count&quot;</span><span class="p">,</span>
+    <span class="s">&quot;Next&quot;</span><span class="p">,</span>
+    <span class="s">&quot;Init&quot;</span><span class="p">,</span>
+    <span class="s">&quot;Case&quot;</span><span class="p">,</span>
+    <span class="s">&quot;Subscript&quot;</span><span class="p">,</span>
+    <span class="s">&quot;BitSelection&quot;</span><span class="p">,</span>
+    <span class="s">&quot;ArrayAccess&quot;</span><span class="p">,</span>
+    <span class="s">&quot;Set&quot;</span><span class="p">,</span>
+    <span class="s">&quot;Not&quot;</span><span class="p">,</span>
+    <span class="s">&quot;Concat&quot;</span><span class="p">,</span>
+    <span class="s">&quot;Minus&quot;</span><span class="p">,</span>
+    <span class="s">&quot;Mult&quot;</span><span class="p">,</span>
+    <span class="s">&quot;Div&quot;</span><span class="p">,</span>
+    <span class="s">&quot;Mod&quot;</span><span class="p">,</span>
+    <span class="s">&quot;Add&quot;</span><span class="p">,</span>
+    <span class="s">&quot;Sub&quot;</span><span class="p">,</span>
+    <span class="s">&quot;ShiftL&quot;</span><span class="p">,</span>
+    <span class="s">&quot;ShiftR&quot;</span><span class="p">,</span>
+    <span class="s">&quot;Union&quot;</span><span class="p">,</span>
+    <span class="s">&quot;In&quot;</span><span class="p">,</span>
+    <span class="s">&quot;Eq&quot;</span><span class="p">,</span>
+    <span class="s">&quot;Neq&quot;</span><span class="p">,</span>
+    <span class="s">&quot;Lt&quot;</span><span class="p">,</span>
+    <span class="s">&quot;Gt&quot;</span><span class="p">,</span>
+    <span class="s">&quot;Le&quot;</span><span class="p">,</span>
+    <span class="s">&quot;Ge&quot;</span><span class="p">,</span>
+    <span class="s">&quot;And&quot;</span><span class="p">,</span>
+    <span class="s">&quot;Or&quot;</span><span class="p">,</span>
+    <span class="s">&quot;Xor&quot;</span><span class="p">,</span>
+    <span class="s">&quot;Xnor&quot;</span><span class="p">,</span>
+    <span class="s">&quot;Ite&quot;</span><span class="p">,</span>
+    <span class="s">&quot;Iff&quot;</span><span class="p">,</span>
+    <span class="s">&quot;Implies&quot;</span><span class="p">,</span>
+    <span class="s">&quot;TBoolean&quot;</span><span class="p">,</span>
+    <span class="s">&quot;TWord&quot;</span><span class="p">,</span>
+    <span class="s">&quot;TEnum&quot;</span><span class="p">,</span>
+    <span class="s">&quot;TRange&quot;</span><span class="p">,</span>
+    <span class="s">&quot;TArray&quot;</span><span class="p">,</span>
+    <span class="s">&quot;TModule&quot;</span><span class="p">,</span>
+    <span class="s">&quot;Variables&quot;</span><span class="p">,</span>
+    <span class="s">&quot;InputVariables&quot;</span><span class="p">,</span>
+    <span class="s">&quot;FrozenVariables&quot;</span><span class="p">,</span>
+    <span class="s">&quot;Defines&quot;</span><span class="p">,</span>
+    <span class="s">&quot;Assigns&quot;</span><span class="p">,</span>
+    <span class="s">&quot;Constants&quot;</span><span class="p">,</span>
+    <span class="s">&quot;Trans&quot;</span><span class="p">,</span>
+    <span class="s">&quot;SInit&quot;</span><span class="p">,</span>
+    <span class="s">&quot;Invar&quot;</span><span class="p">,</span>
+    <span class="s">&quot;Fairness&quot;</span><span class="p">,</span>
+    <span class="s">&quot;Justice&quot;</span><span class="p">,</span>
+    <span class="s">&quot;Compassion&quot;</span><span class="p">,</span>
+    <span class="s">&quot;Var&quot;</span><span class="p">,</span>
+    <span class="s">&quot;IVar&quot;</span><span class="p">,</span>
+    <span class="s">&quot;FVar&quot;</span><span class="p">,</span>
+    <span class="s">&quot;Def&quot;</span><span class="p">,</span>
+    <span class="s">&quot;Module&quot;</span><span class="p">]</span>
 
-<span class="kn">import</span> <span class="nn">inspect</span>
 <span class="kn">import</span> <span class="nn">sys</span>
 <span class="kn">import</span> <span class="nn">collections</span>
 
@@ -83,7 +135,7 @@
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    The string the element comes from, if any (that is, if it comes from a</span>
 <span class="sd">    parser).</span>
-<span class="sd">    </span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
 
 <span class="c"># ------------------------------------------------------------------------------</span>
@@ -224,7 +276,7 @@
         <span class="kn">from</span> <span class="nn">.parser</span> <span class="kn">import</span> <span class="n">parseAllString</span><span class="p">,</span> <span class="n">next_expression</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
             <span class="n">item</span> <span class="o">=</span> <span class="n">parseAllString</span><span class="p">(</span><span class="n">next_expression</span><span class="p">,</span> <span class="n">item</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">In</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">In</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">item</span><span class="p">)</span>
 
 
 <div class="viewcode-block" id="Identifier"><a class="viewcode-back" href="../../pynusmv.html#pynusmv.model.Identifier">[docs]</a><span class="k">class</span> <span class="nc">Identifier</span><span class="p">(</span><span class="n">Expression</span><span class="p">):</span>
@@ -239,11 +291,9 @@
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">source</span>
         <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">__hash__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="mi">17</span> <span class="o">+</span> <span class="mi">23</span> <span class="o">*</span> <span class="nb">hash</span><span class="p">(</span><span class="s">&quot;Identifier&quot;</span><span class="p">)</span> <span class="o">+</span> <span class="mi">23</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">*</span> <span class="nb">hash</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
-
     <span class="k">def</span> <span class="nf">_equals</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
-        <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="ow">is</span> <span class="nb">type</span><span class="p">(</span><span class="n">other</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return whether `self` is equals to `other`.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">type</span><span class="p">(</span><span class="n">other</span><span class="p">)):</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">name</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">False</span>
@@ -265,7 +315,8 @@
         <span class="k">return</span> <span class="s">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">element</span><span class="p">)</span> <span class="k">for</span> <span class="n">element</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">body</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_equals</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
-        <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="ow">is</span> <span class="nb">type</span><span class="p">(</span><span class="n">other</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return whether `self` is equals to `other`.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">type</span><span class="p">(</span><span class="n">other</span><span class="p">)):</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">body</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">body</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">False</span>
@@ -292,7 +343,8 @@
         <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_equals</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
-        <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="ow">is</span> <span class="nb">type</span><span class="p">(</span><span class="n">other</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return whether `self` is equals to `other`.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">type</span><span class="p">(</span><span class="n">other</span><span class="p">)):</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">value</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">value</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">False</span>
@@ -314,7 +366,8 @@
         <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_equals</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
-        <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="ow">is</span> <span class="nb">type</span><span class="p">(</span><span class="n">other</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return whether `self` is equals to `other`.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">type</span><span class="p">(</span><span class="n">other</span><span class="p">)):</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">value</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">value</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">False</span>
@@ -337,7 +390,8 @@
         <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">start</span><span class="p">)</span> <span class="o">+</span> <span class="s">&quot;..&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">stop</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_equals</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
-        <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="ow">is</span> <span class="nb">type</span><span class="p">(</span><span class="n">other</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return whether `self` is equals to `other`.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">type</span><span class="p">(</span><span class="n">other</span><span class="p">)):</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">start</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">start</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">stop</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">stop</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">False</span>
@@ -366,7 +420,8 @@
         <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">target_type</span><span class="p">)</span> <span class="o">+</span> <span class="s">&quot;(&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="p">)</span> <span class="o">+</span> <span class="s">&quot;)&quot;</span>
 
     <span class="k">def</span> <span class="nf">_equals</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
-        <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="ow">is</span> <span class="nb">type</span><span class="p">(</span><span class="n">other</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return whether `self` is equals to `other`.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">type</span><span class="p">(</span><span class="n">other</span><span class="p">)):</span>
             <span class="k">return</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">target_type</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">target_type</span> <span class="ow">and</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="o">.</span><span class="n">_equals</span><span class="p">(</span><span class="n">other</span><span class="o">.</span><span class="n">value</span><span class="p">))</span>
         <span class="k">else</span><span class="p">:</span>
@@ -394,7 +449,8 @@
                 <span class="o">+</span> <span class="s">&quot;, &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">size</span><span class="p">)</span> <span class="o">+</span> <span class="s">&quot;)&quot;</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_equals</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
-        <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="ow">is</span> <span class="nb">type</span><span class="p">(</span><span class="n">other</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return whether `self` is equals to `other`.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">type</span><span class="p">(</span><span class="n">other</span><span class="p">)):</span>
             <span class="k">return</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">function</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">function</span> <span class="ow">and</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="o">.</span><span class="n">_equals</span><span class="p">(</span><span class="n">other</span><span class="o">.</span><span class="n">value</span><span class="p">)</span> <span class="ow">and</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">size</span><span class="o">.</span><span class="n">_equals</span><span class="p">(</span><span class="n">other</span><span class="o">.</span><span class="n">size</span><span class="p">))</span>
@@ -421,7 +477,8 @@
         <span class="k">return</span> <span class="s">&quot;count(&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="p">)</span> <span class="o">+</span> <span class="s">&quot;)&quot;</span>
 
     <span class="k">def</span> <span class="nf">_equals</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
-        <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="ow">is</span> <span class="nb">type</span><span class="p">(</span><span class="n">other</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return whether `self` is equals to `other`.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">type</span><span class="p">(</span><span class="n">other</span><span class="p">)):</span>
             <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">other</span><span class="o">.</span><span class="n">value</span><span class="p">):</span>
                 <span class="k">return</span> <span class="bp">False</span>
             <span class="k">for</span> <span class="n">sval</span><span class="p">,</span> <span class="n">oval</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="p">,</span> <span class="n">other</span><span class="o">.</span><span class="n">value</span><span class="p">):</span>
@@ -448,7 +505,8 @@
         <span class="k">return</span> <span class="s">&quot;next(&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="p">)</span> <span class="o">+</span> <span class="s">&quot;)&quot;</span>
 
     <span class="k">def</span> <span class="nf">_equals</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
-        <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="ow">is</span> <span class="nb">type</span><span class="p">(</span><span class="n">other</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return whether `self` is equals to `other`.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">type</span><span class="p">(</span><span class="n">other</span><span class="p">)):</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="o">.</span><span class="n">_equals</span><span class="p">(</span><span class="n">other</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">False</span>
@@ -470,7 +528,8 @@
         <span class="k">return</span> <span class="s">&quot;init(&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="p">)</span> <span class="o">+</span> <span class="s">&quot;)&quot;</span>
 
     <span class="k">def</span> <span class="nf">_equals</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
-        <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="ow">is</span> <span class="nb">type</span><span class="p">(</span><span class="n">other</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return whether `self` is equals to `other`.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">type</span><span class="p">(</span><span class="n">other</span><span class="p">)):</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="o">.</span><span class="n">_equals</span><span class="p">(</span><span class="n">other</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">False</span>
@@ -491,10 +550,11 @@
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">source</span>
         <span class="k">return</span> <span class="p">(</span><span class="s">&quot;case &quot;</span> <span class="o">+</span> <span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">cond</span><span class="p">)</span> <span class="o">+</span> <span class="s">&quot;: &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">body</span><span class="p">)</span> <span class="o">+</span> <span class="s">&quot;;&quot;</span>
                                     <span class="k">for</span> <span class="n">cond</span><span class="p">,</span> <span class="n">body</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">items</span><span class="p">())</span>
-                        <span class="o">+</span> <span class="s">&quot; esac&quot;</span><span class="p">)</span>
+                <span class="o">+</span> <span class="s">&quot; esac&quot;</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_equals</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
-        <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="ow">is</span> <span class="nb">type</span><span class="p">(</span><span class="n">other</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return whether `self` is equals to `other`.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">type</span><span class="p">(</span><span class="n">other</span><span class="p">)):</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">values</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">values</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">False</span>
@@ -516,7 +576,8 @@
         <span class="k">return</span> <span class="s">&quot;[&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">index</span><span class="p">)</span> <span class="o">+</span> <span class="s">&quot;]&quot;</span>
 
     <span class="k">def</span> <span class="nf">_equals</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
-        <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="ow">is</span> <span class="nb">type</span><span class="p">(</span><span class="n">other</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return whether `self` is equals to `other`.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">type</span><span class="p">(</span><span class="n">other</span><span class="p">)):</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">_equals</span><span class="p">(</span><span class="n">other</span><span class="o">.</span><span class="n">index</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">False</span>
@@ -539,7 +600,8 @@
         <span class="k">return</span> <span class="s">&quot;[&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">start</span><span class="p">)</span> <span class="o">+</span> <span class="s">&quot;:&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">stop</span><span class="p">)</span> <span class="o">+</span> <span class="s">&quot;]&quot;</span>
 
     <span class="k">def</span> <span class="nf">_equals</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
-        <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="ow">is</span> <span class="nb">type</span><span class="p">(</span><span class="n">other</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return whether `self` is equals to `other`.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">type</span><span class="p">(</span><span class="n">other</span><span class="p">)):</span>
             <span class="k">return</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">start</span><span class="o">.</span><span class="n">_equals</span><span class="p">(</span><span class="n">other</span><span class="o">.</span><span class="n">start</span><span class="p">)</span> <span class="ow">and</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">stop</span><span class="o">.</span><span class="n">_equals</span><span class="p">(</span><span class="n">other</span><span class="o">.</span><span class="n">stop</span><span class="p">))</span>
         <span class="k">else</span><span class="p">:</span>
@@ -565,7 +627,8 @@
                                          <span class="k">for</span> <span class="n">access</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">accesses</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_equals</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
-        <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="ow">is</span> <span class="nb">type</span><span class="p">(</span><span class="n">other</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return whether `self` is equals to `other`.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">type</span><span class="p">(</span><span class="n">other</span><span class="p">)):</span>
             <span class="k">return</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">array</span><span class="o">.</span><span class="n">_equals</span><span class="p">(</span><span class="n">other</span><span class="o">.</span><span class="n">array</span><span class="p">)</span> <span class="ow">and</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">accesses</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">accesses</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
@@ -589,7 +652,8 @@
         <span class="k">return</span> <span class="s">&quot;{&quot;</span> <span class="o">+</span> <span class="s">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">element</span><span class="p">)</span> <span class="k">for</span> <span class="n">element</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="p">)</span> <span class="o">+</span> <span class="s">&quot;}&quot;</span>
 
     <span class="k">def</span> <span class="nf">_equals</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
-        <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="ow">is</span> <span class="nb">type</span><span class="p">(</span><span class="n">other</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return whether `self` is equals to `other`.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">type</span><span class="p">(</span><span class="n">other</span><span class="p">)):</span>
             <span class="k">return</span> <span class="nb">frozenset</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="p">)</span> <span class="o">==</span> <span class="nb">frozenset</span><span class="p">(</span><span class="n">other</span><span class="o">.</span><span class="n">elements</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">False</span>
@@ -624,11 +688,12 @@
 
     <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">source</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">source</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">source</span>
         <span class="k">return</span> <span class="s">&quot;! &quot;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">_enclose</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_equals</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
-        <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="ow">is</span> <span class="nb">type</span><span class="p">(</span><span class="n">other</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return whether `self` is equals to `other`.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">type</span><span class="p">(</span><span class="n">other</span><span class="p">)):</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="o">.</span><span class="n">_equals</span><span class="p">(</span><span class="n">other</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">False</span>
@@ -653,7 +718,8 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_enclose</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">left</span><span class="p">)</span> <span class="o">+</span> <span class="s">&quot;::&quot;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">_enclose</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">right</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_equals</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
-        <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="ow">is</span> <span class="nb">type</span><span class="p">(</span><span class="n">other</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return whether `self` is equals to `other`.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">type</span><span class="p">(</span><span class="n">other</span><span class="p">)):</span>
             <span class="k">return</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">left</span><span class="o">.</span><span class="n">_equals</span><span class="p">(</span><span class="n">other</span><span class="o">.</span><span class="n">left</span><span class="p">)</span> <span class="ow">and</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">right</span><span class="o">.</span><span class="n">_equals</span><span class="p">(</span><span class="n">other</span><span class="o">.</span><span class="n">right</span><span class="p">))</span>
         <span class="k">else</span><span class="p">:</span>
@@ -679,7 +745,8 @@
         <span class="k">return</span> <span class="s">&quot;- &quot;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">_enclose</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_equals</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
-        <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="ow">is</span> <span class="nb">type</span><span class="p">(</span><span class="n">other</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return whether `self` is equals to `other`.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">type</span><span class="p">(</span><span class="n">other</span><span class="p">)):</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="o">.</span><span class="n">_equals</span><span class="p">(</span><span class="n">other</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">False</span>
@@ -704,7 +771,8 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_enclose</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">left</span><span class="p">)</span> <span class="o">+</span> <span class="s">&quot; * &quot;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">_enclose</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">right</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_equals</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
-        <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="ow">is</span> <span class="nb">type</span><span class="p">(</span><span class="n">other</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return whether `self` is equals to `other`.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">type</span><span class="p">(</span><span class="n">other</span><span class="p">)):</span>
             <span class="k">return</span> <span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">left</span><span class="o">.</span><span class="n">_equals</span><span class="p">(</span><span class="n">other</span><span class="o">.</span><span class="n">left</span><span class="p">)</span> <span class="ow">and</span>
                      <span class="bp">self</span><span class="o">.</span><span class="n">right</span><span class="o">.</span><span class="n">_equals</span><span class="p">(</span><span class="n">other</span><span class="o">.</span><span class="n">right</span><span class="p">))</span> <span class="ow">or</span>
                     <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">left</span><span class="o">.</span><span class="n">_equals</span><span class="p">(</span><span class="n">other</span><span class="o">.</span><span class="n">right</span><span class="p">)</span> <span class="ow">and</span>
@@ -733,7 +801,8 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_enclose</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">left</span><span class="p">)</span> <span class="o">+</span> <span class="s">&quot; / &quot;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">_enclose</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">right</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_equals</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
-        <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="ow">is</span> <span class="nb">type</span><span class="p">(</span><span class="n">other</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return whether `self` is equals to `other`.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">type</span><span class="p">(</span><span class="n">other</span><span class="p">)):</span>
             <span class="k">return</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">left</span><span class="o">.</span><span class="n">_equals</span><span class="p">(</span><span class="n">other</span><span class="o">.</span><span class="n">left</span><span class="p">)</span> <span class="ow">and</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">right</span><span class="o">.</span><span class="n">_equals</span><span class="p">(</span><span class="n">other</span><span class="o">.</span><span class="n">right</span><span class="p">))</span>
         <span class="k">else</span><span class="p">:</span>
@@ -760,7 +829,8 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_enclose</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">left</span><span class="p">)</span> <span class="o">+</span> <span class="s">&quot; mod &quot;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">_enclose</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">right</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_equals</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
-        <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="ow">is</span> <span class="nb">type</span><span class="p">(</span><span class="n">other</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return whether `self` is equals to `other`.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">type</span><span class="p">(</span><span class="n">other</span><span class="p">)):</span>
             <span class="k">return</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">left</span><span class="o">.</span><span class="n">_equals</span><span class="p">(</span><span class="n">other</span><span class="o">.</span><span class="n">left</span><span class="p">)</span> <span class="ow">and</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">right</span><span class="o">.</span><span class="n">_equals</span><span class="p">(</span><span class="n">other</span><span class="o">.</span><span class="n">right</span><span class="p">))</span>
         <span class="k">else</span><span class="p">:</span>
@@ -787,7 +857,8 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_enclose</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">left</span><span class="p">)</span> <span class="o">+</span> <span class="s">&quot; + &quot;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">_enclose</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">right</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_equals</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
-        <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="ow">is</span> <span class="nb">type</span><span class="p">(</span><span class="n">other</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return whether `self` is equals to `other`.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">type</span><span class="p">(</span><span class="n">other</span><span class="p">)):</span>
             <span class="k">return</span> <span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">left</span><span class="o">.</span><span class="n">_equals</span><span class="p">(</span><span class="n">other</span><span class="o">.</span><span class="n">left</span><span class="p">)</span> <span class="ow">and</span>
                      <span class="bp">self</span><span class="o">.</span><span class="n">right</span><span class="o">.</span><span class="n">_equals</span><span class="p">(</span><span class="n">other</span><span class="o">.</span><span class="n">right</span><span class="p">))</span> <span class="ow">or</span>
                     <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">left</span><span class="o">.</span><span class="n">_equals</span><span class="p">(</span><span class="n">other</span><span class="o">.</span><span class="n">right</span><span class="p">)</span> <span class="ow">and</span>
@@ -816,7 +887,8 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_enclose</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">left</span><span class="p">)</span> <span class="o">+</span> <span class="s">&quot; - &quot;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">_enclose</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">right</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_equals</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
-        <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="ow">is</span> <span class="nb">type</span><span class="p">(</span><span class="n">other</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return whether `self` is equals to `other`.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">type</span><span class="p">(</span><span class="n">other</span><span class="p">)):</span>
             <span class="k">return</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">left</span><span class="o">.</span><span class="n">_equals</span><span class="p">(</span><span class="n">other</span><span class="o">.</span><span class="n">left</span><span class="p">)</span> <span class="ow">and</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">right</span><span class="o">.</span><span class="n">_equals</span><span class="p">(</span><span class="n">other</span><span class="o">.</span><span class="n">right</span><span class="p">))</span>
         <span class="k">else</span><span class="p">:</span>
@@ -843,7 +915,8 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_enclose</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">left</span><span class="p">)</span> <span class="o">+</span> <span class="s">&quot; &lt;&lt; &quot;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">_enclose</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">right</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_equals</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
-        <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="ow">is</span> <span class="nb">type</span><span class="p">(</span><span class="n">other</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return whether `self` is equals to `other`.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">type</span><span class="p">(</span><span class="n">other</span><span class="p">)):</span>
             <span class="k">return</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">left</span><span class="o">.</span><span class="n">_equals</span><span class="p">(</span><span class="n">other</span><span class="o">.</span><span class="n">left</span><span class="p">)</span> <span class="ow">and</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">right</span><span class="o">.</span><span class="n">_equals</span><span class="p">(</span><span class="n">other</span><span class="o">.</span><span class="n">right</span><span class="p">))</span>
         <span class="k">else</span><span class="p">:</span>
@@ -870,7 +943,8 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_enclose</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">left</span><span class="p">)</span> <span class="o">+</span> <span class="s">&quot; &gt;&gt; &quot;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">_enclose</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">right</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_equals</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
-        <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="ow">is</span> <span class="nb">type</span><span class="p">(</span><span class="n">other</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return whether `self` is equals to `other`.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">type</span><span class="p">(</span><span class="n">other</span><span class="p">)):</span>
             <span class="k">return</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">left</span><span class="o">.</span><span class="n">_equals</span><span class="p">(</span><span class="n">other</span><span class="o">.</span><span class="n">left</span><span class="p">)</span> <span class="ow">and</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">right</span><span class="o">.</span><span class="n">_equals</span><span class="p">(</span><span class="n">other</span><span class="o">.</span><span class="n">right</span><span class="p">))</span>
         <span class="k">else</span><span class="p">:</span>
@@ -897,7 +971,8 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_enclose</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">left</span><span class="p">)</span> <span class="o">+</span> <span class="s">&quot; union &quot;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">_enclose</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">right</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_equals</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
-        <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="ow">is</span> <span class="nb">type</span><span class="p">(</span><span class="n">other</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return whether `self` is equals to `other`.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">type</span><span class="p">(</span><span class="n">other</span><span class="p">)):</span>
             <span class="k">return</span> <span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">left</span><span class="o">.</span><span class="n">_equals</span><span class="p">(</span><span class="n">other</span><span class="o">.</span><span class="n">left</span><span class="p">)</span> <span class="ow">and</span>
                      <span class="bp">self</span><span class="o">.</span><span class="n">right</span><span class="o">.</span><span class="n">_equals</span><span class="p">(</span><span class="n">other</span><span class="o">.</span><span class="n">right</span><span class="p">))</span> <span class="ow">or</span>
                     <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">left</span><span class="o">.</span><span class="n">_equals</span><span class="p">(</span><span class="n">other</span><span class="o">.</span><span class="n">right</span><span class="p">)</span> <span class="ow">and</span>
@@ -926,7 +1001,8 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_enclose</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">left</span><span class="p">)</span> <span class="o">+</span> <span class="s">&quot; in &quot;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">_enclose</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">right</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_equals</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
-        <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="ow">is</span> <span class="nb">type</span><span class="p">(</span><span class="n">other</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return whether `self` is equals to `other`.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">type</span><span class="p">(</span><span class="n">other</span><span class="p">)):</span>
             <span class="k">return</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">left</span><span class="o">.</span><span class="n">_equals</span><span class="p">(</span><span class="n">other</span><span class="o">.</span><span class="n">left</span><span class="p">)</span> <span class="ow">and</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">right</span><span class="o">.</span><span class="n">_equals</span><span class="p">(</span><span class="n">other</span><span class="o">.</span><span class="n">right</span><span class="p">))</span>
         <span class="k">else</span><span class="p">:</span>
@@ -953,7 +1029,8 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_enclose</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">left</span><span class="p">)</span> <span class="o">+</span> <span class="s">&quot; = &quot;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">_enclose</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">right</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_equals</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
-        <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="ow">is</span> <span class="nb">type</span><span class="p">(</span><span class="n">other</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return whether `self` is equals to `other`.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">type</span><span class="p">(</span><span class="n">other</span><span class="p">)):</span>
             <span class="k">return</span> <span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">left</span><span class="o">.</span><span class="n">_equals</span><span class="p">(</span><span class="n">other</span><span class="o">.</span><span class="n">left</span><span class="p">)</span> <span class="ow">and</span>
                      <span class="bp">self</span><span class="o">.</span><span class="n">right</span><span class="o">.</span><span class="n">_equals</span><span class="p">(</span><span class="n">other</span><span class="o">.</span><span class="n">right</span><span class="p">))</span> <span class="ow">or</span>
                     <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">left</span><span class="o">.</span><span class="n">_equals</span><span class="p">(</span><span class="n">other</span><span class="o">.</span><span class="n">right</span><span class="p">)</span> <span class="ow">and</span>
@@ -989,7 +1066,8 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_enclose</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">left</span><span class="p">)</span> <span class="o">+</span> <span class="s">&quot; != &quot;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">_enclose</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">right</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_equals</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
-        <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="ow">is</span> <span class="nb">type</span><span class="p">(</span><span class="n">other</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return whether `self` is equals to `other`.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">type</span><span class="p">(</span><span class="n">other</span><span class="p">)):</span>
             <span class="k">return</span> <span class="p">((</span><span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">left</span><span class="o">.</span><span class="n">_equals</span><span class="p">(</span><span class="n">other</span><span class="o">.</span><span class="n">left</span><span class="p">)</span> <span class="ow">or</span>
                      <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">right</span><span class="o">.</span><span class="n">_equals</span><span class="p">(</span><span class="n">other</span><span class="o">.</span><span class="n">right</span><span class="p">))</span> <span class="ow">and</span>
                     <span class="p">(</span><span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">left</span><span class="o">.</span><span class="n">_equals</span><span class="p">(</span><span class="n">other</span><span class="o">.</span><span class="n">right</span><span class="p">)</span> <span class="ow">or</span>
@@ -1025,7 +1103,8 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_enclose</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">left</span><span class="p">)</span> <span class="o">+</span> <span class="s">&quot; &lt; &quot;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">_enclose</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">right</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_equals</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
-        <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="ow">is</span> <span class="nb">type</span><span class="p">(</span><span class="n">other</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return whether `self` is equals to `other`.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">type</span><span class="p">(</span><span class="n">other</span><span class="p">)):</span>
             <span class="k">return</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">left</span><span class="o">.</span><span class="n">_equals</span><span class="p">(</span><span class="n">other</span><span class="o">.</span><span class="n">left</span><span class="p">)</span> <span class="ow">and</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">right</span><span class="o">.</span><span class="n">_equals</span><span class="p">(</span><span class="n">other</span><span class="o">.</span><span class="n">right</span><span class="p">))</span>
         <span class="k">else</span><span class="p">:</span>
@@ -1052,7 +1131,8 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_enclose</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">left</span><span class="p">)</span> <span class="o">+</span> <span class="s">&quot; &gt; &quot;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">_enclose</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">right</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_equals</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
-        <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="ow">is</span> <span class="nb">type</span><span class="p">(</span><span class="n">other</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return whether `self` is equals to `other`.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">type</span><span class="p">(</span><span class="n">other</span><span class="p">)):</span>
             <span class="k">return</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">left</span><span class="o">.</span><span class="n">_equals</span><span class="p">(</span><span class="n">other</span><span class="o">.</span><span class="n">left</span><span class="p">)</span> <span class="ow">and</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">right</span><span class="o">.</span><span class="n">_equals</span><span class="p">(</span><span class="n">other</span><span class="o">.</span><span class="n">right</span><span class="p">))</span>
         <span class="k">else</span><span class="p">:</span>
@@ -1079,7 +1159,8 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_enclose</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">left</span><span class="p">)</span> <span class="o">+</span> <span class="s">&quot; &lt;= &quot;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">_enclose</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">right</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_equals</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
-        <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="ow">is</span> <span class="nb">type</span><span class="p">(</span><span class="n">other</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return whether `self` is equals to `other`.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">type</span><span class="p">(</span><span class="n">other</span><span class="p">)):</span>
             <span class="k">return</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">left</span><span class="o">.</span><span class="n">_equals</span><span class="p">(</span><span class="n">other</span><span class="o">.</span><span class="n">left</span><span class="p">)</span> <span class="ow">and</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">right</span><span class="o">.</span><span class="n">_equals</span><span class="p">(</span><span class="n">other</span><span class="o">.</span><span class="n">right</span><span class="p">))</span>
         <span class="k">else</span><span class="p">:</span>
@@ -1106,7 +1187,8 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_enclose</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">left</span><span class="p">)</span> <span class="o">+</span> <span class="s">&quot; &gt;= &quot;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">_enclose</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">right</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_equals</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
-        <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="ow">is</span> <span class="nb">type</span><span class="p">(</span><span class="n">other</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return whether `self` is equals to `other`.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">type</span><span class="p">(</span><span class="n">other</span><span class="p">)):</span>
             <span class="k">return</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">left</span><span class="o">.</span><span class="n">_equals</span><span class="p">(</span><span class="n">other</span><span class="o">.</span><span class="n">left</span><span class="p">)</span> <span class="ow">and</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">right</span><span class="o">.</span><span class="n">_equals</span><span class="p">(</span><span class="n">other</span><span class="o">.</span><span class="n">right</span><span class="p">))</span>
         <span class="k">else</span><span class="p">:</span>
@@ -1133,7 +1215,8 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_enclose</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">left</span><span class="p">)</span> <span class="o">+</span> <span class="s">&quot; &amp; &quot;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">_enclose</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">right</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_equals</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
-        <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="ow">is</span> <span class="nb">type</span><span class="p">(</span><span class="n">other</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return whether `self` is equals to `other`.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">type</span><span class="p">(</span><span class="n">other</span><span class="p">)):</span>
             <span class="k">return</span> <span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">left</span><span class="o">.</span><span class="n">_equals</span><span class="p">(</span><span class="n">other</span><span class="o">.</span><span class="n">left</span><span class="p">)</span> <span class="ow">and</span>
                      <span class="bp">self</span><span class="o">.</span><span class="n">right</span><span class="o">.</span><span class="n">_equals</span><span class="p">(</span><span class="n">other</span><span class="o">.</span><span class="n">right</span><span class="p">))</span> <span class="ow">or</span>
                     <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">left</span><span class="o">.</span><span class="n">_equals</span><span class="p">(</span><span class="n">other</span><span class="o">.</span><span class="n">right</span><span class="p">)</span> <span class="ow">and</span>
@@ -1162,7 +1245,8 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_enclose</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">left</span><span class="p">)</span> <span class="o">+</span> <span class="s">&quot; | &quot;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">_enclose</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">right</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_equals</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
-        <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="ow">is</span> <span class="nb">type</span><span class="p">(</span><span class="n">other</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return whether `self` is equals to `other`.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">type</span><span class="p">(</span><span class="n">other</span><span class="p">)):</span>
             <span class="k">return</span> <span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">left</span><span class="o">.</span><span class="n">_equals</span><span class="p">(</span><span class="n">other</span><span class="o">.</span><span class="n">left</span><span class="p">)</span> <span class="ow">and</span>
                      <span class="bp">self</span><span class="o">.</span><span class="n">right</span><span class="o">.</span><span class="n">_equals</span><span class="p">(</span><span class="n">other</span><span class="o">.</span><span class="n">right</span><span class="p">))</span> <span class="ow">or</span>
                     <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">left</span><span class="o">.</span><span class="n">_equals</span><span class="p">(</span><span class="n">other</span><span class="o">.</span><span class="n">right</span><span class="p">)</span> <span class="ow">and</span>
@@ -1191,7 +1275,8 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_enclose</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">left</span><span class="p">)</span> <span class="o">+</span> <span class="s">&quot; xor &quot;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">_enclose</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">right</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_equals</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
-        <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="ow">is</span> <span class="nb">type</span><span class="p">(</span><span class="n">other</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return whether `self` is equals to `other`.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">type</span><span class="p">(</span><span class="n">other</span><span class="p">)):</span>
             <span class="k">return</span> <span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">left</span><span class="o">.</span><span class="n">_equals</span><span class="p">(</span><span class="n">other</span><span class="o">.</span><span class="n">left</span><span class="p">)</span> <span class="ow">and</span>
                      <span class="bp">self</span><span class="o">.</span><span class="n">right</span><span class="o">.</span><span class="n">_equals</span><span class="p">(</span><span class="n">other</span><span class="o">.</span><span class="n">right</span><span class="p">))</span> <span class="ow">or</span>
                     <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">left</span><span class="o">.</span><span class="n">_equals</span><span class="p">(</span><span class="n">other</span><span class="o">.</span><span class="n">right</span><span class="p">)</span> <span class="ow">and</span>
@@ -1220,7 +1305,8 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_enclose</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">left</span><span class="p">)</span> <span class="o">+</span> <span class="s">&quot; xnor &quot;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">_enclose</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">right</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_equals</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
-        <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="ow">is</span> <span class="nb">type</span><span class="p">(</span><span class="n">other</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return whether `self` is equals to `other`.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">type</span><span class="p">(</span><span class="n">other</span><span class="p">)):</span>
             <span class="k">return</span> <span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">left</span><span class="o">.</span><span class="n">_equals</span><span class="p">(</span><span class="n">other</span><span class="o">.</span><span class="n">left</span><span class="p">)</span> <span class="ow">and</span>
                      <span class="bp">self</span><span class="o">.</span><span class="n">right</span><span class="o">.</span><span class="n">_equals</span><span class="p">(</span><span class="n">other</span><span class="o">.</span><span class="n">right</span><span class="p">))</span> <span class="ow">or</span>
                     <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">left</span><span class="o">.</span><span class="n">_equals</span><span class="p">(</span><span class="n">other</span><span class="o">.</span><span class="n">right</span><span class="p">)</span> <span class="ow">and</span>
@@ -1252,7 +1338,8 @@
                 <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">_enclose</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">right</span><span class="p">))</span>
 
     <span class="k">def</span> <span class="nf">_equals</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
-        <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="ow">is</span> <span class="nb">type</span><span class="p">(</span><span class="n">other</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return whether `self` is equals to `other`.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">type</span><span class="p">(</span><span class="n">other</span><span class="p">)):</span>
             <span class="k">return</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">condition</span><span class="o">.</span><span class="n">_equals</span><span class="p">(</span><span class="n">other</span><span class="o">.</span><span class="n">condition</span><span class="p">)</span> <span class="ow">and</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">left</span><span class="o">.</span><span class="n">_equals</span><span class="p">(</span><span class="n">other</span><span class="o">.</span><span class="n">left</span><span class="p">)</span> <span class="ow">and</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">right</span><span class="o">.</span><span class="n">_equals</span><span class="p">(</span><span class="n">other</span><span class="o">.</span><span class="n">right</span><span class="p">))</span>
@@ -1280,7 +1367,8 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_enclose</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">left</span><span class="p">)</span> <span class="o">+</span> <span class="s">&quot; &lt;-&gt; &quot;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">_enclose</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">right</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_equals</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
-        <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="ow">is</span> <span class="nb">type</span><span class="p">(</span><span class="n">other</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return whether `self` is equals to `other`.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">type</span><span class="p">(</span><span class="n">other</span><span class="p">)):</span>
             <span class="k">return</span> <span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">left</span><span class="o">.</span><span class="n">_equals</span><span class="p">(</span><span class="n">other</span><span class="o">.</span><span class="n">left</span><span class="p">)</span> <span class="ow">and</span>
                      <span class="bp">self</span><span class="o">.</span><span class="n">right</span><span class="o">.</span><span class="n">_equals</span><span class="p">(</span><span class="n">other</span><span class="o">.</span><span class="n">right</span><span class="p">))</span> <span class="ow">or</span>
                     <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">left</span><span class="o">.</span><span class="n">_equals</span><span class="p">(</span><span class="n">other</span><span class="o">.</span><span class="n">right</span><span class="p">)</span> <span class="ow">and</span>
@@ -1309,7 +1397,8 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_enclose</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">left</span><span class="p">)</span> <span class="o">+</span> <span class="s">&quot; -&gt; &quot;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">_enclose</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">right</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_equals</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
-        <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="ow">is</span> <span class="nb">type</span><span class="p">(</span><span class="n">other</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return whether `self` is equals to `other`.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">type</span><span class="p">(</span><span class="n">other</span><span class="p">)):</span>
             <span class="k">return</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">left</span><span class="o">.</span><span class="n">_equals</span><span class="p">(</span><span class="n">other</span><span class="o">.</span><span class="n">left</span><span class="p">)</span> <span class="ow">and</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">right</span><span class="o">.</span><span class="n">_equals</span><span class="p">(</span><span class="n">other</span><span class="o">.</span><span class="n">right</span><span class="p">))</span>
         <span class="k">else</span><span class="p">:</span>
@@ -1453,8 +1542,15 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">separator</span> <span class="o">=</span> <span class="n">separator</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">indentation</span> <span class="o">=</span> <span class="n">indentation</span>
 
-    <span class="k">def</span> <span class="nf">update_body</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">otherbody</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">body</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">otherbody</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">update_body</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">new_values</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Update the body of this section with `new_values`.</span>
+
+<span class="sd">        :param new_values: the new values with which to update the current</span>
+<span class="sd">                           body.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">body</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">new_values</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">source</span><span class="p">:</span>
@@ -1513,7 +1609,8 @@
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        :param name: the name of the section.</span>
 <span class="sd">        :param listing: a list of expressions.</span>
-<span class="sd">        :param separator: the separator of expressions for printing the section.</span>
+<span class="sd">        :param separator: the separator of expressions for printing the</span>
+<span class="sd">                          section.</span>
 <span class="sd">        :param indentation: the indentation for the printed expressions.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">listing</span><span class="p">)</span>
@@ -1521,6 +1618,12 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">indentation</span> <span class="o">=</span> <span class="n">indentation</span>
 
     <span class="k">def</span> <span class="nf">update_body</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">otherbody</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Update the body of this section with `new_values`.</span>
+
+<span class="sd">        :param new_values: the new values with which to update the current</span>
+<span class="sd">                           body.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">body</span> <span class="o">+=</span> <span class="n">otherbody</span>
 
     <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -1607,34 +1710,40 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">name</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;The name of the declared identifier.&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_name</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span><span class="s">&quot;Unknown declaration name.&quot;</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_name</span>
 
     <span class="nd">@name.setter</span>
     <span class="k">def</span> <span class="nf">name</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Update the name of the declared identifier.&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_name</span> <span class="o">=</span> <span class="n">name</span>
 
 
 <div class="viewcode-block" id="Var"><a class="viewcode-back" href="../../pynusmv.html#pynusmv.model.Var">[docs]</a><span class="k">class</span> <span class="nc">Var</span><span class="p">(</span><span class="n">Declaration</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;A declared VAR.&quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">type_</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">type_</span><span class="p">,</span> <span class="s">&quot;VAR&quot;</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
 
 </div>
 <div class="viewcode-block" id="IVar"><a class="viewcode-back" href="../../pynusmv.html#pynusmv.model.IVar">[docs]</a><span class="k">class</span> <span class="nc">IVar</span><span class="p">(</span><span class="n">Declaration</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;A declared IVAR.&quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">type_</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">type_</span><span class="p">,</span> <span class="s">&quot;IVAR&quot;</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
 
 </div>
 <div class="viewcode-block" id="FVar"><a class="viewcode-back" href="../../pynusmv.html#pynusmv.model.FVar">[docs]</a><span class="k">class</span> <span class="nc">FVar</span><span class="p">(</span><span class="n">Declaration</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;A declared FROZENVAR.&quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">type_</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">type_</span><span class="p">,</span> <span class="s">&quot;FROZENVAR&quot;</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
 
 </div>
 <div class="viewcode-block" id="Def"><a class="viewcode-back" href="../../pynusmv.html#pynusmv.model.Def">[docs]</a><span class="k">class</span> <span class="nc">Def</span><span class="p">(</span><span class="n">Declaration</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;A declared DEFINE.&quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">type_</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">type_</span><span class="p">,</span> <span class="s">&quot;DEFINE&quot;</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
@@ -1645,7 +1754,7 @@
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    The meta class for modules, allowing modules to be printed.</span>
 
-<span class="sd">    The string representation of the module is its NuSMV code. This </span>
+<span class="sd">    The string representation of the module is its NuSMV code. This</span>
 <span class="sd">    representation includes:</span>
 <span class="sd">    * the `NAME` member of the class, used as the name of the module;</span>
 <span class="sd">      if absent, the name of the class is used.</span>
@@ -1688,15 +1797,15 @@
                  <span class="s">&quot;COMPASSION&quot;</span><span class="p">:</span> <span class="p">(</span><span class="s">&quot;bodies&quot;</span><span class="p">,)}</span>
 
     <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">__prepare__</span><span class="p">(</span><span class="n">metacls</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">bases</span><span class="p">,</span> <span class="o">**</span><span class="n">keywords</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__prepare__</span><span class="p">(</span><span class="n">mcs</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">bases</span><span class="p">,</span> <span class="o">**</span><span class="n">keywords</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">collections</span><span class="o">.</span><span class="n">OrderedDict</span><span class="p">()</span>
 
-    <span class="k">def</span> <span class="nf">__new__</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">bases</span><span class="p">,</span> <span class="n">namespace</span><span class="p">,</span> <span class="o">**</span><span class="n">keywords</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__new__</span><span class="p">(</span><span class="n">mcs</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">bases</span><span class="p">,</span> <span class="n">namespace</span><span class="p">,</span> <span class="o">**</span><span class="n">keywords</span><span class="p">):</span>
         <span class="n">newnamespace</span> <span class="o">=</span> <span class="n">collections</span><span class="o">.</span><span class="n">OrderedDict</span><span class="p">()</span>
         <span class="c"># Update namespace with sections and declared identifiers</span>
         <span class="k">for</span> <span class="n">member</span> <span class="ow">in</span> <span class="n">namespace</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">member</span> <span class="ow">in</span> <span class="n">cls</span><span class="o">.</span><span class="n">_sections</span><span class="p">:</span>
-                <span class="n">internal</span> <span class="o">=</span> <span class="n">cls</span><span class="o">.</span><span class="n">_section_internal</span><span class="p">(</span><span class="n">member</span><span class="p">,</span> <span class="n">namespace</span><span class="p">[</span><span class="n">member</span><span class="p">])</span>
+            <span class="k">if</span> <span class="n">member</span> <span class="ow">in</span> <span class="n">mcs</span><span class="o">.</span><span class="n">_sections</span><span class="p">:</span>
+                <span class="n">internal</span> <span class="o">=</span> <span class="n">mcs</span><span class="o">.</span><span class="n">_section_internal</span><span class="p">(</span><span class="n">member</span><span class="p">,</span> <span class="n">namespace</span><span class="p">[</span><span class="n">member</span><span class="p">])</span>
                 <span class="k">if</span> <span class="n">member</span> <span class="ow">in</span> <span class="n">newnamespace</span><span class="p">:</span>
                     <span class="n">update</span><span class="p">(</span><span class="n">newnamespace</span><span class="p">[</span><span class="n">member</span><span class="p">],</span> <span class="n">internal</span><span class="p">)</span>
                 <span class="k">else</span><span class="p">:</span>
@@ -1710,13 +1819,13 @@
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">newnamespace</span><span class="p">[</span><span class="n">member</span><span class="p">]</span> <span class="o">=</span> <span class="n">namespace</span><span class="p">[</span><span class="n">member</span><span class="p">]</span>
 
-        <span class="n">result</span> <span class="o">=</span> <span class="nb">type</span><span class="o">.</span><span class="n">__new__</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">bases</span><span class="p">,</span> <span class="nb">dict</span><span class="p">(</span><span class="n">newnamespace</span><span class="p">))</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="nb">type</span><span class="o">.</span><span class="n">__new__</span><span class="p">(</span><span class="n">mcs</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">bases</span><span class="p">,</span> <span class="nb">dict</span><span class="p">(</span><span class="n">newnamespace</span><span class="p">))</span>
         <span class="n">result</span><span class="o">.</span><span class="n">members</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">newnamespace</span><span class="p">)</span>
         <span class="n">result</span><span class="o">.</span><span class="n">source</span> <span class="o">=</span> <span class="bp">None</span>
         <span class="k">return</span> <span class="n">result</span>
 
     <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">_section_internal</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">section</span><span class="p">,</span> <span class="n">body</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">_section_internal</span><span class="p">(</span><span class="n">mcs</span><span class="p">,</span> <span class="n">section</span><span class="p">,</span> <span class="n">body</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Return the internal representation of `body` of `section`.</span>
 
@@ -1733,7 +1842,7 @@
 <span class="sd">        * If `body` is a mapping, it is copied and treated as the required</span>
 <span class="sd">          mapping. This means that each key or value is parsed as the part it</span>
 <span class="sd">          represent, if it is a string, or kept as it is otherwise.</span>
-<span class="sd">        * If `body` is enumerable, each element is treated separated: either it </span>
+<span class="sd">        * If `body` is enumerable, each element is treated separated: either it</span>
 <span class="sd">          is a string, and parsed as a key-value pair, otherwise it is a couple</span>
 <span class="sd">          of values, and the first one is treated as a key (and parsed if</span>
 <span class="sd">          necessary), and the second one as a value (and parsed if necessary).</span>
@@ -1746,8 +1855,8 @@
 
 <span class="sd">        * If `body` is a single string, it is parsed as the whole body of the</span>
 <span class="sd">          section.</span>
-<span class="sd">        * If `body` is an enumerable, each element is parsed as a single element</span>
-<span class="sd">          if it is a string, or kept as it is otherwise.</span>
+<span class="sd">        * If `body` is an enumerable, each element is parsed as a single</span>
+<span class="sd">          element if it is a string, or kept as it is otherwise.</span>
 
 <span class="sd">        `section` is a list of bodies</span>
 <span class="sd">        -----------------------------</span>
@@ -1809,10 +1918,10 @@
             <span class="s">&quot;JUSTICE&quot;</span><span class="p">:</span> <span class="p">(</span><span class="s">&quot;bodies&quot;</span><span class="p">,</span> <span class="n">_justice_constraint_body</span><span class="p">),</span>
             <span class="s">&quot;COMPASSION&quot;</span><span class="p">:</span> <span class="p">(</span><span class="s">&quot;bodies&quot;</span><span class="p">,</span> <span class="n">_compassion_constraint_body</span><span class="p">)}</span>
 
-        <span class="k">if</span> <span class="n">section</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">cls</span><span class="o">.</span><span class="n">_sections</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">section</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">mcs</span><span class="o">.</span><span class="n">_sections</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s">&quot;Unknown section: {}.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">section</span><span class="p">))</span>
 
-        <span class="k">if</span> <span class="n">cls</span><span class="o">.</span><span class="n">_sections</span><span class="p">[</span><span class="n">section</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s">&quot;mapping&quot;</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">mcs</span><span class="o">.</span><span class="n">_sections</span><span class="p">[</span><span class="n">section</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s">&quot;mapping&quot;</span><span class="p">:</span>
             <span class="n">section_parser</span><span class="p">,</span> <span class="n">key_parser</span><span class="p">,</span> <span class="n">value_parser</span> <span class="o">=</span> <span class="p">(</span><span class="n">_sections_parsers</span>
                                                         <span class="p">[</span><span class="n">section</span><span class="p">][</span><span class="o">-</span><span class="mi">3</span><span class="p">:])</span>
             <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">body</span><span class="p">,</span> <span class="n">collections</span><span class="o">.</span><span class="n">abc</span><span class="o">.</span><span class="n">Mapping</span><span class="p">):</span>
@@ -1847,8 +1956,8 @@
 
                 <span class="k">return</span> <span class="n">res</span>
 
-        <span class="k">elif</span> <span class="p">(</span><span class="n">cls</span><span class="o">.</span><span class="n">_sections</span><span class="p">[</span><span class="n">section</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s">&quot;enumeration&quot;</span> <span class="ow">or</span>
-              <span class="n">cls</span><span class="o">.</span><span class="n">_sections</span><span class="p">[</span><span class="n">section</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s">&quot;bodies&quot;</span><span class="p">):</span>
+        <span class="k">elif</span> <span class="p">(</span><span class="n">mcs</span><span class="o">.</span><span class="n">_sections</span><span class="p">[</span><span class="n">section</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s">&quot;enumeration&quot;</span> <span class="ow">or</span>
+              <span class="n">mcs</span><span class="o">.</span><span class="n">_sections</span><span class="p">[</span><span class="n">section</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s">&quot;bodies&quot;</span><span class="p">):</span>
 
             <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">body</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
                 <span class="n">body</span> <span class="o">=</span> <span class="p">[</span><span class="n">body</span><span class="p">]</span>
@@ -1871,7 +1980,7 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s">&quot;Unknown section type: &quot;</span>
                             <span class="s">&quot;{} for section {}.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
-                                <span class="n">_sections</span><span class="p">[</span><span class="n">section</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span>
+                                <span class="n">mcs</span><span class="o">.</span><span class="n">_sections</span><span class="p">[</span><span class="n">section</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span>
                                 <span class="n">section</span><span class="p">))</span>
 
     <span class="k">def</span> <span class="nf">_trim</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">string</span><span class="p">,</span> <span class="n">indentation</span><span class="o">=</span><span class="s">&quot;&quot;</span><span class="p">):</span>
@@ -1947,7 +2056,7 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s">&quot;Unknown section type: &quot;</span>
                             <span class="s">&quot;{} for section {}.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
-                                <span class="n">_sections</span><span class="p">[</span><span class="n">section</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span>
+                                <span class="n">cls</span><span class="o">.</span><span class="n">_sections</span><span class="p">[</span><span class="n">section</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span>
                                 <span class="n">section</span><span class="p">))</span>
 
     <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="n">cls</span><span class="p">):</span>
@@ -1978,14 +2087,14 @@
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    A generic module.</span>
 
-<span class="sd">    To create a new module, the user must subclass the :class:`Module` class and</span>
-<span class="sd">    add class attributes with names corresponding to sections of NuSMV module</span>
-<span class="sd">    definitions: `VAR`, `IVAR`, `FROZENVAR`, `DEFINE`, `CONSTANTS`, `ASSIGN`,</span>
-<span class="sd">    `TRANS`, `INIT`, `INVAR`, `FAIRNESS`, `JUSTICE`, `COMPASSION`.</span>
+<span class="sd">    To create a new module, the user must subclass the :class:`Module` class</span>
+<span class="sd">    and add class attributes with names corresponding to sections of NuSMV</span>
+<span class="sd">    module definitions: `VAR`, `IVAR`, `FROZENVAR`, `DEFINE`, `CONSTANTS`,</span>
+<span class="sd">    `ASSIGN`, `TRANS`, `INIT`, `INVAR`, `FAIRNESS`, `JUSTICE`, `COMPASSION`.</span>
 
-<span class="sd">    In addition to these attributes, the `ARGS` and `NAME` attributes can be </span>
-<span class="sd">    defined. If `NAME` is defined, it overrides module name for the NuSMV module</span>
-<span class="sd">    name. If `ARGS` is defined, it must be a sequence object where each</span>
+<span class="sd">    In addition to these attributes, the `ARGS` and `NAME` attributes can be</span>
+<span class="sd">    defined. If `NAME` is defined, it overrides module name for the NuSMV</span>
+<span class="sd">    module name. If `ARGS` is defined, it must be a sequence object where each</span>
 <span class="sd">    element&#39;s string representation is an argument of the module.</span>
 
 <span class="sd">    Treatment of the section depends of the type of the section and the value</span>
@@ -1998,14 +2107,14 @@
 
 <span class="sd">    VAR, IVAR, FROZENVAR, DEFINE, ASSIGN sections</span>
 <span class="sd">        If the value of the section is a string (:class:`str`), it is parsed as</span>
-<span class="sd">        the body of the declaration. If it is a dictionary (:class:`dict`), keys</span>
-<span class="sd">        are parsed as names of variables (or input variables, define, etc.) </span>
-<span class="sd">        if they are strings, or used as they are otherwise, and values are</span>
-<span class="sd">        parsed as bodies of the declaration (if strings, kept as they are</span>
-<span class="sd">        otherwise). Otherwise, the value must be a sequence, and each element is</span>
-<span class="sd">        treated separately:</span>
+<span class="sd">        the body of the declaration. If it is a dictionary (:class:`dict`),</span>
+<span class="sd">        keys are parsed as names of variables (or input variables, define,</span>
+<span class="sd">        etc.) if they are strings, or used as they are otherwise, and values</span>
+<span class="sd">        are parsed as bodies of the declaration (if strings, kept as they are</span>
+<span class="sd">        otherwise). Otherwise, the value must be a sequence, and each element</span>
+<span class="sd">        is treated separately:</span>
 
-<span class="sd">        * if the element is a string (:class:`str`), it is parsed as a </span>
+<span class="sd">        * if the element is a string (:class:`str`), it is parsed as a</span>
 <span class="sd">          declaration;</span>
 <span class="sd">        * otherwise, the element must be a sequence, and the first element is</span>
 <span class="sd">          used as the name of the variable (or input variable, define, etc.)</span>
@@ -2018,7 +2127,7 @@
 <span class="sd">        representation (parsed if necessary)  of the elements of the sequence</span>
 <span class="sd">        are declared as different sections.</span>
 
-<span class="sd">    In addition to these sections, the class body can contain instances of </span>
+<span class="sd">    In addition to these sections, the class body can contain instances of</span>
 <span class="sd">    :class:`pynsumv.model.Declaration`. These ones take the name of the</span>
 <span class="sd">    corresponding variable, and are added to the corresponding section (`VAR`,</span>
 <span class="sd">    `IVAR`, `FROZENVAR` or `DEFINE`) when creating the class.</span>
