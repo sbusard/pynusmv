@@ -56,13 +56,14 @@
 <span class="sd">&quot;&quot;&quot;</span>
 
 
-<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;PointerWrapper&#39;</span><span class="p">,</span> <span class="s">&#39;fixpoint&#39;</span><span class="p">]</span>
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;PointerWrapper&#39;</span><span class="p">,</span> <span class="s">&#39;fixpoint&#39;</span><span class="p">,</span> <span class="s">&#39;update&#39;</span><span class="p">]</span>
 
 
 <span class="kn">from</span> <span class="nn">pynusmv.init</span> <span class="kn">import</span> <span class="n">_register_wrapper</span>
 
 
 <div class="viewcode-block" id="PointerWrapper"><a class="viewcode-back" href="../../pynusmv.html#pynusmv.utils.PointerWrapper">[docs]</a><span class="k">class</span> <span class="nc">PointerWrapper</span><span class="p">:</span>
+
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Superclass wrapper for NuSMV pointers.</span>
 
@@ -78,31 +79,29 @@
 <span class="sd">    To ensure that a pointer is freed only once, PyNuSMV ensures that</span>
 <span class="sd">    any pointer is wrapped by only one PointerWrapper (or subclass of it)</span>
 <span class="sd">    if the pointer have to be freed.</span>
-<span class="sd">    </span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
-    
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pointer</span><span class="p">,</span> <span class="n">freeit</span> <span class="o">=</span> <span class="bp">False</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pointer</span><span class="p">,</span> <span class="n">freeit</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Create a new PointerWrapper.</span>
-<span class="sd">        </span>
+
 <span class="sd">        :param pointer: the pointer to wrap</span>
 <span class="sd">        :param freeit: whether the pointer has to be freed when this wrapper</span>
 <span class="sd">                       is destroyed</span>
-<span class="sd">                       </span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_ptr</span> <span class="o">=</span> <span class="n">pointer</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_freeit</span> <span class="o">=</span> <span class="n">freeit</span>
         <span class="n">_register_wrapper</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
-        
-    
+
     <span class="k">def</span> <span class="nf">_free</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Every subclass must implement `_free` if there is something to free.</span>
-<span class="sd">        </span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">pass</span>
-        
-        
+
     <span class="k">def</span> <span class="nf">__del__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_freeit</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ptr</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_free</span><span class="p">()</span>
@@ -111,22 +110,38 @@
 <div class="viewcode-block" id="fixpoint"><a class="viewcode-back" href="../../pynusmv.html#pynusmv.utils.fixpoint">[docs]</a><span class="k">def</span> <span class="nf">fixpoint</span><span class="p">(</span><span class="n">funct</span><span class="p">,</span> <span class="n">start</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Return the fixpoint of `funct`, as a BDD, starting with `start` BDD.</span>
-<span class="sd">    </span>
+
 <span class="sd">    :rtype: :class:`BDD &lt;pynusmv.dd.BDD&gt;`</span>
-<span class="sd">    </span>
+
 <span class="sd">    .. note:: μZ.f(Z) least fixpoint is implemented with</span>
 <span class="sd">              `fixpoint(funct, false)`.</span>
 <span class="sd">              νZ.f(Z) greatest fixpoint is implemented with</span>
 <span class="sd">              `fixpoint(funct, true)`.</span>
-<span class="sd">    </span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
-    
+
     <span class="n">old</span> <span class="o">=</span> <span class="n">start</span>
     <span class="n">new</span> <span class="o">=</span> <span class="n">funct</span><span class="p">(</span><span class="n">start</span><span class="p">)</span>
     <span class="k">while</span> <span class="n">old</span> <span class="o">!=</span> <span class="n">new</span><span class="p">:</span>
         <span class="n">old</span> <span class="o">=</span> <span class="n">new</span>
         <span class="n">new</span> <span class="o">=</span> <span class="n">funct</span><span class="p">(</span><span class="n">old</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">old</span></div>
+    <span class="k">return</span> <span class="n">old</span>
+
+</div>
+<div class="viewcode-block" id="update"><a class="viewcode-back" href="../../pynusmv.html#pynusmv.utils.update">[docs]</a><span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="n">old</span><span class="p">,</span> <span class="n">new</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Update `old` with `new`. `old` is assumed to have the `extend` or `update`</span>
+<span class="sd">    method, and `new` is assumed to be a good argument for the corresponding</span>
+<span class="sd">    method.</span>
+
+<span class="sd">    :param old: the data to update.</span>
+<span class="sd">    :param new: the date to update with.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">old</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">new</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
+        <span class="n">old</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">new</span><span class="p">)</span></div>
 </pre></div>
 
           </div>

@@ -56,8 +56,8 @@
 <span class="sd">&quot;&quot;&quot;</span>
 
 
-<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;propTypes&#39;</span><span class="p">,</span> <span class="s">&#39;Prop&#39;</span><span class="p">,</span> <span class="s">&#39;PropDb&#39;</span><span class="p">,</span><span class="s">&#39;Spec&#39;</span><span class="p">,</span> <span class="s">&#39;true&#39;</span><span class="p">,</span> <span class="s">&#39;false&#39;</span><span class="p">,</span> <span class="s">&#39;nott&#39;</span><span class="p">,</span>
-           <span class="s">&#39;andd&#39;</span><span class="p">,</span> <span class="s">&#39;orr&#39;</span><span class="p">,</span> <span class="s">&#39;imply&#39;</span><span class="p">,</span> <span class="s">&#39;iff&#39;</span><span class="p">,</span> <span class="s">&#39;ex&#39;</span><span class="p">,</span> <span class="s">&#39;eg&#39;</span><span class="p">,</span> <span class="s">&#39;ef&#39;</span><span class="p">,</span> <span class="s">&#39;eu&#39;</span><span class="p">,</span> <span class="s">&#39;ew&#39;</span><span class="p">,</span>
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;propTypes&#39;</span><span class="p">,</span> <span class="s">&#39;Prop&#39;</span><span class="p">,</span> <span class="s">&#39;PropDb&#39;</span><span class="p">,</span> <span class="s">&#39;Spec&#39;</span><span class="p">,</span> <span class="s">&#39;true&#39;</span><span class="p">,</span> <span class="s">&#39;false&#39;</span><span class="p">,</span> <span class="s">&#39;not_&#39;</span><span class="p">,</span>
+           <span class="s">&#39;and_&#39;</span><span class="p">,</span> <span class="s">&#39;or_&#39;</span><span class="p">,</span> <span class="s">&#39;imply&#39;</span><span class="p">,</span> <span class="s">&#39;iff&#39;</span><span class="p">,</span> <span class="s">&#39;ex&#39;</span><span class="p">,</span> <span class="s">&#39;eg&#39;</span><span class="p">,</span> <span class="s">&#39;ef&#39;</span><span class="p">,</span> <span class="s">&#39;eu&#39;</span><span class="p">,</span> <span class="s">&#39;ew&#39;</span><span class="p">,</span>
            <span class="s">&#39;ax&#39;</span><span class="p">,</span> <span class="s">&#39;ag&#39;</span><span class="p">,</span> <span class="s">&#39;af&#39;</span><span class="p">,</span> <span class="s">&#39;au&#39;</span><span class="p">,</span> <span class="s">&#39;aw&#39;</span><span class="p">,</span> <span class="s">&#39;atom&#39;</span><span class="p">]</span>
 
 
@@ -68,20 +68,20 @@
 <span class="kn">from</span> <span class="nn">.nusmv.compile.symb_table</span> <span class="kn">import</span> <span class="n">symb_table</span> <span class="k">as</span> <span class="n">nssymb_table</span>
 
 <span class="kn">from</span> <span class="nn">.fsm</span> <span class="kn">import</span> <span class="n">BddFsm</span>
-<span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">PointerWrapper</span>     
+<span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">PointerWrapper</span>
 <span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">parser</span>
 <span class="kn">from</span> <span class="nn">.exception</span> <span class="kn">import</span> <span class="n">NuSMVParserError</span><span class="p">,</span> <span class="n">NuSMVTypeCheckingError</span>
 
 
 <span class="n">propTypes</span> <span class="o">=</span> <span class="p">{</span>
-             <span class="s">&#39;NoType&#39;</span> <span class="p">:</span>      <span class="n">nsprop</span><span class="o">.</span><span class="n">Prop_NoType</span><span class="p">,</span>
-             <span class="s">&#39;CTL&#39;</span> <span class="p">:</span>         <span class="n">nsprop</span><span class="o">.</span><span class="n">Prop_Ctl</span><span class="p">,</span>
-             <span class="s">&#39;LTL&#39;</span> <span class="p">:</span>         <span class="n">nsprop</span><span class="o">.</span><span class="n">Prop_Ltl</span><span class="p">,</span>
-             <span class="s">&#39;PSL&#39;</span> <span class="p">:</span>         <span class="n">nsprop</span><span class="o">.</span><span class="n">Prop_Psl</span><span class="p">,</span>
-             <span class="s">&#39;Invariant&#39;</span> <span class="p">:</span>   <span class="n">nsprop</span><span class="o">.</span><span class="n">Prop_Invar</span><span class="p">,</span>
-             <span class="s">&#39;Compute&#39;</span> <span class="p">:</span>     <span class="n">nsprop</span><span class="o">.</span><span class="n">Prop_Compute</span><span class="p">,</span>
-             <span class="s">&#39;Comparison&#39;</span> <span class="p">:</span>  <span class="n">nsprop</span><span class="o">.</span><span class="n">Prop_CompId</span>
-            <span class="p">}</span>
+    <span class="s">&#39;NoType&#39;</span><span class="p">:</span>      <span class="n">nsprop</span><span class="o">.</span><span class="n">Prop_NoType</span><span class="p">,</span>
+    <span class="s">&#39;CTL&#39;</span><span class="p">:</span>         <span class="n">nsprop</span><span class="o">.</span><span class="n">Prop_Ctl</span><span class="p">,</span>
+    <span class="s">&#39;LTL&#39;</span><span class="p">:</span>         <span class="n">nsprop</span><span class="o">.</span><span class="n">Prop_Ltl</span><span class="p">,</span>
+    <span class="s">&#39;PSL&#39;</span><span class="p">:</span>         <span class="n">nsprop</span><span class="o">.</span><span class="n">Prop_Psl</span><span class="p">,</span>
+    <span class="s">&#39;Invariant&#39;</span><span class="p">:</span>   <span class="n">nsprop</span><span class="o">.</span><span class="n">Prop_Invar</span><span class="p">,</span>
+    <span class="s">&#39;Compute&#39;</span><span class="p">:</span>     <span class="n">nsprop</span><span class="o">.</span><span class="n">Prop_Compute</span><span class="p">,</span>
+    <span class="s">&#39;Comparison&#39;</span><span class="p">:</span>  <span class="n">nsprop</span><span class="o">.</span><span class="n">Prop_CompId</span>
+<span class="p">}</span>
 <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">The possible types of properties. This gives access to NuSMV internal types</span>
 <span class="sd">without dealing with `pynusmv.nusmv` modules.</span>
@@ -90,422 +90,418 @@
 
 
 <div class="viewcode-block" id="Prop"><a class="viewcode-back" href="../../pynusmv.html#pynusmv.prop.Prop">[docs]</a><span class="k">class</span> <span class="nc">Prop</span><span class="p">(</span><span class="n">PointerWrapper</span><span class="p">):</span>
+
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Python class for properties.</span>
-<span class="sd">    </span>
+
 <span class="sd">    Properties are NuSMV data structures containing specifications but also</span>
 <span class="sd">    pointers to models (FSM) and other things.</span>
-<span class="sd">    </span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="c"># Prop do not have to be freed since they come from PropDb.</span>
-        
+
     <span class="nd">@property</span>
 <div class="viewcode-block" id="Prop.type"><a class="viewcode-back" href="../../pynusmv.html#pynusmv.prop.Prop.type">[docs]</a>    <span class="k">def</span> <span class="nf">type</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        The type of this property. It is one element of :data:`propTypes`.</span>
-<span class="sd">        </span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">nsprop</span><span class="o">.</span><span class="n">Prop_get_type</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_ptr</span><span class="p">)</span>
-        </div>
+</div>
     <span class="nd">@property</span>
 <div class="viewcode-block" id="Prop.name"><a class="viewcode-back" href="../../pynusmv.html#pynusmv.prop.Prop.name">[docs]</a>    <span class="k">def</span> <span class="nf">name</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        The name of this property, as a string.</span>
-<span class="sd">        </span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">nsprop</span><span class="o">.</span><span class="n">Prop_get_name_as_string</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_ptr</span><span class="p">)</span>
-        </div>
+</div>
     <span class="nd">@property</span>
 <div class="viewcode-block" id="Prop.expr"><a class="viewcode-back" href="../../pynusmv.html#pynusmv.prop.Prop.expr">[docs]</a>    <span class="k">def</span> <span class="nf">expr</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        The expression of this property.</span>
-<span class="sd">        </span>
+
 <span class="sd">        :rtype: :class:`Spec`</span>
-<span class="sd">        </span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">Spec</span><span class="p">(</span><span class="n">nsprop</span><span class="o">.</span><span class="n">Prop_get_expr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_ptr</span><span class="p">))</span>
-        </div>
+</div>
     <span class="nd">@property</span>
 <div class="viewcode-block" id="Prop.exprcore"><a class="viewcode-back" href="../../pynusmv.html#pynusmv.prop.Prop.exprcore">[docs]</a>    <span class="k">def</span> <span class="nf">exprcore</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        The core expression of this property</span>
-<span class="sd">        </span>
+
 <span class="sd">        :rtype: :class:`Spec`</span>
-<span class="sd">        </span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">Spec</span><span class="p">(</span><span class="n">nsprop</span><span class="o">.</span><span class="n">Prop_get_expr_core</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_ptr</span><span class="p">))</span>
-        </div>
+</div>
     <span class="nd">@property</span>
 <div class="viewcode-block" id="Prop.bddFsm"><a class="viewcode-back" href="../../pynusmv.html#pynusmv.prop.Prop.bddFsm">[docs]</a>    <span class="k">def</span> <span class="nf">bddFsm</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        The BDD-encoded FSM of this property.</span>
-<span class="sd">        </span>
+
 <span class="sd">        :rtype: :class:`BddFsm &lt;pynusmv.fsm.BddFsm&gt;`</span>
-<span class="sd">        </span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">BddFsm</span><span class="p">(</span><span class="n">nsprop</span><span class="o">.</span><span class="n">Prop_get_bdd_fsm</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_ptr</span><span class="p">))</span>
 
 </div></div>
 <div class="viewcode-block" id="PropDb"><a class="viewcode-back" href="../../pynusmv.html#pynusmv.prop.PropDb">[docs]</a><span class="k">class</span> <span class="nc">PropDb</span><span class="p">(</span><span class="n">PointerWrapper</span><span class="p">):</span>
+
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Python class for property database.</span>
-<span class="sd">    </span>
+
 <span class="sd">    A property database is just a list of properties (:class:`Prop`).</span>
 <span class="sd">    Any PropDb can be used as a Python list.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="c"># PropDb do not have to be freed.</span>
-    
-    
+
     <span class="nd">@property</span>
 <div class="viewcode-block" id="PropDb.master"><a class="viewcode-back" href="../../pynusmv.html#pynusmv.prop.PropDb.master">[docs]</a>    <span class="k">def</span> <span class="nf">master</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        The master property of this database.</span>
-<span class="sd">        </span>
+
 <span class="sd">        :rtype: :class:`Prop`</span>
-<span class="sd">        </span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">Prop</span><span class="p">(</span><span class="n">nsprop</span><span class="o">.</span><span class="n">PropDb_get_master</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_ptr</span><span class="p">))</span>
-    
-    </div>
+</div>
 <div class="viewcode-block" id="PropDb.get_prop_at_index"><a class="viewcode-back" href="../../pynusmv.html#pynusmv.prop.PropDb.get_prop_at_index">[docs]</a>    <span class="k">def</span> <span class="nf">get_prop_at_index</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">index</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Return the property stored at `index`.</span>
-<span class="sd">        </span>
+
 <span class="sd">        :rtype: :class:`Prop`</span>
-<span class="sd">        </span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">Prop</span><span class="p">(</span><span class="n">nsprop</span><span class="o">.</span><span class="n">PropDb_get_prop_at_index</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_ptr</span><span class="p">,</span> <span class="n">index</span><span class="p">))</span>
-    
-    </div>
+</div>
 <div class="viewcode-block" id="PropDb.get_size"><a class="viewcode-back" href="../../pynusmv.html#pynusmv.prop.PropDb.get_size">[docs]</a>    <span class="k">def</span> <span class="nf">get_size</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Return the number of properties stored in this database.</span>
-<span class="sd">        </span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">nsprop</span><span class="o">.</span><span class="n">PropDb_get_size</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_ptr</span><span class="p">)</span>
-        
-    </div>
+</div>
     <span class="k">def</span> <span class="nf">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Return the length of this database.</span>
-<span class="sd">        </span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_size</span><span class="p">()</span>
-        
-    
+
     <span class="k">def</span> <span class="nf">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">index</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Return the `index`th property.</span>
-<span class="sd">        </span>
+
 <span class="sd">        :raise: a :exc:`IndexError` if `index` is not in the bounds</span>
-<span class="sd">        </span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">index</span> <span class="o">&lt;</span> <span class="o">-</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="ow">or</span> <span class="n">index</span> <span class="o">&gt;=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
             <span class="k">raise</span> <span class="ne">IndexError</span><span class="p">(</span><span class="s">&quot;PropDb index out of range&quot;</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">index</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
             <span class="n">index</span> <span class="o">=</span> <span class="n">index</span> <span class="o">+</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_prop_at_index</span><span class="p">(</span><span class="n">index</span><span class="p">)</span>
-        
-    
+
     <span class="k">def</span> <span class="nf">__iter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Return an iterator on this database.</span>
-<span class="sd">        </span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">)):</span>
             <span class="k">yield</span> <span class="bp">self</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
-            
+
 </div>
 <div class="viewcode-block" id="Spec"><a class="viewcode-back" href="../../pynusmv.html#pynusmv.prop.Spec">[docs]</a><span class="k">class</span> <span class="nc">Spec</span><span class="p">(</span><span class="n">PointerWrapper</span><span class="p">):</span>
+
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    A CTL specification.</span>
-<span class="sd">    </span>
+
 <span class="sd">    The Spec class implements a NuSMV nodes-based specification.</span>
 <span class="sd">    No check is made to insure that the node is effectively a specification,</span>
 <span class="sd">    i.e. the stored pointer is not checked against spec types.</span>
-<span class="sd">    </span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="c"># Specs do not have to be freed.</span>
-    
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ptr</span><span class="p">,</span> <span class="n">freeit</span> <span class="o">=</span> <span class="bp">False</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ptr</span><span class="p">,</span> <span class="n">freeit</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Create a new Spec.</span>
-<span class="sd">        </span>
+
 <span class="sd">        :param ptr: the pointer of the specification as a NuSMV node</span>
 <span class="sd">        :param boolean freeit: whether or not the pointer has to be freed</span>
-<span class="sd">        </span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">ptr</span><span class="p">,</span> <span class="n">freeit</span> <span class="o">=</span> <span class="n">freeit</span><span class="p">)</span>
-        
-        
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">ptr</span><span class="p">,</span> <span class="n">freeit</span><span class="o">=</span><span class="n">freeit</span><span class="p">)</span>
+
     <span class="nd">@property</span>
 <div class="viewcode-block" id="Spec.type"><a class="viewcode-back" href="../../pynusmv.html#pynusmv.prop.Spec.type">[docs]</a>    <span class="k">def</span> <span class="nf">type</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        The type of this specification.</span>
-<span class="sd">        </span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ptr</span><span class="o">.</span><span class="n">type</span>
-    </div>
+</div>
     <span class="nd">@property</span>
 <div class="viewcode-block" id="Spec.car"><a class="viewcode-back" href="../../pynusmv.html#pynusmv.prop.Spec.car">[docs]</a>    <span class="k">def</span> <span class="nf">car</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        The left child of this specification.</span>
-<span class="sd">        </span>
+
 <span class="sd">        :rtype: :class:`Spec`</span>
-<span class="sd">        </span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">left</span> <span class="o">=</span> <span class="n">nsnode</span><span class="o">.</span><span class="n">car</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_ptr</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">left</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">Spec</span><span class="p">(</span><span class="n">left</span><span class="p">,</span> <span class="n">freeit</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_freeit</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">Spec</span><span class="p">(</span><span class="n">left</span><span class="p">,</span> <span class="n">freeit</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_freeit</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">None</span>
-        </div>
+</div>
     <span class="nd">@property</span>
 <div class="viewcode-block" id="Spec.cdr"><a class="viewcode-back" href="../../pynusmv.html#pynusmv.prop.Spec.cdr">[docs]</a>    <span class="k">def</span> <span class="nf">cdr</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        The right child of this specification.</span>
-<span class="sd">        </span>
+
 <span class="sd">        :rtype: :class:`Spec`</span>
-<span class="sd">        </span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">right</span> <span class="o">=</span> <span class="n">nsnode</span><span class="o">.</span><span class="n">cdr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_ptr</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">right</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">Spec</span><span class="p">(</span><span class="n">right</span><span class="p">,</span> <span class="n">freeit</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_freeit</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">Spec</span><span class="p">(</span><span class="n">right</span><span class="p">,</span> <span class="n">freeit</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_freeit</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">None</span>
-            </div>
+</div>
     <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Return a string representation of this specification.</span>
-<span class="sd">        </span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">nsnode</span><span class="o">.</span><span class="n">sprint_node</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_ptr</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">__or__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Return the specification `self OR other`.</span>
-<span class="sd">        </span>
+
 <span class="sd">        :rtype: :class:`Spec`</span>
-<span class="sd">        </span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">other</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">()</span>
         <span class="k">return</span> <span class="n">Spec</span><span class="p">(</span><span class="n">nsnode</span><span class="o">.</span><span class="n">find_node</span><span class="p">(</span><span class="n">nsparser</span><span class="o">.</span><span class="n">OR</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ptr</span><span class="p">,</span> <span class="n">other</span><span class="o">.</span><span class="n">_ptr</span><span class="p">))</span>
-        
+
     <span class="k">def</span> <span class="nf">__and__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Return the specification `self AND other`.</span>
-<span class="sd">        </span>
+
 <span class="sd">        :rtype: :class:`Spec`</span>
-<span class="sd">        </span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">other</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">()</span>
         <span class="k">return</span> <span class="n">Spec</span><span class="p">(</span><span class="n">nsnode</span><span class="o">.</span><span class="n">find_node</span><span class="p">(</span><span class="n">nsparser</span><span class="o">.</span><span class="n">AND</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ptr</span><span class="p">,</span> <span class="n">other</span><span class="o">.</span><span class="n">_ptr</span><span class="p">))</span>
-        
+
     <span class="k">def</span> <span class="nf">__invert__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Return the specification `NOT self`.</span>
-<span class="sd">        </span>
+
 <span class="sd">        :rtype: :class:`Spec`</span>
-<span class="sd">        </span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">Spec</span><span class="p">(</span><span class="n">nsnode</span><span class="o">.</span><span class="n">find_node</span><span class="p">(</span><span class="n">nsparser</span><span class="o">.</span><span class="n">NOT</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ptr</span><span class="p">,</span> <span class="bp">None</span><span class="p">))</span>
-        
+
 </div>
 <div class="viewcode-block" id="true"><a class="viewcode-back" href="../../pynusmv.html#pynusmv.prop.true">[docs]</a><span class="k">def</span> <span class="nf">true</span><span class="p">():</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Return a new specification corresponding to `TRUE`.</span>
-<span class="sd">    </span>
+
 <span class="sd">    :rtype: :class:`Spec`</span>
-<span class="sd">    </span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="n">Spec</span><span class="p">(</span><span class="n">nsnode</span><span class="o">.</span><span class="n">find_node</span><span class="p">(</span><span class="n">nsparser</span><span class="o">.</span><span class="n">TRUEEXP</span><span class="p">,</span> <span class="bp">None</span><span class="p">,</span> <span class="bp">None</span><span class="p">))</span>
-    
+
 </div>
 <div class="viewcode-block" id="false"><a class="viewcode-back" href="../../pynusmv.html#pynusmv.prop.false">[docs]</a><span class="k">def</span> <span class="nf">false</span><span class="p">():</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Return a new specification corresponding to `FALSE`.</span>
-<span class="sd">    </span>
+
 <span class="sd">    :rtype: :class:`Spec`</span>
-<span class="sd">    </span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="n">Spec</span><span class="p">(</span><span class="n">nsnode</span><span class="o">.</span><span class="n">find_node</span><span class="p">(</span><span class="n">nsparser</span><span class="o">.</span><span class="n">FALSEEXP</span><span class="p">,</span> <span class="bp">None</span><span class="p">,</span> <span class="bp">None</span><span class="p">))</span>
-    
-    </div>
-<div class="viewcode-block" id="nott"><a class="viewcode-back" href="../../pynusmv.html#pynusmv.prop.nott">[docs]</a><span class="k">def</span> <span class="nf">nott</span><span class="p">(</span><span class="n">spec</span><span class="p">):</span>
+
+</div>
+<div class="viewcode-block" id="not_"><a class="viewcode-back" href="../../pynusmv.html#pynusmv.prop.not_">[docs]</a><span class="k">def</span> <span class="nf">not_</span><span class="p">(</span><span class="n">spec</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Return a new specification corresponding to `NOT spec`.</span>
-<span class="sd">    </span>
+
 <span class="sd">    :rtype: :class:`Spec`</span>
-<span class="sd">    </span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="n">spec</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">()</span>
     <span class="k">return</span> <span class="n">Spec</span><span class="p">(</span><span class="n">nsnode</span><span class="o">.</span><span class="n">find_node</span><span class="p">(</span><span class="n">nsparser</span><span class="o">.</span><span class="n">NOT</span><span class="p">,</span> <span class="n">spec</span><span class="o">.</span><span class="n">_ptr</span><span class="p">,</span> <span class="bp">None</span><span class="p">))</span>
-    
+
 </div>
-<div class="viewcode-block" id="andd"><a class="viewcode-back" href="../../pynusmv.html#pynusmv.prop.andd">[docs]</a><span class="k">def</span> <span class="nf">andd</span><span class="p">(</span><span class="n">left</span><span class="p">,</span> <span class="n">right</span><span class="p">):</span>
+<div class="viewcode-block" id="and_"><a class="viewcode-back" href="../../pynusmv.html#pynusmv.prop.and_">[docs]</a><span class="k">def</span> <span class="nf">and_</span><span class="p">(</span><span class="n">left</span><span class="p">,</span> <span class="n">right</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Return a new specification corresponding to `left AND right`.</span>
-<span class="sd">    </span>
+
 <span class="sd">    :rtype: :class:`Spec`</span>
-<span class="sd">    </span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="n">left</span> <span class="ow">is</span> <span class="bp">None</span> <span class="ow">or</span> <span class="n">right</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">()</span>
     <span class="k">return</span> <span class="n">Spec</span><span class="p">(</span><span class="n">nsnode</span><span class="o">.</span><span class="n">find_node</span><span class="p">(</span><span class="n">nsparser</span><span class="o">.</span><span class="n">AND</span><span class="p">,</span> <span class="n">left</span><span class="o">.</span><span class="n">_ptr</span><span class="p">,</span> <span class="n">right</span><span class="o">.</span><span class="n">_ptr</span><span class="p">))</span>
-    
+
 </div>
-<div class="viewcode-block" id="orr"><a class="viewcode-back" href="../../pynusmv.html#pynusmv.prop.orr">[docs]</a><span class="k">def</span> <span class="nf">orr</span><span class="p">(</span><span class="n">left</span><span class="p">,</span> <span class="n">right</span><span class="p">):</span>
+<div class="viewcode-block" id="or_"><a class="viewcode-back" href="../../pynusmv.html#pynusmv.prop.or_">[docs]</a><span class="k">def</span> <span class="nf">or_</span><span class="p">(</span><span class="n">left</span><span class="p">,</span> <span class="n">right</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Return a new specification corresponding to `left OR right`.</span>
-<span class="sd">    </span>
+
 <span class="sd">    :rtype: :class:`Spec`</span>
-<span class="sd">    </span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="n">left</span> <span class="ow">is</span> <span class="bp">None</span> <span class="ow">or</span> <span class="n">right</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">()</span>
     <span class="k">return</span> <span class="n">Spec</span><span class="p">(</span><span class="n">nsnode</span><span class="o">.</span><span class="n">find_node</span><span class="p">(</span><span class="n">nsparser</span><span class="o">.</span><span class="n">OR</span><span class="p">,</span> <span class="n">left</span><span class="o">.</span><span class="n">_ptr</span><span class="p">,</span> <span class="n">right</span><span class="o">.</span><span class="n">_ptr</span><span class="p">))</span>
-       
+
 </div>
 <div class="viewcode-block" id="imply"><a class="viewcode-back" href="../../pynusmv.html#pynusmv.prop.imply">[docs]</a><span class="k">def</span> <span class="nf">imply</span><span class="p">(</span><span class="n">left</span><span class="p">,</span> <span class="n">right</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Return a new specification corresponding to `left IMPLIES right`.</span>
-<span class="sd">    </span>
+
 <span class="sd">    :rtype: :class:`Spec`</span>
-<span class="sd">    </span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="n">left</span> <span class="ow">is</span> <span class="bp">None</span> <span class="ow">or</span> <span class="n">right</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">()</span>
     <span class="k">return</span> <span class="n">Spec</span><span class="p">(</span><span class="n">nsnode</span><span class="o">.</span><span class="n">find_node</span><span class="p">(</span><span class="n">nsparser</span><span class="o">.</span><span class="n">IMPLIES</span><span class="p">,</span> <span class="n">left</span><span class="o">.</span><span class="n">_ptr</span><span class="p">,</span> <span class="n">right</span><span class="o">.</span><span class="n">_ptr</span><span class="p">))</span>
-    
+
 </div>
 <div class="viewcode-block" id="iff"><a class="viewcode-back" href="../../pynusmv.html#pynusmv.prop.iff">[docs]</a><span class="k">def</span> <span class="nf">iff</span><span class="p">(</span><span class="n">left</span><span class="p">,</span> <span class="n">right</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Return a new specification corresponding to `left IFF right`.</span>
-<span class="sd">    </span>
+
 <span class="sd">    :rtype: :class:`Spec`</span>
-<span class="sd">    </span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="n">left</span> <span class="ow">is</span> <span class="bp">None</span> <span class="ow">or</span> <span class="n">right</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">()</span>
     <span class="k">return</span> <span class="n">Spec</span><span class="p">(</span><span class="n">nsnode</span><span class="o">.</span><span class="n">find_node</span><span class="p">(</span><span class="n">nsparser</span><span class="o">.</span><span class="n">IFF</span><span class="p">,</span> <span class="n">left</span><span class="o">.</span><span class="n">_ptr</span><span class="p">,</span> <span class="n">right</span><span class="o">.</span><span class="n">_ptr</span><span class="p">))</span>
-    
-    </div>
+
+</div>
 <div class="viewcode-block" id="ex"><a class="viewcode-back" href="../../pynusmv.html#pynusmv.prop.ex">[docs]</a><span class="k">def</span> <span class="nf">ex</span><span class="p">(</span><span class="n">spec</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Return a new specification corresponding to `EX spec`.</span>
-<span class="sd">    </span>
+
 <span class="sd">    :rtype: :class:`Spec`</span>
-<span class="sd">    </span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="n">spec</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">()</span>
     <span class="k">return</span> <span class="n">Spec</span><span class="p">(</span><span class="n">nsnode</span><span class="o">.</span><span class="n">find_node</span><span class="p">(</span><span class="n">nsparser</span><span class="o">.</span><span class="n">EX</span><span class="p">,</span> <span class="n">spec</span><span class="o">.</span><span class="n">_ptr</span><span class="p">,</span> <span class="bp">None</span><span class="p">))</span>
-    
+
 </div>
 <div class="viewcode-block" id="eg"><a class="viewcode-back" href="../../pynusmv.html#pynusmv.prop.eg">[docs]</a><span class="k">def</span> <span class="nf">eg</span><span class="p">(</span><span class="n">spec</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Return a new specification corresponding to `EG spec`.</span>
-<span class="sd">    </span>
+
 <span class="sd">    :rtype: :class:`Spec`</span>
-<span class="sd">    </span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="n">spec</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">()</span>
     <span class="k">return</span> <span class="n">Spec</span><span class="p">(</span><span class="n">nsnode</span><span class="o">.</span><span class="n">find_node</span><span class="p">(</span><span class="n">nsparser</span><span class="o">.</span><span class="n">EG</span><span class="p">,</span> <span class="n">spec</span><span class="o">.</span><span class="n">_ptr</span><span class="p">,</span> <span class="bp">None</span><span class="p">))</span>
-    
-    </div>
+
+</div>
 <div class="viewcode-block" id="ef"><a class="viewcode-back" href="../../pynusmv.html#pynusmv.prop.ef">[docs]</a><span class="k">def</span> <span class="nf">ef</span><span class="p">(</span><span class="n">spec</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Return a new specification corresponding to `EF spec`.</span>
-<span class="sd">    </span>
+
 <span class="sd">    :rtype: :class:`Spec`</span>
-<span class="sd">    </span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="n">spec</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">()</span>
     <span class="k">return</span> <span class="n">Spec</span><span class="p">(</span><span class="n">nsnode</span><span class="o">.</span><span class="n">find_node</span><span class="p">(</span><span class="n">nsparser</span><span class="o">.</span><span class="n">EF</span><span class="p">,</span> <span class="n">spec</span><span class="o">.</span><span class="n">_ptr</span><span class="p">,</span> <span class="bp">None</span><span class="p">))</span>
-    
-    </div>
+
+</div>
 <div class="viewcode-block" id="eu"><a class="viewcode-back" href="../../pynusmv.html#pynusmv.prop.eu">[docs]</a><span class="k">def</span> <span class="nf">eu</span><span class="p">(</span><span class="n">left</span><span class="p">,</span> <span class="n">right</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Return a new specification corresponding to `E[left U right]`.</span>
-<span class="sd">    </span>
+
 <span class="sd">    :rtype: :class:`Spec`</span>
-<span class="sd">    </span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="n">left</span> <span class="ow">is</span> <span class="bp">None</span> <span class="ow">or</span> <span class="n">right</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">()</span>
     <span class="k">return</span> <span class="n">Spec</span><span class="p">(</span><span class="n">nsnode</span><span class="o">.</span><span class="n">find_node</span><span class="p">(</span><span class="n">nsparser</span><span class="o">.</span><span class="n">EU</span><span class="p">,</span> <span class="n">left</span><span class="o">.</span><span class="n">_ptr</span><span class="p">,</span> <span class="n">right</span><span class="o">.</span><span class="n">_ptr</span><span class="p">))</span>
-    
-    </div>
+
+</div>
 <div class="viewcode-block" id="ew"><a class="viewcode-back" href="../../pynusmv.html#pynusmv.prop.ew">[docs]</a><span class="k">def</span> <span class="nf">ew</span><span class="p">(</span><span class="n">left</span><span class="p">,</span> <span class="n">right</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Return a new specification corresponding to `E[left W right]`.</span>
-<span class="sd">    </span>
+
 <span class="sd">    :rtype: :class:`Spec`</span>
-<span class="sd">    </span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="n">left</span> <span class="ow">is</span> <span class="bp">None</span> <span class="ow">or</span> <span class="n">right</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">()</span>
     <span class="k">return</span> <span class="n">Spec</span><span class="p">(</span><span class="n">nsnode</span><span class="o">.</span><span class="n">find_node</span><span class="p">(</span><span class="n">nsparser</span><span class="o">.</span><span class="n">EW</span><span class="p">,</span> <span class="n">left</span><span class="o">.</span><span class="n">_ptr</span><span class="p">,</span> <span class="n">right</span><span class="o">.</span><span class="n">_ptr</span><span class="p">))</span>
-    
-    </div>
+
+</div>
 <div class="viewcode-block" id="ax"><a class="viewcode-back" href="../../pynusmv.html#pynusmv.prop.ax">[docs]</a><span class="k">def</span> <span class="nf">ax</span><span class="p">(</span><span class="n">spec</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Return a new specification corresponding to `AX spec`.</span>
-<span class="sd">    </span>
+
 <span class="sd">    :rtype: :class:`Spec`</span>
-<span class="sd">    </span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="n">spec</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">()</span>
     <span class="k">return</span> <span class="n">Spec</span><span class="p">(</span><span class="n">nsnode</span><span class="o">.</span><span class="n">find_node</span><span class="p">(</span><span class="n">nsparser</span><span class="o">.</span><span class="n">AX</span><span class="p">,</span> <span class="n">spec</span><span class="o">.</span><span class="n">_ptr</span><span class="p">,</span> <span class="bp">None</span><span class="p">))</span>
-    
+
 </div>
 <div class="viewcode-block" id="ag"><a class="viewcode-back" href="../../pynusmv.html#pynusmv.prop.ag">[docs]</a><span class="k">def</span> <span class="nf">ag</span><span class="p">(</span><span class="n">spec</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Return a new specification corresponding to `AG spec`.</span>
-<span class="sd">    </span>
+
 <span class="sd">    :rtype: :class:`Spec`</span>
-<span class="sd">    </span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="n">spec</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">()</span>
     <span class="k">return</span> <span class="n">Spec</span><span class="p">(</span><span class="n">nsnode</span><span class="o">.</span><span class="n">find_node</span><span class="p">(</span><span class="n">nsparser</span><span class="o">.</span><span class="n">AG</span><span class="p">,</span> <span class="n">spec</span><span class="o">.</span><span class="n">_ptr</span><span class="p">,</span> <span class="bp">None</span><span class="p">))</span>
-    
-    </div>
+
+</div>
 <div class="viewcode-block" id="af"><a class="viewcode-back" href="../../pynusmv.html#pynusmv.prop.af">[docs]</a><span class="k">def</span> <span class="nf">af</span><span class="p">(</span><span class="n">spec</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Return a new specification corresponding to `AF spec`.</span>
-<span class="sd">    </span>
+
 <span class="sd">    :rtype: :class:`Spec`</span>
-<span class="sd">    </span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="n">spec</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">()</span>
     <span class="k">return</span> <span class="n">Spec</span><span class="p">(</span><span class="n">nsnode</span><span class="o">.</span><span class="n">find_node</span><span class="p">(</span><span class="n">nsparser</span><span class="o">.</span><span class="n">AF</span><span class="p">,</span> <span class="n">spec</span><span class="o">.</span><span class="n">_ptr</span><span class="p">,</span> <span class="bp">None</span><span class="p">))</span>
-    
-    </div>
+
+</div>
 <div class="viewcode-block" id="au"><a class="viewcode-back" href="../../pynusmv.html#pynusmv.prop.au">[docs]</a><span class="k">def</span> <span class="nf">au</span><span class="p">(</span><span class="n">left</span><span class="p">,</span> <span class="n">right</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Return a new specification corresponding to `A[left U right]`.</span>
-<span class="sd">    </span>
+
 <span class="sd">    :rtype: :class:`Spec`</span>
-<span class="sd">    </span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="n">left</span> <span class="ow">is</span> <span class="bp">None</span> <span class="ow">or</span> <span class="n">right</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">()</span>
     <span class="k">return</span> <span class="n">Spec</span><span class="p">(</span><span class="n">nsnode</span><span class="o">.</span><span class="n">find_node</span><span class="p">(</span><span class="n">nsparser</span><span class="o">.</span><span class="n">AU</span><span class="p">,</span> <span class="n">left</span><span class="o">.</span><span class="n">_ptr</span><span class="p">,</span> <span class="n">right</span><span class="o">.</span><span class="n">_ptr</span><span class="p">))</span>
-    
-    </div>
+
+</div>
 <div class="viewcode-block" id="aw"><a class="viewcode-back" href="../../pynusmv.html#pynusmv.prop.aw">[docs]</a><span class="k">def</span> <span class="nf">aw</span><span class="p">(</span><span class="n">left</span><span class="p">,</span> <span class="n">right</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Return a new specification corresponding to `A[left W right]`.</span>
-<span class="sd">    </span>
+
 <span class="sd">    :rtype: :class:`Spec`</span>
-<span class="sd">    </span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="n">left</span> <span class="ow">is</span> <span class="bp">None</span> <span class="ow">or</span> <span class="n">right</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">()</span>
@@ -518,26 +514,26 @@
 <span class="sd">    `strrep` is parsed type checked on the current model. A model needs to be</span>
 <span class="sd">    read and with variables encoded to be able to type check the atomic</span>
 <span class="sd">    proposition.</span>
-<span class="sd">    </span>
+
 <span class="sd">    :rtype: :class:`Spec`</span>
-<span class="sd">    </span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
-    
+
     <span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">glob</span>
-    
+
     <span class="c"># Parsing</span>
     <span class="n">node</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_simple_expression</span><span class="p">(</span><span class="n">strrep</span><span class="p">)</span>
-    
+
     <span class="c"># Type checking</span>
     <span class="c"># TODO Prevent printing a message on stderr</span>
     <span class="n">symb_table</span> <span class="o">=</span> <span class="n">glob</span><span class="o">.</span><span class="n">bdd_encoding</span><span class="p">()</span><span class="o">.</span><span class="n">symbTable</span>
     <span class="c"># TODO Type check only if symb_table is not None? With a Warning?</span>
     <span class="n">type_checker</span> <span class="o">=</span> <span class="n">nssymb_table</span><span class="o">.</span><span class="n">SymbTable_get_type_checker</span><span class="p">(</span><span class="n">symb_table</span><span class="o">.</span><span class="n">_ptr</span><span class="p">)</span>
     <span class="n">expr_type</span> <span class="o">=</span> <span class="n">nstype_checking</span><span class="o">.</span><span class="n">TypeChecker_get_expression_type</span><span class="p">(</span>
-                                                       <span class="n">type_checker</span><span class="p">,</span> <span class="n">node</span><span class="p">,</span> <span class="bp">None</span><span class="p">)</span>
+        <span class="n">type_checker</span><span class="p">,</span> <span class="n">node</span><span class="p">,</span> <span class="bp">None</span><span class="p">)</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">nssymb_table</span><span class="o">.</span><span class="n">SymbType_is_boolean</span><span class="p">(</span><span class="n">expr_type</span><span class="p">):</span>
-        <span class="k">raise</span> <span class="n">NuSMVTypeCheckingError</span><span class="p">(</span><span class="n">strrep</span> <span class="o">+</span> <span class="s">&quot; is wrongly typed.&quot;</span><span class="p">)</span>   
-    
+        <span class="k">raise</span> <span class="n">NuSMVTypeCheckingError</span><span class="p">(</span><span class="n">strrep</span> <span class="o">+</span> <span class="s">&quot; is wrongly typed.&quot;</span><span class="p">)</span>
+
     <span class="k">return</span> <span class="n">Spec</span><span class="p">(</span><span class="n">node</span><span class="p">)</span></div>
 </pre></div>
 

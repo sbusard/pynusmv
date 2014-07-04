@@ -64,12 +64,14 @@
 
 <span class="kn">import</span> <span class="nn">weakref</span>
 <span class="kn">import</span> <span class="nn">gc</span>
+<span class="kn">import</span> <span class="nn">sys</span>
 
 <span class="kn">from</span> <span class="nn">.nusmv.cinit</span> <span class="kn">import</span> <span class="n">cinit</span> <span class="k">as</span> <span class="n">nscinit</span>
 <span class="kn">from</span> <span class="nn">.nusmv.opt</span> <span class="kn">import</span> <span class="n">opt</span> <span class="k">as</span> <span class="n">nsopt</span>
 <span class="kn">from</span> <span class="nn">.nusmv.cmd</span> <span class="kn">import</span> <span class="n">cmd</span> <span class="k">as</span> <span class="n">nscmd</span>
+<span class="kn">from</span> <span class="nn">.nusmv.dd</span> <span class="kn">import</span> <span class="n">dd</span> <span class="k">as</span> <span class="n">nsdd</span>
 
-<span class="kn">from</span> <span class="nn">.exception</span> <span class="kn">import</span> <span class="n">NuSMVInitError</span>
+<span class="kn">from</span> <span class="nn">.exception</span> <span class="kn">import</span> <span class="n">NuSMVInitError</span><span class="p">,</span> <span class="n">PyNuSMVError</span>
 
 
 <span class="c"># Set of pointer wrappers to collect when deiniting NuSMV</span>
@@ -80,7 +82,7 @@
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Initialize NuSMV. Must be called only once before calling </span>
 <span class="sd">    :func:`deinit_nusmv`.</span>
-<span class="sd">    </span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">global</span> <span class="n">__collector</span>
     <span class="k">if</span> <span class="n">__collector</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
@@ -88,31 +90,43 @@
     <span class="k">else</span><span class="p">:</span>
         <span class="n">__collector</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="n">nscinit</span><span class="o">.</span><span class="n">NuSMVCore_init_data</span><span class="p">()</span>
-        <span class="n">nscinit</span><span class="o">.</span><span class="n">NuSMVCore_init</span><span class="p">(</span><span class="bp">None</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="c"># No addons specified</span>
+        <span class="n">nscinit</span><span class="o">.</span><span class="n">NuSMVCore_init</span><span class="p">(</span><span class="bp">None</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>  <span class="c"># No addons specified</span>
         <span class="n">nscinit</span><span class="o">.</span><span class="n">NuSMVCore_init_cmd_options</span><span class="p">()</span>
-        
+
         <span class="c"># Set NuSMV in interactive mode to avoid fast termination when errors</span>
-        <span class="n">nsopt</span><span class="o">.</span><span class="n">unset_batch</span><span class="p">(</span><span class="n">nsopt</span><span class="o">.</span><span class="n">OptsHandler_get_instance</span><span class="p">())</span>
-        
+        <span class="c"># nsopt.unset_batch(nsopt.OptsHandler_get_instance())</span>
+
         <span class="c"># Initialize option commands (set, unset)</span>
         <span class="c"># to be able to set parser_is_lax</span>
         <span class="n">nsopt</span><span class="o">.</span><span class="n">init_options_cmd</span><span class="p">()</span>
-        <span class="n">nscmd</span><span class="o">.</span><span class="n">Cmd_SecureCommandExecute</span><span class="p">(</span><span class="s">&quot;set parser_is_lax&quot;</span><span class="p">)</span>    
-    
+        <span class="n">nscmd</span><span class="o">.</span><span class="n">Cmd_SecureCommandExecute</span><span class="p">(</span><span class="s">&quot;set parser_is_lax&quot;</span><span class="p">)</span>
+
 </div>
-<div class="viewcode-block" id="deinit_nusmv"><a class="viewcode-back" href="../../pynusmv.html#pynusmv.init.deinit_nusmv">[docs]</a><span class="k">def</span> <span class="nf">deinit_nusmv</span><span class="p">():</span>
+<div class="viewcode-block" id="deinit_nusmv"><a class="viewcode-back" href="../../pynusmv.html#pynusmv.init.deinit_nusmv">[docs]</a><span class="k">def</span> <span class="nf">deinit_nusmv</span><span class="p">(</span><span class="n">ddinfo</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Quit NuSMV. Must be called only once, after calling :func:`init_nusmv`.</span>
-<span class="sd">    </span>
+
+<span class="sd">    :param ddinfo: Whether or not display Decision Diagrams statistics.</span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="c"># Apply Python garbage collection first, then collect every pointer wrapper</span>
     <span class="c"># that is not yet collected by Python GC</span>
     <span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">glob</span>
-    <span class="n">glob</span><span class="o">.</span><span class="n">_reset_globals</span><span class="p">()</span>    
-    
+
+    <span class="c"># Print statistics on stdout about DDs handled by the main DD manager.</span>
+    <span class="k">if</span> <span class="n">ddinfo</span><span class="p">:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">manager</span> <span class="o">=</span> <span class="n">glob</span><span class="o">.</span><span class="n">prop_database</span><span class="p">()</span><span class="o">.</span><span class="n">master</span><span class="o">.</span><span class="n">bddFsm</span><span class="o">.</span><span class="n">bddEnc</span><span class="o">.</span><span class="n">DDmanager</span>
+            <span class="n">nsdd</span><span class="o">.</span><span class="n">dd_print_stats</span><span class="p">(</span><span class="n">manager</span><span class="o">.</span><span class="n">_ptr</span><span class="p">,</span> <span class="n">nscinit</span><span class="o">.</span><span class="n">cvar</span><span class="o">.</span><span class="n">nusmv_stdout</span><span class="p">)</span>
+        <span class="k">except</span> <span class="n">PyNuSMVError</span><span class="p">:</span>
+            <span class="k">pass</span>
+
+    <span class="n">glob</span><span class="o">.</span><span class="n">_reset_globals</span><span class="p">()</span>
+
     <span class="k">global</span> <span class="n">__collector</span>
     <span class="k">if</span> <span class="n">__collector</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="n">NuSMVInitError</span><span class="p">(</span><span class="s">&quot;Cannot deinitialize NuSMV before initialization.&quot;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="n">NuSMVInitError</span><span class="p">(</span>
+            <span class="s">&quot;Cannot deinitialize NuSMV before initialization.&quot;</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="c"># First garbage collect with Python</span>
         <span class="n">gc</span><span class="o">.</span><span class="n">collect</span>
@@ -122,26 +136,26 @@
                 <span class="n">elem</span><span class="p">()</span><span class="o">.</span><span class="n">_free</span><span class="p">()</span>
         <span class="n">__collector</span> <span class="o">=</span> <span class="bp">None</span>
         <span class="n">nscinit</span><span class="o">.</span><span class="n">NuSMVCore_quit</span><span class="p">()</span>
-    
-    </div>
+
+</div>
 <div class="viewcode-block" id="reset_nusmv"><a class="viewcode-back" href="../../pynusmv.html#pynusmv.init.reset_nusmv">[docs]</a><span class="k">def</span> <span class="nf">reset_nusmv</span><span class="p">():</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Reset NuSMV, i.e. deinit it and init it again. Cannot be called before</span>
 <span class="sd">    :func:`init_nusmv`.</span>
-<span class="sd">    </span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">deinit_nusmv</span><span class="p">()</span>
     <span class="n">init_nusmv</span><span class="p">()</span>
-    
-    </div>
+
+</div>
 <span class="k">def</span> <span class="nf">_register_wrapper</span><span class="p">(</span><span class="n">wrapper</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Register pointer wrapper to PyNuSMV garbage collector. `wrapper` is</span>
 <span class="sd">    stored to be collected before quitting NuSMV.</span>
-<span class="sd">    </span>
+
 <span class="sd">    :param wrapper: the pointer wrapper to register</span>
 <span class="sd">    :type wrapper: :class:`PointerWrapper &lt;pynusmv.utils.PointerWrapper&gt;`</span>
-<span class="sd">    </span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">global</span> <span class="n">__collector</span>
     <span class="k">if</span> <span class="n">__collector</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>

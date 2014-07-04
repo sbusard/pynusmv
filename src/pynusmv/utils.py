@@ -12,6 +12,7 @@ from pynusmv.init import _register_wrapper
 
 
 class PointerWrapper:
+
     """
     Superclass wrapper for NuSMV pointers.
 
@@ -27,31 +28,29 @@ class PointerWrapper:
     To ensure that a pointer is freed only once, PyNuSMV ensures that
     any pointer is wrapped by only one PointerWrapper (or subclass of it)
     if the pointer have to be freed.
-    
+
     """
-    
-    def __init__(self, pointer, freeit = False):
+
+    def __init__(self, pointer, freeit=False):
         """
         Create a new PointerWrapper.
-        
+
         :param pointer: the pointer to wrap
         :param freeit: whether the pointer has to be freed when this wrapper
                        is destroyed
-                       
+
         """
         self._ptr = pointer
         self._freeit = freeit
         _register_wrapper(self)
-        
-    
+
     def _free(self):
         """
         Every subclass must implement `_free` if there is something to free.
-        
+
         """
         pass
-        
-        
+
     def __del__(self):
         if self._freeit and self._ptr is not None:
             self._free()
@@ -60,16 +59,16 @@ class PointerWrapper:
 def fixpoint(funct, start):
     """
     Return the fixpoint of `funct`, as a BDD, starting with `start` BDD.
-    
+
     :rtype: :class:`BDD <pynusmv.dd.BDD>`
-    
+
     .. note:: μZ.f(Z) least fixpoint is implemented with
               `fixpoint(funct, false)`.
               νZ.f(Z) greatest fixpoint is implemented with
               `fixpoint(funct, true)`.
-    
+
     """
-    
+
     old = start
     new = funct(start)
     while old != new:
@@ -83,10 +82,10 @@ def update(old, new):
     Update `old` with `new`. `old` is assumed to have the `extend` or `update`
     method, and `new` is assumed to be a good argument for the corresponding
     method.
-    
+
     :param old: the data to update.
     :param new: the date to update with.
-    
+
     """
     try:
         old.extend(new)
