@@ -50,7 +50,7 @@ __all__ = [
 from .exception import NuSMVParsingError, _Error
 
 from .utils import update
-from .model import (Identifier, ComplexIdentifier, Boolean, Word, Range,
+from .model import (Identifier, Self, Context, Array, Boolean, Word, Range,
                     Conversion, WordFunction, Count, Next, Init, Case,
                     Subscript, BitSelection, ArrayAccess, Set, Not, Concat,
                     Minus, Mult, Div, Mod, Add, Sub, ShiftL, ShiftR, Union, In,
@@ -169,7 +169,29 @@ _cip <<= Optional("." + Literal("self") + _cip
                   | "[" + simple_expression + "]" + _cip)
 _complex_identifier = ((FollowedBy("self") + Literal("self") + _cip)
                        | (identifier + _cip))
-_complex_identifier.setParseAction(lambda s, l, t: ComplexIdentifier(t))
+
+
+def _handle_ci(tokens):
+    """
+    Create a complex identifier from the given list of `tokens`.
+
+    :param tokens: a non-empty list of tokens
+    """
+    def _handle_id(token):
+        if token == "self":
+            return Self()
+        else:
+            return token
+
+    if len(tokens) <= 1:
+        return _handle_id(tokens[0])
+    elif tokens[1] == ".":
+        return Context(_handle_id(tokens[0]), _handle_ci(tokens[2:]))
+    else:  # tokens[1] == "["
+        return _handle_ci([Array(_handle_id(tokens[0]), tokens[2])] +
+                          tokens[4:])
+
+_complex_identifier.setParseAction(lambda s, l, t: _handle_ci(t))
 
 _define_identifier = _complex_identifier
 _variable_identifier = _complex_identifier
@@ -242,17 +264,32 @@ _base = (_complex_identifier ^
           | constant))
 
 _ap = Forward()
-_array_subscript = Suppress("[") + _basic_expr + Suppress("]")
-_array_subscript.setParseAction(lambda s, l, t: Subscript(t[0]))
+_array_subscript = Group(Suppress("[") + _basic_expr + Suppress("]"))
 
-_word_bit_selection = (Suppress("[") + _basic_expr + Suppress(":")
-                       + _basic_expr + Suppress("]"))
-_word_bit_selection.setParseAction(lambda s, l, t: BitSelection(t[0], t[1]))
+_word_bit_selection = Group(Suppress("[") + _basic_expr + Suppress(":")
+                            + _basic_expr + Suppress("]"))
 
 _ap <<= Optional(_array_subscript + _ap | _word_bit_selection + _ap)
 _array = _base + _ap
-_array.setParseAction(lambda s, l, t:
-                      t[0] if len(t) <= 1 else ArrayAccess(t[0], t[1:]))
+
+
+def _handle_array(tokens):
+    """
+    Create an array from the given list of `tokens`.
+
+    :param tokens: a non-empty list of tokens
+    """
+    if len(tokens) <= 1:
+        return tokens[0]
+    elif len(tokens[1]) == 1:
+        return _handle_array([Subscript(tokens[0], tokens[1][0])] + tokens[2:])
+    else:  # len(tokens[1]) == 2
+        return _handle_array([BitSelection(tokens[0], tokens[1][0],
+                                          tokens[1][1])] +
+                             tokens[2:])
+
+
+_array.setParseAction(lambda s, l, t: _handle_array(t))
 
 _not = ZeroOrMore("!") + _array
 _not.setParseAction(lambda s, l, t: reduce(lambda e, n: Not(e), t[:-1], t[-1]))

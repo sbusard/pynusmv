@@ -8,7 +8,9 @@ set of AST elements of the language.
 
 __all__ = [
     "Identifier",
-    "ComplexIdentifier",
+    "Self",
+    "Context",
+    "Array",
     "Boolean",
     "Word",
     "Range",
@@ -206,20 +208,19 @@ class Expression(Element):
     def __invert__(self):
         return Not(self)
 
-    # TODO BitSelection and Subscript need modifications
-    # def __getitem__(self, key):
-    #    if isinstance(key, slice):
-    #        start, stop = slice.start, slice.stop
-    #        if isinstance(start, str):
-    #            start = parseAllString(next_expression, start)
-    #        if isinstance(stop, str):
-    #            stop = parseAllString(next_expression, stop)
-    #        return BitSelection(self, start, stop)
-    #    elif isinstance(key, str):
-    #        key = parseAllString(next_expression, key)
-    #        return Subscript(self, key)
-    #    else:
-    #        return Subscript(self, key)
+    def __getitem__(self, key):
+       if isinstance(key, slice):
+           start, stop = slice.start, slice.stop
+           if isinstance(start, str):
+               start = parseAllString(next_expression, start)
+           if isinstance(stop, str):
+               stop = parseAllString(next_expression, stop)
+           return BitSelection(self, start, stop)
+       elif isinstance(key, str):
+           key = parseAllString(next_expression, key)
+           return Subscript(self, key)
+       else:
+           return Subscript(self, key)
 
     def __contains__(self, item):
         from .parser import parseAllString, next_expression
@@ -251,27 +252,71 @@ class Identifier(Expression):
         return 17 + 23 * hash("Identifier") + 23 ** 2 * hash(self.name)
 
 
+class Self(Identifier):
+
+    """The `self` identifier."""
+
+    def __init__(self):
+        super().__init__("self")
+
+
 class ComplexIdentifier(Expression):
 
     """A complex identifier."""
 
-    def __init__(self, body):
-        self.body = body
+
+class Context(ComplexIdentifier):
+
+    """Access to a part of a module instance."""
+
+    def __init__(self, instance, element):
+        self.instance = instance
+        self.element = element
 
     def __str__(self):
         if self.source:
             return self.source
-        return "".join(str(element) for element in self.body)
+        else:
+            return str(self.instance) + "." + str(self.element)
 
     def _equals(self, other):
         """Return whether `self` is equals to `other`."""
         if isinstance(self, type(other)):
-            return self.body == other.body
+            return (self.instance._equals(other.instance) and
+                    self.element._equals(other.element))
         else:
             return False
 
     def __hash__(self):
-        return 17 + 23 * hash("ComplexIdentifier") + 23 ** 2 * hash(self.body)
+        return (17 + 23 * hash("Context") + 23 ** 2 * hash(self.instance) +
+                23 ** 3 * hash(self.element))
+
+
+class Array(ComplexIdentifier):
+
+    """Access to an index of an array."""
+
+    def __init__(self, array, index):
+        self.array = array
+        self.index = index
+
+    def __str__(self):
+        if self.source:
+            return self.source
+        else:
+            return str(self.array) + "[" + str(self.index) + "]"
+
+    def _equals(self, other):
+        """Return whether `self` is equals to `other`."""
+        if isinstance(self, type(other)):
+            return (self.array._equals(other.array) and
+                    self.index._equals(other.index))
+        else:
+            return False
+
+    def __hash__(self):
+        return (17 + 23 * hash("Array") + 23 ** 2 * hash(self.array) +
+                23 ** 3 * hash(self.index))
 
 
 class Constant(Expression):
@@ -516,49 +561,58 @@ class Subscript(Expression):
 
     """Array subscript."""
 
-    def __init__(self, index):
+    def __init__(self, array, index):
+        self.array = array
         self.index = index
 
     def __str__(self):
         if self.source:
             return self.source
-        return "[" + str(self.index) + "]"
+        return str(self.array) + "[" + str(self.index) + "]"
 
     def _equals(self, other):
         """Return whether `self` is equals to `other`."""
         if isinstance(self, type(other)):
-            return self.index._equals(other.index)
+            return (self.array._equals(other.array) and
+                    self.index._equals(other.index))
         else:
             return False
 
     def __hash__(self):
-        return 17 + 23 * hash("Subscript") + 23 ** 2 * hash(self.index)
+        return (17 + 23 * hash("Subscript") +
+                23 ** 2 * hash(self.array) +
+                23 ** 3 * hash(self.index))
 
 
 class BitSelection(Expression):
 
     """Word bit selection."""
 
-    def __init__(self, start, stop):
+    def __init__(self, word, start, stop):
+        self.word = word
         self.start = start
         self.stop = stop
 
     def __str__(self):
         if self.source:
             return self.source
-        return "[" + str(self.start) + ":" + str(self.stop) + "]"
+        return (str(self.word) +
+                "[" + str(self.start) + ":" + str(self.stop) + "]")
 
     def _equals(self, other):
         """Return whether `self` is equals to `other`."""
         if isinstance(self, type(other)):
-            return (self.start._equals(other.start) and
+            return (self.word._equals(other.word) and
+                    self.start._equals(other.start) and
                     self.stop._equals(other.stop))
         else:
             return False
 
     def __hash__(self):
-        return (17 + 23 * hash("BitSelection") + 23 ** 2 * hash(self.start)
-                + 23 ** 3 * hash(self.stop))
+        return (17 + 23 * hash("BitSelection")
+                + 23 ** 2 * hash(self.word)
+                + 23 ** 3 * hash(self.start)
+                + 23 ** 4 * hash(self.stop))
 
 
 class ArrayAccess(Expression):

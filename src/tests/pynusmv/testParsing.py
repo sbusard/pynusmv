@@ -2,6 +2,7 @@ import unittest
 import pyparsing
 
 from pynusmv import parser
+from pynusmv.model import Expression, Identifier, Self, Context, Array
 
 class TestParsing(unittest.TestCase):
     
@@ -33,15 +34,29 @@ class TestParsing(unittest.TestCase):
         identifiers = ["c", "self",
                        "a.b", "a.self.b", "self.c",
                        "a[b][c]",
-                       "module[counter][value].rest[shift].self[c]"
+                       #"module[counter][value].rest[shift].self[c]"
                       ]
+        expected = [Identifier("c"), Self(),
+                    Context(Identifier("a"), Identifier("b")),
+                    Context(Identifier("a"), Context(Self(), Identifier("b"))),
+                    Context(Self(), Identifier("c")),
+                    Array(Array(Identifier("a"), Identifier("b")),
+                          Identifier("c")),
+                    Context(Array(Array(Identifier("module"),
+                                        Identifier("counter")),
+                                  Identifier("value")),
+                            Context(Array(Identifier("rest"),
+                                          Identifier("shift")),
+                                    Array(Self(), Identifier("c"))))]
                   
-        for identifier in identifiers:
+        for i in range(len(identifiers)):
             try:
                 res = parser.parseAllString(parser._complex_identifier,
-                                             identifier)
-                #print(identifier, "=>", res)
+                                             identifiers[i])
+                #print(identifiers[i], "=>", res)
                 self.assertIsNotNone(res)
+                self.assertTrue(isinstance(res, Expression))
+                self.assertEqual(res, expected[i])
             except pyparsing.ParseException as e:
                 print(e.line)
                 print(" " * (e.column-1) + "^")
