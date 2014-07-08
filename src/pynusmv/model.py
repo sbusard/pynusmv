@@ -102,7 +102,7 @@ class Expression(Element):
 
     def __lt__(self, other):
         return self.lt(other)
-    
+
     def lt(self, other):
         from .parser import parseAllString, next_expression
         if isinstance(other, str):
@@ -111,7 +111,7 @@ class Expression(Element):
 
     def __le__(self, other):
         return self.le(other)
-    
+
     def le(self, other):
         from .parser import parseAllString, next_expression
         if isinstance(other, str):
@@ -120,7 +120,7 @@ class Expression(Element):
 
     def __eq__(self, other):
         return self.eq(other)
-    
+
     def eq(self, other):
         from .parser import parseAllString, next_expression
         if isinstance(other, str):
@@ -129,7 +129,7 @@ class Expression(Element):
 
     def __ne__(self, other):
         return self.ne(other)
-    
+
     def ne(self, other):
         from .parser import parseAllString, next_expression
         if isinstance(other, str):
@@ -138,7 +138,7 @@ class Expression(Element):
 
     def __gt__(self, other):
         return self.gt(other)
-    
+
     def gt(self, other):
         from .parser import parseAllString, next_expression
         if isinstance(other, str):
@@ -147,7 +147,7 @@ class Expression(Element):
 
     def __ge__(self, other):
         return self.ge(other)
-    
+
     def ge(self, other):
         from .parser import parseAllString, next_expression
         if isinstance(other, str):
@@ -156,7 +156,7 @@ class Expression(Element):
 
     def __add__(self, other):
         return self.add(other)
-    
+
     def add(self, other):
         from .parser import parseAllString, next_expression
         if isinstance(other, str):
@@ -165,7 +165,7 @@ class Expression(Element):
 
     def __sub__(self, other):
         return self.sub(other)
-    
+
     def sub(self, other):
         from .parser import parseAllString, next_expression
         if isinstance(other, str):
@@ -174,7 +174,7 @@ class Expression(Element):
 
     def __mul__(self, other):
         return self.mul(other)
-    
+
     def mul(self, other):
         from .parser import parseAllString, next_expression
         if isinstance(other, str):
@@ -183,7 +183,7 @@ class Expression(Element):
 
     def __truediv__(self, other):
         return self.div(other)
-    
+
     def div(self, other):
         from .parser import parseAllString, next_expression
         if isinstance(other, str):
@@ -192,7 +192,7 @@ class Expression(Element):
 
     def __mod__(self, other):
         return self.mod(other)
-    
+
     def mod(self, other):
         from .parser import parseAllString, next_expression
         if isinstance(other, str):
@@ -201,7 +201,7 @@ class Expression(Element):
 
     def __lshift__(self, other):
         return self.lshift(other)
-    
+
     def lshift(self, other):
         from .parser import parseAllString, next_expression
         if isinstance(other, str):
@@ -210,7 +210,7 @@ class Expression(Element):
 
     def __rshift__(self, other):
         return self.rshift(other)
-    
+
     def rshift(self, other):
         from .parser import parseAllString, next_expression
         if isinstance(other, str):
@@ -219,7 +219,7 @@ class Expression(Element):
 
     def __and__(self, other):
         return self.and_(other)
-    
+
     def and_(self, other):
         from .parser import parseAllString, next_expression
         if isinstance(other, str):
@@ -228,13 +228,13 @@ class Expression(Element):
 
     def __xor__(self, other):
         return self.xor(other)
-    
+
     def xor(self, other):
         from .parser import parseAllString, next_expression
         if isinstance(other, str):
             other = parseAllString(next_expression, other)
         return Xor(self, other)
-    
+
     def xnor(self, other):
         from .parser import parseAllString, next_expression
         if isinstance(other, str):
@@ -243,7 +243,7 @@ class Expression(Element):
 
     def __or__(self, other):
         return self.or_(other)
-    
+
     def or_(self, other):
         from .parser import parseAllString, next_expression
         if isinstance(other, str):
@@ -252,75 +252,75 @@ class Expression(Element):
 
     def __neg__(self):
         return self.neg()
-    
+
     def neg(self):
         return return self.minus()
-    
+
     def minus(self):
         return Minus(self)
 
     def __invert__(self):
         return self.invert()
-    
+
     def invert(self):
         return self.not_()
-    
+
     def not_(self):
         return Not(self)
 
     def __getitem__(self, key):
-       if isinstance(key, slice):
-           start, stop = slice.start, slice.stop
-           if isinstance(start, str):
-               start = parseAllString(next_expression, start)
-           if isinstance(stop, str):
-               stop = parseAllString(next_expression, stop)
-           return BitSelection(self, start, stop)
-       elif isinstance(key, str):
-           key = parseAllString(next_expression, key)
-           return Subscript(self, key)
-       else:
-           return Subscript(self, key)
-    
+        if isinstance(key, slice):
+            start, stop = slice.start, slice.stop
+            if isinstance(start, str):
+                start = parseAllString(next_expression, start)
+            if isinstance(stop, str):
+                stop = parseAllString(next_expression, stop)
+            return BitSelection(self, start, stop)
+        elif isinstance(key, str):
+            key = parseAllString(next_expression, key)
+            return Subscript(self, key)
+        else:
+            return Subscript(self, key)
+
     def word1(self):
         return Conversion("word1", self)
-    
+
     def bool(self):
         return Conversion("bool", self)
-    
+
     def toint(self):
         return Conversion("toint", self)
-    
+
     def signed(self):
         return Conversion("signed", self)
-    
+
     def unsigned(self):
         return Conversion("unsigned", self)
-    
+
     def next(self):
         return Next(self)
-    
+
     def init(self):
         return Init(self)
-    
+
     def concat(self, other):
         from .parser import parseAllString, next_expression
         if isinstance(other, str):
             other = parseAllString(next_expression, other)
         return Concat(self, other)
-    
+
     def union(self, other):
         from .parser import parseAllString, next_expression
         if isinstance(other, str):
             other = parseAllString(next_expression, other)
         return Union(self, other)
-    
+
     def in_(self, other):
         from .parser import parseAllString, next_expression
         if isinstance(other, str):
             other = parseAllString(next_expression, other)
         return In(self, other)
-    
+
     def ite(self, true_expr, false_expr):
         from .parser import parseAllString, next_expression
         if isinstance(true_expr, str):
@@ -328,13 +328,13 @@ class Expression(Element):
         if isinstance(false_expr, str):
             false_expr = parseAllString(next_expression, false_expr)
         return Ite(self, true_expr, false_expr)
-    
+
     def iff(self, other):
         from .parser import parseAllString, next_expression
         if isinstance(other, str):
             other = parseAllString(next_expression, other)
         return Iff(self, other)
-    
+
     def implies(self, other):
         from .parser import parseAllString, next_expression
         if isinstance(other, str):
@@ -1843,6 +1843,7 @@ class Declaration(Identifier):
 
 
 class Var(Declaration):
+
     """A declared VAR."""
 
     def __init__(self, type_, name=None):
@@ -1850,6 +1851,7 @@ class Var(Declaration):
 
 
 class IVar(Declaration):
+
     """A declared IVAR."""
 
     def __init__(self, type_, name=None):
@@ -1857,6 +1859,7 @@ class IVar(Declaration):
 
 
 class FVar(Declaration):
+
     """A declared FROZENVAR."""
 
     def __init__(self, type_, name=None):
@@ -1864,6 +1867,7 @@ class FVar(Declaration):
 
 
 class Def(Declaration):
+
     """A declared DEFINE."""
 
     def __init__(self, type_, name=None):
