@@ -101,111 +101,171 @@ class Expression(Element):
     _precedence = 0
 
     def __lt__(self, other):
+        return self.lt(other)
+    
+    def lt(self, other):
         from .parser import parseAllString, next_expression
         if isinstance(other, str):
             other = parseAllString(next_expression, other)
         return Lt(self, other)
 
     def __le__(self, other):
+        return self.le(other)
+    
+    def le(self, other):
         from .parser import parseAllString, next_expression
         if isinstance(other, str):
             other = parseAllString(next_expression, other)
         return Le(self, other)
 
     def __eq__(self, other):
+        return self.eq(other)
+    
+    def eq(self, other):
         from .parser import parseAllString, next_expression
         if isinstance(other, str):
             other = parseAllString(next_expression, other)
         return Eq(self, other)
 
     def __ne__(self, other):
+        return self.ne(other)
+    
+    def ne(self, other):
         from .parser import parseAllString, next_expression
         if isinstance(other, str):
             other = parseAllString(next_expression, other)
         return Neq(self, other)
 
     def __gt__(self, other):
+        return self.gt(other)
+    
+    def gt(self, other):
         from .parser import parseAllString, next_expression
         if isinstance(other, str):
             other = parseAllString(next_expression, other)
         return Gt(self, other)
 
     def __ge__(self, other):
+        return self.ge(other)
+    
+    def ge(self, other):
         from .parser import parseAllString, next_expression
         if isinstance(other, str):
             other = parseAllString(next_expression, other)
         return Ge(self, other)
 
     def __add__(self, other):
+        return self.add(other)
+    
+    def add(self, other):
         from .parser import parseAllString, next_expression
         if isinstance(other, str):
             other = parseAllString(next_expression, other)
         return Add(self, other)
 
     def __sub__(self, other):
+        return self.sub(other)
+    
+    def sub(self, other):
         from .parser import parseAllString, next_expression
         if isinstance(other, str):
             other = parseAllString(next_expression, other)
         return Sub(self, other)
 
     def __mul__(self, other):
+        return self.mul(other)
+    
+    def mul(self, other):
         from .parser import parseAllString, next_expression
         if isinstance(other, str):
             other = parseAllString(next_expression, other)
         return Mult(self, other)
 
     def __truediv__(self, other):
+        return self.div(other)
+    
+    def div(self, other):
         from .parser import parseAllString, next_expression
         if isinstance(other, str):
             other = parseAllString(next_expression, other)
         return Div(self, other)
 
     def __mod__(self, other):
+        return self.mod(other)
+    
+    def mod(self, other):
         from .parser import parseAllString, next_expression
         if isinstance(other, str):
             other = parseAllString(next_expression, other)
         return Mod(self, other)
 
     def __lshift__(self, other):
+        return self.lshift(other)
+    
+    def lshift(self, other):
         from .parser import parseAllString, next_expression
         if isinstance(other, str):
             other = parseAllString(next_expression, other)
         return ShiftL(self, other)
 
     def __rshift__(self, other):
+        return self.rshift(other)
+    
+    def rshift(self, other):
         from .parser import parseAllString, next_expression
         if isinstance(other, str):
             other = parseAllString(next_expression, other)
         return ShiftR(self, other)
 
     def __and__(self, other):
-        from .parser import parseAllString, next_expression
-        if isinstance(other, str):
-            other = parseAllString(next_expression, other)
-        return And(self, other)
-
-    def __rand__(self, other):
+        return self.and_(other)
+    
+    def and_(self, other):
         from .parser import parseAllString, next_expression
         if isinstance(other, str):
             other = parseAllString(next_expression, other)
         return And(self, other)
 
     def __xor__(self, other):
+        return self.xor(other)
+    
+    def xor(self, other):
         from .parser import parseAllString, next_expression
         if isinstance(other, str):
             other = parseAllString(next_expression, other)
         return Xor(self, other)
+    
+    def xnor(self, other):
+        from .parser import parseAllString, next_expression
+        if isinstance(other, str):
+            other = parseAllString(next_expression, other)
+        return Xnor(self, other)
 
     def __or__(self, other):
+        return self.or_(other)
+    
+    def or_(self, other):
         from .parser import parseAllString, next_expression
         if isinstance(other, str):
             other = parseAllString(next_expression, other)
         return Or(self, other)
 
     def __neg__(self):
+        return self.neg()
+    
+    def neg(self):
+        return return self.minus()
+    
+    def minus(self):
         return Minus(self)
 
     def __invert__(self):
+        return self.invert()
+    
+    def invert(self):
+        return self.not_()
+    
+    def not_(self):
         return Not(self)
 
     def __getitem__(self, key):
@@ -221,12 +281,65 @@ class Expression(Element):
            return Subscript(self, key)
        else:
            return Subscript(self, key)
-
-    def __contains__(self, item):
+    
+    def word1(self):
+        return Conversion("word1", self)
+    
+    def bool(self):
+        return Conversion("bool", self)
+    
+    def toint(self):
+        return Conversion("toint", self)
+    
+    def signed(self):
+        return Conversion("signed", self)
+    
+    def unsigned(self):
+        return Conversion("unsigned", self)
+    
+    def next(self):
+        return Next(self)
+    
+    def init(self):
+        return Init(self)
+    
+    def concat(self, other):
         from .parser import parseAllString, next_expression
-        if isinstance(item, str):
-            item = parseAllString(next_expression, item)
-        return In(self, item)
+        if isinstance(other, str):
+            other = parseAllString(next_expression, other)
+        return Concat(self, other)
+    
+    def union(self, other):
+        from .parser import parseAllString, next_expression
+        if isinstance(other, str):
+            other = parseAllString(next_expression, other)
+        return Union(self, other)
+    
+    def in_(self, other):
+        from .parser import parseAllString, next_expression
+        if isinstance(other, str):
+            other = parseAllString(next_expression, other)
+        return In(self, other)
+    
+    def ite(self, true_expr, false_expr):
+        from .parser import parseAllString, next_expression
+        if isinstance(true_expr, str):
+            true_expr = parseAllString(next_expression, true_expr)
+        if isinstance(false_expr, str):
+            false_expr = parseAllString(next_expression, false_expr)
+        return Ite(self, true_expr, false_expr)
+    
+    def iff(self, other):
+        from .parser import parseAllString, next_expression
+        if isinstance(other, str):
+            other = parseAllString(next_expression, other)
+        return Iff(self, other)
+    
+    def implies(self, other):
+        from .parser import parseAllString, next_expression
+        if isinstance(other, str):
+            other = parseAllString(next_expression, other)
+        return Implies(self, other)
 
 
 class Identifier(Expression):
@@ -250,6 +363,9 @@ class Identifier(Expression):
 
     def __hash__(self):
         return 17 + 23 * hash("Identifier") + 23 ** 2 * hash(self.name)
+
+    def __getattr__(self, name):
+        return Context(self, Identifier(name))
 
 
 class Self(Identifier):
@@ -462,20 +578,22 @@ class Count(Function):
 
     """A counting function."""
 
-    def __init__(self, value):
-        self.value = value
+    def __init__(self, values):
+        self.values = values
 
     def __str__(self):
         if self.source:
             return self.source
-        return "count(" + str(self.value) + ")"
+        return ("count((" +
+                "), (".join(str(value) for value in self.values) +
+                "))")
 
     def _equals(self, other):
         """Return whether `self` is equals to `other`."""
         if isinstance(self, type(other)):
-            if len(self.value) != len(other.value):
+            if len(self.values) != len(other.values):
                 return False
-            for sval, oval in zip(self.value, other.value):
+            for sval, oval in zip(self.values, other.values):
                 if not sval._equals(oval):
                     return False
             return True
@@ -483,7 +601,7 @@ class Count(Function):
             return False
 
     def __hash__(self):
-        return 17 + 23 * hash("Count") + 23 ** 2 * hash(self.value)
+        return 17 + 23 * hash("Count") + 23 ** 2 * hash(self.values)
 
 
 class Next(Expression):
@@ -542,9 +660,9 @@ class Case(Expression):
     def __str__(self):
         if self.source:
             return self.source
-        return ("case " + "\n".join(str(cond) + ": " + str(body) + ";"
-                                    for cond, body in self.values.items())
-                + " esac")
+        return ("case\n" + "\n".join(str(cond) + ": " + str(body) + ";"
+                                     for cond, body in self.values.items())
+                + "\nesac")
 
     def _equals(self, other):
         """Return whether `self` is equals to `other`."""

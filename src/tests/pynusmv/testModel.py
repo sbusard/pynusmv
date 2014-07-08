@@ -5,6 +5,11 @@ from pynusmv import model, parser
 
 class TestModel(unittest.TestCase):
     
+    def test_getattr_expr(self):
+        mod = model.Identifier("mod")
+        self.assertEqual(type(mod.act), model.Context)
+        self.assertEqual(type(mod.name), str)
+    
     def test_simple_main_module(self):
         class main(model.Module):
             VAR = "c: 0..2;"
