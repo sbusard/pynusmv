@@ -89,9 +89,9 @@ class Element(object):
 
     """
 
-# ------------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # ----- EXPRESSIONS
-# ------------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
 
 class Expression(Element):
@@ -254,7 +254,7 @@ class Expression(Element):
         return self.neg()
 
     def neg(self):
-        return return self.minus()
+        return self.minus()
 
     def minus(self):
         return Minus(self)
@@ -1530,9 +1530,9 @@ class Implies(Operator):
                 + 23 ** 3 * hash(self.right))
 
 
-# ------------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # ----- TYPES
-# ------------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
 class Type(Element):
 
@@ -1628,9 +1628,9 @@ class TModule(Type):
                 + "(" + ", ".join(str(arg) for arg in self.args) + ")")
 
 
-# ------------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # ----- SECTIONS
-# ------------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
 class Section(Element):
 
@@ -1811,9 +1811,9 @@ class Compassion(ListingSection):
         super().__init__("COMPASSION", body, separator="\nCOMPASSION\n")
 
 
-# ------------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # ----- DECLARATIONS
-# ------------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
 class Declaration(Identifier):
 
@@ -1873,6 +1873,10 @@ class Def(Declaration):
     def __init__(self, type_, name=None):
         super().__init__(type_, "DEFINE", name=name)
 
+
+# -----------------------------------------------------------------------------
+# ----- MODULES
+# -----------------------------------------------------------------------------
 
 class ModuleMetaClass(type):
 
@@ -1944,10 +1948,39 @@ class ModuleMetaClass(type):
             else:
                 newnamespace[member] = namespace[member]
 
+        # Add NAME and ARGS if missing
+        if "NAME" not in newnamespace:
+            newnamespace["NAME"] = name
+        if "ARGS" not in newnamespace:
+            newnamespace["ARGS"] = []
+
+        # Parse ARGS if necessary
+        if len(newnamespace["ARGS"]):
+            newnamespace["ARGS"] = mcs._args_internal(newnamespace["ARGS"])
+
         result = type.__new__(mcs, name, bases, dict(newnamespace))
         result.members = tuple(newnamespace)
         result.source = None
         return result
+
+    @classmethod
+    def _args_internal(mcs, args):
+        """
+        Return the internal representation of `args`. Each argument present
+        in `args` is parsed as an identifier if it is a string, otherwise it
+        is kept as it is.
+
+        :param args: a list of module arguments
+
+        """
+
+        from .parser import (parseAllString, identifier)
+        newargs = []
+        for arg in args:
+            if type(arg) is str:
+                arg = parseAllString(identifier, arg)
+            newargs.append(arg)
+        return newargs
 
     @classmethod
     def _section_internal(mcs, section, body):
@@ -2189,16 +2222,10 @@ class ModuleMetaClass(type):
             return cls.source
 
         indentation = " " * 4
-        try:
-            name = cls.NAME
-        except AttributeError:
-            name = cls.__name__
-        try:
-            args = "(" + ", ".join(str(arg) for arg in cls.ARGS) + ")"
-        except AttributeError:
-            args = ""
+        args = ("(" + ", ".join(str(arg) for arg in cls.ARGS) + ")"
+                if len(cls.ARGS) > 0 else "")
 
-        representation = ["MODULE " + str(name) + args]
+        representation = ["MODULE " + str(cls.NAME) + args]
         for section in [member for member in cls.members
                         if member in cls._sections]:
             representation.append(cls._section_str(section,
@@ -2207,7 +2234,7 @@ class ModuleMetaClass(type):
         return "\n".join(representation)
 
 
-class Module(object, metaclass=ModuleMetaClass):
+class Module(TModule, metaclass=ModuleMetaClass):
 
     """
     A generic module.
@@ -2296,4 +2323,5 @@ class Module(object, metaclass=ModuleMetaClass):
 
     """
 
-    pass
+    def __init__(self, *args, process=False):
+        super().__init__(self.__class__.NAME, args, process)

@@ -286,3 +286,39 @@ MODULE main
                    """
         
         self.assertEqual(str(main), expected.strip())
+    
+    def test_module(self):
+        class Counter(model.Module):
+            run = model.Identifier("run")
+            ARGS = [run]
+            c = model.Var(model.TRange(0, 2))
+            INIT = c == 0
+            TRANS = [run.implies(c.next() == (c + 1) % 2),
+                     (~run).implies(c.next() == c)]
+        
+        class main(model.Module):
+            run = model.IVar(model.TBoolean())
+            c1 = model.Var(Counter(run))
+        
+        counter_expected = """
+MODULE Counter(run)
+    VAR
+        c: 0..2;
+    INIT
+        c = 0
+    TRANS
+        run -> next(c) = (c + 1) mod 2
+    TRANS
+        ! run -> next(c) = c
+                           """
+        
+        main_expected = """
+MODULE main
+    IVAR
+        run: boolean;
+    VAR
+        c1: Counter(run);
+        """
+        
+        self.assertEqual(str(Counter), counter_expected.strip())
+        self.assertEqual(str(main), main_expected.strip())

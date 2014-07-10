@@ -138,6 +138,22 @@ def parse_identifier(expression):
         return nsnode.car(node)  # Get rid of the top COMPID node
 
 
+def parseAllString(parser, string):
+    """
+    Parse `string` completely with `parser` and set source of the result
+    to `string`. `parser` is assumed to return a one-element list when parsing
+    `string`.
+
+    :param parser: a pyparsing parser
+    :param string: the string to parse
+    :type string: :class:`str`
+    """
+    res = parser.parseString(string, parseAll=True)
+    if hasattr(res[0], "source"):
+        res[0].source = string
+    return res[0]
+
+
 def _reduce_list_to_expr(list_):
     """
     Reduces l to its token representation.
@@ -534,19 +550,3 @@ module.setParseAction(_create_module)
 comment = ("--" + restOfLine).suppress()
 model = OneOrMore(module)
 model.ignore(comment)
-
-
-def parseAllString(parser, string):
-    """
-    Parse `string` completely with `parser` and set source of the result
-    to `string`. `parser` is assumed to return a one-element list when parsing
-    `string`.
-
-    :param parser: a pyparsing parser
-    :param string: the string to parse
-    :type string: :class:`str`
-    """
-    res = parser.parseString(string, parseAll=True)
-    if hasattr(res[0], "source"):
-        res[0].source = string
-    return res[0]
