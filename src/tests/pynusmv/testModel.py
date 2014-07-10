@@ -322,3 +322,33 @@ MODULE main
         
         self.assertEqual(str(Counter), counter_expected.strip())
         self.assertEqual(str(main), main_expected.strip())
+
+
+    def test_copy_module(self):
+        class main(model.Module):
+            c1 = model.Var(model.TRange(0, 2))
+            VAR = collections.OrderedDict((("c2", "0..2"),))
+            
+            INIT = [c1 == 0, model.Identifier("c2") == 0]
+            TRANS = [model.Next(c1) == (c1 + 1) % 2,
+                     model.Next("c2") == (model.Identifier("c2") + 1) % 2]
+        
+        expected = """
+MODULE main
+    VAR
+        c1: 0..2;
+        c2: 0..2;
+    INIT
+        c1 = 0
+    INIT
+        c2 = 0
+    TRANS
+        next(c1) = (c1 + 1) mod 2
+    TRANS
+        next(c2) = (c2 + 1) mod 2
+                   """
+        
+        copy = main.copy()
+        copy.VAR[model.Identifier("c3")] = model.TRange(0, 2)
+        self.assertEqual(str(main), expected.strip())
+        self.assertNotEqual(str(copy), expected.strip())

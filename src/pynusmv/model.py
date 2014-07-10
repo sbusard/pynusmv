@@ -22,7 +22,6 @@ __all__ = [
     "Case",
     "Subscript",
     "BitSelection",
-    "ArrayAccess",
     "Set",
     "Not",
     "Concat",
@@ -75,6 +74,7 @@ __all__ = [
 
 import sys
 import collections
+from copy import deepcopy
 
 from .utils import update
 
@@ -341,6 +341,9 @@ class Expression(Element):
             other = parseAllString(next_expression, other)
         return Implies(self, other)
 
+    def __deepcopy__(self, memo):
+        raise NotImplementedError("Should be implemented by subclasses.")
+
 
 class Identifier(Expression):
 
@@ -366,6 +369,9 @@ class Identifier(Expression):
 
     def __getattr__(self, name):
         return Context(self, Identifier(name))
+
+    def __deepcopy__(self, memo):
+        return Identifier(self.name)
 
 
 class Self(Identifier):
@@ -407,6 +413,10 @@ class Context(ComplexIdentifier):
         return (17 + 23 * hash("Context") + 23 ** 2 * hash(self.instance) +
                 23 ** 3 * hash(self.element))
 
+    def __deepcopy__(self, memo):
+        return Context(deepcopy(self.instance, memo),
+                       deepcopy(self.element, memo))
+
 
 class Array(ComplexIdentifier):
 
@@ -433,6 +443,10 @@ class Array(ComplexIdentifier):
     def __hash__(self):
         return (17 + 23 * hash("Array") + 23 ** 2 * hash(self.array) +
                 23 ** 3 * hash(self.index))
+
+    def __deepcopy__(self, memo):
+        return Array(deepcopy(self.array, memo),
+                     deepcopy(self.index, memo))
 
 
 class Constant(Expression):
@@ -462,6 +476,9 @@ class Boolean(Constant):
     def __hash__(self):
         return 17 + 23 * hash("Boolean") + 23 ** 2 * hash(self.value)
 
+    def __deepcopy__(self, memo):
+        return Boolean(deepcopy(self.value, memo))
+
 
 class Word(Constant):
 
@@ -484,6 +501,9 @@ class Word(Constant):
 
     def __hash__(self):
         return 17 + 23 * hash("Word") + 23 ** 2 * hash(self.value)
+
+    def __deepcopy__(self, memo):
+        return Word(deepcopy(self.value, memo))
 
 
 class Range(Constant):
@@ -509,6 +529,10 @@ class Range(Constant):
     def __hash__(self):
         return (17 + 23 * hash("Range")
                 + 23 ** 2 * hash(self.start) + 23 ** 3 * hash(self.stop))
+
+    def __deepcopy__(self, memo):
+        return Range(deepcopy(self.start, memo),
+                     deepcopy(self.stop, memo))
 
 
 class Function(Expression):
@@ -542,6 +566,10 @@ class Conversion(Function):
                 + 23 ** 2 * hash(self.target_type)
                 + 23 ** 3 * hash(self.value))
 
+    def __deepcopy__(self, memo):
+        return Conversion(deepcopy(self.target_type, memo),
+                          deepcopy(self.value, memo))
+
 
 class WordFunction(Function):
 
@@ -573,6 +601,11 @@ class WordFunction(Function):
                 + 23 ** 3 * hash(self.value)
                 + 23 ** 4 * hash(self.size))
 
+    def __deepcopy__(self, memo):
+        return WordFunction(deepcopy(self.function, memo),
+                            deepcopy(self.value, memo),
+                            deepcopy(self.size, memo))
+
 
 class Count(Function):
 
@@ -603,6 +636,9 @@ class Count(Function):
     def __hash__(self):
         return 17 + 23 * hash("Count") + 23 ** 2 * hash(self.values)
 
+    def __deepcopy__(self, memo):
+        return Count(deepcopy(self.values, memo))
+
 
 class Next(Expression):
 
@@ -626,6 +662,9 @@ class Next(Expression):
     def __hash__(self):
         return 17 + 23 * hash("Next") + 23 ** 2 * hash(self.value)
 
+    def __deepcopy__(self, memo):
+        return Next(deepcopy(self.value, memo))
+
 
 class Init(Expression):
 
@@ -648,6 +687,9 @@ class Init(Expression):
 
     def __hash__(self):
         return 17 + 23 * hash("Init") + 23 ** 2 * hash(self.value)
+
+    def __deepcopy__(self, memo):
+        return Init(deepcopy(self.value, memo))
 
 
 class Case(Expression):
@@ -673,6 +715,9 @@ class Case(Expression):
 
     def __hash__(self):
         return 17 + 23 * hash("Case") + 23 ** 2 * hash(self.values)
+
+    def __deepcopy__(self, memo):
+        return Case(deepcopy(self.values, memo))
 
 
 class Subscript(Expression):
@@ -700,6 +745,10 @@ class Subscript(Expression):
         return (17 + 23 * hash("Subscript") +
                 23 ** 2 * hash(self.array) +
                 23 ** 3 * hash(self.index))
+
+    def __deepcopy__(self, memo):
+        return Subscript(deepcopy(self.array, memo),
+                         deepcopy(self.index, memo))
 
 
 class BitSelection(Expression):
@@ -732,32 +781,10 @@ class BitSelection(Expression):
                 + 23 ** 3 * hash(self.start)
                 + 23 ** 4 * hash(self.stop))
 
-
-class ArrayAccess(Expression):
-
-    """Accessing a member of an array."""
-
-    def __init__(self, array, accesses):
-        self.array = array
-        self.accesses = accesses
-
-    def __str__(self):
-        if self.source:
-            return self.source
-        return str(self.array) + "".join(str(access)
-                                         for access in self.accesses)
-
-    def _equals(self, other):
-        """Return whether `self` is equals to `other`."""
-        if isinstance(self, type(other)):
-            return (self.array._equals(other.array) and
-                    self.accesses == other.accesses)
-        else:
-            return False
-
-    def __hash__(self):
-        return (17 + 23 * hash("ArrayAccess") + 23 ** 2 * hash(self.array)
-                + 23 ** 3 * hash(self.accesses))
+    def __deepcopy__(self, memo):
+        return BitSelection(deepcopy(self.word, memo),
+                            deepcopy(self.start, memo),
+                            deepcopy(self.stop, memo))
 
 
 class Set(Expression):
@@ -781,6 +808,9 @@ class Set(Expression):
 
     def __hash__(self):
         return 17 + 23 * hash("Set") + 23 ** 2 * hash(frozenset(self.elements))
+
+    def __deepcopy__(self, memo):
+        return Set(deepcopy(self.elements, memo))
 
 
 class Operator(Expression):
@@ -822,6 +852,9 @@ class Not(Operator):
     def __hash__(self):
         return 17 + 23 * hash("Not") + 23 ** 2 * hash(self.value)
 
+    def __deepcopy__(self, memo):
+        return Not(deepcopy(self.value, memo))
+
 
 class Concat(Operator):
 
@@ -850,6 +883,10 @@ class Concat(Operator):
         return (17 + 23 * hash("Concat") + 23 ** 2 * hash(self.left)
                 + 23 ** 3 * hash(self.right))
 
+    def __deepcopy__(self, memo):
+        return Concat(deepcopy(self.left, memo),
+                      deepcopy(self.right, memo))
+
 
 class Minus(Operator):
 
@@ -874,6 +911,9 @@ class Minus(Operator):
 
     def __hash__(self):
         return 17 + 23 * hash("Minus") + 23 ** 2 * hash(self.value)
+
+    def __deepcopy__(self, memo):
+        return Minus(deepcopy(self.value, memo))
 
 
 class Mult(Operator):
@@ -905,6 +945,10 @@ class Mult(Operator):
         return (17 + 23 * hash("Mult") + 23 ** 2 * hash(self.left)
                 + 23 ** 2 * hash(self.right))
 
+    def __deepcopy__(self, memo):
+        return Mult(deepcopy(self.left, memo),
+                    deepcopy(self.right, memo))
+
 
 class Div(Operator):
 
@@ -933,6 +977,10 @@ class Div(Operator):
         return (17 + 23 * hash("Div") + 23 ** 2 * hash(self.left)
                 + 23 ** 3 * hash(self.right))
 
+    def __deepcopy__(self, memo):
+        return Div(deepcopy(self.left, memo),
+                   deepcopy(self.right, memo))
+
 
 class Mod(Operator):
 
@@ -960,6 +1008,10 @@ class Mod(Operator):
     def __hash__(self):
         return (17 + 23 * hash("Mod") + 23 ** 2 * hash(self.left)
                 + 23 ** 3 * hash(self.right))
+
+    def __deepcopy__(self, memo):
+        return Mod(deepcopy(self.left, memo),
+                   deepcopy(self.right, memo))
 
 
 class Add(Operator):
@@ -991,6 +1043,10 @@ class Add(Operator):
         return (17 + 23 * hash("Add") + 23 ** 2 * hash(self.left)
                 + 23 ** 2 * hash(self.right))
 
+    def __deepcopy__(self, memo):
+        return Add(deepcopy(self.left, memo),
+                   deepcopy(self.right, memo))
+
 
 class Sub(Operator):
 
@@ -1018,6 +1074,10 @@ class Sub(Operator):
     def __hash__(self):
         return (17 + 23 * hash("Sub") + 23 ** 2 * hash(self.left)
                 + 23 ** 3 * hash(self.right))
+
+    def __deepcopy__(self, memo):
+        return Sub(deepcopy(self.left, memo),
+                   deepcopy(self.right, memo))
 
 
 class ShiftL(Operator):
@@ -1047,6 +1107,10 @@ class ShiftL(Operator):
         return (17 + 23 * hash("ShiftL") + 23 ** 2 * hash(self.left)
                 + 23 ** 3 * hash(self.right))
 
+    def __deepcopy__(self, memo):
+        return ShiftL(deepcopy(self.left, memo),
+                      deepcopy(self.right, memo))
+
 
 class ShiftR(Operator):
 
@@ -1074,6 +1138,10 @@ class ShiftR(Operator):
     def __hash__(self):
         return (17 + 23 * hash("ShiftR") + 23 ** 2 * hash(self.left)
                 + 23 ** 3 * hash(self.right))
+
+    def __deepcopy__(self, memo):
+        return ShiftR(deepcopy(self.left, memo),
+                      deepcopy(self.right, memo))
 
 
 class Union(Operator):
@@ -1105,6 +1173,10 @@ class Union(Operator):
         return (17 + 23 * hash("Union") + 23 ** 2 * hash(self.left)
                 + 23 ** 2 * hash(self.right))
 
+    def __deepcopy__(self, memo):
+        return Union(deepcopy(self.left, memo),
+                     deepcopy(self.right, memo))
+
 
 class In(Operator):
 
@@ -1132,6 +1204,10 @@ class In(Operator):
     def __hash__(self):
         return (17 + 23 * hash("In") + 23 ** 2 * hash(self.left)
                 + 23 ** 3 * hash(self.right))
+
+    def __deepcopy__(self, memo):
+        return In(deepcopy(self.left, memo),
+                  deepcopy(self.right, memo))
 
 
 class Eq(Operator):
@@ -1170,6 +1246,10 @@ class Eq(Operator):
         else:
             return self.left == self.right
 
+    def __deepcopy__(self, memo):
+        return Eq(deepcopy(self.left, memo),
+                  deepcopy(self.right, memo))
+
 
 class Neq(Operator):
 
@@ -1207,6 +1287,10 @@ class Neq(Operator):
         else:
             return self.left != self.right
 
+    def __deepcopy__(self, memo):
+        return Neq(deepcopy(self.left, memo),
+                   deepcopy(self.right, memo))
+
 
 class Lt(Operator):
 
@@ -1234,6 +1318,10 @@ class Lt(Operator):
     def __hash__(self):
         return (17 + 23 * hash("Lt") + 23 ** 2 * hash(self.left)
                 + 23 ** 3 * hash(self.right))
+
+    def __deepcopy__(self, memo):
+        return Lt(deepcopy(self.left, memo),
+                  deepcopy(self.right, memo))
 
 
 class Gt(Operator):
@@ -1263,6 +1351,10 @@ class Gt(Operator):
         return (17 + 23 * hash("Gt") + 23 ** 2 * hash(self.left)
                 + 23 ** 3 * hash(self.right))
 
+    def __deepcopy__(self, memo):
+        return Gt(deepcopy(self.left, memo),
+                  deepcopy(self.right, memo))
+
 
 class Le(Operator):
 
@@ -1291,6 +1383,10 @@ class Le(Operator):
         return (17 + 23 * hash("Le") + 23 ** 2 * hash(self.left)
                 + 23 ** 3 * hash(self.right))
 
+    def __deepcopy__(self, memo):
+        return Le(deepcopy(self.left, memo),
+                  deepcopy(self.right, memo))
+
 
 class Ge(Operator):
 
@@ -1318,6 +1414,10 @@ class Ge(Operator):
     def __hash__(self):
         return (17 + 23 * hash("Ge") + 23 ** 2 * hash(self.left)
                 + 23 ** 3 * hash(self.right))
+
+    def __deepcopy__(self, memo):
+        return Ge(deepcopy(self.left, memo),
+                  deepcopy(self.right, memo))
 
 
 class And(Operator):
@@ -1349,6 +1449,10 @@ class And(Operator):
         return (17 + 23 * hash("And") + 23 ** 2 * hash(self.left)
                 + 23 ** 2 * hash(self.right))
 
+    def __deepcopy__(self, memo):
+        return And(deepcopy(self.left, memo),
+                   deepcopy(self.right, memo))
+
 
 class Or(Operator):
 
@@ -1378,6 +1482,10 @@ class Or(Operator):
     def __hash__(self):
         return (17 + 23 * hash("Or") + 23 ** 2 * hash(self.left)
                 + 23 ** 2 * hash(self.right))
+
+    def __deepcopy__(self, memo):
+        return Or(deepcopy(self.left, memo),
+                  deepcopy(self.right, memo))
 
 
 class Xor(Operator):
@@ -1409,6 +1517,10 @@ class Xor(Operator):
         return (17 + 23 * hash("Xor") + 23 ** 2 * hash(self.left)
                 + 23 ** 2 * hash(self.right))
 
+    def __deepcopy__(self, memo):
+        return Xor(deepcopy(self.left, memo),
+                   deepcopy(self.right, memo))
+
 
 class Xnor(Operator):
 
@@ -1438,6 +1550,10 @@ class Xnor(Operator):
     def __hash__(self):
         return (17 + 23 * hash("Xnor") + 23 ** 2 * hash(self.left)
                 + 23 ** 2 * hash(self.right))
+
+    def __deepcopy__(self, memo):
+        return Xnor(deepcopy(self.left, memo),
+                    deepcopy(self.right, memo))
 
 
 class Ite(Operator):
@@ -1471,6 +1587,11 @@ class Ite(Operator):
         return (17 + 23 * hash("Ite") + 23 ** 2 * hash(self.condition)
                 + 23 ** 3 * hash(self.left) + 23 ** 4 * hash(self.right))
 
+    def __deepcopy__(self, memo):
+        return Ite(deepcopy(self.condition, memo),
+                   deepcopy(self.left, memo),
+                   deepcopy(self.right, memo))
+
 
 class Iff(Operator):
 
@@ -1501,6 +1622,10 @@ class Iff(Operator):
         return (17 + 23 * hash("Iff") + 23 ** 2 * hash(self.left)
                 + 23 ** 2 * hash(self.right))
 
+    def __deepcopy__(self, memo):
+        return Iff(deepcopy(self.left, memo),
+                   deepcopy(self.right, memo))
+
 
 class Implies(Operator):
 
@@ -1529,6 +1654,10 @@ class Implies(Operator):
         return (17 + 23 * hash("Implies") + 23 ** 2 * hash(self.left)
                 + 23 ** 3 * hash(self.right))
 
+    def __deepcopy__(self, memo):
+        return Implies(deepcopy(self.left, memo),
+                       deepcopy(self.right, memo))
+
 
 # -----------------------------------------------------------------------------
 # ----- TYPES
@@ -1537,6 +1666,9 @@ class Implies(Operator):
 class Type(Element):
 
     """A generic type specifier."""
+
+    def __deepcopy__(self, memo):
+        raise NotImplementedError("Should be implemented by subclasses.")
 
 
 class SimpleType(Type):
@@ -1553,6 +1685,9 @@ class TBoolean(SimpleType):
             return self.source
         return "boolean"
 
+    def __deepcopy__(self, memo):
+        return TBoolean()
+
 
 class TWord(SimpleType):
 
@@ -1568,6 +1703,10 @@ class TWord(SimpleType):
         return ((self.sign + " " if self.sign else "") + "word"
                 + "[" + str(self.size) + "]")
 
+    def __deepcopy__(self, memo):
+        return TWord(deepcopy(self.size, memo),
+                     deepcopy(self.sign, memo))
+
 
 class TEnum(SimpleType):
 
@@ -1580,6 +1719,9 @@ class TEnum(SimpleType):
         if self.source:
             return self.source
         return "{" + ", ".join(str(value) for value in self.values) + "}"
+
+    def __deepcopy__(self, memo):
+        return TEnum(deepcopy(self.values, memo))
 
 
 class TRange(SimpleType):
@@ -1594,6 +1736,10 @@ class TRange(SimpleType):
         if self.source:
             return self.source
         return str(self.start) + ".." + str(self.stop)
+
+    def __deepcopy__(self, memo):
+        return TRange(deepcopy(self.start, memo),
+                      deepcopy(self.stop, memo))
 
 
 class TArray(SimpleType):
@@ -1611,6 +1757,11 @@ class TArray(SimpleType):
         return ("array " + str(self.start) + ".." + str(self.stop)
                 + " of " + str(self.elementtype))
 
+    def __deepcopy__(self, memo):
+        return TArray(deepcopy(self.start, memo),
+                      deepcopy(self.stop, memo),
+                      deepcopy(self.elementtype, memo))
+
 
 class TModule(Type):
 
@@ -1626,6 +1777,11 @@ class TModule(Type):
             return self.source
         return (("process " if self.process else "") + str(self.modulename)
                 + "(" + ", ".join(str(arg) for arg in self.args) + ")")
+
+    def __deepcopy__(self, memo):
+        return TModule(deepcopy(self.process, memo),
+                       deepcopy(self.modulename, memo),
+                       deepcopy(self.args, memo))
 
 
 # -----------------------------------------------------------------------------
@@ -1841,6 +1997,10 @@ class Declaration(Identifier):
         """Update the name of the declared identifier."""
         self._name = name
 
+    def __deepcopy__(self, memo):
+        return type(self)(deepcopy(self.type, memo),
+                          deepcopy(self.name, memo))
+
 
 class Var(Declaration):
 
@@ -1931,20 +2091,23 @@ class ModuleMetaClass(type):
 
     def __new__(mcs, name, bases, namespace, **keywords):
         newnamespace = collections.OrderedDict()
-        # Update namespace with sections and declared identifiers
         for member in namespace:
+            # Update sections of namespace
             if member in mcs._sections:
                 internal = mcs._section_internal(member, namespace[member])
                 if member in newnamespace:
                     update(newnamespace[member], internal)
                 else:
                     newnamespace[member] = internal
+            # Update declarations of namespace
             elif isinstance(namespace[member], Declaration):
                 decl = namespace[member]
-                decl.name = Identifier(member)
+                if not decl._name:
+                    decl.name = Identifier(member)
                 if decl.section not in newnamespace:
                     newnamespace[decl.section] = collections.OrderedDict()
                 newnamespace[decl.section][decl] = decl.type
+            # Keep intact the other members
             else:
                 newnamespace[member] = namespace[member]
 
@@ -2232,6 +2395,22 @@ class ModuleMetaClass(type):
                                                    cls.__dict__[section],
                                                    indentation))
         return "\n".join(representation)
+
+    def copy(cls):
+        """
+        Return a deep copy of this module.
+
+        Only the members of this module present in `cls.members` are copied.
+        If these members accept to be `deepcopy`ed, this method is used to
+        copy the member, otherwise the member is not copied and is passed
+        to the created module as it is.
+
+        """
+        newnamespace = collections.OrderedDict()
+        for member in cls.members:
+            newnamespace[member] = deepcopy(getattr(cls, member))
+
+        return ModuleMetaClass(cls.NAME, cls.__bases__, newnamespace)
 
 
 class Module(TModule, metaclass=ModuleMetaClass):

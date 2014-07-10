@@ -52,7 +52,7 @@ from .exception import NuSMVParsingError, _Error
 from .utils import update
 from .model import (Identifier, Self, Context, Array, Boolean, Word, Range,
                     Conversion, WordFunction, Count, Next, Init, Case,
-                    Subscript, BitSelection, ArrayAccess, Set, Not, Concat,
+                    Subscript, BitSelection, Set, Not, Concat,
                     Minus, Mult, Div, Mod, Add, Sub, ShiftL, ShiftR, Union, In,
                     Eq, Neq, Lt, Gt, Le, Ge, And, Or, Xor, Xnor, Ite, Iff,
                     Implies, TBoolean, TWord, TEnum, TRange, TArray, TModule,
@@ -301,7 +301,7 @@ def _handle_array(tokens):
         return _handle_array([Subscript(tokens[0], tokens[1][0])] + tokens[2:])
     else:  # len(tokens[1]) == 2
         return _handle_array([BitSelection(tokens[0], tokens[1][0],
-                                          tokens[1][1])] +
+                                           tokens[1][1])] +
                              tokens[2:])
 
 
