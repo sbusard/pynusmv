@@ -77,6 +77,7 @@ import collections
 from copy import deepcopy
 
 from .utils import update
+from .exception import NuSMVModuleError
 
 
 class Element(object):
@@ -2240,7 +2241,7 @@ class ModuleMetaClass(type):
             "COMPASSION": ("bodies", _compassion_constraint_body)}
 
         if section not in mcs._sections:
-            raise Exception("Unknown section: {}.".format(section))
+            raise NuSMVModuleError("Unknown section: {}.".format(section))
 
         if mcs._sections[section][0] == "mapping":
             section_parser, key_parser, value_parser = (_sections_parsers
@@ -2299,10 +2300,10 @@ class ModuleMetaClass(type):
             return exprs
 
         else:
-            raise Exception("Unknown section type: "
-                            "{} for section {}.".format(
-                                mcs._sections[section][0],
-                                section))
+            raise NuSMVModuleError("Unknown section type: "
+                                   "{} for section {}.".format
+                                   (mcs._sections[section][0],
+                                    section))
 
     def _trim(cls, string, indentation=""):
         """
@@ -2348,7 +2349,7 @@ class ModuleMetaClass(type):
         """
 
         if section not in cls._sections:
-            raise Exception("Unknown section: {}.".format(section))
+            raise NuSMVModuleError("Unknown section: {}.".format(section))
 
         if cls._sections[section][0] == "mapping":
             # body is a mapping
@@ -2375,10 +2376,10 @@ class ModuleMetaClass(type):
                              for value in body)
 
         else:
-            raise Exception("Unknown section type: "
-                            "{} for section {}.".format(
-                                cls._sections[section][0],
-                                section))
+            raise NuSMVModuleError("Unknown section type: "
+                                   "{} for section {}.".format
+                                   (cls._sections[section][0],
+                                    section))
 
     def __str__(cls):
         if cls.source:
