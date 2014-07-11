@@ -26,6 +26,7 @@ __all__ = [
     'parse_next_expression',
     'parse_identifier',
     'identifier',
+    'complex_identifier',
     'simple_expression',
     'constant',
     'next_expression',
@@ -183,8 +184,8 @@ _cip = Forward()
 _cip <<= Optional("." + Literal("self") + _cip
                   | "." + identifier + _cip
                   | "[" + simple_expression + "]" + _cip)
-_complex_identifier = ((FollowedBy("self") + Literal("self") + _cip)
-                       | (identifier + _cip))
+complex_identifier = ((FollowedBy("self") + Literal("self") + _cip)
+                      | (identifier + _cip))
 
 
 def _handle_ci(tokens):
@@ -207,10 +208,10 @@ def _handle_ci(tokens):
         return _handle_ci([Array(_handle_id(tokens[0]), tokens[2])] +
                           tokens[4:])
 
-_complex_identifier.setParseAction(lambda s, l, t: _handle_ci(t))
+complex_identifier.setParseAction(lambda s, l, t: _handle_ci(t))
 
-_define_identifier = _complex_identifier
-_variable_identifier = _complex_identifier
+_define_identifier = complex_identifier
+_variable_identifier = complex_identifier
 
 
 # Integer numbers
@@ -270,7 +271,7 @@ _case_body.setParseAction(lambda s, l, t: OrderedDict(zip(t[::2], t[1::2])))
 _case = Suppress("case") + _case_body + Suppress("esac")
 _case.setParseAction(lambda s, l, t: Case(t[0]))
 
-_base = (_complex_identifier ^
+_base = (complex_identifier ^
          (_conversion
           | _word_function
           | _count
@@ -448,11 +449,11 @@ constants_section = Suppress("CONSTANTS") + _constants_section_body
 constants_section.setParseAction(lambda s, l, t: Constants(list(t)))
 
 # ASSIGN, TRANS, INIT, INVAR, FAIRNESS
-_assign_identifier = (Literal("init") + Suppress("(") + _complex_identifier
+_assign_identifier = (Literal("init") + Suppress("(") + complex_identifier
                       + Suppress(")")
-                      | Literal("next") + Suppress("(") + _complex_identifier
+                      | Literal("next") + Suppress("(") + complex_identifier
                       + Suppress(")")
-                      | _complex_identifier)
+                      | complex_identifier)
 _assign_identifier.setParseAction(lambda s, l, t:
                                   Init(t[1]) if t[0] == "init"
                                   else Next(t[1]) if t[0] == "next"
