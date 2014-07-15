@@ -1997,7 +1997,7 @@ class Declaration(Identifier):
     def name(self, name):
         """Update the name of the declared identifier."""
         self._name = name
-    
+
     def _equals(self, other):
         if isinstance(other, Identifier):
             return self.name == other.name
@@ -2142,7 +2142,7 @@ class ModuleMetaClass(type):
         result.members = tuple(newnamespace)
         result.source = None
         return result
-    
+
     def __getattr__(cls, name):
         if name in cls._sections:
             if cls._sections[name][0] == "mapping":
@@ -2378,7 +2378,7 @@ class ModuleMetaClass(type):
 
         if section not in cls._sections:
             raise NuSMVModuleError("Unknown section: {}.".format(section))
-        
+
         if len(body) <= 0:
             return ""
 
