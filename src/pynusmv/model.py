@@ -1780,9 +1780,9 @@ class TModule(Type):
                 + "(" + ", ".join(str(arg) for arg in self.args) + ")")
 
     def __deepcopy__(self, memo):
-        return TModule(deepcopy(self.process, memo),
-                       deepcopy(self.modulename, memo),
-                       deepcopy(self.args, memo))
+        return TModule(deepcopy(self.modulename, memo),
+                       deepcopy(self.args, memo),
+                       process=deepcopy(self.process, memo))
 
 
 # -----------------------------------------------------------------------------
@@ -1997,10 +1997,12 @@ class Declaration(Identifier):
     def name(self, name):
         """Update the name of the declared identifier."""
         self._name = name
-
-    def __deepcopy__(self, memo):
-        return type(self)(deepcopy(self.type, memo),
-                          deepcopy(self.name, memo))
+    
+    def _equals(self, other):
+        if isinstance(other, Identifier):
+            return self.name == other.name
+        else:
+            return False
 
 
 class Var(Declaration):
@@ -2010,6 +2012,9 @@ class Var(Declaration):
     def __init__(self, type_, name=None):
         super().__init__(type_, "VAR", name=name)
 
+    def __deepcopy__(self, memo):
+        return Var(deepcopy(self.type, memo), name=deepcopy(self.name, memo))
+
 
 class IVar(Declaration):
 
@@ -2017,6 +2022,9 @@ class IVar(Declaration):
 
     def __init__(self, type_, name=None):
         super().__init__(type_, "IVAR", name=name)
+
+    def __deepcopy__(self, memo):
+        return IVar(deepcopy(self.type, memo), name=deepcopy(self.name, memo))
 
 
 class FVar(Declaration):
@@ -2026,6 +2034,9 @@ class FVar(Declaration):
     def __init__(self, type_, name=None):
         super().__init__(type_, "FROZENVAR", name=name)
 
+    def __deepcopy__(self, memo):
+        return FVar(deepcopy(self.type, memo), name=deepcopy(self.name, memo))
+
 
 class Def(Declaration):
 
@@ -2033,6 +2044,9 @@ class Def(Declaration):
 
     def __init__(self, type_, name=None):
         super().__init__(type_, "DEFINE", name=name)
+
+    def __deepcopy__(self, memo):
+        return Def(deepcopy(self.type, memo), name=deepcopy(self.name, memo))
 
 
 # -----------------------------------------------------------------------------
@@ -2104,10 +2118,12 @@ class ModuleMetaClass(type):
             elif isinstance(namespace[member], Declaration):
                 decl = namespace[member]
                 if not decl._name:
-                    decl.name = Identifier(member)
+                    decl.name = member
                 if decl.section not in newnamespace:
                     newnamespace[decl.section] = collections.OrderedDict()
                 newnamespace[decl.section][decl] = decl.type
+                # Keep declarations in module
+                newnamespace[member] = namespace[member]
             # Keep intact the other members
             else:
                 newnamespace[member] = namespace[member]
@@ -2126,6 +2142,18 @@ class ModuleMetaClass(type):
         result.members = tuple(newnamespace)
         result.source = None
         return result
+    
+    def __getattr__(cls, name):
+        if name in cls._sections:
+            if cls._sections[name][0] == "mapping":
+                setattr(cls, name, collections.OrderedDict())
+            if cls._sections[name][0] in {"enumeration", "bodies"}:
+                setattr(cls, name, [])
+            cls.members += (name,)
+            return getattr(cls, name)
+        else:
+            raise AttributeError("'{mcs}' class has no attribute '{name}'"
+                                 .format(mcs=type(cls), name=name))
 
     @classmethod
     def _args_internal(mcs, args):
@@ -2350,6 +2378,9 @@ class ModuleMetaClass(type):
 
         if section not in cls._sections:
             raise NuSMVModuleError("Unknown section: {}.".format(section))
+        
+        if len(body) <= 0:
+            return ""
 
         if cls._sections[section][0] == "mapping":
             # body is a mapping
@@ -2504,4 +2535,4 @@ class Module(TModule, metaclass=ModuleMetaClass):
     """
 
     def __init__(self, *args, process=False):
-        super().__init__(self.__class__.NAME, args, process)
+        super().__init__(self.__class__.NAME, args, process=process)

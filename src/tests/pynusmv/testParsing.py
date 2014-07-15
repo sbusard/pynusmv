@@ -51,7 +51,7 @@ class TestParsing(unittest.TestCase):
                   
         for i in range(len(identifiers)):
             try:
-                res = parser.parseAllString(parser._complex_identifier,
+                res = parser.parseAllString(parser.complex_identifier,
                                              identifiers[i])
                 #print(identifiers[i], "=>", res)
                 self.assertIsNotNone(res)
@@ -72,7 +72,7 @@ class TestParsing(unittest.TestCase):
         
         for noidentifier in noidentifiers:
             with self.assertRaises(pyparsing.ParseException):
-                parser.parseAllString(parser._complex_identifier,
+                parser.parseAllString(parser.complex_identifier,
                                        noidentifier)
                                                         
     def test_constants(self):

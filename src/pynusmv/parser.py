@@ -404,9 +404,9 @@ _module_type_specifier = (Optional("process") + identifier
                                      Optional(delimitedList(simple_expression))
                                      + Suppress(")")))
 _module_type_specifier.setParseAction(
-    lambda s, l, t: TModule(t[1], t[2:] if len(t) >= 3 else [], process=True)
+    lambda s, l, t: TModule(t[1], t[2:], process=True)
     if t[0] == "process"
-    else TModule(t[0], t[1:] if len(t) >= 2 else []))
+    else TModule(t[0], t[1:]))
 
 type_identifier = _simple_type_specifier | _module_type_specifier
 
