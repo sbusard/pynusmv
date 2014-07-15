@@ -40,7 +40,8 @@ def check_and_explain(allargs):
     
             (satisfied, cntex) = check_ctl_spec(fsm, spec)
             # Print the result and the TLACE if any
-            print('Specification',str(spec), 'is', str(satisfied))
+            print('Specification',str(spec), 'is', str(satisfied),
+                  file=sys.stderr)
         
             if not satisfied:
                 print(xml_representation(fsm, cntex, spec))

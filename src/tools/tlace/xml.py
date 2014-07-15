@@ -1,4 +1,5 @@
 import sys
+from xml.sax.saxutils import escape
 
 from ..utils import indent
 
@@ -25,7 +26,7 @@ def xml_representation(fsm, tlacenode, spec):
     xmlrepr = (
     """<?xml version="1.0" encoding="UTF-8"?>
 <counterexample specification="{spec}">
-""".format(spec=str(spec)))
+""".format(spec=escape(str(spec))))
     
     indent.inc()
     
@@ -63,7 +64,7 @@ def xml_node(fsm, node):
     for atomic in node.atomics:
         xmlrepr += indent.indent(
         """<atomic specification="{0}" />
-""".format(str(atomic)))
+""".format(escape(str(atomic))))
     
     # branches
     for branch in node.branches:
@@ -73,7 +74,7 @@ def xml_node(fsm, node):
     for universal in node.universals:
         xmlrepr += indent.indent(
         """<universal specification="{0}" />
-""".format(str(universal)))
+""".format(escape(str(universal))))
     
     indent.dec()
     
@@ -94,8 +95,8 @@ def xml_branch(fsm, branch):
     loop_id = -1
     
     xmlrepr = indent.indent(
-    """<existential specification="{0}">
-""".format(str(branch.specification)))
+    """<existential specification="{0}" explained="true">
+""".format(escape(str(branch.specification))))
     
     indent.inc()
     
@@ -140,7 +141,7 @@ def xml_state(fsm, state):
     for var in values:
         xmlrepr += indent.indent(
         """<value variable="{0}">{1}</value>
-""".format(var, values[var]))
+""".format(escape(var), escape(values[var])))
     
     indent.dec()
     xmlrepr += indent.indent("""</state>
@@ -167,7 +168,7 @@ def xml_inputs(fsm, inputs):
     for var in values:
         xmlrepr += indent.indent(
         """<value variable="{0}">{1}</value>
-""".format(var, values[var]))
+""".format(escape(var), escape(values[var])))
     
     indent.dec()
     xmlrepr += indent.indent("""</input>
