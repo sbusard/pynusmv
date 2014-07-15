@@ -270,6 +270,7 @@ class Expression(Element):
         return Not(self)
 
     def __getitem__(self, key):
+        from .parser import parseAllString, next_expression
         if isinstance(key, slice):
             start, stop = slice.start, slice.stop
             if isinstance(start, str):
