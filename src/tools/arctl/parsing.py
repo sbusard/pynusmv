@@ -64,7 +64,7 @@ def _logicals_(atomic):
     iff = implies + ZeroOrMore("<->" + implies)
     iff.setParseAction(lambda tokens: _left_(Iff, tokens))
 
-    parser << iff
+    parser <<= iff
     
     return parser
         
@@ -157,11 +157,11 @@ def parseArctl(spec):
         aaw.setParseAction(lambda tokens: AaW(tokens[2], tokens[5], tokens[7]))
 
 
-        temporal << (formula | eax | aax | eaf | aaf | eag | aag |
-                     eau | aau | eaw | aaw)
+        temporal <<= (formula | eax | aax | eaf | aaf | eag | aag |
+                      eau | aau | eaw | aaw)
       
         logical = _logicals_(temporal)
 
-        __arctl << logical
+        __arctl <<= logical
     
     return __arctl.parseString(spec, parseAll = True)

@@ -64,7 +64,7 @@ def _logicals_(atomic):
     iff = implies + ZeroOrMore("<->" + implies)
     iff.setParseAction(lambda tokens: _left_(Iff, tokens))
 
-    parser << iff
+    parser <<= iff
     
     return parser
         
@@ -182,8 +182,8 @@ def parseCTLK(spec):
         
         epistemic = (nk | k | ne | e | nd | d | nc | c)
         
-        logical << (formula | epistemic | temporal)
+        logical <<= (formula | epistemic | temporal)
 
-        __ctlk << (_logicals_(logical))
+        __ctlk <<= (_logicals_(logical))
     
     return __ctlk.parseString(spec, parseAll = True)

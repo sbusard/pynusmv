@@ -63,7 +63,7 @@ def _logicals_(atomic):
     iff = implies + ZeroOrMore("<->" + implies)
     iff.setParseAction(lambda tokens: _left_(Iff, tokens))
 
-    parser << iff
+    parser <<= iff
     
     return parser
         
@@ -154,8 +154,8 @@ def parseATL(spec):
 
         strategic = (cax | cex | caf | cef | cag | ceg | cau | ceu | caw | cew)
         
-        logical << (formula | strategic)
+        logical <<= (formula | strategic)
 
-        __atl << (_logicals_(logical))
+        __atl <<= (_logicals_(logical))
     
     return __atl.parseString(spec, parseAll = True)
