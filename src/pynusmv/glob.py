@@ -68,7 +68,7 @@ def _reset_globals():
     nscompile.cmp_struct_reset(nscompile.cvar.cmps)
 
 
-def load(model):
+def load(*model):
     """
     Load the given model. This model can be of several forms:
 
@@ -79,11 +79,11 @@ def load(model):
       modules.
 
     """
-    if isinstance(str, model):
-        if os.path.isfile(model):
-            load_from_file(model)
+    if len(model) == 1 and isinstance(str, model[0]):
+        if os.path.isfile(model[0]):
+            load_from_file(model[0])
         else:
-            load_from_string(model)
+            load_from_string(model[0])
     else:  # model must be a list of modules
         load_from_modules(*model)
 
