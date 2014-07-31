@@ -5,7 +5,7 @@ from pynusmv import glob
 from pynusmv.model import *
 from pynusmv import node
 
-from tools.dotDump.dump import dumpDot
+from pynusmv.nusmv.compile.symb_table import symb_table as nssymb_table
 
 class TestNode(unittest.TestCase):
     
@@ -38,12 +38,19 @@ class TestNode(unittest.TestCase):
         glob.compute_model()
         
         flat = glob.flat_hierarchy()
+        symb_table = glob.symb_table()
         
         self.assertIsNotNone(flat.init)
         self.assertIsNotNone(flat.trans)
         self.assertIsNone(flat.invar)
         self.assertIsNone(flat.justice)
         self.assertIsNone(flat.compassion)
+        
+        variables = flat.variables
+        for variable in variables:
+            var_type = symb_table.get_variable_type(variable)
+            self.assertEqual(nssymb_table.SymbType_get_tag(var_type),
+                             nssymb_table.SYMB_TYPE_ENUM)
     
     def test_change_trans_of_flat(self):
         glob.load(*self.counters())

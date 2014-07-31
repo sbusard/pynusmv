@@ -835,7 +835,6 @@ class SymbTable(PointerWrapper):
         
         return tuple(layer_names)
 
-
     def create_layer(self, layer_name,
                      ins_policy=ins_policies.SYMB_LAYER_POS_DEFAULT):
         """
@@ -845,6 +844,19 @@ class SymbTable(PointerWrapper):
         :param ins_policy: the insertion policy for inserting the new layer
         """
         nssymb_table.SymbTable_create_layer(self._ptr, layer_name, ins_policy)
+    
+    def get_variable_type(self, variable_name):
+        """
+        Return the type of the given variable.
+        
+        :param variable_name: the name of the variable
+        :type variable_name: :class:`Node`
+        :rtype: a NuSMV `SymbType_ptr`
+        
+        .. warning:: The returned pointer must not be altered or freed.
+        """
+        return nssymb_table.SymbTable_get_var_type(self._ptr,
+                                                   variable_name._ptr)
     
     def can_declare_var(self, layer, variable):
         """
@@ -878,7 +890,8 @@ class SymbTable(PointerWrapper):
             raise NuSMVSymbTableError("Variable" + str(ivar) + "cannot be "
                                       "declared in " + layer + ".")
         
-        type_ = self._get_type_from_node(type_)
+        if isinstance(type_, node.Node):
+            type_ = self._get_type_from_node(type_)
         layer = self._get_layer(layer)
         nssymb_table.SymbLayer_declare_input_var(layer, ivar._ptr, type_)
         
@@ -902,7 +915,8 @@ class SymbTable(PointerWrapper):
             raise NuSMVSymbTableError("Variable" + str(var) + "cannot be "
                                       "declared in " + layer + ".")
         
-        type_ = self._get_type_from_node(type_)
+        if isinstance(type_, node.Node):
+            type_ = self._get_type_from_node(type_)
         layer = self._get_layer(layer)
         nssymb_table.SymbLayer_declare_state_var(layer, var._ptr, type_)
         
@@ -926,7 +940,8 @@ class SymbTable(PointerWrapper):
             raise NuSMVSymbTableError("Variable" + str(fvar) + "cannot be "
                                       "declared in " + layer + ".")
         
-        type_ = self._get_type_from_node(type_)
+        if isinstance(type_, node.Node):
+            type_ = self._get_type_from_node(type_)
         layer = self._get_layer(layer)
         nssymb_table.SymbLayer_declare_frozen_var(layer, fvar._ptr, type_)
     

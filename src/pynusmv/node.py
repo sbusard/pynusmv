@@ -14,6 +14,7 @@ from .parser import parse_next_expression, parse_identifier
 from .nusmv.compile import compile as nscompile
 from .nusmv.node import node as nsnode
 from .nusmv.utils import utils as nsutils
+from .nusmv.set import set as nsset
 from .nusmv.parser import parser as nsparser
 from .nusmv.parser.parser import (TRANS, INIT, INVAR, ASSIGN, FAIRNESS,
                                   JUSTICE, COMPASSION, SPEC, LTLSPEC, PSLSPEC,
@@ -2131,6 +2132,21 @@ class FlatHierarchy(PointerWrapper):
         """The symbolic table of the hierarchy."""
         from .fsm import SymbTable
         return SymbTable(nscompile.FlatHierarchy_get_symb_table(self._ptr))
+    
+    @property
+    def variables(self):
+        """
+        The set of variables declared in this hierarchy.
+        
+        .. warning:: The returned variables must not be altered.
+        """
+        var_set = nscompile.FlatHierarchy_get_vars(self._ptr)
+        ite = nsset.Set_GetFirstIter(var_set)
+        variables = []
+        while not nsset.Set_IsEndIter(ite):
+            variables.append(Node.from_ptr(nsset.Set_GetMember(var_set, ite)))
+            ite = nsset.Set_GetNextIter(ite)
+        return tuple(variables)
     
     @property
     def init(self):
