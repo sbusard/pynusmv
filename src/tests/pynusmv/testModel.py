@@ -20,7 +20,7 @@ class TestModel(unittest.TestCase):
         expected = """
 MODULE main
     VAR
-        c: 0..2;
+        c: 0 .. 2;
     INIT
         c = 0
     TRANS
@@ -39,7 +39,7 @@ MODULE main
         expected = """
 MODULE Counter(limit)
     VAR
-        c: 0..limit;
+        c: 0 .. limit;
     INIT
         c = 0
     TRANS
@@ -62,8 +62,8 @@ MODULE Counter(limit)
         expected = """
 MODULE main
     VAR
-        c1: 0..2;
-        c2: 0..2;
+        c1: 0 .. 2;
+        c2: 0 .. 2;
     INIT
         c1 = 0 & c2 = 0
     TRANS
@@ -88,7 +88,7 @@ MODULE main
     TRANS
         next(c1) = c1+1 mod 2 & next(c2) = c2+1 mod 2
     VAR
-        c1: 0..2;
+        c1: 0 .. 2;
         c2: 0..2;
                    """
         self.assertEqual(str(main), expected.strip())
@@ -197,8 +197,8 @@ MODULE main
         expected = """
 MODULE main
     VAR
-        c1: 0..2;
-        c2: 0..2;
+        c1: 0 .. 2;
+        c2: 0 .. 2;
     INIT
         c1 = 0 & c2 = 0
     TRANS
@@ -221,8 +221,8 @@ MODULE main
         expected = """
 MODULE main
     VAR
-        c1: 0..2;
-        c2: 0..2;
+        c1: 0 .. 2;
+        c2: 0 .. 2;
     INIT
         c1 = 0
     INIT
@@ -247,8 +247,8 @@ MODULE main
         expected = """
 MODULE main
     VAR
-        c1: 0..2;
-        c2: 0..2;
+        c1: 0 .. 2;
+        c2: 0 .. 2;
     INIT
         c1 = 0
     INIT
@@ -273,7 +273,7 @@ MODULE main
         expected = """
 MODULE main
     VAR
-        c1: 0..2;
+        c1: 0 .. 2;
         c2: 0..2;
     INIT
         c1 = 0
@@ -303,7 +303,7 @@ MODULE main
         counter_expected = """
 MODULE Counter(run)
     VAR
-        c: 0..2;
+        c: 0 .. 2;
     INIT
         c = 0
     TRANS
@@ -336,7 +336,7 @@ MODULE main
         expected = """
 MODULE main
     VAR
-        c1: 0..2;
+        c1: 0 .. 2;
         c2: 0..2;
     INIT
         c1 = 0

@@ -56,6 +56,17 @@ class PointerWrapper(object):
             self._free()
 
 
+class AttributeDict(dict):
+    """
+    An `AttributeDict` is a dictionary for which elements can be accessed by
+    using their keys as attribute names.
+    
+    """
+    def __init__(self, *args, **kwargs):
+        super(AttributeDict, self).__init__(*args, **kwargs)
+        self.__dict__ = self
+
+
 def fixpoint(funct, start):
     """
     Return the fixpoint of `funct`, as a BDD, starting with `start` BDD.

@@ -34,4 +34,8 @@ SymbLayerIter gen_iter(const SymbLayer_ptr self, unsigned int mask) {
     return iter;
 }
 
+SymbLayer_ptr node2layer(node_ptr node) {
+    return (SymbLayer_ptr) node;
+}
+
 %}

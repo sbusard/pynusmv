@@ -33,6 +33,7 @@ from .nusmv.trace import trace as nstrace
 from .nusmv.trace.exec import exec as nstraceexec
 
 from .fsm import BddEnc, SymbTable
+from .node import FlatHierarchy
 from .parser import NuSMVParsingError
 from .prop import PropDb
 from .exception import (NuSMVLexerError,
@@ -51,6 +52,7 @@ from .exception import (NuSMVLexerError,
 __bdd_encoding = None
 __prop_database = None
 __symb_table = None
+__flat_hierarchy = None
 
 
 def _reset_globals():
@@ -59,10 +61,11 @@ def _reset_globals():
     structures.
 
     """
-    global __bdd_encoding, __prop_database, __symb_table
+    global __bdd_encoding, __prop_database, __symb_table, __flat_hierarchy
     __bdd_encoding = None
     __prop_database = None
     __symb_table = None
+    __flat_hierarchy = None
 
     # Reset cmps
     nscompile.cmp_struct_reset(nscompile.cvar.cmps)
@@ -79,7 +82,7 @@ def load(*model):
       modules.
 
     """
-    if len(model) == 1 and isinstance(str, model[0]):
+    if len(model) == 1 and isinstance(model[0], str):
         if os.path.isfile(model[0]):
             load_from_file(model[0])
         else:
@@ -363,6 +366,21 @@ def build_model():
 
     # Update cmps
     nscompile.cmp_struct_set_build_model(nscompile.cvar.cmps)
+
+
+def flat_hierarchy():
+    """
+    Return the global flat hierarchy.
+    
+    :rtype: :class:`FlatHierarchy <pynusmv.node.FlatHierarchy>`
+    """
+    if not nscompile.cmp_struct_get_flatten_hrc(nscompile.cvar.cmps):
+        # Need a flat hierarchy
+        raise NuSMVNeedFlatHierarchyError("Need flat hierarchy.")
+    global __flat_hierarchy
+    if __flat_hierarchy is None:
+        __flat_hierarchy = FlatHierarchy(nscompile.cvar.mainFlatHierarchy)
+    return __flat_hierarchy
 
 
 def prop_database():

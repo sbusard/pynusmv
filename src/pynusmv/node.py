@@ -11,6 +11,7 @@ import random
 from .utils import PointerWrapper
 from .parser import parse_next_expression, parse_identifier
 
+from .nusmv.compile import compile as nscompile
 from .nusmv.node import node as nsnode
 from .nusmv.utils import utils as nsutils
 from .nusmv.parser import parser as nsparser
@@ -289,15 +290,11 @@ class UnsignedWord(Type):
         return self.car
 
 
-class Word(Type):
+class Word(UnsignedWord):
     """An unsigned word type."""
     
     def __init__(self, length):
-        super().__init__(length, None, type_=UNSIGNED_WORD)
-    
-    @property
-    def length(self):
-        return self.car
+        super().__init__(length)
 
 
 class SignedWord(Type):
@@ -388,9 +385,15 @@ class Scalar(Type):
         self._values = tuple(self._handle_type_value(value)
                              for value in values)
         values = tuple(reversed(self._values))
-        ptr = values[0]._ptr
-        for value in values[1:]:
+        
+        # Replaced by the following code because seemed to be bugged
+        #ptr = values[0]._ptr
+        #for value in values[1:]:
+        #    ptr = nsnode.find_node(CONS, value._ptr, ptr)
+        ptr = None
+        for value in values:
             ptr = nsnode.find_node(CONS, value._ptr, ptr)
+        
         ptr = nsnode.find_node(SCALAR, ptr, None)
         super(Node, self).__init__(ptr, freeit=False)
         self.type = SCALAR
@@ -812,6 +815,23 @@ class Expression(Node):
     
     def __invert__(self):
         return Not(self)
+    
+    
+    @staticmethod
+    def from_string(expression):
+        """
+        Parse the string representation of the given expression and return the
+        corresponding node.
+        
+        :param expression: the string to parse
+        :rtype: :class:`Expression` subclass
+        
+        """
+        expression = str(expression)
+        parsed = parse_next_expression(expression)
+        expression = Node.from_ptr(find_hierarchy(parsed))
+        nsnode.free_node(parsed)
+        return expression
 
 
 class Leaf(Expression):
@@ -1470,6 +1490,21 @@ class Set(CustomExpression):
         return self._values
 
 
+class Identifier(CustomExpression):
+    """A custom identifier."""
+    
+    @staticmethod
+    def from_string(identifier):
+        """
+        Return the node representation of identifier.
+        
+        :param :class:`str` identifier: the string representation of an
+                                        identifier
+        """
+        ptr = find_hierarchy(parse_identifier(identifier))
+        return Node.from_ptr(ptr)
+
+
 # -----------------------------------------------------------------------------
 # ----- PROPERTY NODES
 # -----------------------------------------------------------------------------
@@ -2051,3 +2086,103 @@ class_to_type = {
                  Nfunction          : NFUNCTION            ,
                  Count              : COUNT                ,
                 }
+
+
+class FlatHierarchy(PointerWrapper):
+    
+    """
+    Python class for flat hiearchy. The flat hierarchy is a NuSMV model where
+    all the modules instances are reduced to their variables.
+    
+    A FlatHierarchy is used to store information obtained after flattening
+    module hierarchy. It stores:
+    * the list of TRANS, INIT, INVAR, ASSIGN, SPEC, COMPUTE, LTLSPEC,
+      PSLSPEC, INVARSPEC, JUSTICE, COMPASSION,
+    * a full list of variables declared in the hierarchy,
+    * a hash table associating variables to their assignments and constraints.
+
+    .. note:: There are a few assumptions about the content stored in this
+              class:
+              1. All expressions are stored in the same order as in the input
+                 file (in module body or module instantiation order).
+              2. Assigns are stored as a list of pairs (process instance name, 
+                 assignments in it).
+              3. Variable list contains only vars declared in this hierarchy.
+              4. The association var->assignments should be for assignments of
+                 this hierarchy only.
+              5. The association var->constraints (init, trans, invar) should
+                 be for constraints of this hierarchy only.
+
+    """
+    # flat hierarchies do not have to be freed.
+
+    def __init__(self, ptr, freeit=False):
+        """
+        Create a new FlatHierarchy.
+
+        :param ptr: the pointer of the NuSMV flat hierarchy
+        :param boolean freeit: whether or not free the pointer
+
+        """
+        super().__init__(ptr, freeit=freeit)
+    
+    @property
+    def symbTable(self):
+        """The symbolic table of the hierarchy."""
+        from .fsm import SymbTable
+        return SymbTable(nscompile.FlatHierarchy_get_symb_table(self._ptr))
+    
+    @property
+    def init(self):
+        """The INIT section of the flat hierarchy."""
+        init = nscompile.FlatHierarchy_get_init(self._ptr)
+        return Node.from_ptr(init) if init is not None else None
+    
+    @init.setter
+    def init(self, new_init):
+        ptr = new_init._ptr if new_init is not None else None
+        nscompile.FlatHierarchy_set_init(self._ptr, ptr)
+    
+    @property
+    def invar(self):
+        """The INVAR section of the flat hierarchy."""
+        invar = nscompile.FlatHierarchy_get_invar(self._ptr)
+        return Node.from_ptr(invar) if invar is not None else None
+    
+    @invar.setter
+    def invar(self, new_invar):
+        ptr = new_invar._ptr if new_invar is not None else None
+        nscompile.FlatHierarchy_set_invar(self._ptr, ptr)
+        
+    @property
+    def trans(self):
+        """The TRANS section of the flat hierarchy."""
+        trans = nscompile.FlatHierarchy_get_trans(self._ptr)
+        return Node.from_ptr(trans) if trans is not None else None
+    
+    @trans.setter
+    def trans(self, new_trans):
+        ptr = new_trans._ptr if new_trans is not None else None
+        nscompile.FlatHierarchy_set_trans(self._ptr, ptr)
+    
+    @property
+    def justice(self):
+        """The JUSTICE section of the flat hierarchy."""
+        justice = nscompile.FlatHierarchy_get_justice(self._ptr)
+        return Node.from_ptr(justice) if justice is not None else None
+    
+    @justice.setter
+    def justice(self, new_justice):
+        ptr = new_justice._ptr if new_justice is not None else None
+        nscompile.FlatHierarchy_set_justice(self._ptr, ptr)
+    
+    @property
+    def compassion(self):
+        """The COMPASSION section of the flat hierarchy."""
+        compassion = nscompile.FlatHierarchy_get_compassion(self._ptr)
+        return Node.from_ptr(compassion) if compassion is not None else None
+    
+    @compassion.setter
+    def compassion(self, new_compassion):
+        ptr = new_compassion._ptr if new_compassion is not None else None
+        nscompile.FlatHierarchy_set_compassion(self._ptr, ptr)

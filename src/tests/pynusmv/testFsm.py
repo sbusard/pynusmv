@@ -5,6 +5,12 @@ from pynusmv.fsm import BddFsm
 from pynusmv.dd import BDD
 from pynusmv.mc import eval_simple_expression as evalSexp
 from pynusmv.exception import NuSMVBddPickingError, NuSMVCannotFlattenError
+from pynusmv import glob
+from pynusmv import node
+
+from pynusmv.nusmv.compile.symb_table import symb_table as nssymb_table
+from pynusmv.nusmv.utils import utils as nsutils
+from pynusmv.nusmv.node import node as nsnode
 
 class TestFsm(unittest.TestCase):
     
@@ -398,3 +404,37 @@ class TestFsm(unittest.TestCase):
         """
         with self.assertRaises(NuSMVCannotFlattenError):
             fsm = BddFsm.from_string(model)
+    
+    def test_symb_table_layer_names(self):
+        fsm = BddFsm.from_filename("tests/pynusmv/models/counters.smv")
+        symb_table = fsm.bddEnc.symbTable
+        
+        self.assertIsNotNone(symb_table)
+        self.assertIsNotNone(symb_table._ptr)
+        
+        self.assertEqual(len(symb_table.layer_names), 2)
+        self.assertIn("model", symb_table.layer_names)
+        self.assertIn("model_bool", symb_table.layer_names)
+    
+    def test_symb_table_new_layer(self):
+        fsm = BddFsm.from_filename("tests/pynusmv/models/counters.smv")
+        symb_table = fsm.bddEnc.symbTable
+        
+        self.assertIsNotNone(symb_table)
+        self.assertTrue("translation" not in symb_table.layer_names)
+        
+        symb_table.create_layer("translation")
+        self.assertTrue("translation" in symb_table.layer_names)
+    
+    def test_symb_table_declare_variable(self):
+        fsm = BddFsm.from_filename("tests/pynusmv/models/counters.smv")
+        symb_table = fsm.bddEnc.symbTable
+        
+        self.assertIsNotNone(symb_table)
+        
+        var = node.Identifier.from_string("ran")
+        type_ = node.Scalar(("rc1", "rc2"))
+        
+        self.assertTrue(symb_table.can_declare_var("model", var))
+        symb_table.declare_state_var("model", var, type_)
+        self.assertFalse(symb_table.can_declare_var("model", var))

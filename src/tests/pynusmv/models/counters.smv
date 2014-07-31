@@ -3,7 +3,7 @@ MODULE counter(run, start, stop)
     -- Go from start (inclusive) to stop (exclusive) by 1-increments
     -- Run only when run is true
     
-    VAR c : start..stop;
+    VAR c : start .. stop;
     INIT c = start
     TRANS next(c) = case    run : case  c + 1 = stop : start;
                                         TRUE : c + 1; esac;

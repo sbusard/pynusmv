@@ -1784,7 +1784,7 @@ class Range(SimpleType):
     def __str__(self):
         if self.source:
             return self.source
-        return str(self.start) + ".." + str(self.stop)
+        return str(self.start) + " .. " + str(self.stop)
 
     def __deepcopy__(self, memo):
         return Range(deepcopy(self.start, memo),

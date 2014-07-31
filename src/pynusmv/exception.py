@@ -254,3 +254,11 @@ class NuSMVModuleError(PyNuSMVError):
 
     """
     pass
+
+class NuSMVSymbTableError(PyNuSMVError):
+
+    """
+    Exception raised when an error occured while working with symbol tables.
+
+    """
+    pass
