@@ -214,10 +214,12 @@ def symb_table():
     return __symb_table
 
 
-def encode_variables():
+def encode_variables(layers={"model"}):
     """
     Encode the BDD variables of the current model and store it in global data
     structures.
+    
+    :param :class:`set` layers: the set of layers variables to encode
 
     :raise: a :exc:`NuSMVNeedFlatHierarchyError
             <pynusmv.exception.NuSMVNeedFlatHierarchyError>` if the model is
@@ -238,12 +240,14 @@ def encode_variables():
     nsenc.Enc_init_bool_encoding()
     bool_enc = nsenc.Enc_get_bool_encoding()
     base_enc = nsboolenc.boolenc2baseenc(bool_enc)
-    nsbaseenc.BaseEnc_commit_layer(base_enc, "model")
+    for layer in layers:
+        nsbaseenc.BaseEnc_commit_layer(base_enc, layer)
 
     nsenc.Enc_init_bdd_encoding()
     bdd_enc = nsenc.Enc_get_bdd_encoding()
     base_enc = nsbddenc.bddenc2baseenc(bdd_enc)
-    nsbaseenc.BaseEnc_commit_layer(base_enc, "model")
+    for layer in layers:
+        nsbaseenc.BaseEnc_commit_layer(base_enc, layer)
 
     # Update cmps
     nscompile.cmp_struct_set_encode_variables(nscompile.cvar.cmps)

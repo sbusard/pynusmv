@@ -736,7 +736,7 @@ class Expression(Node):
         return Ge(self, other)
     
     def __getattr__(self, name):
-        if name not in {"car", "cdr", "_ptr", "name"}:
+        if name not in {"car", "cdr", "_ptr", "name", "this"}:
             return Dot(self, name)
         else:
             raise AttributeError("Missing {} attribute.".format(name))
@@ -1502,7 +1502,9 @@ class Identifier(CustomExpression):
         :param :class:`str` identifier: the string representation of an
                                         identifier
         """
-        ptr = find_hierarchy(parse_identifier(identifier))
+        parsed = parse_identifier(identifier)
+        ptr = find_hierarchy(parsed)
+        nsnode.free_node(parsed)
         return Node.from_ptr(ptr)
 
 
