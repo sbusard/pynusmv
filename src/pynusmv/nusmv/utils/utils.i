@@ -70,3 +70,20 @@
 
 #sbusard 11/06/12 - Ignoring lsort.h due to errors in file parsing.
 #%include ../../../nusmv/src/utils/lsort.h
+
+%inline %{
+
+array_t* array_alloc_strings(int number) {
+    return array_alloc(const char*, number);
+}
+
+#include <stdio.h>
+void array_insert_strings(array_t* array, int i, const char* datum) {
+    datum = util_strsav(datum);
+    array_insert(const char*, array, i, datum);
+}
+
+const char* array_fetch_strings(array_t* array, int i) {
+    return (const char*) array_fetch(const char*, array, i);
+}
+%}

@@ -556,10 +556,12 @@ class State(BDD):
         super().__init__(ptr, fsm.bddEnc.DDmanager, freeit)
         self._fsm = fsm
 
-    def get_str_values(self):
+    def get_str_values(self, layers=None):
         """
         Return a dictionary of the (variable, value) pairs of this State.
-
+        
+        :param layers: if not `None`, the set of names of the layers from which
+                       picking the string values
         :rtype: a dictionary of pairs of strings.
 
         """
@@ -568,9 +570,18 @@ class State(BDD):
         table = enc.symbTable
 
         # Get symbols (SymbTable) for states
-        layers = nssymb_table.SymbTable_get_class_layer_names(table._ptr, None)
-        symbols = nssymb_table.SymbTable_get_layers_sf_symbols(
-            table._ptr, layers)
+        if layers is None:
+            layers = nssymb_table.SymbTable_get_class_layer_names(table._ptr,
+                                                                  None)
+            symbols = nssymb_table.SymbTable_get_layers_sf_symbols(table._ptr,
+                                                                   layers)
+            layers_array = None
+        else:
+            layers_array = nsutils.array_alloc_strings(len(layers))
+            for i, layer in enumerate(layers):
+                nsutils.array_insert_strings(layers_array, i, layer)
+            symbols = nssymb_table.SymbTable_get_layers_sf_symbols(table._ptr,
+                                                                  layers_array)
 
         # Get assign symbols (BddEnc)
         assign_list = nsbddEnc.BddEnc_assign_symbols(enc._ptr, self._ptr,
@@ -587,8 +598,9 @@ class State(BDD):
             assign_list_ptr = nsnode.cdr(assign_list_ptr)
 
         nsnode.free_list(assign_list)
-
         nsutils.NodeList_destroy(symbols)
+        if layers_array:
+            nsutils.array_free(layers_array)
 
         return values
 
@@ -624,10 +636,12 @@ class Inputs(BDD):
         super().__init__(ptr, fsm.bddEnc.DDmanager, freeit)
         self._fsm = fsm
 
-    def get_str_values(self):
+    def get_str_values(self, layers=None):
         """
         Return a dictionary of the (variable, value) pairs of these Inputs.
-
+        
+        :param layers: if not `None`, the set of names of the layers from which
+                       picking the string values
         :rtype: a dictionary of pairs of strings.
 
         """
@@ -636,9 +650,19 @@ class Inputs(BDD):
         table = enc.symbTable
 
         # Get symbols (SymbTable) for inputs
-        layers = nssymb_table.SymbTable_get_class_layer_names(table._ptr, None)
-        symbols = nssymb_table.SymbTable_get_layers_i_symbols(
-            table._ptr, layers)
+        if layers is None:
+            layers = nssymb_table.SymbTable_get_class_layer_names(table._ptr,
+                                                                  None)
+            symbols = nssymb_table.SymbTable_get_layers_i_symbols(table._ptr,
+                                                                  layers)
+            layers_array = None
+        else:
+            layers_array = nsutils.array_alloc_strings(len(layers))
+            for i, layer in enumerate(layers):
+                nsutils.array_insert_strings(layers_array, i, layer)
+            symbols = nssymb_table.SymbTable_get_layers_i_symbols(table._ptr,
+                                                                  layers_array)
+            
 
         # Get assign symbols (BddEnc)
         assign_list = nsbddEnc.BddEnc_assign_symbols(enc._ptr, self._ptr,
@@ -655,14 +679,15 @@ class Inputs(BDD):
             assign_list_ptr = nsnode.cdr(assign_list_ptr)
 
         nsnode.free_list(assign_list)
-
         nsutils.NodeList_destroy(symbols)
+        if layers_array:
+            nsutils.array_free(layers_array)
 
         return values
 
-    # ==========================================================================
+    # =========================================================================
     # ===== Static methods ===================================================
-    # ==========================================================================
+    # =========================================================================
 
     @staticmethod
     def from_bdd(bdd, fsm):
