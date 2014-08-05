@@ -777,6 +777,46 @@ class BddEnc(PointerWrapper):
         nsset.Set_ReleaseSet(varset)
 
         return Cube(cube_ptr, self.DDmanager, freeit=True)
+    
+    
+    def cube_for_state_vars(self, variables):
+        """
+        Return the cube for the given state variables.
+
+        :param variables: a list of state variable names
+        :rtype: :class:`BDD <pynusmv.dd.BDD>`
+
+        """
+
+        from . import glob
+
+        master = glob.prop_database().master
+        sexp_fsm = nsprop.Prop_get_scalar_sexp_fsm(master._ptr)
+        st = glob.symb_table()
+
+        inputs = nssexp.SexpFsm_get_vars_list(sexp_fsm)
+
+        var_nodes = set()
+        ite = nsutils.NodeList_get_first_iter(inputs)
+        while not nsutils.ListIter_is_end(ite):
+            var_node = nsutils.NodeList_get_elem_at(inputs, ite)
+            varname = nsnode.sprint_node(var_node)
+            isVar = nssymb_table.SymbTable_is_symbol_state_var(st._ptr,
+                                                               var_node)
+            if isVar and varname in variables:
+                var_nodes.add(var_node)
+            ite = nsutils.ListIter_get_next(ite)
+
+        varset = nsset.Set_MakeEmpty()
+        for var in var_nodes:
+            varset = nsset.Set_AddMember(varset, var)
+
+        cube_ptr = bddEnc.BddEnc_get_vars_cube(self._ptr, varset,
+                                               nssymb_table.VFT_STATE)
+
+        nsset.Set_ReleaseSet(varset)
+
+        return Cube(cube_ptr, self.DDmanager, freeit=True)
 
     def get_inputs_vars(self):
         """
@@ -908,7 +948,7 @@ class SymbTable(PointerWrapper):
         ivar = node.Node.from_ptr(nssymb_table.
                                   ResolveSymbol_get_resolved_name(rs))
         if not self.can_declare_var(layer, ivar):
-            raise NuSMVSymbTableError("Variable" + str(ivar) + "cannot be "
+            raise NuSMVSymbTableError("Variable " + str(ivar) + " cannot be "
                                       "declared in " + layer + ".")
         
         if isinstance(type_, node.Node):
@@ -940,7 +980,7 @@ class SymbTable(PointerWrapper):
         var = node.Node.from_ptr(node.find_hierarchy(nssymb_table.
                                  ResolveSymbol_get_resolved_name(rs)))
         if not self.can_declare_var(layer, var):
-            raise NuSMVSymbTableError("Variable" + str(var) + "cannot be "
+            raise NuSMVSymbTableError("Variable " + str(var) + " cannot be "
                                       "declared in " + layer + ".")
         
         if isinstance(type_, node.Node):
@@ -972,7 +1012,7 @@ class SymbTable(PointerWrapper):
         fvar = node.Node.from_ptr(nssymb_table.
                                   ResolveSymbol_get_resolved_name(rs))
         if not self.can_declare_var(layer, fvar):
-            raise NuSMVSymbTableError("Variable" + str(fvar) + "cannot be "
+            raise NuSMVSymbTableError("Variable " + str(fvar) + " cannot be "
                                       "declared in " + layer + ".")
         
         if isinstance(type_, node.Node):
