@@ -530,9 +530,9 @@ _module_element = (var_section
                    | fairness_constraint
                    | justice_constraint
                    | compassion_constraint)
-_module_args = (Suppress("(") + Optional(Group(delimitedList(identifier))) +
+_module_args = (Suppress("(") + Optional(delimitedList(identifier)) +
                 Suppress(")"))
-module = (Suppress("MODULE") + identifier + Optional(_module_args)
+module = (Suppress("MODULE") + identifier + Group(Optional(_module_args))
           + ZeroOrMore(_module_element))
 
 
@@ -566,5 +566,5 @@ module.setParseAction(_create_module)
 
 # Model declaration
 comment = ("--" + restOfLine).suppress()
-model = OneOrMore(module)
+model = Group(OneOrMore(module))
 model.ignore(comment)

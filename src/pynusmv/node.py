@@ -54,16 +54,7 @@ def find_hierarchy(node):
     :param node: the node
     :type node: a SWIG wrapper for a NuSMV node_ptr
     """
-    if node is not None:
-        if nsnode.node_is_leaf(node) or node.type is nsparser.ATOM:
-            return nsnode.find_node(node.type, nsnode.car(node),
-                                               nsnode.cdr(node))
-        else:
-            return nsnode.find_node(node.type,
-                                    find_hierarchy(nsnode.car(node)),
-                                    find_hierarchy(nsnode.cdr(node)))
-    else:
-        return node
+    return nsnode.node_normalize(node)
 
 class Node(PointerWrapper):
     """A generic NuSMV node."""
