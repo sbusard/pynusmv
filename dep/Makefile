@@ -18,7 +18,7 @@ endif
 pyparsing:
 ifneq ($(PYPARSING),0)
 	@if [ ! -f ../src/pyparsing.py ]; then \
-		unzip -q -n pyparsing-1.5.6.zip; cp pyparsing-1.5.6/pyparsing_py3.py \
+		unzip -q -n pyparsing-2.0.2.zip; cp pyparsing-2.0.2/pyparsing.py \
 			../src/pyparsing.py; \
 	fi
 endif
