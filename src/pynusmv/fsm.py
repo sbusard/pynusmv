@@ -639,11 +639,12 @@ class BddTrans(PointerWrapper):
         # Parse the string
         trans = parse_next_expression(strtrans)
 
+        # FIXME Provoke sometimes segmentation faults
         # Type check
-        expr_type = nstype_checking.TypeChecker_get_expression_type(
-            type_checker, trans, None)
-        if not nssymb_table.SymbType_is_boolean(expr_type):
-            raise NuSMVTypeCheckingError("The given TRANS is wrongly typed.")
+        #expr_type = nstype_checking.TypeChecker_get_expression_type(
+        #    type_checker, trans, None)
+        #if not nssymb_table.SymbType_is_boolean(expr_type):
+        #    raise NuSMVTypeCheckingError("The given TRANS is wrongly typed.")
 
         # Call from_trans method
         return cls.from_trans(symb_table, trans)
