@@ -218,7 +218,7 @@ def encode_variables(layers={"model"}):
     """
     Encode the BDD variables of the current model and store it in global data
     structures.
-    
+
     :param :class:`set` layers: the set of layers variables to encode
 
     :raise: a :exc:`NuSMVNeedFlatHierarchyError
@@ -250,10 +250,10 @@ def encode_variables_for_layers(layers={"model"}, init=False):
     """
     Encode the BDD variables of the given layers and store them in global data
     structures.
-    
+
     :param :class:`set` layers: the set of layers variables to encode
     :param bool init: whether or not initialize the global encodings
-    
+
     .. warning: Global encodings should be initialized only once, otherwise,
                 NuSMV quits unexpectingly. Note that :func:`encode_variables`
                 initializes them, and should be called before any call to
@@ -393,7 +393,7 @@ def build_model():
 def flat_hierarchy():
     """
     Return the global flat hierarchy.
-    
+
     :rtype: :class:`FlatHierarchy <pynusmv.node.FlatHierarchy>`
     """
     if not nscompile.cmp_struct_get_flatten_hrc(nscompile.cvar.cmps):

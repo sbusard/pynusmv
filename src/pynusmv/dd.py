@@ -559,7 +559,7 @@ class State(BDD):
     def get_str_values(self, layers=None):
         """
         Return a dictionary of the (variable, value) pairs of this State.
-        
+
         :param layers: if not `None`, the set of names of the layers from which
                        picking the string values
         :rtype: a dictionary of pairs of strings.
@@ -580,8 +580,8 @@ class State(BDD):
             layers_array = nsutils.array_alloc_strings(len(layers))
             for i, layer in enumerate(layers):
                 nsutils.array_insert_strings(layers_array, i, layer)
-            symbols = nssymb_table.SymbTable_get_layers_sf_symbols(table._ptr,
-                                                                  layers_array)
+            symbols = nssymb_table.SymbTable_get_layers_sf_symbols(
+                table._ptr, layers_array)
 
         # Get assign symbols (BddEnc)
         assign_list = nsbddEnc.BddEnc_assign_symbols(enc._ptr, self._ptr,
@@ -639,7 +639,7 @@ class Inputs(BDD):
     def get_str_values(self, layers=None):
         """
         Return a dictionary of the (variable, value) pairs of these Inputs.
-        
+
         :param layers: if not `None`, the set of names of the layers from which
                        picking the string values
         :rtype: a dictionary of pairs of strings.
@@ -662,7 +662,6 @@ class Inputs(BDD):
                 nsutils.array_insert_strings(layers_array, i, layer)
             symbols = nssymb_table.SymbTable_get_layers_i_symbols(table._ptr,
                                                                   layers_array)
-            
 
         # Get assign symbols (BddEnc)
         assign_list = nsbddEnc.BddEnc_assign_symbols(enc._ptr, self._ptr,

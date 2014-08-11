@@ -255,6 +255,7 @@ class NuSMVModuleError(PyNuSMVError):
     """
     pass
 
+
 class NuSMVSymbTableError(PyNuSMVError):
 
     """

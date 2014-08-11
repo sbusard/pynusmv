@@ -505,7 +505,7 @@ class BddTrans(PointerWrapper):
     def _free(self):
         if self._freeit and self._ptr is not None:
             # Free it because such a BddTrans is not owned by anyone
-            #nsbddtrans.BddTrans_free(self._ptr)
+            # nsbddtrans.BddTrans_free(self._ptr)
             # FIXME Freeing BddTrans can cause Segmentation fault. Should learn
             # more about NuSMV internal to detect what and how we should free
             # it
@@ -582,7 +582,7 @@ class BddTrans(PointerWrapper):
                 if `trans` cannot be flattened under `context`
 
         """
-        
+
         trans = node.find_hierarchy(trans)
         flattrans, err = nscompile.FlattenSexp(symb_table._ptr, trans,
                                                context)
@@ -609,7 +609,7 @@ class BddTrans(PointerWrapper):
             nsopt.get_partition_method(
                 nsopt.OptsHandler_get_instance()),
             cluster_options)
-        
+
         nsbddtrans.ClusterOptions_destroy(cluster_options)
 
         return BddTrans(newtransptr, enc, ddmanager, freeit=True)
@@ -641,9 +641,9 @@ class BddTrans(PointerWrapper):
 
         # FIXME Provoke sometimes segmentation faults
         # Type check
-        #expr_type = nstype_checking.TypeChecker_get_expression_type(
+        # expr_type = nstype_checking.TypeChecker_get_expression_type(
         #    type_checker, trans, None)
-        #if not nssymb_table.SymbType_is_boolean(expr_type):
+        # if not nssymb_table.SymbType_is_boolean(expr_type):
         #    raise NuSMVTypeCheckingError("The given TRANS is wrongly typed.")
 
         # Call from_trans method
@@ -778,8 +778,7 @@ class BddEnc(PointerWrapper):
         nsset.Set_ReleaseSet(varset)
 
         return Cube(cube_ptr, self.DDmanager, freeit=True)
-    
-    
+
     def cube_for_state_vars(self, variables):
         """
         Return the cube for the given state variables.
@@ -855,51 +854,51 @@ class SymbTable(PointerWrapper):
     Python class for symbols table.
 
     """
-    
+
     ins_policies = AttributeDict(
-          SYMB_LAYER_POS_DEFAULT=nssymb_table.SYMB_LAYER_POS_DEFAULT,
-          SYMB_LAYER_POS_FORCE_TOP=nssymb_table.SYMB_LAYER_POS_FORCE_TOP,
-          SYMB_LAYER_POS_TOP=nssymb_table.SYMB_LAYER_POS_TOP,
-          SYMB_LAYER_POS_BOTTOM=nssymb_table.SYMB_LAYER_POS_BOTTOM,
-          SYMB_LAYER_POS_FORCE_BOTTOM=nssymb_table.SYMB_LAYER_POS_FORCE_BOTTOM
-          )
-    
+        SYMB_LAYER_POS_DEFAULT=nssymb_table.SYMB_LAYER_POS_DEFAULT,
+        SYMB_LAYER_POS_FORCE_TOP=nssymb_table.SYMB_LAYER_POS_FORCE_TOP,
+        SYMB_LAYER_POS_TOP=nssymb_table.SYMB_LAYER_POS_TOP,
+        SYMB_LAYER_POS_BOTTOM=nssymb_table.SYMB_LAYER_POS_BOTTOM,
+        SYMB_LAYER_POS_FORCE_BOTTOM=nssymb_table.SYMB_LAYER_POS_FORCE_BOTTOM
+    )
+
     @property
     def layer_names(self):
         """The names of the layers of this symbol table."""
         layer_names = []
-        
+
         layers = nssymb_table.SymbTable_get_layers(self._ptr)
         it = nsutils.NodeList_get_first_iter(layers)
         while not nsutils.ListIter_is_end(it):
             layer = nssymb_table.node2layer(
-                                      nsutils.NodeList_get_elem_at(layers, it))
+                nsutils.NodeList_get_elem_at(layers, it))
             layer_name = nssymb_table.SymbLayer_get_name(layer)
-            
+
             layer_names.append(layer_name)
-            
+
             it = nsutils.ListIter_get_next(it)
-        
+
         return tuple(layer_names)
 
     def create_layer(self, layer_name,
                      ins_policy=ins_policies.SYMB_LAYER_POS_DEFAULT):
         """
         Create a new layer in this symbol table.
-        
+
         :param :class:`str` layer_name: the name of the created layer
         :param ins_policy: the insertion policy for inserting the new layer
         """
         nssymb_table.SymbTable_create_layer(self._ptr, layer_name, ins_policy)
-    
+
     def get_variable_type(self, variable):
         """
         Return the type of the given variable.
-        
+
         :param variable: the name of the variable
         :type variable: :class:`Node`
         :rtype: a NuSMV `SymbType_ptr`
-        
+
         .. warning:: The returned pointer must not be altered or freed.
         """
         rs = nssymb_table.SymbTable_resolve_symbol(self._ptr, variable._ptr,
@@ -908,11 +907,11 @@ class SymbTable(PointerWrapper):
                                       ResolveSymbol_get_resolved_name(rs))
         return nssymb_table.SymbTable_get_var_type(self._ptr,
                                                    variable._ptr)
-    
+
     def can_declare_var(self, layer, variable):
         """
         Return whether the given `variable` name can be declared in `layer`.
-        
+
         :param :class:`str` layer: the name of the layer
         :param variable: the name of the variable
         :type variable: :class:`Node <pynusmv.node.Node>`
@@ -925,12 +924,12 @@ class SymbTable(PointerWrapper):
         layer = self._get_layer(layer)
         return (nssymb_table.
                 SymbLayer_can_declare_var(layer, variable._ptr) != 0)
-    
+
     def declare_input_var(self, layer, ivar, type_):
         """
         Declare a new input variable in this symbol table.
-        
-        :param :class:`str` layer: the name of the layer in which insert the 
+
+        :param :class:`str` layer: the name of the layer in which insert the
                                    variable
         :param ivar: the name of the input variable
         :type ivar: :class:`Node <pynusmv.node.Node>`
@@ -939,11 +938,11 @@ class SymbTable(PointerWrapper):
         :raise: a :exc:`NuSMVSymbTableError
             <pynusmv.exception.NuSMVSymbTableError>` if the variable is already
             defined in the given layer
-        
+
         .. warning:: `type_` must be already resolved, that is, the body
                      of `type_` must be leaf values.
         """
-        
+
         rs = nssymb_table.SymbTable_resolve_symbol(self._ptr, ivar._ptr,
                                                    None)
         ivar = node.Node.from_ptr(nssymb_table.
@@ -951,18 +950,17 @@ class SymbTable(PointerWrapper):
         if not self.can_declare_var(layer, ivar):
             raise NuSMVSymbTableError("Variable " + str(ivar) + " cannot be "
                                       "declared in " + layer + ".")
-        
+
         if isinstance(type_, node.Node):
             type_ = self._get_type_from_node(type_)
         layer = self._get_layer(layer)
         nssymb_table.SymbLayer_declare_input_var(layer, ivar._ptr, type_)
-        
-    
+
     def declare_state_var(self, layer, var, type_):
         """
         Declare a new state variable in this symbol table.
-        
-        :param :class:`str` layer: the name of the layer in which insert the 
+
+        :param :class:`str` layer: the name of the layer in which insert the
                                    variable
         :param var: the name of the state variable
         :type var: :class:`Node <pynusmv.node.Node>`
@@ -971,30 +969,30 @@ class SymbTable(PointerWrapper):
         :raise: a :exc:`NuSMVSymbTableError
             <pynusmv.exception.NuSMVSymbTableError>` if the variable is already
             defined in the given layer
-        
+
         .. warning:: `type_` must be already resolved, that is, the body
                      of `type_` must be leaf values.
         """
-        
+
         rs = nssymb_table.SymbTable_resolve_symbol(self._ptr, var._ptr,
                                                    None)
-        var = node.Node.from_ptr(node.find_hierarchy(nssymb_table.
-                                 ResolveSymbol_get_resolved_name(rs)))
+        var = node.Node.from_ptr(node.find_hierarchy
+                                 (nssymb_table.
+                                  ResolveSymbol_get_resolved_name(rs)))
         if not self.can_declare_var(layer, var):
             raise NuSMVSymbTableError("Variable " + str(var) + " cannot be "
                                       "declared in " + layer + ".")
-        
+
         if isinstance(type_, node.Node):
             type_ = self._get_type_from_node(type_)
         layer = self._get_layer(layer)
         nssymb_table.SymbLayer_declare_state_var(layer, var._ptr, type_)
-        
-    
+
     def declare_frozen_var(self, layer, fvar, type_):
         """
         Declare a new frozen variable in this symbol table.
-        
-        :param :class:`str` layer: the name of the layer in which insert the 
+
+        :param :class:`str` layer: the name of the layer in which insert the
                                    variable
         :param fvar: the name of the frozen variable
         :type fvar: :class:`Node <pynusmv.node.Node>`
@@ -1003,11 +1001,11 @@ class SymbTable(PointerWrapper):
         :raise: a :exc:`NuSMVSymbTableError
             <pynusmv.exception.NuSMVSymbTableError>` if the variable is already
             defined in the given layer
-        
+
         .. warning:: `type_` must be already resolved, that is, the body
                      of `type_` must be leaf values.
         """
-        
+
         rs = nssymb_table.SymbTable_resolve_symbol(self._ptr, fvar._ptr,
                                                    None)
         fvar = node.Node.from_ptr(nssymb_table.
@@ -1015,17 +1013,16 @@ class SymbTable(PointerWrapper):
         if not self.can_declare_var(layer, fvar):
             raise NuSMVSymbTableError("Variable " + str(fvar) + " cannot be "
                                       "declared in " + layer + ".")
-        
+
         if isinstance(type_, node.Node):
             type_ = self._get_type_from_node(type_)
         layer = self._get_layer(layer)
         nssymb_table.SymbLayer_declare_frozen_var(layer, fvar._ptr, type_)
-    
-    
+
     def is_input_var(self, ivar):
         """
         Return whether the given `var` name is a declared input variable.
-        
+
         :param ivar: the name of the input variable
         :type ivar: :class:`Node <pynusmv.node.Node>`
         :raise: a :exc:`NuSMVSymbTableError
@@ -1040,11 +1037,11 @@ class SymbTable(PointerWrapper):
             raise NuSMVSymbTableError(str(ivar) + " is not declared.")
         return (nssymb_table.SymbTable_is_symbol_state_var(self._ptr,
                                                            ivar._ptr) != 0)
-    
+
     def is_state_var(self, var):
         """
         Return whether the given `var` name is a declared state variable.
-        
+
         :param var: the name of the state variable
         :type var: :class:`Node <pynusmv.node.Node>`
         :raise: a :exc:`NuSMVSymbTableError
@@ -1059,11 +1056,11 @@ class SymbTable(PointerWrapper):
             raise NuSMVSymbTableError(str(var) + " is not declared.")
         return (nssymb_table.SymbTable_is_symbol_state_var(self._ptr, var._ptr)
                 != 0)
-    
+
     def is_frozen_var(self, fvar):
         """
         Return whether the given `var` name is a declared frozen variable.
-        
+
         :param fvar: the name of the frozen variable
         :type fvar: :class:`Node <pynusmv.node.Node>`
         :raise: a :exc:`NuSMVSymbTableError
@@ -1078,62 +1075,61 @@ class SymbTable(PointerWrapper):
             raise NuSMVSymbTableError(str(fvar) + " is not declared.")
         return (nssymb_table.SymbTable_is_symbol_state_var(self._ptr,
                                                            fvar._ptr) != 0)
-    
-    
+
     def _get_layer(self, layer_name):
         """
         Get the NuSMV pointer for the layer with `layer_name`.
-        
+
         :param :class:`str` layer_name: the name of the layer to get
         """
         return nssymb_table.SymbTable_get_layer(self._ptr, layer_name)
-    
+
     def _get_type_from_node(self, type_):
         """
         Return the NuSMV pointer of the SymbType corresponding to `type_`.
-        
+
         :param type_: the type
         :type type_: :class:`Type <pynusmv.node.Type>`
-        
+
         .. warning:: `type_` must be already resolved, that is, the body
                      of `type_` must be leaf values.
         """
-        
+
         # Boolean
         if isinstance(type_, node.Boolean):
             return nssymb_table.SymbTablePkg_boolean_type()
-        
+
         # Unsigned word
         elif isinstance(type_, node.UnsignedWord):
             return (nssymb_table.
                     SymbType_create(nssymb_table.SYMB_TYPE_UNSIGNED_WORD,
                                     type_.length._ptr))
-        
+
         # Signed word
         elif isinstance(type_, node.SignedWord):
             return (nssymb_table.
                     SymbType_create(nssymb_table.SYMB_TYPE_SIGNED_WORD,
                                     type_.length._ptr))
-        
+
         # Range
         elif isinstance(type_, node.Range):
             # Since body is composed of leaf values, start and stop are numbers
             # and can be directly used as numbers
             start = type_.start.value
             stop = type_.stop.value
-            
+
             res = None
-            for i in range(stop, start-1, -1):
+            for i in range(stop, start - 1, -1):
                 res = node.Cons(Number(i), res)
             return (nssymb_table.SymbType_create(nssymb_table.SYMB_TYPE_ENUM,
                                                  res._ptr))
-        
+
         # Scalar
         elif isinstance(type_, node.Scalar):
             return (nssymb_table.
                     SymbType_create(nssymb_table.SYMB_TYPE_ENUM,
                                     type_.car._ptr))
-        
+
         else:
             raise NuSMVSymbTableError("Cannot create type for " +
                                       str(type_) + ".")

@@ -57,11 +57,13 @@ class PointerWrapper(object):
 
 
 class AttributeDict(dict):
+
     """
     An `AttributeDict` is a dictionary for which elements can be accessed by
     using their keys as attribute names.
-    
+
     """
+
     def __init__(self, *args, **kwargs):
         super(AttributeDict, self).__init__(*args, **kwargs)
         self.__dict__ = self

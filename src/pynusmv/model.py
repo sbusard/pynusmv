@@ -92,7 +92,7 @@ class Element(object):
     parser).
 
     """
-    
+
     def to_node(self):
         """
         Translate the element into a Node instance.
@@ -354,7 +354,7 @@ class Expression(Element):
 
     def __deepcopy__(self, memo):
         raise NotImplementedError("Should be implemented by subclasses.")
-    
+
     def to_node(self):
         """
         Translate the element into a Node instance.
@@ -398,9 +398,9 @@ class Identifier(Expression):
 
     def __deepcopy__(self, memo):
         return Identifier(self.name)
-    
+
     def to_node(self):
-        return 
+        return
 
 
 class Self(Identifier):
@@ -510,21 +510,23 @@ class BooleanConst(Constant):
 
 
 class Trueexp(BooleanConst):
+
     """The TRUE constant."""
-    
+
     def __init__(self):
         super().__init__("TRUE")
-    
+
     def __deepcopy__(self, memo):
         return Trueexp()
 
 
 class Falseexp(BooleanConst):
+
     """The FALSE constant."""
-    
+
     def __init__(self):
         super().__init__("FALSE")
-    
+
     def __deepcopy__(self, memo):
         return Falseexp()
 
