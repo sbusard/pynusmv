@@ -109,6 +109,9 @@ class Expression(Element):
     """A generic expression."""
 
     _precedence = 0
+    
+    def __repr__(self):
+        return str(self)
 
     def __lt__(self, other):
         return self.lt(other)
@@ -754,7 +757,8 @@ class Case(Expression):
         if self.source:
             return self.source
         return ("case\n" + "\n".join(str(cond) + ": " + str(body) + ";"
-                                     for cond, body in self.values.items())
+                                     for cond, body in
+                                collections.OrderedDict(self.values).items())
                 + "\nesac")
 
     def _equals(self, other):
@@ -788,7 +792,7 @@ class Subscript(Expression):
         """Return whether `self` is equals to `other`."""
         if isinstance(self, type(other)):
             return (self.array._equals(other.array) and
-                    self.index._equals(other.index))
+                    self.index == other.index)
         else:
             return False
 
