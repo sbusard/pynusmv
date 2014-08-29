@@ -109,7 +109,7 @@ class Expression(Element):
     """A generic expression."""
 
     _precedence = 0
-    
+
     def __repr__(self):
         return str(self)
 
@@ -758,7 +758,8 @@ class Case(Expression):
             return self.source
         return ("case\n" + "\n".join(str(cond) + ": " + str(body) + ";"
                                      for cond, body in
-                                collections.OrderedDict(self.values).items())
+                                     collections.OrderedDict(
+                                     self.values).items())
                 + "\nesac")
 
     def _equals(self, other):
