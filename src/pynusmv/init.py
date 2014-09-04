@@ -1,6 +1,12 @@
 """
 The :mod:`pynusmv.init` module provides functions to initialize and quit NuSMV.
 
+The :func:`init_nusmv` function can be used as a context manager for the `with`
+Python statement::
+
+    with init_nusmv():
+        ...
+
 .. warning:: :func:`init_nusmv` should be called before any other call to
    pynusmv functions; :func:`deinit_nusmv` should be called after using
    pynusmv.
@@ -26,6 +32,19 @@ from .exception import NuSMVInitError, PyNuSMVError
 __collector = None
 
 
+class _PyNuSMVContext(object):
+    """
+    A PyNuSMV Context allows to initialize and deinitialize PyNuSMV through
+    a `with` Python statement.
+    """
+    
+    def __enter__(self):
+        return None
+    
+    def __exit__(self, exc_type, exc_value, traceback):
+        if exc_type is None:
+            deinit_nusmv()
+
 def init_nusmv():
     """
     Initialize NuSMV. Must be called only once before calling
@@ -48,6 +67,8 @@ def init_nusmv():
         # to be able to set parser_is_lax
         nsopt.init_options_cmd()
         nscmd.Cmd_SecureCommandExecute("set parser_is_lax")
+        
+        return _PyNuSMVContext()
 
 
 def deinit_nusmv(ddinfo=False):
