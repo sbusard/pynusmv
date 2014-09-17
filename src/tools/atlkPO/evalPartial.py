@@ -41,13 +41,13 @@ def evalATLK(fsm, spec, states=None, variant="SF"):
     states -- a BDD-based set of states of fsm (if None, the initial states)
     variant -- the variant of the algorithm to evaluate strategic operators;
                must be
-               * "SF" for the standard way: splitting in uniform strategies then
-                 filtering winning states,
+               * "SF" for the standard way: splitting in uniform strategies
+                 then filtering winning states,
                * "FS" for the alternating way: filtering winning states, then
                  splitting one conflicting equivalence class, then recurse
-               * "FSF" for the filter-split-filter way: filtering winning states
-                 then splitting all remaining actions into uniform strategies,
-                 then filtering final winning states.
+               * "FSF" for the filter-split-filter way: filtering winning
+                 states then splitting all remaining actions into uniform
+                 strategies, then filtering final winning states.
                  
     If variant is not in {"SF", "FS", "FSF"}, the standard "SF" way is used.
     """
@@ -272,8 +272,8 @@ def Eequiv(fsm, states, agents):
 
 def Dequiv(fsm, states, agents):
     """
-    Return the set of fsm that equivalent to states w.r.t. distributed knowledge
-    of agents.
+    Return the set of fsm that equivalent to states w.r.t. distributed
+    knowledge of agents.
     
     fsm -- a MAS representing the system
     states -- a BDD representing a set of states of fsm
@@ -317,8 +317,8 @@ def cex_si(fsm, agents, phi, strat=None):
 
 def ceu_si(fsm, agents, phi, psi, strat=None):
     """
-    Return the set of state/inputs pairs of strat satisfying <agents>[phi U psi]
-    under full observability in strat.
+    Return the set of state/inputs pairs of strat satisfying
+    <agents>[phi U psi] under full observability in strat.
     If strat is None, strat is considered true.
     
     fsm -- a MAS representing the system
@@ -358,8 +358,8 @@ def ceu_si(fsm, agents, phi, psi, strat=None):
 
 def cew_si(fsm, agents, phi, psi, strat=None):
     """
-    Return the set of state/inputs pairs of strat satisfying <agents>[phi W psi]
-    under full observability in strat.
+    Return the set of state/inputs pairs of strat satisfying
+    <agents>[phi W psi] under full observability in strat.
     If strat is None, strat is considered true.
     
     fsm -- a MAS representing the system
@@ -444,8 +444,8 @@ def split_reach(fsm, agents, pustrat, subsystem=None):
     agents -- a set of agents names;
     pustrat -- a partial uniform strategy represented as BDD-based set of
                moves (state/action pairs);
-    subsystem -- the subsystem in which building the strategies; the full system
-                 if None.
+    subsystem -- the subsystem in which building the strategies;
+                 the full system if None.
     
     """
     
@@ -454,14 +454,16 @@ def split_reach(fsm, agents, pustrat, subsystem=None):
     
     new = (fsm.post(pustrat, subsystem) -
            pustrat.forsome(fsm.bddEnc.inputsCube)).forsome(
-                                  fsm.bddEnc.inputsCube) & fsm.bddEnc.statesMask
+                                 fsm.bddEnc.inputsCube) & fsm.bddEnc.statesMask
 
     if new.is_false():
         yield pustrat
     
     else:
-        for npustrat in split(fsm, new & fsm.protocol(agents), agents, pustrat):
-            for strat in split_reach(fsm, agents, pustrat | npustrat,subsystem):
+        for npustrat in split(fsm, new & fsm.protocol(agents), agents,
+                              pustrat):
+            for strat in split_reach(fsm, agents, pustrat | npustrat, 
+                                     subsystem):
                 yield strat
         
 
@@ -502,20 +504,23 @@ def split_one(fsm, strats, gamma, pustrat):
             strats = strats - eqcl
             
             # The current equivalence class is conflicting
-            if((eqcl - (eqcl & si.forsome(fsm.bddEnc.statesCube | ngamma_cube)))
+            if((eqcl - (eqcl & si.forsome(fsm.bddEnc.statesCube |
+                                          ngamma_cube)))
                 .isnot_false()):
                 # Split eqcl into non-conflicting subsets
                 while eqcl.isnot_false():
                     si = fsm.pick_one_state_inputs(eqcl)
                     
-                    ncss = eqcl & si.forsome(fsm.bddEnc.statesCube |ngamma_cube)
+                    ncss = eqcl & si.forsome(fsm.bddEnc.statesCube | 
+                                             ngamma_cube)
                     
                     eqcl = eqcl - ncss
                     
                     # Take pustrat into account
                     # eq is the set of states equivalent to ncss states
                     eq = fsm.equivalent_states(
-                                     ncss.forsome(fsm.bddEnc.inputsCube), gamma)
+                                     ncss.forsome(fsm.bddEnc.inputsCube),
+                                     gamma)
                     if (eq & pustrat).isnot_false():
                         # Some states are equivalent in ncss and pustrat
                         
@@ -602,13 +607,13 @@ def filter_strat(fsm, spec, states, strat=None, variant="SF"):
     strat -- the subset of the system to consider.
     variant -- the variant of the algorithm to evaluate strategic operators;
                must be
-               * "SF" for the standard way: splitting in uniform strategies then
-                 filtering winning states,
+               * "SF" for the standard way: splitting in uniform strategies
+                 then filtering winning states,
                * "FS" for the alternating way: filtering winning states, then
                  splitting one conflicting equivalence class, then recurse
-               * "FSF" for the filter-split-filter way: filtering winning states
-                 then splitting all remaining actions into uniform strategies,
-                 then filtering final winning states.
+               * "FSF" for the filter-split-filter way: filtering winning
+                 states then splitting all remaining actions into uniform
+                 strategies, then filtering final winning states.
                  
     If variant is not in {"SF", "FS", "FSF"}, the standard "SF" way is used.
     """
@@ -660,7 +665,8 @@ def eval_strat(fsm, spec, states):
     spec is a strategic operator <G> pi.
     
     fsm -- a MAS representing the system;
-    spec -- an AST-based ATLK specification with a top strategic (<g>) operator;
+    spec -- an AST-based ATLK specification with a top strategic (<g>)
+            operator;
     states -- a BDD representing a set of states of fsm.
     
     """
@@ -699,7 +705,7 @@ def eval_strat(fsm, spec, states):
     
     while all_states.isnot_false():
         
-        # ----- Separation of state space --------------------------------------
+        # ----- Separation of state space -------------------------------------
         
         # Put a subset of all_states in states and remove it from all_states
         if config.partial.separation.type is None:
@@ -723,7 +729,7 @@ def eval_strat(fsm, spec, states):
             states = (fsm.equivalent_states(state, agents) &
                       fsm.reachable_states & all_states)
         
-        # ----------------------------------------------------------------------
+        # ---------------------------------------------------------------------
         
         
         # Remove states from all_states
@@ -752,7 +758,7 @@ def eval_strat(fsm, spec, states):
                 sat = sat | (all_equiv_sat(fsm, winning, agents) & orig_states)
             
             
-                # ----- EARLY TERMINATION --------------------------------------
+                # ----- EARLY TERMINATION -------------------------------------
             
                 # Early termination if sat contains all requested states
                 if config.partial.early.type == "full" and orig_states <= sat:
@@ -782,7 +788,7 @@ def eval_strat(fsm, spec, states):
                         remaining_size = rem_count
                         break
             
-                # --------------------------------------------------------------
+                # -------------------------------------------------------------
                 
                 
                 if config.debug and nbstrats % 1000 == 0:
@@ -790,7 +796,7 @@ def eval_strat(fsm, spec, states):
                           .format(nbstrats, "ies" if nbstrats > 1 else "y"))
                 
                 
-                # ----- Garbage collection -------------------------------------
+                # ----- Garbage collection ------------------------------------
                 if (config.garbage.type == "each" or
                     (config.garbage.type == "step"
                         and nbstrats % config.garbage.step == 0)):
@@ -843,7 +849,7 @@ def eval_strat_improved(fsm, spec, states):
         if config.debug:
             print("Starting with a new subset of states.")
         
-        # ----- Separation of state space --------------------------------------
+        # ----- Separation of state space -------------------------------------
         
         # Put a subset of all_states in states and remove it from all_states
         if config.partial.separation.type is None:
@@ -867,7 +873,7 @@ def eval_strat_improved(fsm, spec, states):
             states = (fsm.equivalent_states(state, agents) &
                       fsm.reachable_states & all_states)
         
-        # ----------------------------------------------------------------------
+        # ---------------------------------------------------------------------
         
         
         # Remove states from all_states
@@ -969,9 +975,9 @@ def eval_strat_recur(fsm, spec, states, toSplit=None, toKeep=None):
     
     return sat
 
-# ------------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # CACHING FUNCTIONS AND MANIPULATIONS
-# ------------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
 __evalATLK_cache = {}
 __orig_evalATLK = evalATLK
