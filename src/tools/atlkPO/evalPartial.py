@@ -307,7 +307,30 @@ def fair_states_sub(fsm, subsystem=None):
         return BDD.true(fsm.bddEnc.DDmanager)
     else:
         return eg_sub(fsm, BDD.true(fsm.bddEnc.DDmanager), subsystem=subsystem)
+
+def reachable_sub(fsm, init=None, subsystem=None):
+    """
+    Return the set of states reachable from init in the subsystem.
     
+    fsm -- the model;
+    init -- if not None, the initial states
+            otherwise, the initial states of the model;
+    subsystem -- if not None, the subsystem to consider
+                 otherwise, the original system.
+    """
+    
+    if init is None:
+        init = fsm.init
+    if subsystem is None:
+        subsystem = BDD.true(fsm.bddEnc.DDmanager)
+    
+    old = BDD.false(fsm.bddEnc.DDmanager)
+    new = init & fsm.bddEnc.statesMask
+    while old != new:
+        old = new
+        new = ((old | fsm.post(old, subsystem=subsystem)) &
+               fsm.bddEnc.statesMask)
+    return new
     
 def ex_sub(fsm, phi, subsystem=None):
     """
@@ -1078,6 +1101,10 @@ def eval_univ(fsm, spec, states, subsystem=None, variant="FS"):
     subsystem -- if not None, the subsystem in which evaluate the formula;
     variant -- the variant to evaluate sub-formulas.
     """
+    if subsystem is None:
+        subsystem = BDD.true(fsm.bddEnc.DDmanager)
+    
+    interesting = reachable_sub(fsm, states, subsystem)
     
     if type(spec) is AX:
         phi = evalATLK(fsm, spec.child,
@@ -1087,33 +1114,33 @@ def eval_univ(fsm, spec, states, subsystem=None, variant="FS"):
     
     elif type(spec) is AG:
         phi = evalATLK(fsm, spec.child,
-                       subsystem.forsome(fsm.bddEnc.inputsCube), 
+                       interesting,
                        variant=variant)
         winning = ~eu_sub(fsm, BDD.true(fsm.bddEnc.DDmanager), ~phi, subsystem)
     
     elif type(spec) is AU:
         phi1 = evalATLK(fsm, spec.left,
-                        subsystem.forsome(fsm.bddEnc.inputsCube), 
-                       variant=variant)
+                        interesting,
+                        variant=variant)
         phi2 = evalATLK(fsm, spec.right,
-                        subsystem.forsome(fsm.bddEnc.inputsCube), 
-                       variant=variant)
+                        interesting,
+                        variant=variant)
         winning = ~(eu_sub(fsm, ~phi2, ~phi1 & ~phi2, subsystem) |
                     eg_sub(fsm, ~phi2, subsystem))
     
     elif type(spec) is AF:
         phi = evalATLK(fsm, spec.child,
-                       subsystem.forsome(fsm.bddEnc.inputsCube),
+                       interesting,
                        variant=variant)
         winning = ~eg_sub(fsm, ~phi, subsystem)
     
     elif type(spec) is AW:
         phi1 = evalATLK(fsm, spec.left,
-                        subsystem.forsome(fsm.bddEnc.inputsCube),
+                        interesting,
                        variant=variant)
         phi2 = evalATLK(fsm, spec.right,
-                        subsystem.forsome(fsm.bddEnc.inputsCube), 
-                       variant=variant)
+                        interesting,
+                        variant=variant)
         winning = ~eu_sub(fsm, ~phi2, ~phi1 & ~phi2, subsystem)
     
     return winning & states & fsm.bddEnc.statesMask
