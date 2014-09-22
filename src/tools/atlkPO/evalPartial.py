@@ -294,6 +294,89 @@ def Cequiv(fsm, states, agents):
     return fp(lambda Z: Eequiv(fsm, states | Z, agents),
               BDD.false(fsm.bddEnc.DDmanager))
 
+def fair_states_sub(fsm, subsystem=None):
+    """
+    Return the set of fair states of the subsystem.
+    
+    fsm -- the model;
+    subsystem -- if not None, the subsystem defined as a set of state/inputs
+                 pairs.
+    """
+    
+    if len(fsm.fairness_constraints) == 0:
+        return BDD.true(fsm.bddEnc.DDmanager)
+    else:
+        return eg_sub(fsm, BDD.true(fsm.bddEnc.DDmanager), subsystem=subsystem)
+    
+    
+def ex_sub(fsm, phi, subsystem=None):
+    """
+    Return the set of states of fsm satisfying EX phi in subsystem.
+    
+    fsm -- a MAS representing the system
+    phi -- a BDD representing the set of states of fsm satisfying phi
+    subsystem -- if not None, the subsystem defined as a set of state/inputs
+                 pairs.
+    """
+    
+    if subsystem is None:
+        subsystem = BDD.true(fsm.bddEnc.DDmanager)
+    phi = phi.forsome(fsm.bddEnc.inputsCube) & fsm.bddEnc.statesMask
+    
+    return fsm.pre(phi & fair_states_sub(fsm, subsystem=subsystem),
+                   subsystem=subsystem)
+    
+    
+def eg_sub(fsm, phi, subsystem=None):
+    """
+    Return the set of states of fsm satisfying EG phi in subsystem.
+    
+    fsm -- a MAS representing the system
+    phi -- a BDD representing the set of states of fsm satisfying phi
+    subsystem -- if not None, the subsystem defined as a set of state/inputs
+                 pairs.
+    """
+    
+    if subsystem is None:
+        subsystem = BDD.true(fsm.bddEnc.DDmanager)
+    
+    phi = phi.forsome(fsm.bddEnc.inputsCube) & fsm.bddEnc.statesMask
+    
+    if len(fsm.fairness_constraints) == 0:
+        return (fp(lambda Z : phi & fsm.pre(Z, subsystem=subsystem),
+                   BDD.true(fsm.bddEnc.DDmanager)).
+                   forsome(fsm.bddEnc.inputsCube))
+    else:
+        def inner(Z):
+            res = phi
+            for f in fsm.fairness_constraints:
+                res = res & fsm.pre(fp(lambda Y : (Z & f) |
+                                       (phi & fsm.pre(Y, subsystem=subsystem)),
+                                       BDD.false(fsm.bddEnc.DDmanager)),
+                                    subsystem=subsystem)
+            return res
+        return (fp(inner, BDD.true(fsm.bddEnc.DDmanager))
+                .forsome(fsm.bddEnc.inputsCube))
+    
+    
+def eu_sub(fsm, phi, psi, subsystem=None):
+    """
+    Return the set of states of fsm satisfying E[ phi U psi ] in subsystem.
+    
+    fsm -- a MAS representing the system
+    phi -- a BDD representing the set of states of fsm satisfying phi
+    psi -- a BDD representing the set of states of fsm satisfying psi
+    subsystem -- if not None, the subsystem defined as a set of state/inputs
+                 pairs.
+    """
+    
+    phi = phi.forsome(fsm.bddEnc.inputsCube) & fsm.bddEnc.statesMask
+    psi = psi.forsome(fsm.bddEnc.inputsCube) & fsm.bddEnc.statesMask
+    return fp(lambda X : (psi & fair_states_sub(fsm, subsystem=subsystem) &
+                          fsm.reachable_states) |
+                               (phi & ex_sub(fsm, X, subsystem=subsystem)),
+                    BDD.false(fsm.bddEnc.DDmanager))
+
 
 def cex_si(fsm, agents, phi, strat=None):
     """
@@ -655,7 +738,6 @@ def filter_strat(fsm, spec, states, strat=None, variant="SF"):
                        variant=variant)
         winning = cew_si(fsm, agents, phi1, phi2, strat)
     
-    
     return winning & fsm.bddEnc.statesInputsMask & fsm.protocol(agents)
 
 
@@ -820,7 +902,11 @@ def eval_strat(fsm, spec, states):
     return sat
 
 
-def eval_strat_improved(fsm, spec, states):
+# -----------------------------------------------------------------------------
+# ----- DEPRECATED ------------------------------------------------------------
+# -----------------------------------------------------------------------------
+
+def eval_strat_improved_old(fsm, spec, states):
     """
     Return the BDD representing the subset of states satisfying spec.
     spec is a strategic operator <G> pi.
@@ -901,7 +987,8 @@ def eval_strat_recur(fsm, spec, states, toSplit=None, toKeep=None):
     spec is a strategic operator <G> pi.
     
     fsm -- a MAS representing the system;
-    spec -- an AST-based ATLK specification with a top strategic (<g>) operator;
+    spec -- an AST-based ATLK specification with a top strategic (<g>)
+            operator;
     states -- a BDD representing a set of states of fsm;
     toSplit -- the part of the strategy to split (not necessarily uniform).
     toKeep -- the part of the strategy to keep (uniform).
@@ -974,6 +1061,149 @@ def eval_strat_recur(fsm, spec, states, toSplit=None, toKeep=None):
                                          toKeep=toKeep | common | splitted)
     
     return sat
+
+# -----------------------------------------------------------------------------
+# ----- END OF DEPRECATED -----------------------------------------------------
+# -----------------------------------------------------------------------------
+
+
+def eval_univ(fsm, spec, states, subsystem=None, variant="FS"):
+    """
+    Given spec a universal CTL formula, return the subset of states satisfying
+    spec in the given subsystem.
+    
+    fsm -- the model;
+    spec -- a universal CTL formula;
+    states -- a subset of the states of the model;
+    subsystem -- if not None, the subsystem in which evaluate the formula;
+    variant -- the variant to evaluate sub-formulas.
+    """
+    
+    if type(spec) is AX:
+        phi = evalATLK(fsm, spec.child,
+                       fsm.post(states, subsystem=subsystem),
+                       variant=variant)
+        winning = ~ex_sub(fsm, ~phi, subsystem)
+    
+    elif type(spec) is AG:
+        phi = evalATLK(fsm, spec.child,
+                       subsystem.forsome(fsm.bddEnc.inputsCube), 
+                       variant=variant)
+        winning = ~eu_sub(fsm, BDD.true(fsm.bddEnc.DDmanager), ~phi, subsystem)
+    
+    elif type(spec) is AU:
+        phi1 = evalATLK(fsm, spec.left,
+                        subsystem.forsome(fsm.bddEnc.inputsCube), 
+                       variant=variant)
+        phi2 = evalATLK(fsm, spec.right,
+                        subsystem.forsome(fsm.bddEnc.inputsCube), 
+                       variant=variant)
+        winning = ~(eu_sub(fsm, ~phi2, ~phi1 & ~phi2, subsystem) |
+                    eg_sub(fsm, ~phi2, subsystem))
+    
+    elif type(spec) is AF:
+        phi = evalATLK(fsm, spec.child,
+                       subsystem.forsome(fsm.bddEnc.inputsCube),
+                       variant=variant)
+        winning = ~eg_sub(fsm, ~phi, subsystem)
+    
+    elif type(spec) is AW:
+        phi1 = evalATLK(fsm, spec.left,
+                        subsystem.forsome(fsm.bddEnc.inputsCube),
+                       variant=variant)
+        phi2 = evalATLK(fsm, spec.right,
+                        subsystem.forsome(fsm.bddEnc.inputsCube), 
+                       variant=variant)
+        winning = ~eu_sub(fsm, ~phi2, ~phi1 & ~phi2, subsystem)
+    
+    return winning & states & fsm.bddEnc.statesMask
+    
+
+def strat_to_univ(spec):
+    """
+    Return the universal formula sharing the same path operator
+    as the strategic formula spec.
+    
+    spec -- a formula with a strategic top operator
+    """
+    if type(spec) is CEX:
+        return AX(spec.child)
+    elif type(spec) is CEF:
+        return AF(spec.child)
+    elif type(spec) is CEG:
+        return AG(spec.child)
+    elif type(spec) is CEU:
+        return AU(spec.left, spec.right)
+    elif type(spec) is CEW:
+        return AW(spec.left, spec.right)
+
+def eval_strat_improved(fsm, spec, states):
+    """
+    Return the BDD representing the subset of states satisfying spec.
+    spec is a strategic operator <G> pi.
+    
+    fsm -- a MAS representing the system;
+    spec -- an AST-based ATLK specification with a top strategic (<g>)
+            operator;
+    states -- a BDD representing a set of states of fsm.
+    """
+    
+    gamma = {atom.value for atom in spec.group}
+    sat = BDD.false(fsm.bddEnc.DDmanager)
+    
+    states = fsm.equivalent_states(states, gamma) & fsm.reachable_states
+    
+    for pstrat in split(fsm, states & fsm.protocol(gamma), gamma):
+        sat = sat | eval_strat_alternate(fsm, spec, states, pstrat)
+    return sat
+
+def eval_strat_alternate(fsm, spec, states, pstrat):
+    """
+    Return the BDD representing the subset of states s' such that there exists
+    a uniform maximal partial strategy extending pstrat that is winning for
+    spec = <gamma> psi in [s']_gamma.
+    
+    fsm -- a MAS representing the system;
+    spec -- an AST-based ATLK specification with a top strategic (<g>)
+            operator;
+    states -- a BDD representing a set of states of fsm;
+    pstrat -- a uniform partial strategy reachable from states.
+    """
+    
+    gamma = {atom.value for atom in spec.group}
+    fullpstrat = (pstrat |
+                  (fsm.protocol(gamma) -
+                   pstrat.forsome(fsm.bddEnc.inputsCube)))
+    
+    swin = eval_univ(fsm, strat_to_univ(spec), states, fullpstrat,
+                       variant="FS")
+    
+    win = all_equiv_sat(fsm, swin, gamma) & states
+    
+    notlosing = filter_strat(fsm, spec, states, fullpstrat, variant="FS")
+    notlosing = notlosing.forsome(fsm.bddEnc.inputsCube)
+    notlosing = notlosing & states
+    lose = states - all_equiv_sat(fsm, notlosing, gamma)
+    
+    nstates = (states - win) - lose
+    
+    if nstates.is_false():
+        return win
+    
+    else:
+        new = (fsm.post(pstrat) - 
+               pstrat.forsome(fsm.bddEnc.inputsCube)).forsome(
+               fsm.bddEnc.inputsCube) & fsm.bddEnc.statesMask
+        if new.is_false():
+            assert(False) # Should never occur
+            return win
+        for npstrat in split(fsm, new & fsm.protocol(gamma), gamma, pstrat):
+            win = win | eval_strat_alternate(fsm, spec, nstates,
+                                             pstrat | npstrat)
+            if win == states:
+                # Early termination when we know the truth value of all states
+                break
+        return win
 
 # -----------------------------------------------------------------------------
 # CACHING FUNCTIONS AND MANIPULATIONS

@@ -207,15 +207,18 @@ class TestCheckPartial(unittest.TestCase):
     def test_cardgame_improved_partial(self):
         fsm = self.cardgame()
         
+        self.assertFalse(check(fsm, parseATLK("<'player'> X 'win'")[0],
+                         implem="partial", variant="FS"))
+        self.assertTrue(check(fsm, parseATLK("AG('step = 1' -> ~<'player'> X 'win')")[0], implem="partial", variant="FS"))
+        
         self.assertTrue(check(fsm, parseATLK("K<'player'>'pcard=none' & K<'player'>'dcard=none'")[0], implem="partial", variant="FS"))
         self.assertTrue(check(fsm, parseATLK("AG('step = 1' -> ~(K<'player'> 'dcard=Ac' | K<'player'> 'dcard=K' | K<'player'> 'dcard=Q'))")[0], implem="partial", variant="FS"))
         
         self.assertTrue(check(fsm, parseATLK("<'dealer'> X 'pcard=Ac'")[0], implem="partial", variant="FS"))
+        self.assertFalse(check(fsm, parseATLK("<'player'> F 'win'")[0], implem="partial", variant="FS"))
         self.assertFalse(check(fsm, parseATLK("<'dealer'> G ~'win'")[0], implem="partial", variant="FS"))
         self.assertTrue(check(fsm, parseATLK("['player'] X 'pcard=Ac'")[0], implem="partial", variant="FS"))
         self.assertTrue(check(fsm, parseATLK("['dealer'] F 'win'")[0], implem="partial", variant="FS"))
-        self.assertTrue(check(fsm, parseATLK("AG('step = 1' -> ~<'player'> X 'win')")[0], implem="partial", variant="FS"))
-        self.assertFalse(check(fsm, parseATLK("<'player'> F 'win'")[0], implem="partial", variant="FS"))
         
         self.assertTrue(check(fsm, parseATLK("EG ~'win'")[0], implem="partial", variant="FS"))
         self.assertTrue(check(fsm, parseATLK("EF 'win'")[0], implem="partial", variant="FS"))
@@ -230,6 +233,8 @@ class TestCheckPartial(unittest.TestCase):
     
     def test_cardgame_post_fair_improved_partial(self):
         fsm = self.cardgame_post_fair()
+        
+        self.assertFalse(check(fsm, parseATLK("<'player'> X 'win'")[0], implem="partial", variant="FS"))
         
         self.assertTrue(check(fsm, parseATLK("K<'player'>'pcard=none' & K<'player'>'dcard=none'")[0], implem="partial", variant="FS"))
         self.assertTrue(check(fsm, parseATLK("AG('step = 1' -> ~(K<'player'> 'dcard=Ac' | K<'player'> 'dcard=K' | K<'player'> 'dcard=Q'))")[0], implem="partial", variant="FS"))
@@ -281,8 +286,8 @@ class TestCheckPartial(unittest.TestCase):
     def test_transmission_with_know_improved_partial(self):
         fsm = self.transmission_with_knowledge()
         
-        self.assertFalse(check(fsm, parseATLK("<'sender'> F 'received'")[0], implem="partial", variant="FS"))
         self.assertTrue(check(fsm, parseATLK("<'transmitter'> G ~'received'")[0], implem="partial", variant="FS"))
+        self.assertFalse(check(fsm, parseATLK("<'sender'> F 'received'")[0], implem="partial", variant="FS"))
         self.assertFalse(check(fsm, parseATLK("<'sender'> X 'received'")[0], implem="partial", variant="FS"))
         self.assertTrue(check(fsm, parseATLK("<'transmitter'> X ~'received'")[0], implem="partial", variant="FS"))
         self.assertFalse(check(fsm, parseATLK("<'transmitter'> F 'received'")[0], implem="partial", variant="FS"))
