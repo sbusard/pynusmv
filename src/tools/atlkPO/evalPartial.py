@@ -1202,19 +1202,20 @@ def eval_strat_alternate(fsm, spec, states, pstrat):
                   (fsm.protocol(gamma) -
                    pstrat.forsome(fsm.bddEnc.inputsCube)))
     
-    swin = eval_univ(fsm, strat_to_univ(spec), states, fullpstrat,
-                       variant="FS")
-    
-    win = all_equiv_sat(fsm, swin, gamma) & states
-    
     notlosing = filter_strat(fsm, spec, states, fullpstrat, variant="FS")
     notlosing = notlosing.forsome(fsm.bddEnc.inputsCube)
     notlosing = notlosing & states
     lose = states - all_equiv_sat(fsm, notlosing, gamma)
     
-    nstates = (states - win) - lose
+    states = states - lose
     
-    if nstates.is_false():
+    swin = eval_univ(fsm, strat_to_univ(spec), states, fullpstrat,
+                       variant="FS")
+    win = all_equiv_sat(fsm, swin, gamma) & states
+    
+    states = states - win
+    
+    if states.is_false():
         return win
     
     else:
@@ -1225,7 +1226,7 @@ def eval_strat_alternate(fsm, spec, states, pstrat):
             assert(False) # Should never occur
             return win
         for npstrat in split(fsm, new & fsm.protocol(gamma), gamma, pstrat):
-            win = win | eval_strat_alternate(fsm, spec, nstates,
+            win = win | eval_strat_alternate(fsm, spec, states,
                                              pstrat | npstrat)
             if win == states:
                 # Early termination when we know the truth value of all states
