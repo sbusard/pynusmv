@@ -144,6 +144,21 @@ class MAS(BddFsm):
                          for var in self.agents_inputvars[agent]]
         return self.bddEnc.cube_for_inputs_vars(gamma_inputs)
         
+    def pre(self, states, inputs=None, subsystem=None):
+        """
+        Return the pre image of states, through inputs (if any) and in
+        subsystem (if any).
+        """
+        
+        if inputs is None:
+            inputs = BDD.true(self.bddEnc.DDmanager)
+        
+        if subsystem is None:
+            subsystem = BDD.true(self.bddEnc.DDmanager)
+        
+        return ((self.weak_pre(states & inputs) &
+                 subsystem).forsome(self.bddEnc.inputsCube) &
+                 self.bddEnc.statesMask)
     
     def post(self, states, inputs=None, subsystem=None):
         """
