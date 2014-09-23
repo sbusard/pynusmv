@@ -1104,7 +1104,7 @@ def eval_univ(fsm, spec, states, subsystem=None, variant="FS"):
     if subsystem is None:
         subsystem = BDD.true(fsm.bddEnc.DDmanager)
     
-    interesting = reachable_sub(fsm, states, subsystem)
+    interesting = subsystem.forsome(fsm.bddEnc.inputsCube)
     
     if type(spec) is AX:
         phi = evalATLK(fsm, spec.child,
@@ -1182,6 +1182,8 @@ def eval_strat_improved(fsm, spec, states):
     
     for pstrat in split(fsm, states & fsm.protocol(gamma), gamma):
         sat = sat | eval_strat_alternate(fsm, spec, states, pstrat)
+        if sat == states:
+            break # Early termination
     return sat
 
 def eval_strat_alternate(fsm, spec, states, pstrat):
@@ -1202,12 +1204,15 @@ def eval_strat_alternate(fsm, spec, states, pstrat):
                   (fsm.protocol(gamma) -
                    pstrat.forsome(fsm.bddEnc.inputsCube)))
     
+    fullpstrat = fullpstrat & reachable_sub(fsm, states, fullpstrat)
+    
     notlosing = filter_strat(fsm, spec, states, fullpstrat, variant="FS")
     notlosing = notlosing.forsome(fsm.bddEnc.inputsCube)
     notlosing = notlosing & states
     lose = states - all_equiv_sat(fsm, notlosing, gamma)
     
     states = states - lose
+    fullpstrat = fullpstrat & reachable_sub(fsm, states, fullpstrat)
     
     swin = eval_univ(fsm, strat_to_univ(spec), states, fullpstrat,
                        variant="FS")
