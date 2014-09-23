@@ -1175,6 +1175,9 @@ def eval_strat_improved(fsm, spec, states):
     states -- a BDD representing a set of states of fsm.
     """
     
+    __strategies[spec] = 0
+    __filterings[spec] = 0
+    
     gamma = {atom.value for atom in spec.group}
     sat = BDD.false(fsm.bddEnc.DDmanager)
     
@@ -1184,6 +1187,14 @@ def eval_strat_improved(fsm, spec, states):
         sat = sat | eval_strat_alternate(fsm, spec, states, pstrat)
         if sat == states:
             break # Early termination
+    
+    if config.debug:
+        nbs = __strategies[spec]
+        nbf = __filterings[spec]
+        print("{} strateg{}, {} filtering{} computed."
+              .format(nbs, "y" if nbs <= 1 else "ies",
+                      nbf, "" if nbf <= 1 else "s"))
+    
     return sat
 
 def eval_strat_alternate(fsm, spec, states, pstrat):
@@ -1220,7 +1231,17 @@ def eval_strat_alternate(fsm, spec, states, pstrat):
     
     states = states - win
     
+    __filterings[spec] += 1
+    
     if states.is_false():
+        __strategies[spec] += 1
+        
+        # Collect to avoid memory overflow
+        if (config.garbage.type == "each" or config.garbage.type == "step"
+            and __strategies[spec] % config.garbage.step == 0):
+            
+            gc.collect()
+        
         return win
     
     else:

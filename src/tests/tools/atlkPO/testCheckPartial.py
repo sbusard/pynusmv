@@ -23,8 +23,8 @@ class TestCheckPartial(unittest.TestCase):
         config.partial.caching = True
         config.partial.filtering = True
         #config.partial.separation.type = "reach"
-        #config.partial.garbage.type = "step"
-        #config.partial.garbage.step = 4
+        #config.garbage.type = "step"
+        #config.garbage.step = 4
     
     def tearDown(self):    
         glob.reset_globals()
