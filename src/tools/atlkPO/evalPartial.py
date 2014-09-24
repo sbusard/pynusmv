@@ -1182,9 +1182,12 @@ def eval_strat_improved(fsm, spec, states):
     sat = BDD.false(fsm.bddEnc.DDmanager)
     
     states = fsm.equivalent_states(states, gamma) & fsm.reachable_states
+    remaining = states
     
     for pstrat in split(fsm, states & fsm.protocol(gamma), gamma):
-        sat = sat | eval_strat_alternate(fsm, spec, states, pstrat)
+        newsat = eval_strat_alternate(fsm, spec, remaining, pstrat)
+        sat = sat | newsat
+        remaining = remaining - sat
         if sat == states:
             break # Early termination
     
@@ -1251,9 +1254,14 @@ def eval_strat_alternate(fsm, spec, states, pstrat):
         if new.is_false():
             assert(False) # Should never occur
             return win
+        
+        remaining = states
+        
         for npstrat in split(fsm, new & fsm.protocol(gamma), gamma, pstrat):
-            win = win | eval_strat_alternate(fsm, spec, states,
-                                             pstrat | npstrat)
+            newwin = eval_strat_alternate(fsm, spec, remaining,
+                                          pstrat | npstrat)
+            win = win | newwin
+            remaining = remaining - win
             if win == states:
                 # Early termination when we know the truth value of all states
                 break
