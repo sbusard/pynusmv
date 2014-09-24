@@ -233,7 +233,7 @@ def mas():
         
         # Create the MAS
         fsm = _prop_database().master.bddFsm
-        __mas = MAS(fsm._ptr, localvars, observedvars, inputvars, singletrans,
+        __mas = MAS(fsm._ptr, observedvars, inputvars, singletrans,
                     freeit=False)
         
     return __mas

@@ -142,11 +142,6 @@ class TestMAS(unittest.TestCase):
         self.assertEqual(fsm.post(lt & lf), lt.iff(~lf))
         
         
-    def test_inputs_between_states(self):
-        fsm = self.model()
-        # TODO Test
-        
-        
     def test_equivalent_states(self):
         fsm = self.model()
         
@@ -192,17 +187,6 @@ class TestMAS(unittest.TestCase):
     def test_agents(self):
         fsm = self.model()
         self.assertSetEqual({'c1','c2','c3'}, fsm.agents)
-        
-    
-    def test_local_variables(self):
-        fsm = self.model()
-        
-        self.assertSetEqual({'c1','c2','c3'},
-                            set(fsm.agents_local_variables.keys()))
-        
-        self.assertSetEqual(fsm.agents_local_variables['c1'], {'coin', 'payer'})
-        self.assertSetEqual(fsm.agents_local_variables['c2'], {'coin', 'payer'})
-        self.assertSetEqual(fsm.agents_local_variables['c3'], {'coin', 'payer'})
         
         
     def test_observed_variables(self):
