@@ -80,9 +80,9 @@ class TestSplit(unittest.TestCase):
         self.show_i(fsm, act)
         
         
-        gamma_inputs = [agent+"."+var
-                         for agent in {"a"}
-                         for var in fsm.agents_inputvars[agent]]
+        gamma_inputs = [var
+                        for agent in {"a"}
+                        for var in fsm.agents_inputvars[agent]]
         gamma_cube = fsm.bddEnc.cube_for_inputs_vars(gamma_inputs)
         ngamma_cube = fsm.bddEnc.inputsCube - gamma_cube
         
@@ -168,9 +168,9 @@ class TestSplit(unittest.TestCase):
         true = eval_simple_expression(fsm, "TRUE")
         false = eval_simple_expression(fsm, "FALSE")
         
-        gamma_inputs = [agent+"."+var
-                         for agent in {"a"}
-                         for var in fsm.agents_inputvars[agent]]
+        gamma_inputs = [var
+                        for agent in {"a"}
+                        for var in fsm.agents_inputvars[agent]]
         gamma_cube = fsm.bddEnc.cube_for_inputs_vars(gamma_inputs)
         ngamma_cube = fsm.bddEnc.inputsCube - gamma_cube
         

@@ -5,6 +5,7 @@ from pynusmv.mc import eval_simple_expression
 from pynusmv.dd import BDD
 
 from tools.mas import glob
+from tools.mas.mas import Agent, Group
 
 class TestMAS(unittest.TestCase):
     
@@ -208,9 +209,9 @@ class TestMAS(unittest.TestCase):
         
         self.assertSetEqual({'c1','c2','c3'}, set(fsm.agents_inputvars.keys()))
         
-        self.assertSetEqual(fsm.agents_inputvars['c1'], {'say'})
-        self.assertSetEqual(fsm.agents_inputvars['c2'], {'say'})
-        self.assertSetEqual(fsm.agents_inputvars['c3'], {'say'})
+        self.assertSetEqual(fsm.agents_inputvars['c1'], {'c1.say'})
+        self.assertSetEqual(fsm.agents_inputvars['c2'], {'c2.say'})
+        self.assertSetEqual(fsm.agents_inputvars['c3'], {'c3.say'})
         
         
     def test_protocol(self):
@@ -434,3 +435,13 @@ class TestMAS(unittest.TestCase):
         self.assertEqual(fsm.post(s1 & fsm.reachable_states,
                         subsystem=(s1 & pa & dq & pak) | (s1 & pk & da & pas)),
                          ((s2 & pa & dq) | (s2 & da & pq)) & fsm.reachable_states)
+    
+    def test_cardgame_with_agents(self):
+        glob.load_from_file("tests/tools/mas/cardgame.smv")
+        agents = (Agent("player", {"step", "pcard", "ddcard"},
+                        {"player.action"}),
+                  Agent("dealer", {"step", "pcard", "dcard"},
+                        {"dealer.action"}))
+        fsm = glob.mas(agents=agents)
+        self.assertIsNotNone(fsm)
+        return fsm

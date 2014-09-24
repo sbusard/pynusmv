@@ -161,15 +161,29 @@ def _get_input_vars_by_instances(agents):
 def _get_epistemic_trans(variable):
     """Return a new TRANS next(variable) = variable"""
     
-    varname = nsnode.sprint_node(variable)
-    transexpr = "next({0}) = {0}".format(varname)
+    transexpr = "next({0}) = {0}".format(variable)
     return parse_next_expression(transexpr)
     
 
-def mas():
+def mas(agents=None):
     """
     Return (and compute if needed) the multi-agent system represented by
     the currently read SMV model.
+    
+    If agents is not None, the set of agents (and groups) of the MAS is
+    determined by agents.
+    
+    Otherwise, every top-level module instantiation is considered an agent
+    where
+        - her actions are the inputs variables prefixed by her name;
+        - her observable variables are composed of
+            * the state variables of the system prefixed by her name;
+            * the state variables provided as an argument to the module
+              instantiation.
+    
+    Note: if the MAS is already computed, agents argument has no effect.
+    
+    agents -- a set of agents.
     """    
     global __mas
     if __mas is None:
@@ -177,59 +191,81 @@ def mas():
         if not nscompile.cmp_struct_get_read_model(nscompile.cvar.cmps):
             raise NuSMVNoReadModelError("Cannot build MAS; no read file.")
         
-        # Get agents names
-        tree = nsparser.cvar.parsed_tree
-        main = None
-        while tree is not None:
-            module = nsnode.car(tree)
-            if nsnode.sprint_node(nsnode.car(nsnode.car(module))) == "main":
-                main = module            
-            tree = nsnode.cdr(tree)
-        if main is None:
-            print("[ERROR] No main module.")
-            return # TODO Error, cannot find main module
-        arguments = _get_instances_args_for_module(main)
-        # arguments is a dict instancename(str)->listofargs(node)
-        agents = arguments.keys()
+        if agents is None:
+            # Get agents names
+            tree = nsparser.cvar.parsed_tree
+            main = None
+            while tree is not None:
+                module = nsnode.car(tree)
+                if (nsnode.sprint_node(nsnode.car(nsnode.car(module))) ==
+                    "main"):
+                    main = module            
+                tree = nsnode.cdr(tree)
+            if main is None:
+                print("[ERROR] No main module.")
+                return # TODO Error, cannot find main module
+            arguments = _get_instances_args_for_module(main)
+            # arguments is a dict instancename(str)->listofargs(node)
+            agents = arguments.keys()
+            
+            # Compute the model
+            _compute_model()
+            
+            st = symb_table()
+            
+            # Flatten arguments and filter on variables
+            argvars = _flatten_and_filter_variable_args(arguments)
+            
+            # Get agents observable variables (locals + module parameters)
+            localvars = _get_variables_by_instances(agents)
+            #localvars is a dict instancename(str)->listofvars(node)
+            inputvars = _get_input_vars_by_instances(agents)
+            
+            # Merge instance variable arguments and local variables
+            variables = {key: ((key in argvars and argvars[key] or []) + 
+                               (key in localvars and localvars[key] or []))
+                         for key in
+                         list(argvars.keys())+list(localvars.keys())}
+            
+            # Compute epistemic relation
+            singletrans = {}
+            for agent in variables:
+                transexpr = None
+                for var in variables[agent]:
+                    var = nsnode.sprint_node(var)
+                    transexpr = nsnode.find_node(nsparser.AND,                                                       
+                                                 _get_epistemic_trans(var),
+                                                 transexpr)
+                singletrans[agent] = transexpr           
+            
+            # Process variables to get strings instead of nodes
+            observedvars = {ag: {nsnode.sprint_node(v) for v in variables[ag]}
+                            for ag in variables.keys()}
+            inputvars = {ag: {nsnode.sprint_node(v)
+                              for v in inputvars[ag]}
+                         for ag in inputvars.keys()}
         
-        # Compute the model
-        _compute_model()
-        
-        st = symb_table()
-        
-        # Flatten arguments and filter on variables
-        argvars = _flatten_and_filter_variable_args(arguments)
-        
-        # Get agents observable variables (locals + module parameters)
-        localvars = _get_variables_by_instances(agents)
-        #localvars is a dict instancename(str)->listofvars(node)
-        inputvars = _get_input_vars_by_instances(agents)
-        
-        # Merge instance variable arguments and local variables
-        variables = {key: ((key in argvars and argvars[key] or []) + 
-                           (key in localvars and localvars[key] or []))
-                     for key in list(argvars.keys())+list(localvars.keys())}
-        
-        # Compute epistemic relation
-        singletrans = {}
-        for agent in variables:
-            transexpr = None
-            for var in variables[agent]:
-                transexpr = nsnode.find_node(nsparser.AND,                                                       
-                                             _get_epistemic_trans(var),
-                                             transexpr)
-            singletrans[agent] = transexpr           
-        
-        # Process variables to get strings instead of nodes
-        localvars = {ag: {nsnode.sprint_node(v).partition('.')[2]
-                          for v in localvars[ag]}
-                     for ag in localvars.keys()}
-        observedvars = {ag: {nsnode.sprint_node(v) for v in variables[ag]}
-                        for ag in variables.keys()}
-        inputvars = {ag: {nsnode.sprint_node(v).partition('.')[2]
-                          for v in inputvars[ag]}
-                     for ag in inputvars.keys()}
-        
+        else:
+            _compute_model()
+            # observedvars: a dictionary of agent name -> set of observed vars
+            observedvars = {str(agent.name): {str(var)
+                                              for var in agent.observables}
+                            for agent in agents}
+            # inputsvars: a dictionary of agent name -> set of inputs vars
+            inputvars = {str(agent.name): {str(ivar)
+                                           for ivar in agent.actions}
+                         for agent in agents}
+            # singletrans: a dictionary of agent name -> epistemic transition
+            singletrans = {}
+            for agent in agents:
+                name = str(agent.name)
+                transexpr = None
+                for var in observedvars[name]:
+                    transexpr = nsnode.find_node(nsparser.AND,
+                                                 _get_epistemic_trans(var),
+                                                 transexpr)
+                singletrans[name] = transexpr
+            
         
         # Create the MAS
         fsm = _prop_database().master.bddFsm

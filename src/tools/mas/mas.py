@@ -110,9 +110,9 @@ class MAS(BddFsm):
         """
         agents = frozenset(agents)
         if agents not in self._protocols:
-            gamma_inputs = [agent+"."+var
-                             for agent in agents
-                             for var in self.agents_inputvars[agent]]
+            gamma_inputs = [var
+                            for agent in agents
+                            for var in self.agents_inputvars[agent]]
             gamma_cube = self.bddEnc.cube_for_inputs_vars(gamma_inputs)
             ngamma_cube = self.bddEnc.inputsCube - gamma_cube
             self._protocols[agents] = (self.weak_pre(self.reachable_states).
@@ -130,9 +130,9 @@ class MAS(BddFsm):
         agents -- a set of agents names of this MAS.
         
         """
-        gamma_inputs = [agent+"."+var
-                         for agent in agents
-                         for var in self.agents_inputvars[agent]]
+        gamma_inputs = [var
+                        for agent in agents
+                        for var in self.agents_inputvars[agent]]
         return self.bddEnc.cube_for_inputs_vars(gamma_inputs)
         
     def pre(self, states, inputs=None, subsystem=None):
