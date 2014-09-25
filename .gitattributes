@@ -16,6 +16,11 @@
 /experiments export-ignore
 
 
-/src/tools/agme export-ignore
+/src/tools/amge export-ignore
+/src/tests/tools/amge export-ignore
+
 /src/tools/fpexplain export-ignore
+/src/tests/tools/fpexplain export-ignore
+
 /src/tools/mucalculus export-ignore
+/src/tests/tools/mucalculus export-ignore
