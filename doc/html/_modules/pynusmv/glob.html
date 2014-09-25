@@ -8,7 +8,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>pynusmv.glob &mdash; PyNuSMV 0.8 documentation</title>
+    <title>pynusmv.glob &mdash; PyNuSMV 0.10 documentation</title>
     
     <link rel="stylesheet" href="../../_static/default.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
@@ -16,7 +16,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../',
-        VERSION:     '0.8',
+        VERSION:     '0.10',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -25,7 +25,7 @@
     <script type="text/javascript" src="../../_static/jquery.js"></script>
     <script type="text/javascript" src="../../_static/underscore.js"></script>
     <script type="text/javascript" src="../../_static/doctools.js"></script>
-    <link rel="top" title="PyNuSMV 0.8 documentation" href="../../index.html" />
+    <link rel="top" title="PyNuSMV 0.10 documentation" href="../../index.html" />
     <link rel="up" title="Module code" href="../index.html" /> 
   </head>
   <body>
@@ -38,7 +38,7 @@
         <li class="right" >
           <a href="../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li><a href="../../index.html">PyNuSMV 0.8 documentation</a> &raquo;</li>
+        <li><a href="../../index.html">PyNuSMV 0.10 documentation</a> &raquo;</li>
           <li><a href="../index.html" accesskey="U">Module code</a> &raquo;</li> 
       </ul>
     </div>  
@@ -84,6 +84,7 @@
 <span class="kn">from</span> <span class="nn">.nusmv.trace.exec</span> <span class="kn">import</span> <span class="k">exec</span> <span class="k">as</span> <span class="n">nstraceexec</span>
 
 <span class="kn">from</span> <span class="nn">.fsm</span> <span class="kn">import</span> <span class="n">BddEnc</span><span class="p">,</span> <span class="n">SymbTable</span>
+<span class="kn">from</span> <span class="nn">.node</span> <span class="kn">import</span> <span class="n">FlatHierarchy</span>
 <span class="kn">from</span> <span class="nn">.parser</span> <span class="kn">import</span> <span class="n">NuSMVParsingError</span>
 <span class="kn">from</span> <span class="nn">.prop</span> <span class="kn">import</span> <span class="n">PropDb</span>
 <span class="kn">from</span> <span class="nn">.exception</span> <span class="kn">import</span> <span class="p">(</span><span class="n">NuSMVLexerError</span><span class="p">,</span>
@@ -102,6 +103,7 @@
 <span class="n">__bdd_encoding</span> <span class="o">=</span> <span class="bp">None</span>
 <span class="n">__prop_database</span> <span class="o">=</span> <span class="bp">None</span>
 <span class="n">__symb_table</span> <span class="o">=</span> <span class="bp">None</span>
+<span class="n">__flat_hierarchy</span> <span class="o">=</span> <span class="bp">None</span>
 
 
 <span class="k">def</span> <span class="nf">_reset_globals</span><span class="p">():</span>
@@ -110,16 +112,17 @@
 <span class="sd">    structures.</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">global</span> <span class="n">__bdd_encoding</span><span class="p">,</span> <span class="n">__prop_database</span><span class="p">,</span> <span class="n">__symb_table</span>
+    <span class="k">global</span> <span class="n">__bdd_encoding</span><span class="p">,</span> <span class="n">__prop_database</span><span class="p">,</span> <span class="n">__symb_table</span><span class="p">,</span> <span class="n">__flat_hierarchy</span>
     <span class="n">__bdd_encoding</span> <span class="o">=</span> <span class="bp">None</span>
     <span class="n">__prop_database</span> <span class="o">=</span> <span class="bp">None</span>
     <span class="n">__symb_table</span> <span class="o">=</span> <span class="bp">None</span>
+    <span class="n">__flat_hierarchy</span> <span class="o">=</span> <span class="bp">None</span>
 
     <span class="c"># Reset cmps</span>
     <span class="n">nscompile</span><span class="o">.</span><span class="n">cmp_struct_reset</span><span class="p">(</span><span class="n">nscompile</span><span class="o">.</span><span class="n">cvar</span><span class="o">.</span><span class="n">cmps</span><span class="p">)</span>
 
 
-<div class="viewcode-block" id="load"><a class="viewcode-back" href="../../pynusmv.html#pynusmv.glob.load">[docs]</a><span class="k">def</span> <span class="nf">load</span><span class="p">(</span><span class="n">model</span><span class="p">):</span>
+<div class="viewcode-block" id="load"><a class="viewcode-back" href="../../pynusmv.html#pynusmv.glob.load">[docs]</a><span class="k">def</span> <span class="nf">load</span><span class="p">(</span><span class="o">*</span><span class="n">model</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Load the given model. This model can be of several forms:</span>
 
@@ -130,11 +133,11 @@
 <span class="sd">      modules.</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">model</span><span class="p">):</span>
-        <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">model</span><span class="p">):</span>
-            <span class="n">load_from_file</span><span class="p">(</span><span class="n">model</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">model</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">model</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">model</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span>
+            <span class="n">load_from_file</span><span class="p">(</span><span class="n">model</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">load_from_string</span><span class="p">(</span><span class="n">model</span><span class="p">)</span>
+            <span class="n">load_from_string</span><span class="p">(</span><span class="n">model</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
     <span class="k">else</span><span class="p">:</span>  <span class="c"># model must be a list of modules</span>
         <span class="n">load_from_modules</span><span class="p">(</span><span class="o">*</span><span class="n">model</span><span class="p">)</span>
 
@@ -262,10 +265,12 @@
     <span class="k">return</span> <span class="n">__symb_table</span>
 
 </div>
-<div class="viewcode-block" id="encode_variables"><a class="viewcode-back" href="../../pynusmv.html#pynusmv.glob.encode_variables">[docs]</a><span class="k">def</span> <span class="nf">encode_variables</span><span class="p">():</span>
+<div class="viewcode-block" id="encode_variables"><a class="viewcode-back" href="../../pynusmv.html#pynusmv.glob.encode_variables">[docs]</a><span class="k">def</span> <span class="nf">encode_variables</span><span class="p">(</span><span class="n">layers</span><span class="o">=</span><span class="p">{</span><span class="s">&quot;model&quot;</span><span class="p">}):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Encode the BDD variables of the current model and store it in global data</span>
 <span class="sd">    structures.</span>
+
+<span class="sd">    :param :class:`set` layers: the set of layers variables to encode</span>
 
 <span class="sd">    :raise: a :exc:`NuSMVNeedFlatHierarchyError</span>
 <span class="sd">            &lt;pynusmv.exception.NuSMVNeedFlatHierarchyError&gt;` if the model is</span>
@@ -282,16 +287,7 @@
         <span class="k">raise</span> <span class="n">NuSMVModelAlreadyEncodedError</span><span class="p">(</span>
             <span class="s">&quot;The variables are already encoded.&quot;</span><span class="p">)</span>
 
-    <span class="c"># Encode variables</span>
-    <span class="n">nsenc</span><span class="o">.</span><span class="n">Enc_init_bool_encoding</span><span class="p">()</span>
-    <span class="n">bool_enc</span> <span class="o">=</span> <span class="n">nsenc</span><span class="o">.</span><span class="n">Enc_get_bool_encoding</span><span class="p">()</span>
-    <span class="n">base_enc</span> <span class="o">=</span> <span class="n">nsboolenc</span><span class="o">.</span><span class="n">boolenc2baseenc</span><span class="p">(</span><span class="n">bool_enc</span><span class="p">)</span>
-    <span class="n">nsbaseenc</span><span class="o">.</span><span class="n">BaseEnc_commit_layer</span><span class="p">(</span><span class="n">base_enc</span><span class="p">,</span> <span class="s">&quot;model&quot;</span><span class="p">)</span>
-
-    <span class="n">nsenc</span><span class="o">.</span><span class="n">Enc_init_bdd_encoding</span><span class="p">()</span>
-    <span class="n">bdd_enc</span> <span class="o">=</span> <span class="n">nsenc</span><span class="o">.</span><span class="n">Enc_get_bdd_encoding</span><span class="p">()</span>
-    <span class="n">base_enc</span> <span class="o">=</span> <span class="n">nsbddenc</span><span class="o">.</span><span class="n">bddenc2baseenc</span><span class="p">(</span><span class="n">bdd_enc</span><span class="p">)</span>
-    <span class="n">nsbaseenc</span><span class="o">.</span><span class="n">BaseEnc_commit_layer</span><span class="p">(</span><span class="n">base_enc</span><span class="p">,</span> <span class="s">&quot;model&quot;</span><span class="p">)</span>
+    <span class="n">encode_variables_for_layers</span><span class="p">(</span><span class="n">layers</span><span class="p">,</span> <span class="n">init</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
 
     <span class="c"># Update cmps</span>
     <span class="n">nscompile</span><span class="o">.</span><span class="n">cmp_struct_set_encode_variables</span><span class="p">(</span><span class="n">nscompile</span><span class="o">.</span><span class="n">cvar</span><span class="o">.</span><span class="n">cmps</span><span class="p">)</span>
@@ -301,6 +297,35 @@
     <span class="n">__bdd_encoding</span> <span class="o">=</span> <span class="n">BddEnc</span><span class="p">(</span><span class="n">nsenc</span><span class="o">.</span><span class="n">Enc_get_bdd_encoding</span><span class="p">())</span>
 
 </div>
+<span class="k">def</span> <span class="nf">encode_variables_for_layers</span><span class="p">(</span><span class="n">layers</span><span class="o">=</span><span class="p">{</span><span class="s">&quot;model&quot;</span><span class="p">},</span> <span class="n">init</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Encode the BDD variables of the given layers and store them in global data</span>
+<span class="sd">    structures.</span>
+
+<span class="sd">    :param :class:`set` layers: the set of layers variables to encode</span>
+<span class="sd">    :param bool init: whether or not initialize the global encodings</span>
+
+<span class="sd">    .. warning: Global encodings should be initialized only once, otherwise,</span>
+<span class="sd">                NuSMV quits unexpectingly. Note that :func:`encode_variables`</span>
+<span class="sd">                initializes them, and should be called before any call to</span>
+<span class="sd">                this function.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">init</span><span class="p">:</span>
+        <span class="n">nsenc</span><span class="o">.</span><span class="n">Enc_init_bool_encoding</span><span class="p">()</span>
+    <span class="n">bool_enc</span> <span class="o">=</span> <span class="n">nsenc</span><span class="o">.</span><span class="n">Enc_get_bool_encoding</span><span class="p">()</span>
+    <span class="n">base_enc</span> <span class="o">=</span> <span class="n">nsboolenc</span><span class="o">.</span><span class="n">boolenc2baseenc</span><span class="p">(</span><span class="n">bool_enc</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">layer</span> <span class="ow">in</span> <span class="n">layers</span><span class="p">:</span>
+        <span class="n">nsbaseenc</span><span class="o">.</span><span class="n">BaseEnc_commit_layer</span><span class="p">(</span><span class="n">base_enc</span><span class="p">,</span> <span class="n">layer</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">init</span><span class="p">:</span>
+        <span class="n">nsenc</span><span class="o">.</span><span class="n">Enc_init_bdd_encoding</span><span class="p">()</span>
+    <span class="n">bdd_enc</span> <span class="o">=</span> <span class="n">nsenc</span><span class="o">.</span><span class="n">Enc_get_bdd_encoding</span><span class="p">()</span>
+    <span class="n">base_enc</span> <span class="o">=</span> <span class="n">nsbddenc</span><span class="o">.</span><span class="n">bddenc2baseenc</span><span class="p">(</span><span class="n">bdd_enc</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">layer</span> <span class="ow">in</span> <span class="n">layers</span><span class="p">:</span>
+        <span class="n">nsbaseenc</span><span class="o">.</span><span class="n">BaseEnc_commit_layer</span><span class="p">(</span><span class="n">base_enc</span><span class="p">,</span> <span class="n">layer</span><span class="p">)</span>
+
+
 <div class="viewcode-block" id="bdd_encoding"><a class="viewcode-back" href="../../pynusmv.html#pynusmv.glob.bdd_encoding">[docs]</a><span class="k">def</span> <span class="nf">bdd_encoding</span><span class="p">():</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Return the main bdd encoding of the current model.</span>
@@ -416,6 +441,21 @@
     <span class="n">nscompile</span><span class="o">.</span><span class="n">cmp_struct_set_build_model</span><span class="p">(</span><span class="n">nscompile</span><span class="o">.</span><span class="n">cvar</span><span class="o">.</span><span class="n">cmps</span><span class="p">)</span>
 
 </div>
+<span class="k">def</span> <span class="nf">flat_hierarchy</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Return the global flat hierarchy.</span>
+
+<span class="sd">    :rtype: :class:`FlatHierarchy &lt;pynusmv.node.FlatHierarchy&gt;`</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">nscompile</span><span class="o">.</span><span class="n">cmp_struct_get_flatten_hrc</span><span class="p">(</span><span class="n">nscompile</span><span class="o">.</span><span class="n">cvar</span><span class="o">.</span><span class="n">cmps</span><span class="p">):</span>
+        <span class="c"># Need a flat hierarchy</span>
+        <span class="k">raise</span> <span class="n">NuSMVNeedFlatHierarchyError</span><span class="p">(</span><span class="s">&quot;Need flat hierarchy.&quot;</span><span class="p">)</span>
+    <span class="k">global</span> <span class="n">__flat_hierarchy</span>
+    <span class="k">if</span> <span class="n">__flat_hierarchy</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="n">__flat_hierarchy</span> <span class="o">=</span> <span class="n">FlatHierarchy</span><span class="p">(</span><span class="n">nscompile</span><span class="o">.</span><span class="n">cvar</span><span class="o">.</span><span class="n">mainFlatHierarchy</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">__flat_hierarchy</span>
+
+
 <div class="viewcode-block" id="prop_database"><a class="viewcode-back" href="../../pynusmv.html#pynusmv.glob.prop_database">[docs]</a><span class="k">def</span> <span class="nf">prop_database</span><span class="p">():</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Return the global properties database.</span>
@@ -484,12 +524,12 @@
         <li class="right" >
           <a href="../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li><a href="../../index.html">PyNuSMV 0.8 documentation</a> &raquo;</li>
+        <li><a href="../../index.html">PyNuSMV 0.10 documentation</a> &raquo;</li>
           <li><a href="../index.html" >Module code</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">
-        &copy; Copyright 2013, Simon Busard.
+        &copy; Copyright 2013-2014, Simon Busard.
       Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
     </div>
   </body>

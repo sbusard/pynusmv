@@ -8,7 +8,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>pynusmv.init &mdash; PyNuSMV 0.8 documentation</title>
+    <title>pynusmv.init &mdash; PyNuSMV 0.10 documentation</title>
     
     <link rel="stylesheet" href="../../_static/default.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
@@ -16,7 +16,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../',
-        VERSION:     '0.8',
+        VERSION:     '0.10',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -25,7 +25,7 @@
     <script type="text/javascript" src="../../_static/jquery.js"></script>
     <script type="text/javascript" src="../../_static/underscore.js"></script>
     <script type="text/javascript" src="../../_static/doctools.js"></script>
-    <link rel="top" title="PyNuSMV 0.8 documentation" href="../../index.html" />
+    <link rel="top" title="PyNuSMV 0.10 documentation" href="../../index.html" />
     <link rel="up" title="Module code" href="../index.html" /> 
   </head>
   <body>
@@ -38,7 +38,7 @@
         <li class="right" >
           <a href="../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li><a href="../../index.html">PyNuSMV 0.8 documentation</a> &raquo;</li>
+        <li><a href="../../index.html">PyNuSMV 0.10 documentation</a> &raquo;</li>
           <li><a href="../index.html" accesskey="U">Module code</a> &raquo;</li> 
       </ul>
     </div>  
@@ -51,6 +51,12 @@
   <h1>Source code for pynusmv.init</h1><div class="highlight"><pre>
 <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">The :mod:`pynusmv.init` module provides functions to initialize and quit NuSMV.</span>
+
+<span class="sd">The :func:`init_nusmv` function can be used as a context manager for the `with`</span>
+<span class="sd">Python statement::</span>
+
+<span class="sd">    with init_nusmv():</span>
+<span class="sd">        ...</span>
 
 <span class="sd">.. warning:: :func:`init_nusmv` should be called before any other call to</span>
 <span class="sd">   pynusmv functions; :func:`deinit_nusmv` should be called after using</span>
@@ -77,6 +83,21 @@
 <span class="n">__collector</span> <span class="o">=</span> <span class="bp">None</span>
 
 
+<span class="k">class</span> <span class="nc">_PyNuSMVContext</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A PyNuSMV Context allows to initialize and deinitialize PyNuSMV through</span>
+<span class="sd">    a `with` Python statement.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__enter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">None</span>
+
+    <span class="k">def</span> <span class="nf">__exit__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">exc_type</span><span class="p">,</span> <span class="n">exc_value</span><span class="p">,</span> <span class="n">traceback</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">exc_type</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">deinit_nusmv</span><span class="p">()</span>
+
+
 <div class="viewcode-block" id="init_nusmv"><a class="viewcode-back" href="../../pynusmv.html#pynusmv.init.init_nusmv">[docs]</a><span class="k">def</span> <span class="nf">init_nusmv</span><span class="p">():</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Initialize NuSMV. Must be called only once before calling</span>
@@ -99,6 +120,8 @@
         <span class="c"># to be able to set parser_is_lax</span>
         <span class="n">nsopt</span><span class="o">.</span><span class="n">init_options_cmd</span><span class="p">()</span>
         <span class="n">nscmd</span><span class="o">.</span><span class="n">Cmd_SecureCommandExecute</span><span class="p">(</span><span class="s">&quot;set parser_is_lax&quot;</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">_PyNuSMVContext</span><span class="p">()</span>
 
 </div>
 <div class="viewcode-block" id="deinit_nusmv"><a class="viewcode-back" href="../../pynusmv.html#pynusmv.init.deinit_nusmv">[docs]</a><span class="k">def</span> <span class="nf">deinit_nusmv</span><span class="p">(</span><span class="n">ddinfo</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
@@ -194,12 +217,12 @@
         <li class="right" >
           <a href="../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li><a href="../../index.html">PyNuSMV 0.8 documentation</a> &raquo;</li>
+        <li><a href="../../index.html">PyNuSMV 0.10 documentation</a> &raquo;</li>
           <li><a href="../index.html" >Module code</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">
-        &copy; Copyright 2013, Simon Busard.
+        &copy; Copyright 2013-2014, Simon Busard.
       Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
     </div>
   </body>

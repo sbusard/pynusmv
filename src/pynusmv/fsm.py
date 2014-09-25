@@ -929,8 +929,8 @@ class SymbTable(PointerWrapper):
         """
         Declare a new input variable in this symbol table.
 
-        :param :class:`str` layer: the name of the layer in which insert the
-                                   variable
+        :param layer: the name of the layer in which insert the variable
+        :type layer: :class:`str`
         :param ivar: the name of the input variable
         :type ivar: :class:`Node <pynusmv.node.Node>`
         :param type_: the type of the declared input variable
@@ -960,8 +960,8 @@ class SymbTable(PointerWrapper):
         """
         Declare a new state variable in this symbol table.
 
-        :param :class:`str` layer: the name of the layer in which insert the
-                                   variable
+        :param layer: the name of the layer in which insert the variable
+        :type layer: :class:`str`
         :param var: the name of the state variable
         :type var: :class:`Node <pynusmv.node.Node>`
         :param type_: the type of the declared state variable
@@ -992,8 +992,8 @@ class SymbTable(PointerWrapper):
         """
         Declare a new frozen variable in this symbol table.
 
-        :param :class:`str` layer: the name of the layer in which insert the
-                                   variable
+        :param layer: the name of the layer in which insert the variable
+        :type layer: :class:`str`
         :param fvar: the name of the frozen variable
         :type fvar: :class:`Node <pynusmv.node.Node>`
         :param type_: the type of the declared frozen variable

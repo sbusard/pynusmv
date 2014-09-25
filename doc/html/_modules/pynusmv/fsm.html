@@ -8,7 +8,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>pynusmv.fsm &mdash; PyNuSMV 0.8 documentation</title>
+    <title>pynusmv.fsm &mdash; PyNuSMV 0.10 documentation</title>
     
     <link rel="stylesheet" href="../../_static/default.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
@@ -16,7 +16,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../',
-        VERSION:     '0.8',
+        VERSION:     '0.10',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -25,7 +25,7 @@
     <script type="text/javascript" src="../../_static/jquery.js"></script>
     <script type="text/javascript" src="../../_static/underscore.js"></script>
     <script type="text/javascript" src="../../_static/doctools.js"></script>
-    <link rel="top" title="PyNuSMV 0.8 documentation" href="../../index.html" />
+    <link rel="top" title="PyNuSMV 0.10 documentation" href="../../index.html" />
     <link rel="up" title="Module code" href="../index.html" /> 
   </head>
   <body>
@@ -38,7 +38,7 @@
         <li class="right" >
           <a href="../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li><a href="../../index.html">PyNuSMV 0.8 documentation</a> &raquo;</li>
+        <li><a href="../../index.html">PyNuSMV 0.10 documentation</a> &raquo;</li>
           <li><a href="../index.html" accesskey="U">Module code</a> &raquo;</li> 
       </ul>
     </div>  
@@ -74,7 +74,7 @@
 <span class="kn">from</span> <span class="nn">.nusmv.enc.base</span> <span class="kn">import</span> <span class="n">base</span> <span class="k">as</span> <span class="n">nsbaseEnc</span>
 <span class="kn">from</span> <span class="nn">.nusmv.trans.bdd</span> <span class="kn">import</span> <span class="n">bdd</span> <span class="k">as</span> <span class="n">nsbddtrans</span>
 <span class="kn">from</span> <span class="nn">.nusmv.set</span> <span class="kn">import</span> <span class="nb">set</span> <span class="k">as</span> <span class="n">nsset</span>
-<span class="kn">from</span> <span class="nn">.nusmv.compile.symb_table</span> <span class="kn">import</span> <span class="n">symb_table</span> <span class="k">as</span> <span class="n">nssymbtable</span>
+<span class="kn">from</span> <span class="nn">.nusmv.compile.symb_table</span> <span class="kn">import</span> <span class="n">symb_table</span> <span class="k">as</span> <span class="n">nssymb_table</span>
 <span class="kn">from</span> <span class="nn">.nusmv.compile</span> <span class="kn">import</span> <span class="nb">compile</span> <span class="k">as</span> <span class="n">nscompile</span>
 <span class="kn">from</span> <span class="nn">.nusmv.node</span> <span class="kn">import</span> <span class="n">node</span> <span class="k">as</span> <span class="n">nsnode</span>
 <span class="kn">from</span> <span class="nn">.nusmv.prop</span> <span class="kn">import</span> <span class="n">prop</span> <span class="k">as</span> <span class="n">nsprop</span>
@@ -86,10 +86,11 @@
 <span class="kn">from</span> <span class="nn">.nusmv.compile.type_checking</span> <span class="kn">import</span> <span class="n">type_checking</span> <span class="k">as</span> <span class="n">nstype_checking</span>
 
 <span class="kn">from</span> <span class="nn">.dd</span> <span class="kn">import</span> <span class="n">BDD</span><span class="p">,</span> <span class="n">State</span><span class="p">,</span> <span class="n">Inputs</span><span class="p">,</span> <span class="n">StateInputs</span><span class="p">,</span> <span class="n">DDManager</span><span class="p">,</span> <span class="n">Cube</span>
-<span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">PointerWrapper</span>
+<span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">PointerWrapper</span><span class="p">,</span> <span class="n">AttributeDict</span>
 <span class="kn">from</span> <span class="nn">.exception</span> <span class="kn">import</span> <span class="p">(</span><span class="n">NuSMVBddPickingError</span><span class="p">,</span> <span class="n">NuSMVFlatteningError</span><span class="p">,</span>
-                        <span class="n">NuSMVTypeCheckingError</span><span class="p">)</span>
+                        <span class="n">NuSMVTypeCheckingError</span><span class="p">,</span> <span class="n">NuSMVSymbTableError</span><span class="p">)</span>
 <span class="kn">from</span> <span class="nn">.parser</span> <span class="kn">import</span> <span class="n">parse_next_expression</span>
+<span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">node</span>
 
 
 <div class="viewcode-block" id="BddFsm"><a class="viewcode-back" href="../../pynusmv.html#pynusmv.fsm.BddFsm">[docs]</a><span class="k">class</span> <span class="nc">BddFsm</span><span class="p">(</span><span class="n">PointerWrapper</span><span class="p">):</span>
@@ -555,7 +556,10 @@
     <span class="k">def</span> <span class="nf">_free</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_freeit</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ptr</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
             <span class="c"># Free it because such a BddTrans is not owned by anyone</span>
-            <span class="n">nsbddtrans</span><span class="o">.</span><span class="n">BddTrans_free</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_ptr</span><span class="p">)</span>
+            <span class="c"># nsbddtrans.BddTrans_free(self._ptr)</span>
+            <span class="c"># FIXME Freeing BddTrans can cause Segmentation fault. Should learn</span>
+            <span class="c"># more about NuSMV internal to detect what and how we should free</span>
+            <span class="c"># it</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_freeit</span> <span class="o">=</span> <span class="bp">False</span>
 
     <span class="nd">@property</span>
@@ -613,8 +617,8 @@
     <span class="c"># ===== Static methods ====================================================</span>
     <span class="c"># =========================================================================</span>
 </div>
-    <span class="nd">@staticmethod</span>
-<div class="viewcode-block" id="BddTrans.from_trans"><a class="viewcode-back" href="../../pynusmv.html#pynusmv.fsm.BddTrans.from_trans">[docs]</a>    <span class="k">def</span> <span class="nf">from_trans</span><span class="p">(</span><span class="n">symb_table</span><span class="p">,</span> <span class="n">trans</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="BddTrans.from_trans"><a class="viewcode-back" href="../../pynusmv.html#pynusmv.fsm.BddTrans.from_trans">[docs]</a>    <span class="k">def</span> <span class="nf">from_trans</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">symb_table</span><span class="p">,</span> <span class="n">trans</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Return a new BddTrans from the given trans.</span>
 
@@ -630,6 +634,7 @@
 
 <span class="sd">        &quot;&quot;&quot;</span>
 
+        <span class="n">trans</span> <span class="o">=</span> <span class="n">node</span><span class="o">.</span><span class="n">find_hierarchy</span><span class="p">(</span><span class="n">trans</span><span class="p">)</span>
         <span class="n">flattrans</span><span class="p">,</span> <span class="n">err</span> <span class="o">=</span> <span class="n">nscompile</span><span class="o">.</span><span class="n">FlattenSexp</span><span class="p">(</span><span class="n">symb_table</span><span class="o">.</span><span class="n">_ptr</span><span class="p">,</span> <span class="n">trans</span><span class="p">,</span>
                                                <span class="n">context</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">err</span><span class="p">:</span>
@@ -656,10 +661,12 @@
                 <span class="n">nsopt</span><span class="o">.</span><span class="n">OptsHandler_get_instance</span><span class="p">()),</span>
             <span class="n">cluster_options</span><span class="p">)</span>
 
+        <span class="n">nsbddtrans</span><span class="o">.</span><span class="n">ClusterOptions_destroy</span><span class="p">(</span><span class="n">cluster_options</span><span class="p">)</span>
+
         <span class="k">return</span> <span class="n">BddTrans</span><span class="p">(</span><span class="n">newtransptr</span><span class="p">,</span> <span class="n">enc</span><span class="p">,</span> <span class="n">ddmanager</span><span class="p">,</span> <span class="n">freeit</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
 </div>
-    <span class="nd">@staticmethod</span>
-<div class="viewcode-block" id="BddTrans.from_string"><a class="viewcode-back" href="../../pynusmv.html#pynusmv.fsm.BddTrans.from_string">[docs]</a>    <span class="k">def</span> <span class="nf">from_string</span><span class="p">(</span><span class="n">symb_table</span><span class="p">,</span> <span class="n">strtrans</span><span class="p">,</span> <span class="n">strcontext</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="BddTrans.from_string"><a class="viewcode-back" href="../../pynusmv.html#pynusmv.fsm.BddTrans.from_string">[docs]</a>    <span class="k">def</span> <span class="nf">from_string</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">symb_table</span><span class="p">,</span> <span class="n">strtrans</span><span class="p">,</span> <span class="n">strcontext</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Return a new BddTrans from the given strtrans, in given strcontex.</span>
 
@@ -675,7 +682,7 @@
 <span class="sd">                if `strtrans` is wrongly typed under `context`</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">type_checker</span> <span class="o">=</span> <span class="n">nssymbtable</span><span class="o">.</span><span class="n">SymbTable_get_type_checker</span><span class="p">(</span><span class="n">symb_table</span><span class="o">.</span><span class="n">_ptr</span><span class="p">)</span>
+        <span class="n">type_checker</span> <span class="o">=</span> <span class="n">nssymb_table</span><span class="o">.</span><span class="n">SymbTable_get_type_checker</span><span class="p">(</span><span class="n">symb_table</span><span class="o">.</span><span class="n">_ptr</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">strcontext</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
             <span class="n">strtrans</span> <span class="o">=</span> <span class="s">&quot;(&quot;</span> <span class="o">+</span> <span class="n">strtrans</span> <span class="o">+</span> <span class="s">&quot;)&quot;</span> <span class="o">+</span> <span class="s">&quot; IN &quot;</span> <span class="o">+</span> <span class="n">strcontext</span>
@@ -683,14 +690,15 @@
         <span class="c"># Parse the string</span>
         <span class="n">trans</span> <span class="o">=</span> <span class="n">parse_next_expression</span><span class="p">(</span><span class="n">strtrans</span><span class="p">)</span>
 
+        <span class="c"># FIXME Provoke sometimes segmentation faults</span>
         <span class="c"># Type check</span>
-        <span class="n">expr_type</span> <span class="o">=</span> <span class="n">nstype_checking</span><span class="o">.</span><span class="n">TypeChecker_get_expression_type</span><span class="p">(</span>
-            <span class="n">type_checker</span><span class="p">,</span> <span class="n">trans</span><span class="p">,</span> <span class="bp">None</span><span class="p">)</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">nssymbtable</span><span class="o">.</span><span class="n">SymbType_is_boolean</span><span class="p">(</span><span class="n">expr_type</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="n">NuSMVTypeCheckingError</span><span class="p">(</span><span class="s">&quot;The given TRANS is wrongly typed.&quot;</span><span class="p">)</span>
+        <span class="c"># expr_type = nstype_checking.TypeChecker_get_expression_type(</span>
+        <span class="c">#    type_checker, trans, None)</span>
+        <span class="c"># if not nssymb_table.SymbType_is_boolean(expr_type):</span>
+        <span class="c">#    raise NuSMVTypeCheckingError(&quot;The given TRANS is wrongly typed.&quot;)</span>
 
         <span class="c"># Call from_trans method</span>
-        <span class="k">return</span> <span class="n">BddTrans</span><span class="o">.</span><span class="n">from_trans</span><span class="p">(</span><span class="n">symb_table</span><span class="p">,</span> <span class="n">trans</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">cls</span><span class="o">.</span><span class="n">from_trans</span><span class="p">(</span><span class="n">symb_table</span><span class="p">,</span> <span class="n">trans</span><span class="p">)</span>
 
 </div></div>
 <div class="viewcode-block" id="BddEnc"><a class="viewcode-back" href="../../pynusmv.html#pynusmv.fsm.BddEnc">[docs]</a><span class="k">class</span> <span class="nc">BddEnc</span><span class="p">(</span><span class="n">PointerWrapper</span><span class="p">):</span>
@@ -805,7 +813,7 @@
         <span class="k">while</span> <span class="ow">not</span> <span class="n">nsutils</span><span class="o">.</span><span class="n">ListIter_is_end</span><span class="p">(</span><span class="n">ite</span><span class="p">):</span>
             <span class="n">var_node</span> <span class="o">=</span> <span class="n">nsutils</span><span class="o">.</span><span class="n">NodeList_get_elem_at</span><span class="p">(</span><span class="n">inputs</span><span class="p">,</span> <span class="n">ite</span><span class="p">)</span>
             <span class="n">varname</span> <span class="o">=</span> <span class="n">nsnode</span><span class="o">.</span><span class="n">sprint_node</span><span class="p">(</span><span class="n">var_node</span><span class="p">)</span>
-            <span class="n">isVar</span> <span class="o">=</span> <span class="n">nssymbtable</span><span class="o">.</span><span class="n">SymbTable_is_symbol_input_var</span><span class="p">(</span>
+            <span class="n">isVar</span> <span class="o">=</span> <span class="n">nssymb_table</span><span class="o">.</span><span class="n">SymbTable_is_symbol_input_var</span><span class="p">(</span>
                 <span class="n">st</span><span class="o">.</span><span class="n">_ptr</span><span class="p">,</span> <span class="n">var_node</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">isVar</span> <span class="ow">and</span> <span class="n">varname</span> <span class="ow">in</span> <span class="n">variables</span><span class="p">:</span>
                 <span class="n">var_nodes</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">var_node</span><span class="p">)</span>
@@ -816,7 +824,46 @@
             <span class="n">varset</span> <span class="o">=</span> <span class="n">nsset</span><span class="o">.</span><span class="n">Set_AddMember</span><span class="p">(</span><span class="n">varset</span><span class="p">,</span> <span class="n">var</span><span class="p">)</span>
 
         <span class="n">cube_ptr</span> <span class="o">=</span> <span class="n">bddEnc</span><span class="o">.</span><span class="n">BddEnc_get_vars_cube</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_ptr</span><span class="p">,</span> <span class="n">varset</span><span class="p">,</span>
-                                               <span class="n">nssymbtable</span><span class="o">.</span><span class="n">VFT_INPUT</span><span class="p">)</span>
+                                               <span class="n">nssymb_table</span><span class="o">.</span><span class="n">VFT_INPUT</span><span class="p">)</span>
+
+        <span class="n">nsset</span><span class="o">.</span><span class="n">Set_ReleaseSet</span><span class="p">(</span><span class="n">varset</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">Cube</span><span class="p">(</span><span class="n">cube_ptr</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">DDmanager</span><span class="p">,</span> <span class="n">freeit</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="BddEnc.cube_for_state_vars"><a class="viewcode-back" href="../../pynusmv.html#pynusmv.fsm.BddEnc.cube_for_state_vars">[docs]</a>    <span class="k">def</span> <span class="nf">cube_for_state_vars</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">variables</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return the cube for the given state variables.</span>
+
+<span class="sd">        :param variables: a list of state variable names</span>
+<span class="sd">        :rtype: :class:`BDD &lt;pynusmv.dd.BDD&gt;`</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">glob</span>
+
+        <span class="n">master</span> <span class="o">=</span> <span class="n">glob</span><span class="o">.</span><span class="n">prop_database</span><span class="p">()</span><span class="o">.</span><span class="n">master</span>
+        <span class="n">sexp_fsm</span> <span class="o">=</span> <span class="n">nsprop</span><span class="o">.</span><span class="n">Prop_get_scalar_sexp_fsm</span><span class="p">(</span><span class="n">master</span><span class="o">.</span><span class="n">_ptr</span><span class="p">)</span>
+        <span class="n">st</span> <span class="o">=</span> <span class="n">glob</span><span class="o">.</span><span class="n">symb_table</span><span class="p">()</span>
+
+        <span class="n">inputs</span> <span class="o">=</span> <span class="n">nssexp</span><span class="o">.</span><span class="n">SexpFsm_get_vars_list</span><span class="p">(</span><span class="n">sexp_fsm</span><span class="p">)</span>
+
+        <span class="n">var_nodes</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+        <span class="n">ite</span> <span class="o">=</span> <span class="n">nsutils</span><span class="o">.</span><span class="n">NodeList_get_first_iter</span><span class="p">(</span><span class="n">inputs</span><span class="p">)</span>
+        <span class="k">while</span> <span class="ow">not</span> <span class="n">nsutils</span><span class="o">.</span><span class="n">ListIter_is_end</span><span class="p">(</span><span class="n">ite</span><span class="p">):</span>
+            <span class="n">var_node</span> <span class="o">=</span> <span class="n">nsutils</span><span class="o">.</span><span class="n">NodeList_get_elem_at</span><span class="p">(</span><span class="n">inputs</span><span class="p">,</span> <span class="n">ite</span><span class="p">)</span>
+            <span class="n">varname</span> <span class="o">=</span> <span class="n">nsnode</span><span class="o">.</span><span class="n">sprint_node</span><span class="p">(</span><span class="n">var_node</span><span class="p">)</span>
+            <span class="n">isVar</span> <span class="o">=</span> <span class="n">nssymb_table</span><span class="o">.</span><span class="n">SymbTable_is_symbol_state_var</span><span class="p">(</span><span class="n">st</span><span class="o">.</span><span class="n">_ptr</span><span class="p">,</span>
+                                                               <span class="n">var_node</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">isVar</span> <span class="ow">and</span> <span class="n">varname</span> <span class="ow">in</span> <span class="n">variables</span><span class="p">:</span>
+                <span class="n">var_nodes</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">var_node</span><span class="p">)</span>
+            <span class="n">ite</span> <span class="o">=</span> <span class="n">nsutils</span><span class="o">.</span><span class="n">ListIter_get_next</span><span class="p">(</span><span class="n">ite</span><span class="p">)</span>
+
+        <span class="n">varset</span> <span class="o">=</span> <span class="n">nsset</span><span class="o">.</span><span class="n">Set_MakeEmpty</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">var</span> <span class="ow">in</span> <span class="n">var_nodes</span><span class="p">:</span>
+            <span class="n">varset</span> <span class="o">=</span> <span class="n">nsset</span><span class="o">.</span><span class="n">Set_AddMember</span><span class="p">(</span><span class="n">varset</span><span class="p">,</span> <span class="n">var</span><span class="p">)</span>
+
+        <span class="n">cube_ptr</span> <span class="o">=</span> <span class="n">bddEnc</span><span class="o">.</span><span class="n">BddEnc_get_vars_cube</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_ptr</span><span class="p">,</span> <span class="n">varset</span><span class="p">,</span>
+                                               <span class="n">nssymb_table</span><span class="o">.</span><span class="n">VFT_STATE</span><span class="p">)</span>
 
         <span class="n">nsset</span><span class="o">.</span><span class="n">Set_ReleaseSet</span><span class="p">(</span><span class="n">varset</span><span class="p">)</span>
 
@@ -843,7 +890,7 @@
         <span class="k">while</span> <span class="ow">not</span> <span class="n">nsutils</span><span class="o">.</span><span class="n">ListIter_is_end</span><span class="p">(</span><span class="n">ite</span><span class="p">):</span>
             <span class="n">var_node</span> <span class="o">=</span> <span class="n">nsutils</span><span class="o">.</span><span class="n">NodeList_get_elem_at</span><span class="p">(</span><span class="n">variables</span><span class="p">,</span> <span class="n">ite</span><span class="p">)</span>
             <span class="n">varname</span> <span class="o">=</span> <span class="n">nsnode</span><span class="o">.</span><span class="n">sprint_node</span><span class="p">(</span><span class="n">var_node</span><span class="p">)</span>
-            <span class="n">isVar</span> <span class="o">=</span> <span class="n">nssymbtable</span><span class="o">.</span><span class="n">SymbTable_is_symbol_input_var</span><span class="p">(</span>
+            <span class="n">isVar</span> <span class="o">=</span> <span class="n">nssymb_table</span><span class="o">.</span><span class="n">SymbTable_is_symbol_input_var</span><span class="p">(</span>
                 <span class="n">st</span><span class="o">.</span><span class="n">_ptr</span><span class="p">,</span> <span class="n">var_node</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">isVar</span><span class="p">:</span>
                 <span class="n">varnames</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">varname</span><span class="p">)</span>
@@ -858,8 +905,285 @@
 <span class="sd">    Python class for symbols table.</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="c"># Symbols tables are never freed. NuSMV takes care of it.</span>
-    <span class="k">pass</span></div>
+
+    <span class="n">ins_policies</span> <span class="o">=</span> <span class="n">AttributeDict</span><span class="p">(</span>
+        <span class="n">SYMB_LAYER_POS_DEFAULT</span><span class="o">=</span><span class="n">nssymb_table</span><span class="o">.</span><span class="n">SYMB_LAYER_POS_DEFAULT</span><span class="p">,</span>
+        <span class="n">SYMB_LAYER_POS_FORCE_TOP</span><span class="o">=</span><span class="n">nssymb_table</span><span class="o">.</span><span class="n">SYMB_LAYER_POS_FORCE_TOP</span><span class="p">,</span>
+        <span class="n">SYMB_LAYER_POS_TOP</span><span class="o">=</span><span class="n">nssymb_table</span><span class="o">.</span><span class="n">SYMB_LAYER_POS_TOP</span><span class="p">,</span>
+        <span class="n">SYMB_LAYER_POS_BOTTOM</span><span class="o">=</span><span class="n">nssymb_table</span><span class="o">.</span><span class="n">SYMB_LAYER_POS_BOTTOM</span><span class="p">,</span>
+        <span class="n">SYMB_LAYER_POS_FORCE_BOTTOM</span><span class="o">=</span><span class="n">nssymb_table</span><span class="o">.</span><span class="n">SYMB_LAYER_POS_FORCE_BOTTOM</span>
+    <span class="p">)</span>
+
+    <span class="nd">@property</span>
+<div class="viewcode-block" id="SymbTable.layer_names"><a class="viewcode-back" href="../../pynusmv.html#pynusmv.fsm.SymbTable.layer_names">[docs]</a>    <span class="k">def</span> <span class="nf">layer_names</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;The names of the layers of this symbol table.&quot;&quot;&quot;</span>
+        <span class="n">layer_names</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="n">layers</span> <span class="o">=</span> <span class="n">nssymb_table</span><span class="o">.</span><span class="n">SymbTable_get_layers</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_ptr</span><span class="p">)</span>
+        <span class="n">it</span> <span class="o">=</span> <span class="n">nsutils</span><span class="o">.</span><span class="n">NodeList_get_first_iter</span><span class="p">(</span><span class="n">layers</span><span class="p">)</span>
+        <span class="k">while</span> <span class="ow">not</span> <span class="n">nsutils</span><span class="o">.</span><span class="n">ListIter_is_end</span><span class="p">(</span><span class="n">it</span><span class="p">):</span>
+            <span class="n">layer</span> <span class="o">=</span> <span class="n">nssymb_table</span><span class="o">.</span><span class="n">node2layer</span><span class="p">(</span>
+                <span class="n">nsutils</span><span class="o">.</span><span class="n">NodeList_get_elem_at</span><span class="p">(</span><span class="n">layers</span><span class="p">,</span> <span class="n">it</span><span class="p">))</span>
+            <span class="n">layer_name</span> <span class="o">=</span> <span class="n">nssymb_table</span><span class="o">.</span><span class="n">SymbLayer_get_name</span><span class="p">(</span><span class="n">layer</span><span class="p">)</span>
+
+            <span class="n">layer_names</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">layer_name</span><span class="p">)</span>
+
+            <span class="n">it</span> <span class="o">=</span> <span class="n">nsutils</span><span class="o">.</span><span class="n">ListIter_get_next</span><span class="p">(</span><span class="n">it</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">layer_names</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="SymbTable.create_layer"><a class="viewcode-back" href="../../pynusmv.html#pynusmv.fsm.SymbTable.create_layer">[docs]</a>    <span class="k">def</span> <span class="nf">create_layer</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">layer_name</span><span class="p">,</span>
+                     <span class="n">ins_policy</span><span class="o">=</span><span class="n">ins_policies</span><span class="o">.</span><span class="n">SYMB_LAYER_POS_DEFAULT</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Create a new layer in this symbol table.</span>
+
+<span class="sd">        :param :class:`str` layer_name: the name of the created layer</span>
+<span class="sd">        :param ins_policy: the insertion policy for inserting the new layer</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">nssymb_table</span><span class="o">.</span><span class="n">SymbTable_create_layer</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_ptr</span><span class="p">,</span> <span class="n">layer_name</span><span class="p">,</span> <span class="n">ins_policy</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="SymbTable.get_variable_type"><a class="viewcode-back" href="../../pynusmv.html#pynusmv.fsm.SymbTable.get_variable_type">[docs]</a>    <span class="k">def</span> <span class="nf">get_variable_type</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">variable</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return the type of the given variable.</span>
+
+<span class="sd">        :param variable: the name of the variable</span>
+<span class="sd">        :type variable: :class:`Node`</span>
+<span class="sd">        :rtype: a NuSMV `SymbType_ptr`</span>
+
+<span class="sd">        .. warning:: The returned pointer must not be altered or freed.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">rs</span> <span class="o">=</span> <span class="n">nssymb_table</span><span class="o">.</span><span class="n">SymbTable_resolve_symbol</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_ptr</span><span class="p">,</span> <span class="n">variable</span><span class="o">.</span><span class="n">_ptr</span><span class="p">,</span>
+                                                   <span class="bp">None</span><span class="p">)</span>
+        <span class="n">variable</span> <span class="o">=</span> <span class="n">node</span><span class="o">.</span><span class="n">Node</span><span class="o">.</span><span class="n">from_ptr</span><span class="p">(</span><span class="n">nssymb_table</span><span class="o">.</span>
+                                      <span class="n">ResolveSymbol_get_resolved_name</span><span class="p">(</span><span class="n">rs</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">nssymb_table</span><span class="o">.</span><span class="n">SymbTable_get_var_type</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_ptr</span><span class="p">,</span>
+                                                   <span class="n">variable</span><span class="o">.</span><span class="n">_ptr</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="SymbTable.can_declare_var"><a class="viewcode-back" href="../../pynusmv.html#pynusmv.fsm.SymbTable.can_declare_var">[docs]</a>    <span class="k">def</span> <span class="nf">can_declare_var</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">layer</span><span class="p">,</span> <span class="n">variable</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return whether the given `variable` name can be declared in `layer`.</span>
+
+<span class="sd">        :param :class:`str` layer: the name of the layer</span>
+<span class="sd">        :param variable: the name of the variable</span>
+<span class="sd">        :type variable: :class:`Node &lt;pynusmv.node.Node&gt;`</span>
+<span class="sd">        :rtype: :class:`bool`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">rs</span> <span class="o">=</span> <span class="n">nssymb_table</span><span class="o">.</span><span class="n">SymbTable_resolve_symbol</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_ptr</span><span class="p">,</span> <span class="n">variable</span><span class="o">.</span><span class="n">_ptr</span><span class="p">,</span>
+                                                   <span class="bp">None</span><span class="p">)</span>
+        <span class="n">variable</span> <span class="o">=</span> <span class="n">node</span><span class="o">.</span><span class="n">Node</span><span class="o">.</span><span class="n">from_ptr</span><span class="p">(</span><span class="n">nssymb_table</span><span class="o">.</span>
+                                      <span class="n">ResolveSymbol_get_resolved_name</span><span class="p">(</span><span class="n">rs</span><span class="p">))</span>
+        <span class="n">layer</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_layer</span><span class="p">(</span><span class="n">layer</span><span class="p">)</span>
+        <span class="k">return</span> <span class="p">(</span><span class="n">nssymb_table</span><span class="o">.</span>
+                <span class="n">SymbLayer_can_declare_var</span><span class="p">(</span><span class="n">layer</span><span class="p">,</span> <span class="n">variable</span><span class="o">.</span><span class="n">_ptr</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="SymbTable.declare_input_var"><a class="viewcode-back" href="../../pynusmv.html#pynusmv.fsm.SymbTable.declare_input_var">[docs]</a>    <span class="k">def</span> <span class="nf">declare_input_var</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">layer</span><span class="p">,</span> <span class="n">ivar</span><span class="p">,</span> <span class="n">type_</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Declare a new input variable in this symbol table.</span>
+
+<span class="sd">        :param layer: the name of the layer in which insert the variable</span>
+<span class="sd">        :type layer: :class:`str`</span>
+<span class="sd">        :param ivar: the name of the input variable</span>
+<span class="sd">        :type ivar: :class:`Node &lt;pynusmv.node.Node&gt;`</span>
+<span class="sd">        :param type_: the type of the declared input variable</span>
+<span class="sd">        :type type_: :class:`Node &lt;pynusmv.node.Node&gt;`</span>
+<span class="sd">        :raise: a :exc:`NuSMVSymbTableError</span>
+<span class="sd">            &lt;pynusmv.exception.NuSMVSymbTableError&gt;` if the variable is already</span>
+<span class="sd">            defined in the given layer</span>
+
+<span class="sd">        .. warning:: `type_` must be already resolved, that is, the body</span>
+<span class="sd">                     of `type_` must be leaf values.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">rs</span> <span class="o">=</span> <span class="n">nssymb_table</span><span class="o">.</span><span class="n">SymbTable_resolve_symbol</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_ptr</span><span class="p">,</span> <span class="n">ivar</span><span class="o">.</span><span class="n">_ptr</span><span class="p">,</span>
+                                                   <span class="bp">None</span><span class="p">)</span>
+        <span class="n">ivar</span> <span class="o">=</span> <span class="n">node</span><span class="o">.</span><span class="n">Node</span><span class="o">.</span><span class="n">from_ptr</span><span class="p">(</span><span class="n">nssymb_table</span><span class="o">.</span>
+                                  <span class="n">ResolveSymbol_get_resolved_name</span><span class="p">(</span><span class="n">rs</span><span class="p">))</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">can_declare_var</span><span class="p">(</span><span class="n">layer</span><span class="p">,</span> <span class="n">ivar</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="n">NuSMVSymbTableError</span><span class="p">(</span><span class="s">&quot;Variable &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">ivar</span><span class="p">)</span> <span class="o">+</span> <span class="s">&quot; cannot be &quot;</span>
+                                      <span class="s">&quot;declared in &quot;</span> <span class="o">+</span> <span class="n">layer</span> <span class="o">+</span> <span class="s">&quot;.&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">type_</span><span class="p">,</span> <span class="n">node</span><span class="o">.</span><span class="n">Node</span><span class="p">):</span>
+            <span class="n">type_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_type_from_node</span><span class="p">(</span><span class="n">type_</span><span class="p">)</span>
+        <span class="n">layer</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_layer</span><span class="p">(</span><span class="n">layer</span><span class="p">)</span>
+        <span class="n">nssymb_table</span><span class="o">.</span><span class="n">SymbLayer_declare_input_var</span><span class="p">(</span><span class="n">layer</span><span class="p">,</span> <span class="n">ivar</span><span class="o">.</span><span class="n">_ptr</span><span class="p">,</span> <span class="n">type_</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="SymbTable.declare_state_var"><a class="viewcode-back" href="../../pynusmv.html#pynusmv.fsm.SymbTable.declare_state_var">[docs]</a>    <span class="k">def</span> <span class="nf">declare_state_var</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">layer</span><span class="p">,</span> <span class="n">var</span><span class="p">,</span> <span class="n">type_</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Declare a new state variable in this symbol table.</span>
+
+<span class="sd">        :param layer: the name of the layer in which insert the variable</span>
+<span class="sd">        :type layer: :class:`str`</span>
+<span class="sd">        :param var: the name of the state variable</span>
+<span class="sd">        :type var: :class:`Node &lt;pynusmv.node.Node&gt;`</span>
+<span class="sd">        :param type_: the type of the declared state variable</span>
+<span class="sd">        :type type_: :class:`Node &lt;pynusmv.node.Node&gt;`</span>
+<span class="sd">        :raise: a :exc:`NuSMVSymbTableError</span>
+<span class="sd">            &lt;pynusmv.exception.NuSMVSymbTableError&gt;` if the variable is already</span>
+<span class="sd">            defined in the given layer</span>
+
+<span class="sd">        .. warning:: `type_` must be already resolved, that is, the body</span>
+<span class="sd">                     of `type_` must be leaf values.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">rs</span> <span class="o">=</span> <span class="n">nssymb_table</span><span class="o">.</span><span class="n">SymbTable_resolve_symbol</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_ptr</span><span class="p">,</span> <span class="n">var</span><span class="o">.</span><span class="n">_ptr</span><span class="p">,</span>
+                                                   <span class="bp">None</span><span class="p">)</span>
+        <span class="n">var</span> <span class="o">=</span> <span class="n">node</span><span class="o">.</span><span class="n">Node</span><span class="o">.</span><span class="n">from_ptr</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">find_hierarchy</span>
+                                 <span class="p">(</span><span class="n">nssymb_table</span><span class="o">.</span>
+                                  <span class="n">ResolveSymbol_get_resolved_name</span><span class="p">(</span><span class="n">rs</span><span class="p">)))</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">can_declare_var</span><span class="p">(</span><span class="n">layer</span><span class="p">,</span> <span class="n">var</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="n">NuSMVSymbTableError</span><span class="p">(</span><span class="s">&quot;Variable &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">var</span><span class="p">)</span> <span class="o">+</span> <span class="s">&quot; cannot be &quot;</span>
+                                      <span class="s">&quot;declared in &quot;</span> <span class="o">+</span> <span class="n">layer</span> <span class="o">+</span> <span class="s">&quot;.&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">type_</span><span class="p">,</span> <span class="n">node</span><span class="o">.</span><span class="n">Node</span><span class="p">):</span>
+            <span class="n">type_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_type_from_node</span><span class="p">(</span><span class="n">type_</span><span class="p">)</span>
+        <span class="n">layer</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_layer</span><span class="p">(</span><span class="n">layer</span><span class="p">)</span>
+        <span class="n">nssymb_table</span><span class="o">.</span><span class="n">SymbLayer_declare_state_var</span><span class="p">(</span><span class="n">layer</span><span class="p">,</span> <span class="n">var</span><span class="o">.</span><span class="n">_ptr</span><span class="p">,</span> <span class="n">type_</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="SymbTable.declare_frozen_var"><a class="viewcode-back" href="../../pynusmv.html#pynusmv.fsm.SymbTable.declare_frozen_var">[docs]</a>    <span class="k">def</span> <span class="nf">declare_frozen_var</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">layer</span><span class="p">,</span> <span class="n">fvar</span><span class="p">,</span> <span class="n">type_</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Declare a new frozen variable in this symbol table.</span>
+
+<span class="sd">        :param layer: the name of the layer in which insert the variable</span>
+<span class="sd">        :type layer: :class:`str`</span>
+<span class="sd">        :param fvar: the name of the frozen variable</span>
+<span class="sd">        :type fvar: :class:`Node &lt;pynusmv.node.Node&gt;`</span>
+<span class="sd">        :param type_: the type of the declared frozen variable</span>
+<span class="sd">        :type type_: :class:`Node &lt;pynusmv.node.Node&gt;`</span>
+<span class="sd">        :raise: a :exc:`NuSMVSymbTableError</span>
+<span class="sd">            &lt;pynusmv.exception.NuSMVSymbTableError&gt;` if the variable is already</span>
+<span class="sd">            defined in the given layer</span>
+
+<span class="sd">        .. warning:: `type_` must be already resolved, that is, the body</span>
+<span class="sd">                     of `type_` must be leaf values.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">rs</span> <span class="o">=</span> <span class="n">nssymb_table</span><span class="o">.</span><span class="n">SymbTable_resolve_symbol</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_ptr</span><span class="p">,</span> <span class="n">fvar</span><span class="o">.</span><span class="n">_ptr</span><span class="p">,</span>
+                                                   <span class="bp">None</span><span class="p">)</span>
+        <span class="n">fvar</span> <span class="o">=</span> <span class="n">node</span><span class="o">.</span><span class="n">Node</span><span class="o">.</span><span class="n">from_ptr</span><span class="p">(</span><span class="n">nssymb_table</span><span class="o">.</span>
+                                  <span class="n">ResolveSymbol_get_resolved_name</span><span class="p">(</span><span class="n">rs</span><span class="p">))</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">can_declare_var</span><span class="p">(</span><span class="n">layer</span><span class="p">,</span> <span class="n">fvar</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="n">NuSMVSymbTableError</span><span class="p">(</span><span class="s">&quot;Variable &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">fvar</span><span class="p">)</span> <span class="o">+</span> <span class="s">&quot; cannot be &quot;</span>
+                                      <span class="s">&quot;declared in &quot;</span> <span class="o">+</span> <span class="n">layer</span> <span class="o">+</span> <span class="s">&quot;.&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">type_</span><span class="p">,</span> <span class="n">node</span><span class="o">.</span><span class="n">Node</span><span class="p">):</span>
+            <span class="n">type_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_type_from_node</span><span class="p">(</span><span class="n">type_</span><span class="p">)</span>
+        <span class="n">layer</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_layer</span><span class="p">(</span><span class="n">layer</span><span class="p">)</span>
+        <span class="n">nssymb_table</span><span class="o">.</span><span class="n">SymbLayer_declare_frozen_var</span><span class="p">(</span><span class="n">layer</span><span class="p">,</span> <span class="n">fvar</span><span class="o">.</span><span class="n">_ptr</span><span class="p">,</span> <span class="n">type_</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="SymbTable.is_input_var"><a class="viewcode-back" href="../../pynusmv.html#pynusmv.fsm.SymbTable.is_input_var">[docs]</a>    <span class="k">def</span> <span class="nf">is_input_var</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ivar</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return whether the given `var` name is a declared input variable.</span>
+
+<span class="sd">        :param ivar: the name of the input variable</span>
+<span class="sd">        :type ivar: :class:`Node &lt;pynusmv.node.Node&gt;`</span>
+<span class="sd">        :raise: a :exc:`NuSMVSymbTableError</span>
+<span class="sd">            &lt;pynusmv.exception.NuSMVSymbTableError&gt;` if the variable is not</span>
+<span class="sd">            defined in this symbol table</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">rs</span> <span class="o">=</span> <span class="n">nssymb_table</span><span class="o">.</span><span class="n">SymbTable_resolve_symbol</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_ptr</span><span class="p">,</span> <span class="n">ivar</span><span class="o">.</span><span class="n">_ptr</span><span class="p">,</span>
+                                                   <span class="bp">None</span><span class="p">)</span>
+        <span class="n">ivar</span> <span class="o">=</span> <span class="n">node</span><span class="o">.</span><span class="n">Node</span><span class="o">.</span><span class="n">from_ptr</span><span class="p">(</span><span class="n">nssymb_table</span><span class="o">.</span>
+                                  <span class="n">ResolveSymbol_get_resolved_name</span><span class="p">(</span><span class="n">rs</span><span class="p">))</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">nssymb_table</span><span class="o">.</span><span class="n">SymbTable_is_symbol_declared</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_ptr</span><span class="p">,</span> <span class="n">ivar</span><span class="o">.</span><span class="n">_ptr</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="n">NuSMVSymbTableError</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">ivar</span><span class="p">)</span> <span class="o">+</span> <span class="s">&quot; is not declared.&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="p">(</span><span class="n">nssymb_table</span><span class="o">.</span><span class="n">SymbTable_is_symbol_state_var</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_ptr</span><span class="p">,</span>
+                                                           <span class="n">ivar</span><span class="o">.</span><span class="n">_ptr</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="SymbTable.is_state_var"><a class="viewcode-back" href="../../pynusmv.html#pynusmv.fsm.SymbTable.is_state_var">[docs]</a>    <span class="k">def</span> <span class="nf">is_state_var</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">var</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return whether the given `var` name is a declared state variable.</span>
+
+<span class="sd">        :param var: the name of the state variable</span>
+<span class="sd">        :type var: :class:`Node &lt;pynusmv.node.Node&gt;`</span>
+<span class="sd">        :raise: a :exc:`NuSMVSymbTableError</span>
+<span class="sd">            &lt;pynusmv.exception.NuSMVSymbTableError&gt;` if the variable is not</span>
+<span class="sd">            defined in this symbol table</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">rs</span> <span class="o">=</span> <span class="n">nssymb_table</span><span class="o">.</span><span class="n">SymbTable_resolve_symbol</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_ptr</span><span class="p">,</span> <span class="n">var</span><span class="o">.</span><span class="n">_ptr</span><span class="p">,</span>
+                                                   <span class="bp">None</span><span class="p">)</span>
+        <span class="n">var</span> <span class="o">=</span> <span class="n">node</span><span class="o">.</span><span class="n">Node</span><span class="o">.</span><span class="n">from_ptr</span><span class="p">(</span><span class="n">nssymb_table</span><span class="o">.</span>
+                                 <span class="n">ResolveSymbol_get_resolved_name</span><span class="p">(</span><span class="n">rs</span><span class="p">))</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">nssymb_table</span><span class="o">.</span><span class="n">SymbTable_is_symbol_declared</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_ptr</span><span class="p">,</span> <span class="n">var</span><span class="o">.</span><span class="n">_ptr</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="n">NuSMVSymbTableError</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">var</span><span class="p">)</span> <span class="o">+</span> <span class="s">&quot; is not declared.&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="p">(</span><span class="n">nssymb_table</span><span class="o">.</span><span class="n">SymbTable_is_symbol_state_var</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_ptr</span><span class="p">,</span> <span class="n">var</span><span class="o">.</span><span class="n">_ptr</span><span class="p">)</span>
+                <span class="o">!=</span> <span class="mi">0</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="SymbTable.is_frozen_var"><a class="viewcode-back" href="../../pynusmv.html#pynusmv.fsm.SymbTable.is_frozen_var">[docs]</a>    <span class="k">def</span> <span class="nf">is_frozen_var</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fvar</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return whether the given `var` name is a declared frozen variable.</span>
+
+<span class="sd">        :param fvar: the name of the frozen variable</span>
+<span class="sd">        :type fvar: :class:`Node &lt;pynusmv.node.Node&gt;`</span>
+<span class="sd">        :raise: a :exc:`NuSMVSymbTableError</span>
+<span class="sd">            &lt;pynusmv.exception.NuSMVSymbTableError&gt;` if the variable is not</span>
+<span class="sd">            defined in this symbol table</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">rs</span> <span class="o">=</span> <span class="n">nssymb_table</span><span class="o">.</span><span class="n">SymbTable_resolve_symbol</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_ptr</span><span class="p">,</span> <span class="n">fvar</span><span class="o">.</span><span class="n">_ptr</span><span class="p">,</span>
+                                                   <span class="bp">None</span><span class="p">)</span>
+        <span class="n">fvar</span> <span class="o">=</span> <span class="n">node</span><span class="o">.</span><span class="n">Node</span><span class="o">.</span><span class="n">from_ptr</span><span class="p">(</span><span class="n">nssymb_table</span><span class="o">.</span>
+                                  <span class="n">ResolveSymbol_get_resolved_name</span><span class="p">(</span><span class="n">rs</span><span class="p">))</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">nssymb_table</span><span class="o">.</span><span class="n">SymbTable_is_symbol_declared</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_ptr</span><span class="p">,</span> <span class="n">fvar</span><span class="o">.</span><span class="n">_ptr</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="n">NuSMVSymbTableError</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">fvar</span><span class="p">)</span> <span class="o">+</span> <span class="s">&quot; is not declared.&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="p">(</span><span class="n">nssymb_table</span><span class="o">.</span><span class="n">SymbTable_is_symbol_state_var</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_ptr</span><span class="p">,</span>
+                                                           <span class="n">fvar</span><span class="o">.</span><span class="n">_ptr</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">)</span>
+</div>
+    <span class="k">def</span> <span class="nf">_get_layer</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">layer_name</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get the NuSMV pointer for the layer with `layer_name`.</span>
+
+<span class="sd">        :param :class:`str` layer_name: the name of the layer to get</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">nssymb_table</span><span class="o">.</span><span class="n">SymbTable_get_layer</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_ptr</span><span class="p">,</span> <span class="n">layer_name</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_get_type_from_node</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">type_</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return the NuSMV pointer of the SymbType corresponding to `type_`.</span>
+
+<span class="sd">        :param type_: the type</span>
+<span class="sd">        :type type_: :class:`Type &lt;pynusmv.node.Type&gt;`</span>
+
+<span class="sd">        .. warning:: `type_` must be already resolved, that is, the body</span>
+<span class="sd">                     of `type_` must be leaf values.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c"># Boolean</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">type_</span><span class="p">,</span> <span class="n">node</span><span class="o">.</span><span class="n">Boolean</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">nssymb_table</span><span class="o">.</span><span class="n">SymbTablePkg_boolean_type</span><span class="p">()</span>
+
+        <span class="c"># Unsigned word</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">type_</span><span class="p">,</span> <span class="n">node</span><span class="o">.</span><span class="n">UnsignedWord</span><span class="p">):</span>
+            <span class="k">return</span> <span class="p">(</span><span class="n">nssymb_table</span><span class="o">.</span>
+                    <span class="n">SymbType_create</span><span class="p">(</span><span class="n">nssymb_table</span><span class="o">.</span><span class="n">SYMB_TYPE_UNSIGNED_WORD</span><span class="p">,</span>
+                                    <span class="n">type_</span><span class="o">.</span><span class="n">length</span><span class="o">.</span><span class="n">_ptr</span><span class="p">))</span>
+
+        <span class="c"># Signed word</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">type_</span><span class="p">,</span> <span class="n">node</span><span class="o">.</span><span class="n">SignedWord</span><span class="p">):</span>
+            <span class="k">return</span> <span class="p">(</span><span class="n">nssymb_table</span><span class="o">.</span>
+                    <span class="n">SymbType_create</span><span class="p">(</span><span class="n">nssymb_table</span><span class="o">.</span><span class="n">SYMB_TYPE_SIGNED_WORD</span><span class="p">,</span>
+                                    <span class="n">type_</span><span class="o">.</span><span class="n">length</span><span class="o">.</span><span class="n">_ptr</span><span class="p">))</span>
+
+        <span class="c"># Range</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">type_</span><span class="p">,</span> <span class="n">node</span><span class="o">.</span><span class="n">Range</span><span class="p">):</span>
+            <span class="c"># Since body is composed of leaf values, start and stop are numbers</span>
+            <span class="c"># and can be directly used as numbers</span>
+            <span class="n">start</span> <span class="o">=</span> <span class="n">type_</span><span class="o">.</span><span class="n">start</span><span class="o">.</span><span class="n">value</span>
+            <span class="n">stop</span> <span class="o">=</span> <span class="n">type_</span><span class="o">.</span><span class="n">stop</span><span class="o">.</span><span class="n">value</span>
+
+            <span class="n">res</span> <span class="o">=</span> <span class="bp">None</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">stop</span><span class="p">,</span> <span class="n">start</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">):</span>
+                <span class="n">res</span> <span class="o">=</span> <span class="n">node</span><span class="o">.</span><span class="n">Cons</span><span class="p">(</span><span class="n">Number</span><span class="p">(</span><span class="n">i</span><span class="p">),</span> <span class="n">res</span><span class="p">)</span>
+            <span class="k">return</span> <span class="p">(</span><span class="n">nssymb_table</span><span class="o">.</span><span class="n">SymbType_create</span><span class="p">(</span><span class="n">nssymb_table</span><span class="o">.</span><span class="n">SYMB_TYPE_ENUM</span><span class="p">,</span>
+                                                 <span class="n">res</span><span class="o">.</span><span class="n">_ptr</span><span class="p">))</span>
+
+        <span class="c"># Scalar</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">type_</span><span class="p">,</span> <span class="n">node</span><span class="o">.</span><span class="n">Scalar</span><span class="p">):</span>
+            <span class="k">return</span> <span class="p">(</span><span class="n">nssymb_table</span><span class="o">.</span>
+                    <span class="n">SymbType_create</span><span class="p">(</span><span class="n">nssymb_table</span><span class="o">.</span><span class="n">SYMB_TYPE_ENUM</span><span class="p">,</span>
+                                    <span class="n">type_</span><span class="o">.</span><span class="n">car</span><span class="o">.</span><span class="n">_ptr</span><span class="p">))</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">NuSMVSymbTableError</span><span class="p">(</span><span class="s">&quot;Cannot create type for &quot;</span> <span class="o">+</span>
+                                      <span class="nb">str</span><span class="p">(</span><span class="n">type_</span><span class="p">)</span> <span class="o">+</span> <span class="s">&quot;.&quot;</span><span class="p">)</span></div>
 </pre></div>
 
           </div>
@@ -893,12 +1217,12 @@
         <li class="right" >
           <a href="../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li><a href="../../index.html">PyNuSMV 0.8 documentation</a> &raquo;</li>
+        <li><a href="../../index.html">PyNuSMV 0.10 documentation</a> &raquo;</li>
           <li><a href="../index.html" >Module code</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">
-        &copy; Copyright 2013, Simon Busard.
+        &copy; Copyright 2013-2014, Simon Busard.
       Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
     </div>
   </body>

@@ -1,8 +1,21 @@
 """
 The :mod:`pynusmv.model` module provides a way to define NuSMV modules in
-Python: the :class:`Module` class represents a generic NuSMV module, and must
-be subclassed to define specific NuSMV modules. This module also defines the
-set of AST elements of the language.
+Python. The module is composed of several classes that fall in five sections:
+
+* :class:`Expression` sub-classes represent elements of expressions of the
+  NuSMV modelling language. NuSMV expressions can be defined by combining these
+  classes (e.g. ``Add(Identifier("c"), 1)``), by using
+  :class:`Expression` methods (e.g. ``Identifier("c").add(1)``) or
+  by using built-in operators (e.g. ``Identifier("c") + 1``).
+* :class:`Type` sub-classes represent types of NuSMV variables.
+* :class:`Section` sub-classes represent the different sections (VAR, IVAR,
+  TRANS, etc.) of a NuSMV module.
+* :class:`Declaration` sub-classes are used in the declaration of a module
+  to allow a more pythonic way of declaring NuSMV variables.
+* :class:`Module`: the :class:`Module` class represents a generic NuSMV module,
+  and must be subclassed to define specific NuSMV modules. See the
+  documentation of the :class:`Module` class to get more information on how
+  to declare a NuSMV module with this class.
 
 """
 

@@ -17,13 +17,14 @@ functionalities:
   from an SMV source file.
 * :mod:`model <pynusmv.model>` provides functionalities to define NuSMV models
   in Python.
+* :mod:`node <pynusmv.node>` provides a wrapper to NuSMV `node` structures.
 * :mod:`fsm <pynusmv.fsm>` contains all the FSM-related structures like
   BDD-represented FSM, BDD-represented transition relation, BDD encoding and
   symbols table.
 * :mod:`prop <pynusmv.prop>` defines structures related to propositions of a
-  model; this includes simple CTL specifications.
+  model; this includes CTL specifications.
 * :mod:`dd <pynusmv.dd>` provides BDD-related structures like generic BDD,
-  lists of BDDs and BDD-represented states and input values.
+  lists of BDDs and BDD-represented states, input values and cubes.
 * :mod:`parser <pynusmv.parser>` gives access to NuSMV parser to parse simple
   expressions of the SMV language.
 * :mod:`mc <pynusmv.mc>` contains model checking features.
@@ -32,14 +33,15 @@ functionalities:
 * :mod:`utils <pynusmv.utils>` contains some side functionalities.
 
 .. WARNING:: Before using any PyNuSMV functionality, make sure to call
-   :func:`pynusmv.init.init_nusmv` function to initialize NuSMV; do not forget
-   to also call :func:`pynusmv.init.deinit_nusmv` when you do not need PyNuSMV
-   anymore to clean everything needed by NuSMV to run.
+   :func:`init_nusmv <pynusmv.init.init_nusmv>` function to initialize NuSMV;
+   do not forget to also call :func:`deinit_nusmv <pynusmv.init.deinit_nusmv>`
+   when you do not need PyNuSMV anymore to clean everything needed by NuSMV to
+   run.
 
 """
 
 __all__ = ['dd', 'exception', 'fsm', 'glob', 'init', 'mc', 'nusmv', 'parser',
-           'prop', 'utils', 'model']
+           'prop', 'utils', 'model', 'node']
 
 from . import dd
 from . import fsm
@@ -51,3 +53,4 @@ from . import parser
 from . import prop
 from . import utils
 from . import model
+from . import node

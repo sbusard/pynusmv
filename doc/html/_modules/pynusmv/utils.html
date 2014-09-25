@@ -8,7 +8,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>pynusmv.utils &mdash; PyNuSMV 0.8 documentation</title>
+    <title>pynusmv.utils &mdash; PyNuSMV 0.10 documentation</title>
     
     <link rel="stylesheet" href="../../_static/default.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
@@ -16,7 +16,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../',
-        VERSION:     '0.8',
+        VERSION:     '0.10',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -25,7 +25,7 @@
     <script type="text/javascript" src="../../_static/jquery.js"></script>
     <script type="text/javascript" src="../../_static/underscore.js"></script>
     <script type="text/javascript" src="../../_static/doctools.js"></script>
-    <link rel="top" title="PyNuSMV 0.8 documentation" href="../../index.html" />
+    <link rel="top" title="PyNuSMV 0.10 documentation" href="../../index.html" />
     <link rel="up" title="Module code" href="../index.html" /> 
   </head>
   <body>
@@ -38,7 +38,7 @@
         <li class="right" >
           <a href="../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li><a href="../../index.html">PyNuSMV 0.8 documentation</a> &raquo;</li>
+        <li><a href="../../index.html">PyNuSMV 0.10 documentation</a> &raquo;</li>
           <li><a href="../index.html" accesskey="U">Module code</a> &raquo;</li> 
       </ul>
     </div>  
@@ -107,6 +107,19 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">_free</span><span class="p">()</span>
 
 </div>
+<span class="k">class</span> <span class="nc">AttributeDict</span><span class="p">(</span><span class="nb">dict</span><span class="p">):</span>
+
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    An `AttributeDict` is a dictionary for which elements can be accessed by</span>
+<span class="sd">    using their keys as attribute names.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">AttributeDict</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__dict__</span> <span class="o">=</span> <span class="bp">self</span>
+
+
 <div class="viewcode-block" id="fixpoint"><a class="viewcode-back" href="../../pynusmv.html#pynusmv.utils.fixpoint">[docs]</a><span class="k">def</span> <span class="nf">fixpoint</span><span class="p">(</span><span class="n">funct</span><span class="p">,</span> <span class="n">start</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Return the fixpoint of `funct`, as a BDD, starting with `start` BDD.</span>
@@ -175,12 +188,12 @@
         <li class="right" >
           <a href="../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li><a href="../../index.html">PyNuSMV 0.8 documentation</a> &raquo;</li>
+        <li><a href="../../index.html">PyNuSMV 0.10 documentation</a> &raquo;</li>
           <li><a href="../index.html" >Module code</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">
-        &copy; Copyright 2013, Simon Busard.
+        &copy; Copyright 2013-2014, Simon Busard.
       Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
     </div>
   </body>

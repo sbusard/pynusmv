@@ -8,7 +8,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>pynusmv.parser &mdash; PyNuSMV 0.8 documentation</title>
+    <title>pynusmv.parser &mdash; PyNuSMV 0.10 documentation</title>
     
     <link rel="stylesheet" href="../../_static/default.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
@@ -16,7 +16,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../',
-        VERSION:     '0.8',
+        VERSION:     '0.10',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -25,7 +25,7 @@
     <script type="text/javascript" src="../../_static/jquery.js"></script>
     <script type="text/javascript" src="../../_static/underscore.js"></script>
     <script type="text/javascript" src="../../_static/doctools.js"></script>
-    <link rel="top" title="PyNuSMV 0.8 documentation" href="../../index.html" />
+    <link rel="top" title="PyNuSMV 0.10 documentation" href="../../index.html" />
     <link rel="up" title="Module code" href="../index.html" /> 
   </head>
   <body>
@@ -38,7 +38,7 @@
         <li class="right" >
           <a href="../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li><a href="../../index.html">PyNuSMV 0.8 documentation</a> &raquo;</li>
+        <li><a href="../../index.html">PyNuSMV 0.10 documentation</a> &raquo;</li>
           <li><a href="../index.html" accesskey="U">Module code</a> &raquo;</li> 
       </ul>
     </div>  
@@ -77,6 +77,7 @@
     <span class="s">&#39;parse_next_expression&#39;</span><span class="p">,</span>
     <span class="s">&#39;parse_identifier&#39;</span><span class="p">,</span>
     <span class="s">&#39;identifier&#39;</span><span class="p">,</span>
+    <span class="s">&#39;complex_identifier&#39;</span><span class="p">,</span>
     <span class="s">&#39;simple_expression&#39;</span><span class="p">,</span>
     <span class="s">&#39;constant&#39;</span><span class="p">,</span>
     <span class="s">&#39;next_expression&#39;</span><span class="p">,</span>
@@ -101,14 +102,15 @@
 <span class="kn">from</span> <span class="nn">.exception</span> <span class="kn">import</span> <span class="n">NuSMVParsingError</span><span class="p">,</span> <span class="n">_Error</span>
 
 <span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">update</span>
-<span class="kn">from</span> <span class="nn">.model</span> <span class="kn">import</span> <span class="p">(</span><span class="n">Identifier</span><span class="p">,</span> <span class="n">ComplexIdentifier</span><span class="p">,</span> <span class="n">Boolean</span><span class="p">,</span> <span class="n">Word</span><span class="p">,</span> <span class="n">Range</span><span class="p">,</span>
-                    <span class="n">Conversion</span><span class="p">,</span> <span class="n">WordFunction</span><span class="p">,</span> <span class="n">Count</span><span class="p">,</span> <span class="n">Next</span><span class="p">,</span> <span class="n">Init</span><span class="p">,</span> <span class="n">Case</span><span class="p">,</span>
-                    <span class="n">Subscript</span><span class="p">,</span> <span class="n">BitSelection</span><span class="p">,</span> <span class="n">ArrayAccess</span><span class="p">,</span> <span class="n">Set</span><span class="p">,</span> <span class="n">Not</span><span class="p">,</span> <span class="n">Concat</span><span class="p">,</span>
-                    <span class="n">Minus</span><span class="p">,</span> <span class="n">Mult</span><span class="p">,</span> <span class="n">Div</span><span class="p">,</span> <span class="n">Mod</span><span class="p">,</span> <span class="n">Add</span><span class="p">,</span> <span class="n">Sub</span><span class="p">,</span> <span class="n">ShiftL</span><span class="p">,</span> <span class="n">ShiftR</span><span class="p">,</span> <span class="n">Union</span><span class="p">,</span> <span class="n">In</span><span class="p">,</span>
-                    <span class="n">Eq</span><span class="p">,</span> <span class="n">Neq</span><span class="p">,</span> <span class="n">Lt</span><span class="p">,</span> <span class="n">Gt</span><span class="p">,</span> <span class="n">Le</span><span class="p">,</span> <span class="n">Ge</span><span class="p">,</span> <span class="n">And</span><span class="p">,</span> <span class="n">Or</span><span class="p">,</span> <span class="n">Xor</span><span class="p">,</span> <span class="n">Xnor</span><span class="p">,</span> <span class="n">Ite</span><span class="p">,</span> <span class="n">Iff</span><span class="p">,</span>
-                    <span class="n">Implies</span><span class="p">,</span> <span class="n">TBoolean</span><span class="p">,</span> <span class="n">TWord</span><span class="p">,</span> <span class="n">TEnum</span><span class="p">,</span> <span class="n">TRange</span><span class="p">,</span> <span class="n">TArray</span><span class="p">,</span> <span class="n">TModule</span><span class="p">,</span>
+<span class="kn">from</span> <span class="nn">.model</span> <span class="kn">import</span> <span class="p">(</span><span class="n">Identifier</span><span class="p">,</span> <span class="n">Self</span><span class="p">,</span> <span class="n">Dot</span><span class="p">,</span> <span class="n">ArrayAccess</span><span class="p">,</span> <span class="n">Trueexp</span><span class="p">,</span> <span class="n">Falseexp</span><span class="p">,</span>
+                    <span class="n">NumberWord</span><span class="p">,</span> <span class="n">RangeConst</span><span class="p">,</span>
+                    <span class="n">Conversion</span><span class="p">,</span> <span class="n">WordFunction</span><span class="p">,</span> <span class="n">Count</span><span class="p">,</span> <span class="n">Next</span><span class="p">,</span> <span class="n">Smallinit</span><span class="p">,</span> <span class="n">Case</span><span class="p">,</span>
+                    <span class="n">Subscript</span><span class="p">,</span> <span class="n">BitSelection</span><span class="p">,</span> <span class="n">Set</span><span class="p">,</span> <span class="n">Not</span><span class="p">,</span> <span class="n">Concat</span><span class="p">,</span>
+                    <span class="n">Minus</span><span class="p">,</span> <span class="n">Mult</span><span class="p">,</span> <span class="n">Div</span><span class="p">,</span> <span class="n">Mod</span><span class="p">,</span> <span class="n">Add</span><span class="p">,</span> <span class="n">Sub</span><span class="p">,</span> <span class="n">LShift</span><span class="p">,</span> <span class="n">RShift</span><span class="p">,</span> <span class="n">Union</span><span class="p">,</span> <span class="n">In</span><span class="p">,</span>
+                    <span class="n">Equal</span><span class="p">,</span> <span class="n">NotEqual</span><span class="p">,</span> <span class="n">Lt</span><span class="p">,</span> <span class="n">Gt</span><span class="p">,</span> <span class="n">Le</span><span class="p">,</span> <span class="n">Ge</span><span class="p">,</span> <span class="n">And</span><span class="p">,</span> <span class="n">Or</span><span class="p">,</span> <span class="n">Xor</span><span class="p">,</span> <span class="n">Xnor</span><span class="p">,</span> <span class="n">Ite</span><span class="p">,</span>
+                    <span class="n">Iff</span><span class="p">,</span> <span class="n">Implies</span><span class="p">,</span> <span class="n">Boolean</span><span class="p">,</span> <span class="n">Word</span><span class="p">,</span> <span class="n">Scalar</span><span class="p">,</span> <span class="n">Range</span><span class="p">,</span> <span class="n">Array</span><span class="p">,</span> <span class="n">Modtype</span><span class="p">,</span>
                     <span class="n">Variables</span><span class="p">,</span> <span class="n">InputVariables</span><span class="p">,</span> <span class="n">FrozenVariables</span><span class="p">,</span> <span class="n">Defines</span><span class="p">,</span>
-                    <span class="n">Assigns</span><span class="p">,</span> <span class="n">Constants</span><span class="p">,</span> <span class="n">Trans</span><span class="p">,</span> <span class="n">SInit</span><span class="p">,</span> <span class="n">Invar</span><span class="p">,</span> <span class="n">Fairness</span><span class="p">,</span> <span class="n">Justice</span><span class="p">,</span>
+                    <span class="n">Assigns</span><span class="p">,</span> <span class="n">Constants</span><span class="p">,</span> <span class="n">Trans</span><span class="p">,</span> <span class="n">Init</span><span class="p">,</span> <span class="n">Invar</span><span class="p">,</span> <span class="n">Fairness</span><span class="p">,</span> <span class="n">Justice</span><span class="p">,</span>
                     <span class="n">Compassion</span><span class="p">)</span>
 
 <span class="kn">from</span> <span class="nn">.nusmv.parser</span> <span class="kn">import</span> <span class="n">parser</span> <span class="k">as</span> <span class="n">nsparser</span>
@@ -144,7 +146,12 @@
         <span class="n">errors</span> <span class="o">=</span> <span class="n">nsparser</span><span class="o">.</span><span class="n">Parser_get_syntax_errors_list</span><span class="p">()</span>
         <span class="k">raise</span> <span class="n">NuSMVParsingError</span><span class="o">.</span><span class="n">from_nusmv_errors_list</span><span class="p">(</span><span class="n">errors</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">nsnode</span><span class="o">.</span><span class="n">car</span><span class="p">(</span><span class="n">node</span><span class="p">)</span>  <span class="c"># Get rid of the top SIMPWFF node</span>
+        <span class="n">node</span> <span class="o">=</span> <span class="n">nsnode</span><span class="o">.</span><span class="n">car</span><span class="p">(</span><span class="n">node</span><span class="p">)</span>  <span class="c"># Get rid of the top SIMPWFF node</span>
+        <span class="k">if</span> <span class="n">node</span><span class="o">.</span><span class="n">type</span> <span class="ow">is</span> <span class="n">nsparser</span><span class="o">.</span><span class="n">CONTEXT</span> <span class="ow">and</span> <span class="n">nsnode</span><span class="o">.</span><span class="n">car</span><span class="p">(</span><span class="n">node</span><span class="p">)</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="c"># Get rid of the top empty context if any</span>
+            <span class="k">return</span> <span class="n">nsnode</span><span class="o">.</span><span class="n">cdr</span><span class="p">(</span><span class="n">node</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">node</span>
 
 </div>
 <div class="viewcode-block" id="parse_next_expression"><a class="viewcode-back" href="../../pynusmv.html#pynusmv.parser.parse_next_expression">[docs]</a><span class="k">def</span> <span class="nf">parse_next_expression</span><span class="p">(</span><span class="n">expression</span><span class="p">):</span>
@@ -165,7 +172,12 @@
         <span class="n">errors</span> <span class="o">=</span> <span class="n">nsparser</span><span class="o">.</span><span class="n">Parser_get_syntax_errors_list</span><span class="p">()</span>
         <span class="k">raise</span> <span class="n">NuSMVParsingError</span><span class="o">.</span><span class="n">from_nusmv_errors_list</span><span class="p">(</span><span class="n">errors</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">nsnode</span><span class="o">.</span><span class="n">car</span><span class="p">(</span><span class="n">node</span><span class="p">)</span>  <span class="c"># Get rid of the top NEXTWFF node</span>
+        <span class="n">node</span> <span class="o">=</span> <span class="n">nsnode</span><span class="o">.</span><span class="n">car</span><span class="p">(</span><span class="n">node</span><span class="p">)</span>  <span class="c"># Get rid of the top NEXTWFF node</span>
+        <span class="k">if</span> <span class="n">node</span><span class="o">.</span><span class="n">type</span> <span class="ow">is</span> <span class="n">nsparser</span><span class="o">.</span><span class="n">CONTEXT</span> <span class="ow">and</span> <span class="n">nsnode</span><span class="o">.</span><span class="n">car</span><span class="p">(</span><span class="n">node</span><span class="p">)</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="c"># Get rid of the top empty context if any</span>
+            <span class="k">return</span> <span class="n">nsnode</span><span class="o">.</span><span class="n">cdr</span><span class="p">(</span><span class="n">node</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">node</span>
 
 </div>
 <div class="viewcode-block" id="parse_identifier"><a class="viewcode-back" href="../../pynusmv.html#pynusmv.parser.parse_identifier">[docs]</a><span class="k">def</span> <span class="nf">parse_identifier</span><span class="p">(</span><span class="n">expression</span><span class="p">):</span>
@@ -186,7 +198,28 @@
         <span class="n">errors</span> <span class="o">=</span> <span class="n">nsparser</span><span class="o">.</span><span class="n">Parser_get_syntax_errors_list</span><span class="p">()</span>
         <span class="k">raise</span> <span class="n">NuSMVParsingError</span><span class="o">.</span><span class="n">from_nusmv_errors_list</span><span class="p">(</span><span class="n">errors</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">nsnode</span><span class="o">.</span><span class="n">car</span><span class="p">(</span><span class="n">node</span><span class="p">)</span>  <span class="c"># Get rid of the top COMPID node</span>
+        <span class="n">node</span> <span class="o">=</span> <span class="n">nsnode</span><span class="o">.</span><span class="n">car</span><span class="p">(</span><span class="n">node</span><span class="p">)</span>  <span class="c"># Get rid of the top COMPID node</span>
+        <span class="k">if</span> <span class="n">node</span><span class="o">.</span><span class="n">type</span> <span class="ow">is</span> <span class="n">nsparser</span><span class="o">.</span><span class="n">CONTEXT</span> <span class="ow">and</span> <span class="n">nsnode</span><span class="o">.</span><span class="n">car</span><span class="p">(</span><span class="n">node</span><span class="p">)</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="c"># Get rid of the top empty context if any</span>
+            <span class="k">return</span> <span class="n">nsnode</span><span class="o">.</span><span class="n">cdr</span><span class="p">(</span><span class="n">node</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">node</span>
+
+</div>
+<div class="viewcode-block" id="parseAllString"><a class="viewcode-back" href="../../pynusmv.html#pynusmv.parser.parseAllString">[docs]</a><span class="k">def</span> <span class="nf">parseAllString</span><span class="p">(</span><span class="n">parser</span><span class="p">,</span> <span class="n">string</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Parse `string` completely with `parser` and set source of the result</span>
+<span class="sd">    to `string`. `parser` is assumed to return a one-element list when parsing</span>
+<span class="sd">    `string`.</span>
+
+<span class="sd">    :param parser: a pyparsing parser</span>
+<span class="sd">    :param string: the string to parse</span>
+<span class="sd">    :type string: :class:`str`</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">res</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parseString</span><span class="p">(</span><span class="n">string</span><span class="p">,</span> <span class="n">parseAll</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">res</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="s">&quot;source&quot;</span><span class="p">):</span>
+        <span class="n">res</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">source</span> <span class="o">=</span> <span class="n">string</span>
+    <span class="k">return</span> <span class="n">res</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
 
 </div>
 <span class="k">def</span> <span class="nf">_reduce_list_to_expr</span><span class="p">(</span><span class="n">list_</span><span class="p">):</span>
@@ -197,8 +230,8 @@
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">_otc</span> <span class="o">=</span> <span class="p">{</span><span class="s">&quot;*&quot;</span><span class="p">:</span> <span class="n">Mult</span><span class="p">,</span> <span class="s">&quot;/&quot;</span><span class="p">:</span> <span class="n">Div</span><span class="p">,</span> <span class="s">&quot;mod&quot;</span><span class="p">:</span> <span class="n">Mod</span><span class="p">,</span> <span class="s">&quot;+&quot;</span><span class="p">:</span> <span class="n">Add</span><span class="p">,</span> <span class="s">&quot;-&quot;</span><span class="p">:</span> <span class="n">Sub</span><span class="p">,</span>
-            <span class="s">&quot;&lt;&lt;&quot;</span><span class="p">:</span> <span class="n">ShiftL</span><span class="p">,</span> <span class="s">&quot;&gt;&gt;&quot;</span><span class="p">:</span> <span class="n">ShiftR</span><span class="p">,</span>
-            <span class="s">&quot;=&quot;</span><span class="p">:</span> <span class="n">Eq</span><span class="p">,</span> <span class="s">&quot;!=&quot;</span><span class="p">:</span> <span class="n">Neq</span><span class="p">,</span> <span class="s">&quot;&lt;&quot;</span><span class="p">:</span> <span class="n">Lt</span><span class="p">,</span> <span class="s">&quot;&gt;&quot;</span><span class="p">:</span> <span class="n">Gt</span><span class="p">,</span> <span class="s">&quot;&lt;=&quot;</span><span class="p">:</span> <span class="n">Le</span><span class="p">,</span> <span class="s">&quot;&gt;=&quot;</span><span class="p">:</span> <span class="n">Ge</span><span class="p">,</span>
+            <span class="s">&quot;&lt;&lt;&quot;</span><span class="p">:</span> <span class="n">LShift</span><span class="p">,</span> <span class="s">&quot;&gt;&gt;&quot;</span><span class="p">:</span> <span class="n">RShift</span><span class="p">,</span>
+            <span class="s">&quot;=&quot;</span><span class="p">:</span> <span class="n">Equal</span><span class="p">,</span> <span class="s">&quot;!=&quot;</span><span class="p">:</span> <span class="n">NotEqual</span><span class="p">,</span> <span class="s">&quot;&lt;&quot;</span><span class="p">:</span> <span class="n">Lt</span><span class="p">,</span> <span class="s">&quot;&gt;&quot;</span><span class="p">:</span> <span class="n">Gt</span><span class="p">,</span> <span class="s">&quot;&lt;=&quot;</span><span class="p">:</span> <span class="n">Le</span><span class="p">,</span> <span class="s">&quot;&gt;=&quot;</span><span class="p">:</span> <span class="n">Ge</span><span class="p">,</span>
             <span class="s">&quot;|&quot;</span><span class="p">:</span> <span class="n">Or</span><span class="p">,</span> <span class="s">&quot;xor&quot;</span><span class="p">:</span> <span class="n">Xor</span><span class="p">,</span> <span class="s">&quot;xnor&quot;</span><span class="p">:</span> <span class="n">Xnor</span><span class="p">}</span>
 
     <span class="n">res</span> <span class="o">=</span> <span class="n">list_</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
@@ -218,12 +251,34 @@
 <span class="n">_cip</span> <span class="o">&lt;&lt;=</span> <span class="n">Optional</span><span class="p">(</span><span class="s">&quot;.&quot;</span> <span class="o">+</span> <span class="n">Literal</span><span class="p">(</span><span class="s">&quot;self&quot;</span><span class="p">)</span> <span class="o">+</span> <span class="n">_cip</span>
                   <span class="o">|</span> <span class="s">&quot;.&quot;</span> <span class="o">+</span> <span class="n">identifier</span> <span class="o">+</span> <span class="n">_cip</span>
                   <span class="o">|</span> <span class="s">&quot;[&quot;</span> <span class="o">+</span> <span class="n">simple_expression</span> <span class="o">+</span> <span class="s">&quot;]&quot;</span> <span class="o">+</span> <span class="n">_cip</span><span class="p">)</span>
-<span class="n">_complex_identifier</span> <span class="o">=</span> <span class="p">((</span><span class="n">FollowedBy</span><span class="p">(</span><span class="s">&quot;self&quot;</span><span class="p">)</span> <span class="o">+</span> <span class="n">Literal</span><span class="p">(</span><span class="s">&quot;self&quot;</span><span class="p">)</span> <span class="o">+</span> <span class="n">_cip</span><span class="p">)</span>
-                       <span class="o">|</span> <span class="p">(</span><span class="n">identifier</span> <span class="o">+</span> <span class="n">_cip</span><span class="p">))</span>
-<span class="n">_complex_identifier</span><span class="o">.</span><span class="n">setParseAction</span><span class="p">(</span><span class="k">lambda</span> <span class="n">s</span><span class="p">,</span> <span class="n">l</span><span class="p">,</span> <span class="n">t</span><span class="p">:</span> <span class="n">ComplexIdentifier</span><span class="p">(</span><span class="n">t</span><span class="p">))</span>
+<span class="n">complex_identifier</span> <span class="o">=</span> <span class="p">((</span><span class="n">FollowedBy</span><span class="p">(</span><span class="s">&quot;self&quot;</span><span class="p">)</span> <span class="o">+</span> <span class="n">Literal</span><span class="p">(</span><span class="s">&quot;self&quot;</span><span class="p">)</span> <span class="o">+</span> <span class="n">_cip</span><span class="p">)</span>
+                      <span class="o">|</span> <span class="p">(</span><span class="n">identifier</span> <span class="o">+</span> <span class="n">_cip</span><span class="p">))</span>
 
-<span class="n">_define_identifier</span> <span class="o">=</span> <span class="n">_complex_identifier</span>
-<span class="n">_variable_identifier</span> <span class="o">=</span> <span class="n">_complex_identifier</span>
+
+<span class="k">def</span> <span class="nf">_handle_ci</span><span class="p">(</span><span class="n">tokens</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Create a complex identifier from the given list of `tokens`.</span>
+
+<span class="sd">    :param tokens: a non-empty list of tokens</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">_handle_id</span><span class="p">(</span><span class="n">token</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">token</span> <span class="o">==</span> <span class="s">&quot;self&quot;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">Self</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">token</span>
+
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">tokens</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">_handle_id</span><span class="p">(</span><span class="n">tokens</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+    <span class="k">elif</span> <span class="n">tokens</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="s">&quot;.&quot;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">Dot</span><span class="p">(</span><span class="n">_handle_id</span><span class="p">(</span><span class="n">tokens</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="n">_handle_ci</span><span class="p">(</span><span class="n">tokens</span><span class="p">[</span><span class="mi">2</span><span class="p">:]))</span>
+    <span class="k">else</span><span class="p">:</span>  <span class="c"># tokens[1] == &quot;[&quot;</span>
+        <span class="k">return</span> <span class="n">_handle_ci</span><span class="p">([</span><span class="n">ArrayAccess</span><span class="p">(</span><span class="n">_handle_id</span><span class="p">(</span><span class="n">tokens</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="n">tokens</span><span class="p">[</span><span class="mi">2</span><span class="p">])]</span> <span class="o">+</span>
+                          <span class="n">tokens</span><span class="p">[</span><span class="mi">4</span><span class="p">:])</span>
+
+<span class="n">complex_identifier</span><span class="o">.</span><span class="n">setParseAction</span><span class="p">(</span><span class="k">lambda</span> <span class="n">s</span><span class="p">,</span> <span class="n">l</span><span class="p">,</span> <span class="n">t</span><span class="p">:</span> <span class="n">_handle_ci</span><span class="p">(</span><span class="n">t</span><span class="p">))</span>
+
+<span class="n">_define_identifier</span> <span class="o">=</span> <span class="n">complex_identifier</span>
+<span class="n">_variable_identifier</span> <span class="o">=</span> <span class="n">complex_identifier</span>
 
 
 <span class="c"># Integer numbers</span>
@@ -232,12 +287,13 @@
 
 <span class="c"># Constants</span>
 <span class="n">_boolean_constant</span> <span class="o">=</span> <span class="n">oneOf</span><span class="p">(</span><span class="s">&quot;TRUE FALSE&quot;</span><span class="p">)</span>
-<span class="n">_boolean_constant</span><span class="o">.</span><span class="n">setParseAction</span><span class="p">(</span><span class="k">lambda</span> <span class="n">s</span><span class="p">,</span> <span class="n">l</span><span class="p">,</span> <span class="n">t</span><span class="p">:</span> <span class="n">Boolean</span><span class="p">(</span><span class="n">t</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
+<span class="n">_boolean_constant</span><span class="o">.</span><span class="n">setParseAction</span><span class="p">(</span><span class="k">lambda</span> <span class="n">s</span><span class="p">,</span> <span class="n">l</span><span class="p">,</span> <span class="n">t</span><span class="p">:</span>
+                                 <span class="n">Falseexp</span><span class="p">()</span> <span class="k">if</span> <span class="n">t</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s">&quot;FALSE&quot;</span> <span class="k">else</span> <span class="n">Trueexp</span><span class="p">())</span>
 
 <span class="n">_integer_constant</span> <span class="o">=</span> <span class="n">_integer_number</span>
 <span class="n">_symbolic_constant</span> <span class="o">=</span> <span class="n">identifier</span>
 <span class="n">_range_constant</span> <span class="o">=</span> <span class="n">_integer_number</span> <span class="o">+</span> <span class="n">Suppress</span><span class="p">(</span><span class="s">&quot;..&quot;</span><span class="p">)</span> <span class="o">+</span> <span class="n">_integer_number</span>
-<span class="n">_range_constant</span><span class="o">.</span><span class="n">setParseAction</span><span class="p">(</span><span class="k">lambda</span> <span class="n">s</span><span class="p">,</span> <span class="n">l</span><span class="p">,</span> <span class="n">t</span><span class="p">:</span> <span class="n">Range</span><span class="p">(</span><span class="n">t</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">t</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span>
+<span class="n">_range_constant</span><span class="o">.</span><span class="n">setParseAction</span><span class="p">(</span><span class="k">lambda</span> <span class="n">s</span><span class="p">,</span> <span class="n">l</span><span class="p">,</span> <span class="n">t</span><span class="p">:</span> <span class="n">RangeConst</span><span class="p">(</span><span class="n">t</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">t</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span>
 
 <span class="n">_word_sign_specifier</span> <span class="o">=</span> <span class="n">oneOf</span><span class="p">(</span><span class="s">&quot;u s&quot;</span><span class="p">)</span>
 <span class="n">_word_base</span> <span class="o">=</span> <span class="n">oneOf</span><span class="p">(</span><span class="s">&quot;b B o O d D h H&quot;</span><span class="p">)</span>
@@ -246,7 +302,7 @@
 <span class="n">_word_constant</span> <span class="o">=</span> <span class="n">Combine</span><span class="p">(</span><span class="n">Literal</span><span class="p">(</span><span class="s">&quot;0&quot;</span><span class="p">)</span> <span class="o">+</span> <span class="n">Optional</span><span class="p">(</span><span class="n">_word_sign_specifier</span><span class="p">)</span>
                          <span class="o">+</span> <span class="n">_word_base</span> <span class="o">+</span> <span class="n">Optional</span><span class="p">(</span><span class="n">_word_width</span><span class="p">)</span> <span class="o">+</span> <span class="s">&quot;_&quot;</span>
                          <span class="o">+</span> <span class="n">_word_value</span><span class="p">)</span>
-<span class="n">_word_constant</span><span class="o">.</span><span class="n">setParseAction</span><span class="p">(</span><span class="k">lambda</span> <span class="n">s</span><span class="p">,</span> <span class="n">l</span><span class="p">,</span> <span class="n">t</span><span class="p">:</span> <span class="n">Word</span><span class="p">(</span><span class="n">t</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
+<span class="n">_word_constant</span><span class="o">.</span><span class="n">setParseAction</span><span class="p">(</span><span class="k">lambda</span> <span class="n">s</span><span class="p">,</span> <span class="n">l</span><span class="p">,</span> <span class="n">t</span><span class="p">:</span> <span class="n">NumberWord</span><span class="p">(</span><span class="n">t</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
 
 <span class="n">constant</span> <span class="o">=</span> <span class="p">(</span><span class="n">_word_constant</span>
             <span class="c"># Range constant removed to follow the parser implemented by NuSMV</span>
@@ -283,7 +339,7 @@
 <span class="n">_case</span> <span class="o">=</span> <span class="n">Suppress</span><span class="p">(</span><span class="s">&quot;case&quot;</span><span class="p">)</span> <span class="o">+</span> <span class="n">_case_body</span> <span class="o">+</span> <span class="n">Suppress</span><span class="p">(</span><span class="s">&quot;esac&quot;</span><span class="p">)</span>
 <span class="n">_case</span><span class="o">.</span><span class="n">setParseAction</span><span class="p">(</span><span class="k">lambda</span> <span class="n">s</span><span class="p">,</span> <span class="n">l</span><span class="p">,</span> <span class="n">t</span><span class="p">:</span> <span class="n">Case</span><span class="p">(</span><span class="n">t</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
 
-<span class="n">_base</span> <span class="o">=</span> <span class="p">(</span><span class="n">_complex_identifier</span> <span class="o">^</span>
+<span class="n">_base</span> <span class="o">=</span> <span class="p">(</span><span class="n">complex_identifier</span> <span class="o">^</span>
          <span class="p">(</span><span class="n">_conversion</span>
           <span class="o">|</span> <span class="n">_word_function</span>
           <span class="o">|</span> <span class="n">_count</span>
@@ -293,17 +349,32 @@
           <span class="o">|</span> <span class="n">constant</span><span class="p">))</span>
 
 <span class="n">_ap</span> <span class="o">=</span> <span class="n">Forward</span><span class="p">()</span>
-<span class="n">_array_subscript</span> <span class="o">=</span> <span class="n">Suppress</span><span class="p">(</span><span class="s">&quot;[&quot;</span><span class="p">)</span> <span class="o">+</span> <span class="n">_basic_expr</span> <span class="o">+</span> <span class="n">Suppress</span><span class="p">(</span><span class="s">&quot;]&quot;</span><span class="p">)</span>
-<span class="n">_array_subscript</span><span class="o">.</span><span class="n">setParseAction</span><span class="p">(</span><span class="k">lambda</span> <span class="n">s</span><span class="p">,</span> <span class="n">l</span><span class="p">,</span> <span class="n">t</span><span class="p">:</span> <span class="n">Subscript</span><span class="p">(</span><span class="n">t</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
+<span class="n">_array_subscript</span> <span class="o">=</span> <span class="n">Group</span><span class="p">(</span><span class="n">Suppress</span><span class="p">(</span><span class="s">&quot;[&quot;</span><span class="p">)</span> <span class="o">+</span> <span class="n">_basic_expr</span> <span class="o">+</span> <span class="n">Suppress</span><span class="p">(</span><span class="s">&quot;]&quot;</span><span class="p">))</span>
 
-<span class="n">_word_bit_selection</span> <span class="o">=</span> <span class="p">(</span><span class="n">Suppress</span><span class="p">(</span><span class="s">&quot;[&quot;</span><span class="p">)</span> <span class="o">+</span> <span class="n">_basic_expr</span> <span class="o">+</span> <span class="n">Suppress</span><span class="p">(</span><span class="s">&quot;:&quot;</span><span class="p">)</span>
-                       <span class="o">+</span> <span class="n">_basic_expr</span> <span class="o">+</span> <span class="n">Suppress</span><span class="p">(</span><span class="s">&quot;]&quot;</span><span class="p">))</span>
-<span class="n">_word_bit_selection</span><span class="o">.</span><span class="n">setParseAction</span><span class="p">(</span><span class="k">lambda</span> <span class="n">s</span><span class="p">,</span> <span class="n">l</span><span class="p">,</span> <span class="n">t</span><span class="p">:</span> <span class="n">BitSelection</span><span class="p">(</span><span class="n">t</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">t</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span>
+<span class="n">_word_bit_selection</span> <span class="o">=</span> <span class="n">Group</span><span class="p">(</span><span class="n">Suppress</span><span class="p">(</span><span class="s">&quot;[&quot;</span><span class="p">)</span> <span class="o">+</span> <span class="n">_basic_expr</span> <span class="o">+</span> <span class="n">Suppress</span><span class="p">(</span><span class="s">&quot;:&quot;</span><span class="p">)</span>
+                            <span class="o">+</span> <span class="n">_basic_expr</span> <span class="o">+</span> <span class="n">Suppress</span><span class="p">(</span><span class="s">&quot;]&quot;</span><span class="p">))</span>
 
 <span class="n">_ap</span> <span class="o">&lt;&lt;=</span> <span class="n">Optional</span><span class="p">(</span><span class="n">_array_subscript</span> <span class="o">+</span> <span class="n">_ap</span> <span class="o">|</span> <span class="n">_word_bit_selection</span> <span class="o">+</span> <span class="n">_ap</span><span class="p">)</span>
 <span class="n">_array</span> <span class="o">=</span> <span class="n">_base</span> <span class="o">+</span> <span class="n">_ap</span>
-<span class="n">_array</span><span class="o">.</span><span class="n">setParseAction</span><span class="p">(</span><span class="k">lambda</span> <span class="n">s</span><span class="p">,</span> <span class="n">l</span><span class="p">,</span> <span class="n">t</span><span class="p">:</span>
-                      <span class="n">t</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">t</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="mi">1</span> <span class="k">else</span> <span class="n">ArrayAccess</span><span class="p">(</span><span class="n">t</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">t</span><span class="p">[</span><span class="mi">1</span><span class="p">:]))</span>
+
+
+<span class="k">def</span> <span class="nf">_handle_array</span><span class="p">(</span><span class="n">tokens</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Create an array from the given list of `tokens`.</span>
+
+<span class="sd">    :param tokens: a non-empty list of tokens</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">tokens</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">tokens</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">tokens</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">_handle_array</span><span class="p">([</span><span class="n">Subscript</span><span class="p">(</span><span class="n">tokens</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">tokens</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">])]</span> <span class="o">+</span> <span class="n">tokens</span><span class="p">[</span><span class="mi">2</span><span class="p">:])</span>
+    <span class="k">else</span><span class="p">:</span>  <span class="c"># len(tokens[1]) == 2</span>
+        <span class="k">return</span> <span class="n">_handle_array</span><span class="p">([</span><span class="n">BitSelection</span><span class="p">(</span><span class="n">tokens</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">tokens</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span>
+                                           <span class="n">tokens</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">1</span><span class="p">])]</span> <span class="o">+</span>
+                             <span class="n">tokens</span><span class="p">[</span><span class="mi">2</span><span class="p">:])</span>
+
+
+<span class="n">_array</span><span class="o">.</span><span class="n">setParseAction</span><span class="p">(</span><span class="k">lambda</span> <span class="n">s</span><span class="p">,</span> <span class="n">l</span><span class="p">,</span> <span class="n">t</span><span class="p">:</span> <span class="n">_handle_array</span><span class="p">(</span><span class="n">t</span><span class="p">))</span>
 
 <span class="n">_not</span> <span class="o">=</span> <span class="n">ZeroOrMore</span><span class="p">(</span><span class="s">&quot;!&quot;</span><span class="p">)</span> <span class="o">+</span> <span class="n">_array</span>
 <span class="n">_not</span><span class="o">.</span><span class="n">setParseAction</span><span class="p">(</span><span class="k">lambda</span> <span class="n">s</span><span class="p">,</span> <span class="n">l</span><span class="p">,</span> <span class="n">t</span><span class="p">:</span> <span class="nb">reduce</span><span class="p">(</span><span class="k">lambda</span> <span class="n">e</span><span class="p">,</span> <span class="n">n</span><span class="p">:</span> <span class="n">Not</span><span class="p">(</span><span class="n">e</span><span class="p">),</span> <span class="n">t</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">t</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]))</span>
@@ -370,24 +441,24 @@
 <span class="n">_simple_type_specifier</span> <span class="o">=</span> <span class="n">Forward</span><span class="p">()</span>
 
 <span class="n">_boolean_type</span> <span class="o">=</span> <span class="n">Literal</span><span class="p">(</span><span class="s">&quot;boolean&quot;</span><span class="p">)</span>
-<span class="n">_boolean_type</span><span class="o">.</span><span class="n">setParseAction</span><span class="p">(</span><span class="k">lambda</span> <span class="n">s</span><span class="p">,</span> <span class="n">l</span><span class="p">,</span> <span class="n">t</span><span class="p">:</span> <span class="n">TBoolean</span><span class="p">())</span>
+<span class="n">_boolean_type</span><span class="o">.</span><span class="n">setParseAction</span><span class="p">(</span><span class="k">lambda</span> <span class="n">s</span><span class="p">,</span> <span class="n">l</span><span class="p">,</span> <span class="n">t</span><span class="p">:</span> <span class="n">Boolean</span><span class="p">())</span>
 
 <span class="n">_word_type</span> <span class="o">=</span> <span class="p">(</span><span class="n">Optional</span><span class="p">(</span><span class="n">Literal</span><span class="p">(</span><span class="s">&quot;unsigned&quot;</span><span class="p">)</span> <span class="o">|</span> <span class="n">Literal</span><span class="p">(</span><span class="s">&quot;signed&quot;</span><span class="p">))</span>
               <span class="o">+</span> <span class="n">Literal</span><span class="p">(</span><span class="s">&quot;word&quot;</span><span class="p">)</span> <span class="o">+</span> <span class="n">Suppress</span><span class="p">(</span><span class="s">&quot;[&quot;</span><span class="p">)</span> <span class="o">+</span> <span class="n">_basic_expr</span> <span class="o">+</span> <span class="n">Suppress</span><span class="p">(</span><span class="s">&quot;]&quot;</span><span class="p">))</span>
-<span class="n">_word_type</span><span class="o">.</span><span class="n">setParseAction</span><span class="p">(</span><span class="k">lambda</span> <span class="n">s</span><span class="p">,</span> <span class="n">l</span><span class="p">,</span> <span class="n">t</span><span class="p">:</span> <span class="n">TWord</span><span class="p">(</span><span class="n">t</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="k">if</span> <span class="n">t</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s">&quot;word&quot;</span>
-                          <span class="k">else</span> <span class="n">TWord</span><span class="p">(</span><span class="n">t</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">sign</span><span class="o">=</span><span class="n">t</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
+<span class="n">_word_type</span><span class="o">.</span><span class="n">setParseAction</span><span class="p">(</span><span class="k">lambda</span> <span class="n">s</span><span class="p">,</span> <span class="n">l</span><span class="p">,</span> <span class="n">t</span><span class="p">:</span> <span class="n">Word</span><span class="p">(</span><span class="n">t</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="k">if</span> <span class="n">t</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s">&quot;word&quot;</span>
+                          <span class="k">else</span> <span class="n">Word</span><span class="p">(</span><span class="n">t</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">sign</span><span class="o">=</span><span class="n">t</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
 
 <span class="n">_enum_type</span> <span class="o">=</span> <span class="p">(</span><span class="n">Suppress</span><span class="p">(</span><span class="s">&quot;{&quot;</span><span class="p">)</span>
               <span class="o">+</span> <span class="n">delimitedList</span><span class="p">(</span><span class="n">_integer_number</span> <span class="o">|</span> <span class="n">_symbolic_constant</span><span class="p">)</span>
               <span class="o">+</span> <span class="n">Suppress</span><span class="p">(</span><span class="s">&quot;}&quot;</span><span class="p">))</span>
-<span class="n">_enum_type</span><span class="o">.</span><span class="n">setParseAction</span><span class="p">(</span><span class="k">lambda</span> <span class="n">s</span><span class="p">,</span> <span class="n">l</span><span class="p">,</span> <span class="n">t</span><span class="p">:</span> <span class="n">TEnum</span><span class="p">(</span><span class="n">t</span><span class="p">))</span>
+<span class="n">_enum_type</span><span class="o">.</span><span class="n">setParseAction</span><span class="p">(</span><span class="k">lambda</span> <span class="n">s</span><span class="p">,</span> <span class="n">l</span><span class="p">,</span> <span class="n">t</span><span class="p">:</span> <span class="n">Scalar</span><span class="p">(</span><span class="n">t</span><span class="p">))</span>
 
 <span class="n">_range_type</span> <span class="o">=</span> <span class="n">_shift</span> <span class="o">+</span> <span class="n">Suppress</span><span class="p">(</span><span class="s">&quot;..&quot;</span><span class="p">)</span> <span class="o">+</span> <span class="n">_shift</span>
-<span class="n">_range_type</span><span class="o">.</span><span class="n">setParseAction</span><span class="p">(</span><span class="k">lambda</span> <span class="n">s</span><span class="p">,</span> <span class="n">l</span><span class="p">,</span> <span class="n">t</span><span class="p">:</span> <span class="n">TRange</span><span class="p">(</span><span class="n">t</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">t</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span>
+<span class="n">_range_type</span><span class="o">.</span><span class="n">setParseAction</span><span class="p">(</span><span class="k">lambda</span> <span class="n">s</span><span class="p">,</span> <span class="n">l</span><span class="p">,</span> <span class="n">t</span><span class="p">:</span> <span class="n">Range</span><span class="p">(</span><span class="n">t</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">t</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span>
 
 <span class="n">_array_type</span> <span class="o">=</span> <span class="p">(</span><span class="n">Suppress</span><span class="p">(</span><span class="s">&quot;array&quot;</span><span class="p">)</span> <span class="o">+</span> <span class="n">_shift</span> <span class="o">+</span> <span class="n">Suppress</span><span class="p">(</span><span class="s">&quot;..&quot;</span><span class="p">)</span> <span class="o">+</span> <span class="n">_shift</span>
                <span class="o">+</span> <span class="n">Suppress</span><span class="p">(</span><span class="s">&quot;of&quot;</span><span class="p">)</span> <span class="o">+</span> <span class="n">_simple_type_specifier</span><span class="p">)</span>
-<span class="n">_array_type</span><span class="o">.</span><span class="n">setParseAction</span><span class="p">(</span><span class="k">lambda</span> <span class="n">s</span><span class="p">,</span> <span class="n">l</span><span class="p">,</span> <span class="n">t</span><span class="p">:</span> <span class="n">TArray</span><span class="p">(</span><span class="n">t</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">t</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">t</span><span class="p">[</span><span class="mi">2</span><span class="p">]))</span>
+<span class="n">_array_type</span><span class="o">.</span><span class="n">setParseAction</span><span class="p">(</span><span class="k">lambda</span> <span class="n">s</span><span class="p">,</span> <span class="n">l</span><span class="p">,</span> <span class="n">t</span><span class="p">:</span> <span class="n">Array</span><span class="p">(</span><span class="n">t</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">t</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">t</span><span class="p">[</span><span class="mi">2</span><span class="p">]))</span>
 
 <span class="n">_simple_type_specifier</span> <span class="o">&lt;&lt;=</span> <span class="p">(</span><span class="n">_boolean_type</span>
                             <span class="o">|</span> <span class="n">_word_type</span>
@@ -401,9 +472,9 @@
                                      <span class="n">Optional</span><span class="p">(</span><span class="n">delimitedList</span><span class="p">(</span><span class="n">simple_expression</span><span class="p">))</span>
                                      <span class="o">+</span> <span class="n">Suppress</span><span class="p">(</span><span class="s">&quot;)&quot;</span><span class="p">)))</span>
 <span class="n">_module_type_specifier</span><span class="o">.</span><span class="n">setParseAction</span><span class="p">(</span>
-    <span class="k">lambda</span> <span class="n">s</span><span class="p">,</span> <span class="n">l</span><span class="p">,</span> <span class="n">t</span><span class="p">:</span> <span class="n">TModule</span><span class="p">(</span><span class="n">t</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">t</span><span class="p">[</span><span class="mi">2</span><span class="p">:]</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">t</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">3</span> <span class="k">else</span> <span class="p">[],</span> <span class="n">process</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+    <span class="k">lambda</span> <span class="n">s</span><span class="p">,</span> <span class="n">l</span><span class="p">,</span> <span class="n">t</span><span class="p">:</span> <span class="n">Modtype</span><span class="p">(</span><span class="n">t</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">t</span><span class="p">[</span><span class="mi">2</span><span class="p">:],</span> <span class="n">process</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">t</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s">&quot;process&quot;</span>
-    <span class="k">else</span> <span class="n">TModule</span><span class="p">(</span><span class="n">t</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">t</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">t</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">2</span> <span class="k">else</span> <span class="p">[]))</span>
+    <span class="k">else</span> <span class="n">Modtype</span><span class="p">(</span><span class="n">t</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">t</span><span class="p">[</span><span class="mi">1</span><span class="p">:]))</span>
 
 <span class="n">type_identifier</span> <span class="o">=</span> <span class="n">_simple_type_specifier</span> <span class="o">|</span> <span class="n">_module_type_specifier</span>
 
@@ -446,13 +517,13 @@
 <span class="n">constants_section</span><span class="o">.</span><span class="n">setParseAction</span><span class="p">(</span><span class="k">lambda</span> <span class="n">s</span><span class="p">,</span> <span class="n">l</span><span class="p">,</span> <span class="n">t</span><span class="p">:</span> <span class="n">Constants</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">t</span><span class="p">)))</span>
 
 <span class="c"># ASSIGN, TRANS, INIT, INVAR, FAIRNESS</span>
-<span class="n">_assign_identifier</span> <span class="o">=</span> <span class="p">(</span><span class="n">Literal</span><span class="p">(</span><span class="s">&quot;init&quot;</span><span class="p">)</span> <span class="o">+</span> <span class="n">Suppress</span><span class="p">(</span><span class="s">&quot;(&quot;</span><span class="p">)</span> <span class="o">+</span> <span class="n">_complex_identifier</span>
+<span class="n">_assign_identifier</span> <span class="o">=</span> <span class="p">(</span><span class="n">Literal</span><span class="p">(</span><span class="s">&quot;init&quot;</span><span class="p">)</span> <span class="o">+</span> <span class="n">Suppress</span><span class="p">(</span><span class="s">&quot;(&quot;</span><span class="p">)</span> <span class="o">+</span> <span class="n">complex_identifier</span>
                       <span class="o">+</span> <span class="n">Suppress</span><span class="p">(</span><span class="s">&quot;)&quot;</span><span class="p">)</span>
-                      <span class="o">|</span> <span class="n">Literal</span><span class="p">(</span><span class="s">&quot;next&quot;</span><span class="p">)</span> <span class="o">+</span> <span class="n">Suppress</span><span class="p">(</span><span class="s">&quot;(&quot;</span><span class="p">)</span> <span class="o">+</span> <span class="n">_complex_identifier</span>
+                      <span class="o">|</span> <span class="n">Literal</span><span class="p">(</span><span class="s">&quot;next&quot;</span><span class="p">)</span> <span class="o">+</span> <span class="n">Suppress</span><span class="p">(</span><span class="s">&quot;(&quot;</span><span class="p">)</span> <span class="o">+</span> <span class="n">complex_identifier</span>
                       <span class="o">+</span> <span class="n">Suppress</span><span class="p">(</span><span class="s">&quot;)&quot;</span><span class="p">)</span>
-                      <span class="o">|</span> <span class="n">_complex_identifier</span><span class="p">)</span>
+                      <span class="o">|</span> <span class="n">complex_identifier</span><span class="p">)</span>
 <span class="n">_assign_identifier</span><span class="o">.</span><span class="n">setParseAction</span><span class="p">(</span><span class="k">lambda</span> <span class="n">s</span><span class="p">,</span> <span class="n">l</span><span class="p">,</span> <span class="n">t</span><span class="p">:</span>
-                                  <span class="n">Init</span><span class="p">(</span><span class="n">t</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="k">if</span> <span class="n">t</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s">&quot;init&quot;</span>
+                                  <span class="n">Smallinit</span><span class="p">(</span><span class="n">t</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="k">if</span> <span class="n">t</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s">&quot;init&quot;</span>
                                   <span class="k">else</span> <span class="n">Next</span><span class="p">(</span><span class="n">t</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="k">if</span> <span class="n">t</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s">&quot;next&quot;</span>
                                   <span class="k">else</span> <span class="n">t</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
 <span class="n">_assign</span> <span class="o">=</span> <span class="p">(</span><span class="n">_assign_identifier</span> <span class="o">+</span> <span class="n">Suppress</span><span class="p">(</span><span class="s">&quot;:=&quot;</span><span class="p">)</span> <span class="o">+</span> <span class="n">simple_expression</span>
@@ -471,7 +542,7 @@
 <span class="n">_init_constraint_body</span> <span class="o">=</span> <span class="n">simple_expression</span> <span class="o">+</span> <span class="n">Optional</span><span class="p">(</span><span class="n">Suppress</span><span class="p">(</span><span class="s">&quot;;&quot;</span><span class="p">))</span>
 <span class="n">_init_constraint_body</span><span class="o">.</span><span class="n">setParseAction</span><span class="p">(</span><span class="k">lambda</span> <span class="n">s</span><span class="p">,</span> <span class="n">l</span><span class="p">,</span> <span class="n">t</span><span class="p">:</span> <span class="nb">list</span><span class="p">(</span><span class="n">t</span><span class="p">))</span>
 <span class="n">init_constraint</span> <span class="o">=</span> <span class="n">Suppress</span><span class="p">(</span><span class="s">&quot;INIT&quot;</span><span class="p">)</span> <span class="o">+</span> <span class="n">_init_constraint_body</span>
-<span class="n">init_constraint</span><span class="o">.</span><span class="n">setParseAction</span><span class="p">(</span><span class="k">lambda</span> <span class="n">s</span><span class="p">,</span> <span class="n">l</span><span class="p">,</span> <span class="n">t</span><span class="p">:</span> <span class="n">SInit</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">t</span><span class="p">)))</span>
+<span class="n">init_constraint</span><span class="o">.</span><span class="n">setParseAction</span><span class="p">(</span><span class="k">lambda</span> <span class="n">s</span><span class="p">,</span> <span class="n">l</span><span class="p">,</span> <span class="n">t</span><span class="p">:</span> <span class="n">Init</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">t</span><span class="p">)))</span>
 
 <span class="n">_invar_constraint_body</span> <span class="o">=</span> <span class="n">simple_expression</span> <span class="o">+</span> <span class="n">Optional</span><span class="p">(</span><span class="n">Suppress</span><span class="p">(</span><span class="s">&quot;;&quot;</span><span class="p">))</span>
 <span class="n">_invar_constraint_body</span><span class="o">.</span><span class="n">setParseAction</span><span class="p">(</span><span class="k">lambda</span> <span class="n">s</span><span class="p">,</span> <span class="n">l</span><span class="p">,</span> <span class="n">t</span><span class="p">:</span> <span class="nb">list</span><span class="p">(</span><span class="n">t</span><span class="p">))</span>
@@ -510,9 +581,9 @@
                    <span class="o">|</span> <span class="n">fairness_constraint</span>
                    <span class="o">|</span> <span class="n">justice_constraint</span>
                    <span class="o">|</span> <span class="n">compassion_constraint</span><span class="p">)</span>
-<span class="n">_module_args</span> <span class="o">=</span> <span class="p">(</span><span class="n">Suppress</span><span class="p">(</span><span class="s">&quot;(&quot;</span><span class="p">)</span> <span class="o">+</span> <span class="n">Optional</span><span class="p">(</span><span class="n">Group</span><span class="p">(</span><span class="n">delimitedList</span><span class="p">(</span><span class="n">identifier</span><span class="p">)))</span> <span class="o">+</span>
+<span class="n">_module_args</span> <span class="o">=</span> <span class="p">(</span><span class="n">Suppress</span><span class="p">(</span><span class="s">&quot;(&quot;</span><span class="p">)</span> <span class="o">+</span> <span class="n">Optional</span><span class="p">(</span><span class="n">delimitedList</span><span class="p">(</span><span class="n">identifier</span><span class="p">))</span> <span class="o">+</span>
                 <span class="n">Suppress</span><span class="p">(</span><span class="s">&quot;)&quot;</span><span class="p">))</span>
-<span class="n">module</span> <span class="o">=</span> <span class="p">(</span><span class="n">Suppress</span><span class="p">(</span><span class="s">&quot;MODULE&quot;</span><span class="p">)</span> <span class="o">+</span> <span class="n">identifier</span> <span class="o">+</span> <span class="n">Optional</span><span class="p">(</span><span class="n">_module_args</span><span class="p">)</span>
+<span class="n">module</span> <span class="o">=</span> <span class="p">(</span><span class="n">Suppress</span><span class="p">(</span><span class="s">&quot;MODULE&quot;</span><span class="p">)</span> <span class="o">+</span> <span class="n">identifier</span> <span class="o">+</span> <span class="n">Group</span><span class="p">(</span><span class="n">Optional</span><span class="p">(</span><span class="n">_module_args</span><span class="p">))</span>
           <span class="o">+</span> <span class="n">ZeroOrMore</span><span class="p">(</span><span class="n">_module_element</span><span class="p">))</span>
 
 
@@ -546,24 +617,8 @@
 
 <span class="c"># Model declaration</span>
 <span class="n">comment</span> <span class="o">=</span> <span class="p">(</span><span class="s">&quot;--&quot;</span> <span class="o">+</span> <span class="n">restOfLine</span><span class="p">)</span><span class="o">.</span><span class="n">suppress</span><span class="p">()</span>
-<span class="n">model</span> <span class="o">=</span> <span class="n">OneOrMore</span><span class="p">(</span><span class="n">module</span><span class="p">)</span>
+<span class="n">model</span> <span class="o">=</span> <span class="n">Group</span><span class="p">(</span><span class="n">OneOrMore</span><span class="p">(</span><span class="n">module</span><span class="p">))</span>
 <span class="n">model</span><span class="o">.</span><span class="n">ignore</span><span class="p">(</span><span class="n">comment</span><span class="p">)</span>
-
-
-<div class="viewcode-block" id="parseAllString"><a class="viewcode-back" href="../../pynusmv.html#pynusmv.parser.parseAllString">[docs]</a><span class="k">def</span> <span class="nf">parseAllString</span><span class="p">(</span><span class="n">parser</span><span class="p">,</span> <span class="n">string</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Parse `string` completely with `parser` and set source of the result</span>
-<span class="sd">    to `string`. `parser` is assumed to return a one-element list when parsing</span>
-<span class="sd">    `string`.</span>
-
-<span class="sd">    :param parser: a pyparsing parser</span>
-<span class="sd">    :param string: the string to parse</span>
-<span class="sd">    :type string: :class:`str`</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">res</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parseString</span><span class="p">(</span><span class="n">string</span><span class="p">,</span> <span class="n">parseAll</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
-    <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">res</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="s">&quot;source&quot;</span><span class="p">):</span>
-        <span class="n">res</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">source</span> <span class="o">=</span> <span class="n">string</span>
-    <span class="k">return</span> <span class="n">res</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span></div>
 </pre></div>
 
           </div>
@@ -597,12 +652,12 @@
         <li class="right" >
           <a href="../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li><a href="../../index.html">PyNuSMV 0.8 documentation</a> &raquo;</li>
+        <li><a href="../../index.html">PyNuSMV 0.10 documentation</a> &raquo;</li>
           <li><a href="../index.html" >Module code</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">
-        &copy; Copyright 2013, Simon Busard.
+        &copy; Copyright 2013-2014, Simon Busard.
       Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
     </div>
   </body>

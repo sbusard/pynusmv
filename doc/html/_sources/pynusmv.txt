@@ -32,6 +32,14 @@ PyNuSMV Reference
     :undoc-members:
     :show-inheritance:
 
+:mod:`node` Module
+-------------------
+
+.. automodule:: pynusmv.node
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 :mod:`fsm` Module
 -----------------
 

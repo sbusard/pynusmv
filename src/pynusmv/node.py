@@ -1,5 +1,7 @@
 """
-
+The :mod:`pynusmv.node` module provides classes representing NuSMV internal
+nodes, as well as a class :class:`FlatHierarchy` to represent a NuSMV flat
+hierarchary.
 """
 
 import re
@@ -2131,6 +2133,7 @@ class FlatHierarchy(PointerWrapper):
 
     A FlatHierarchy is used to store information obtained after flattening
     module hierarchy. It stores:
+
     * the list of TRANS, INIT, INVAR, ASSIGN, SPEC, COMPUTE, LTLSPEC,
       PSLSPEC, INVARSPEC, JUSTICE, COMPASSION,
     * a full list of variables declared in the hierarchy,
@@ -2138,6 +2141,7 @@ class FlatHierarchy(PointerWrapper):
 
     .. note:: There are a few assumptions about the content stored in this
               class:
+
               1. All expressions are stored in the same order as in the input
                  file (in module body or module instantiation order).
               2. Assigns are stored as a list of pairs (process instance name,

@@ -33,17 +33,19 @@ __collector = None
 
 
 class _PyNuSMVContext(object):
+
     """
     A PyNuSMV Context allows to initialize and deinitialize PyNuSMV through
     a `with` Python statement.
     """
-    
+
     def __enter__(self):
         return None
-    
+
     def __exit__(self, exc_type, exc_value, traceback):
         if exc_type is None:
             deinit_nusmv()
+
 
 def init_nusmv():
     """
@@ -67,7 +69,7 @@ def init_nusmv():
         # to be able to set parser_is_lax
         nsopt.init_options_cmd()
         nscmd.Cmd_SecureCommandExecute("set parser_is_lax")
-        
+
         return _PyNuSMVContext()
 
 
