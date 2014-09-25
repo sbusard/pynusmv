@@ -14,3 +14,8 @@
 /doc/source export-ignore
 
 /experiments export-ignore
+
+
+/src/tools/agme export-ignore
+/src/tools/fpexplain export-ignore
+/src/tools/mucalculus export-ignore
