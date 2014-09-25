@@ -135,9 +135,25 @@ DOT model export
 
 A DOT model export tool is provided. To run this tool, run
 
-python -m tools.dotDump.dump [model]
+python -m tools.dotDump model
 
 where model is the path to an SMV model. The output of the tool is a DOT representation of the reachable state-space of the model, printed on standard output (copy/paste the output in a file or redirect sdtout into a file). This is useful to get an overview of the state-space and to inspect more precisely the model in a visual way.
+
+
+Models comparator
+--------------------------------------------------------------------------------
+
+A tool to compare to NuSMV models is provided. To run this tool, run
+
+python -m tools.compare first second
+
+where first and second are paths to two SMV models. The output of the tool is a
+comparison of both models in terms of states and transitions. The tool is
+useful to compare two similar models, that is, models based on the same
+set of variables but with different reachable state-space and transition
+relations. The tool can, in this case, show states that are in one model but
+not in another, as well as transitions that appear in one model but not in the
+other.
 
 
 REFERENCES
