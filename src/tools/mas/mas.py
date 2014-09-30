@@ -4,7 +4,6 @@ from pynusmv.nusmv.node import node as nsnode
 from pynusmv.nusmv.parser import parser as nsparser
 from pynusmv.nusmv.dd import dd as nsdd
 from .exception import UnknownAgentError
-from .glob import symb_table
 
 class MAS(BddFsm):
     """
@@ -56,15 +55,17 @@ class MAS(BddFsm):
         
         
     def _compute_epistemic_trans(self, agents):
+        from .glob import symb_table
         trans = None
         for agent in agents:
             if agent not in self._epistemic:
                 raise UnknownAgentError(str(agents) +
-                                                " are an unknown agents names.")
+                                        " are an unknown agents names.")
             trans = nsnode.find_node(nsparser.AND,
                                      self._epistemic[agent],
                                      trans)
-        self._epistemic_trans[agents] = BddTrans.from_trans(symb_table(), trans)
+        self._epistemic_trans[agents] = BddTrans.from_trans(symb_table(),
+                                                            trans)
                                               
                                               
     def equivalent_states(self, states, agents):
