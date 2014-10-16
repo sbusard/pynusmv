@@ -7,6 +7,7 @@ from .eval import evalATLK as evalATLK_naive
 from .evalGen import evalATLK as evalATLK_gen
 from .evalOpt import evalATLK as evalATLK_opt
 from .evalMem import evalATLK as evalATLK_mem
+from .evalSymb import evalATLK as evalATLK_symb
 from .evalPartial import evalATLK as evalATLK_partial
 from pyparsing import ParseException
 from pynusmv.exception import PyNuSMVError
@@ -17,9 +18,10 @@ __implementations = {"naive" : evalATLK_naive,
                      "generator" : evalATLK_gen,
                      "optimized" : evalATLK_opt,
                      "memory" : evalATLK_mem,
-                     "partial" : evalATLK_partial}
+                     "partial" : evalATLK_partial,
+                     "symbolic" : evalATLK_symb}
 
-def check(mas, spec, variant="SF", implem="naive"):
+def check(mas, spec, variant="SF", implem="generator"):
     """
     Return whether the system satisfies the ATLK specification.
     
@@ -40,17 +42,18 @@ def check(mas, spec, variant="SF", implem="naive"):
               * "generator" the generator-based implementation;
               * "optimized" a memory-optimized version;
               * "memory" another memory-optimized version;
-              * "partial" a version based on partial strategies.
+              * "partial" a version based on partial strategies;
+              * "symbolic" a version based on a fully symbolic approach.
                  
     If variant is not in {"SF", "FS", "FSF"}, the standard "SF" way is used.          
-    If implem is not in {"naive","generator","optimized","memory","partial"},
-    the standard "naive" way is used.
+    If implem is not in {"naive","generator","optimized","memory","partial",
+    "symbolic"}, the standard "generator" way is used.
     
     """
     if implem in __implementations:
         sat = __implementations[implem](mas, spec, variant=variant)
     else:
-        sat = evalATLK_naive(mas, spec, variant=variant)
+        sat = evalATLK_gen(mas, spec, variant=variant)
     return (~sat & mas.bddEnc.statesInputsMask & mas.init).is_false()
     
 def process(allargs):
