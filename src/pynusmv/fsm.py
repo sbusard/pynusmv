@@ -886,9 +886,12 @@ class SymbTable(PointerWrapper):
         """
         Create a new layer in this symbol table.
 
-        :param :class:`str` layer_name: the name of the created layer
+        :param layer_name: the name of the created layer
+        :type layer_name: :class:`str`
         :param ins_policy: the insertion policy for inserting the new layer
         """
+        if nssymb_table.SymbTable_get_layer(self._ptr, layer_name) is not None:
+            raise NuSMVSymbTableError("Layer %s already exists." % layer_name)
         nssymb_table.SymbTable_create_layer(self._ptr, layer_name, ins_policy)
 
     def get_variable_type(self, variable):
@@ -912,7 +915,8 @@ class SymbTable(PointerWrapper):
         """
         Return whether the given `variable` name can be declared in `layer`.
 
-        :param :class:`str` layer: the name of the layer
+        :param layer: the name of the layer
+        :type layer: :class:`str`
         :param variable: the name of the variable
         :type variable: :class:`Node <pynusmv.node.Node>`
         :rtype: :class:`bool`
