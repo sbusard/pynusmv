@@ -590,7 +590,10 @@ def eval_strat_improved(fsm, spec, toSplit=None, toKeep=None):
             __strategies[spec] += 1
             
             # Collect to avoid memory overflow
-            gc.collect()
+            if (config.garbage.type == "each" or
+                (config.garbage.type == "step"
+                 and __strategies[spec] % config.garbage.step == 0)):
+                gc.collect()
         
         else:
             sat = sat | eval_strat_improved(fsm, spec, 
@@ -632,7 +635,10 @@ def eval_strat_FSF(fsm, spec):
         sat = sat | all_equiv_sat(fsm, winning, agents)
         
         # Collect to avoid memory overflow
-        gc.collect()
+        if (config.garbage.type == "each" or
+            (config.garbage.type == "step"
+             and nbstrats % config.garbage.step == 0)):
+            gc.collect()
     
     # DEBUG Print number of strategies
     #print("Eval_strat_FSF: {} strategies".format(nbstrats))

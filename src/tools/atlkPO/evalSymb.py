@@ -920,7 +920,7 @@ def eval_strat(fsm, spec):
     for agent in agents:
         agents_obs |= fsm.agents_observed_variables[agent]
     strat = fsm.protocol(agents)
-    group_name = ",".join(sorted(agents))
+    group_name = "_".join(sorted(agents))
     
     # Create the transition relations for agents if needed
     if not hasattr(fsm, "transitions") or group_name not in fsm.transitions:
