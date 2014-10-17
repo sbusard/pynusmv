@@ -263,6 +263,82 @@ class MAS(BddFsm):
                 &
                 self.bddEnc.statesInputsMask
                )
+    
+    def check_free_choice(self):
+        """
+        Check whether this MAS satisfies the free-choice property, that is,
+        in every state, the choices of actions for each agent is not
+        constrained by the choices of other agents.
+        
+        Return the set of moves that are not present in the MAS and should,
+        or that are present but should not.
+        """
+        if len(self.agents) <= 0:
+            return BDD.false(self.bddEnc.DDmanager)
+        
+        true = BDD.true(self.bddEnc.DDmanager)
+        inputs_cube = self.bddEnc.inputsCube
+        
+        enabled = self.weak_pre(true) & self.reachable_states
+        
+        product = true
+        for ag in self.agents:
+            ag_act_cube = self.inputs_cube_for_agents((ag,))
+            product = product & enabled.forsome(inputs_cube - ag_act_cube)
+        
+        return product - enabled
+    
+    def check_uniform_choice(self):
+        """
+        Check whether this MAS satisfies the uniform-choice property, that is,
+        the action of each agent in two epistemically equivalent states are
+        the same.
+        
+        Return a FALSE BDD if this MAS satisfies the uniform-choice property,
+        or a set of moves showing why this MAS does not satisfy it, otherwise.
+        """
+        true = BDD.true(self.bddEnc.DDmanager)
+        false = BDD.false(self.bddEnc.DDmanager)
+        inputs_cube = self.bddEnc.inputsCube
+        states_cube = self.bddEnc.statesCube
+        
+        # For each agent,
+        # for each equivalence class,
+        # check that the portion of the protocol of the agent relevant for
+        # the equivalence class is effectively the product of possibilities
+        for agent in self.agents:
+            act_cube = self.inputs_cube_for_agents({agent})
+            protocol = (self.weak_pre(true).forsome(inputs_cube - act_cube) &
+                        self.reachable_states)
+            remaining = protocol
+            
+            while remaining.isnot_false():
+                si = self.pick_one_state_inputs(remaining)
+                s = si.forsome(inputs_cube)
+                i = (s & remaining).forsome(states_cube)
+                eq = self.equivalent_states(s, {agent}) & self.reachable_states
+                
+                product = eq & i
+                diff = product.xor(protocol & eq)
+                
+                if diff.isnot_false():
+                    return diff
+                
+                remaining = remaining - eq
+        return false
+    
+    def check_mas(self):
+        """
+        Check whether this MAS satisfies the free-choice and uniform-choice
+        properties, that is,
+        - in every state, the choices of actions for each agent is not
+          constrained by the choices of other agents;
+        - the action of each agent in two epistemically equivalent states are
+          the same.
+        """
+        return (self.check_free_choice().is_false() and
+                self.check_uniform_choice().is_false())
+        
 
 
 class Agent(object):

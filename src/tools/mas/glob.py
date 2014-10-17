@@ -12,7 +12,7 @@ from pynusmv.nusmv.compile.symb_table import symb_table as nssymb_table
 from pynusmv.exception import NuSMVNoReadModelError
 from pynusmv.parser import parse_next_expression
 
-from pynusmv.glob import (load_from_file,
+from pynusmv.glob import (load_from_file, load,
                                flatten_hierarchy as _flatten_hierarchy,
                                symb_table, bdd_encoding,
                                prop_database as _prop_database,

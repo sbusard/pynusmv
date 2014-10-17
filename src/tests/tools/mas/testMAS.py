@@ -3,6 +3,7 @@ import unittest
 from pynusmv.init import init_nusmv, deinit_nusmv
 from pynusmv.mc import eval_simple_expression
 from pynusmv.dd import BDD
+from pynusmv import model as md
 
 from tools.mas import glob
 from tools.mas.mas import Agent, Group
@@ -445,3 +446,81 @@ class TestMAS(unittest.TestCase):
         fsm = glob.mas(agents=agents)
         self.assertIsNotNone(fsm)
         return fsm
+    
+    def test_check_mas_free_choice_ok(self):
+        class agent(md.Module):
+            v = md.Var(md.Boolean())
+            a = md.IVar(md.Boolean())
+            INIT = v
+            TRANS = (v.next() == a)
+        class main(md.Module):
+            a1 = md.Var(agent())
+            a2 = md.Var(agent())
+        
+        agents = {Agent("a1", {main.a1.v, main.a2.v}, {main.a1.a}),
+                  Agent("a2", {main.a1.v, main.a2.v}, {main.a2.a})}
+        
+        glob.load(agent, main)
+        mas = glob.mas(agents=agents)
+        self.assertIsNotNone(mas)
+        self.assertTrue(mas.check_free_choice().is_false())
+    
+    def test_check_mas_free_choice_ko(self):
+        class agent(md.Module):
+            v = md.Var(md.Boolean())
+            a = md.IVar(md.Boolean())
+            INIT = v
+            TRANS = (v.next() == a)
+        class main(md.Module):
+            a1 = md.Var(agent())
+            a2 = md.Var(agent())
+            TRANS = a2.a.implies(a1.a)
+        
+        agents = {Agent("a1", {main.a1.v, main.a2.v}, {main.a1.a}),
+                  Agent("a2", {main.a1.v, main.a2.v}, {main.a2.a})}
+        
+        glob.load(agent, main)
+        mas = glob.mas(agents=agents)
+        self.assertIsNotNone(mas)
+        
+        free_choice = mas.check_free_choice()
+        self.assertTrue(free_choice.isnot_false())
+    
+    def test_check_mas_uniform_choice_ok(self):
+        class agent(md.Module):
+            v = md.Var(md.Boolean())
+            a = md.IVar(md.Boolean())
+            INIT = v
+            TRANS = (v.next() == a)
+        class main(md.Module):
+            a1 = md.Var(agent())
+            a2 = md.Var(agent())
+        
+        agents = {Agent("a1", {main.a1.v}, {main.a1.a}),
+                  Agent("a2", {main.a2.v}, {main.a2.a})}
+        
+        glob.load(agent, main)
+        mas = glob.mas(agents=agents)
+        self.assertIsNotNone(mas)
+        self.assertTrue(mas.check_uniform_choice().is_false())
+    
+    def test_check_mas_uniform_choice_ko(self):
+        class agent(md.Module):
+            v = md.Var(md.Boolean())
+            a = md.IVar(md.Boolean())
+            INIT = v
+            TRANS = (v.next() == a)
+        class main(md.Module):
+            a1 = md.Var(agent())
+            a2 = md.Var(agent())
+            TRANS = (a1.a == a2.v)
+        
+        agents = {Agent("a1", {main.a1.v}, {main.a1.a}),
+                  Agent("a2", {main.a2.v}, {main.a2.a})}
+        
+        glob.load(agent, main)
+        mas = glob.mas(agents=agents)
+        self.assertIsNotNone(mas)
+        
+        uniform_choice = mas.check_uniform_choice()
+        self.assertTrue(uniform_choice.isnot_false())
