@@ -308,6 +308,12 @@ class BDD(PointerWrapper):
         return BDD(nsdd.bdd_imply(self._manager._ptr, self._ptr, other._ptr),
                    self._manager, freeit=True)
 
+    def diff(self, other):
+        return self & ~other
+    
+    def intersection(self, other):
+        return self.and_(other)
+
     def forsome(self, cube):
         """
         Existentially abstract all the variables in cube from this BDD.
@@ -772,7 +778,7 @@ class Cube(BDD):
         Compute the difference between this cube and `other`
 
         :param other: the other cube
-        :type other: :class:`Cube`
+        :type other: :class:`BDD`
 
         """
         # Call to bdd_ptr bdd_cube_diff (DdManager *, bdd_ptr, bdd_ptr);
@@ -781,20 +787,20 @@ class Cube(BDD):
 
         if self._manager is None:
             raise MissingManagerError()
-        return Cube(
-            nsdd.bdd_cube_diff(
-                self._manager._ptr,
-                self._ptr,
-                other._ptr),
-            self._manager,
-            freeit=True)
+        if isinstance(other, Cube):
+            return Cube(nsdd.bdd_cube_diff(self._manager._ptr,
+                                           self._ptr,
+                                           other._ptr),
+                        self._manager, freeit=True)
+        else:
+            return super().diff(other)
 
     def intersection(self, other):
         """
         Compute the intersection of this Cube and `other`.
 
         :param other: the other Cube
-        :type other: :class:`Cube`
+        :type other: :class:`BDD`
 
         """
         # Call to bdd_ptr bdd_cube_intersection (DdManager *, bdd_ptr,
@@ -804,9 +810,12 @@ class Cube(BDD):
 
         if self._manager is None:
             raise MissingManagerError()
-        return Cube(nsdd.bdd_cube_intersection(self._manager._ptr,
-                                               self._ptr, other._ptr),
-                    self._manager, freeit=True)
+        if isinstance(other, Cube):
+            return Cube(nsdd.bdd_cube_intersection(self._manager._ptr,
+                                                   self._ptr, other._ptr),
+                        self._manager, freeit=True)
+        else:
+            return super().intersection(other)
 
     def union(self, other):
         """
@@ -822,13 +831,14 @@ class Cube(BDD):
 
         if self._manager is None:
             raise MissingManagerError()
-        return BDD(
-            nsdd.bdd_cube_union(
-                self._manager._ptr,
-                self._ptr,
-                other._ptr),
-            self._manager,
-            freeit=True)
+        if isinstance(other, Cube):
+            return Cube(nsdd.bdd_cube_union(self._manager._ptr,
+                                            self._ptr,
+                                            other._ptr),
+                        self._manager,
+                        freeit=True)
+        else:
+            return super().union(other)
 
     def __sub__(self, other):
         return self.diff(other)
