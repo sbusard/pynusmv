@@ -452,7 +452,7 @@ def ceu_symbolic(fsm, name, left, right):
                         fp(lambda Z: right | (left & ~follow.pre(~Z)),
                            BDD.false(fsm.bddEnc.DDmanager))))))
     else:
-        ifair = ~_ifair(fsm, name)
+        ifair = _ifair(fsm, name)
         # <group>i fair [p U q] =
         # <>_group_jump []_group_equiv
         # reachable =>
@@ -696,7 +696,8 @@ def vars_trans_from_protocol(fsm, original_variables, original_trans,
     # Get all observations by manipulating the protocol
     # and for each observation
     # get the possible values for agent's actions
-    protocol = strat & fsm.bddEnc.statesInputsMask & fsm.state_constraints & fsm.inputs_constraints
+    protocol = (strat & fsm.bddEnc.statesInputsMask & fsm.state_constraints &
+                fsm.inputs_constraints)
     while protocol.isnot_false():
         si = fsm.pick_one_state_inputs(protocol)
         state = fsm.pick_one_state(si.forsome(fsm.bddEnc.inputsCube))
@@ -728,7 +729,7 @@ def vars_trans_from_protocol(fsm, original_variables, original_trans,
             
             inputs = inputs - i.forsome(other_acts_cube)
         
-        protocol = protocol - state.forsome(other_vars_cube)
+        protocol = (protocol - state.forsome(other_vars_cube))
     
     # Translate observations into state variables
     #   => var#value##var#value...
@@ -836,6 +837,42 @@ def vars_trans_from_protocol(fsm, original_variables, original_trans,
     
     return (new_variables, new_trans)
 
+def encode_vars_trans(fsm, name, new_variables, new_trans):
+    """
+    Encode the new variables in new_variables and the new transition relation
+    in new_trans.
+    
+    The result is
+        - the variables in new_variables have been declared and encoded in a
+          new layer named name
+        - fsm.transitions has been populated with the transition relations of
+          new_trans
+    """
+    if not hasattr(fsm, "transitions"):
+        fsm.transitions = {}
+    
+    symb_table = fsm.bddEnc.symbTable
+    new_layer = name
+    symb_table.create_layer(new_layer)
+    
+    # Encode variables
+    for var, type_, kind in new_variables:
+        if kind is nssymb_table.SYMBOL_STATE_VAR:
+            symb_table.declare_state_var(new_layer, var, type_)
+        elif kind is nssymb_table.SYMBOL_FROZEN_VAR:
+            symb_table.declare_frozen_var(new_layer, var, type_)
+        elif kind is nssymb_table.SYMBOL_INPUT_VAR:
+            symb_table.declare_input_var(new_layer, var, type_)
+    glob.encode_variables_for_layers(layers=[new_layer])
+    
+    # Create and store transition relations (equiv, jump, follow)
+    for trans_name, trans_expr in new_trans.items():
+        trans = BddTrans.from_string(symb_table, str(trans_expr))
+        fsm.transitions[trans_name] = trans
+    
+    # Sentinel value for specifying that transitions for group_name have been
+    # computed
+    fsm.transitions[name] = None
 
 def encode_strat(fsm, strat, observables, actions, name):
     """
@@ -880,27 +917,7 @@ def encode_strat(fsm, strat, observables, actions, name):
                                original_variables, original_trans,
                                strat, observables, actions, name)
     
-    # Create layer
-    symb_table.create_layer(new_layer)
-    
-    # Encode variables
-    for var, type_, kind in new_variables:
-        if kind is nssymb_table.SYMBOL_STATE_VAR:
-            symb_table.declare_state_var(new_layer, var, type_)
-        elif kind is nssymb_table.SYMBOL_FROZEN_VAR:
-            symb_table.declare_frozen_var(new_layer, var, type_)
-        elif kind is nssymb_table.SYMBOL_INPUT_VAR:
-            symb_table.declare_input_var(new_layer, var, type_)
-    glob.encode_variables_for_layers(layers=[new_layer])
-    
-    # Create and store transition relations (equiv, jump, follow)
-    for trans_name, trans_expr in new_trans.items():
-        new_trans = BddTrans.from_string(symb_table, str(trans_expr))
-        fsm.transitions[trans_name] = new_trans
-    
-    # Sentinel value for specifying that transitions for group_name have been
-    # computed
-    fsm.transitions[name] = None
+    encode_vars_trans(fsm, name, new_variables, new_trans)
 
 
 def eval_strat(fsm, spec):
@@ -950,7 +967,24 @@ def eval_strat(fsm, spec):
         return cew_symbolic(fsm, group_name,
                             evalATLK(fsm, spec.left, variant="SF"),
                             evalATLK(fsm, spec.right, variant="SF"))
-    
+
+
+def spec_to_group_name(spec):
+    """Return a name that can be used as a NuSMV identifier, based on spec."""
+    return "spec" + (str(spec)
+                     .replace(" ", "_")
+                     .replace("&", "and")
+                     .replace("|", "or")
+                     .replace("<", "")
+                     .replace(">", "")
+                     .replace("~", "")
+                     .replace("'", "")
+                     .replace("=", "")
+                     .replace("(", "")
+                     .replace(")", "")
+                     .replace("[", "")
+                     .replace("]", "")
+                    )
     
 def eval_strat_FSF(fsm, spec):
     """
@@ -970,57 +1004,52 @@ def eval_strat_FSF(fsm, spec):
     # group of agents is better (this means limiting oneself to a set of
     # sub-formulas...)
     
-    agents = {atom.value for atom in spec.group}
-    agents_actions = set()
-    for agent in agents:
-        agents_actions |= fsm.agents_inputvars[agent]
-    agents_obs = set()
-    for agent in agents:
-        agents_obs |= fsm.agents_observed_variables[agent]
-    strat = filter_strat(fsm, spec, strat=fsm.protocol(agents), variant="FSF")
-    
-    if strat.is_false():
-        return strat
-    
-    group_name = "spec" + (str(spec)
-                  .replace(" ", "_")
-                  .replace("<", "")
-                  .replace(">", "")
-                  .replace("~", "")
-                  .replace("'", "")
-                  .replace("=", "")
-                  .replace("(", "")
-                  .replace(")", "")
-                  .replace("[", "")
-                  .replace("]", "")
-                 )
+    group_name = spec_to_group_name(spec)
     
     # Create the transition relations for agents if needed
     if not hasattr(fsm, "transitions") or group_name not in fsm.transitions:
+        agents = {atom.value for atom in spec.group}
+
+        strat = filter_strat(fsm, spec, strat=fsm.protocol(agents),
+                             variant="FSF")
+
+        if strat.is_false():
+            return strat
+        
+        agents_actions = set()
+        for agent in agents:
+            agents_actions |= fsm.agents_inputvars[agent]
+        agents_obs = set()
+        for agent in agents:
+            agents_obs |= fsm.agents_observed_variables[agent]
+        
         encode_strat(fsm, strat, agents_obs, agents_actions, group_name)
 
     # Compute the set of winning states
     if type(spec) is CEX:
-        return cex_symbolic(fsm, group_name,
-                            evalATLK(fsm, spec.child, variant="FSF"))
+        winning = cex_symbolic(fsm, group_name,
+                               evalATLK(fsm, spec.child, variant="FSF"))
 
     elif type(spec) is CEG:
-        return cew_symbolic(fsm, group_name,
-                            evalATLK(fsm, spec.child, variant="FSF"),
-                            BDD.false(fsm.bddEnc.DDmanager))
+        winning = cew_symbolic(fsm, group_name,
+                               evalATLK(fsm, spec.child, variant="FSF"),
+                               BDD.false(fsm.bddEnc.DDmanager))
 
     elif type(spec) is CEU:
-        return ceu_symbolic(fsm, group_name,
-                            evalATLK(fsm, spec.left, variant="FSF"),
-                            evalATLK(fsm, spec.right, variant="FSF"))
+        winning = ceu_symbolic(fsm, group_name,
+                               evalATLK(fsm, spec.left, variant="FSF"),
+                               evalATLK(fsm, spec.right, variant="FSF"))
 
     elif type(spec) is CEF:
-        return ceu_symbolic(fsm, group_name,
-                            BDD.true(fsm.bddEnc.DDmanager),
-                            evalATLK(fsm, spec.child, variant="FSF"))
+        winning = ceu_symbolic(fsm, group_name,
+                               BDD.true(fsm.bddEnc.DDmanager),
+                               evalATLK(fsm, spec.child, variant="FSF"))
 
     elif type(spec) is CEW:
-        return cew_symbolic(fsm, group_name,
-                            evalATLK(fsm, spec.left, variant="FSF"),
-                            evalATLK(fsm, spec.right, variant="FSF"))
+        winning = cew_symbolic(fsm, group_name,
+                               evalATLK(fsm, spec.left, variant="FSF"),
+                               evalATLK(fsm, spec.right, variant="FSF"))
     
+    winning = (winning.forsome(fsm.bddEnc.inputsCube)
+               & fsm.reachable_states)
+    return winning
