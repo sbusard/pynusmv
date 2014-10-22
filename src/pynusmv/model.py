@@ -381,6 +381,14 @@ class Expression(Element):
         res = node.Node.from_ptr(node.find_hierarchy(parsed))
         nsnode.free_node(parsed)
         return res
+    
+    @classmethod
+    def from_string(cls, expr):
+        """
+        Create a new Expression from the given string `expr`.
+        """
+        from .parser import parseAllString, next_expression
+        return parseAllString(next_expression, expr)
 
 
 class Identifier(Expression):
