@@ -273,20 +273,22 @@ class MAS(BddFsm):
         Return the set of moves that are not present in the MAS and should,
         or that are present but should not.
         """
+        
         if len(self.agents) <= 0:
             return BDD.false(self.bddEnc.DDmanager)
         
         true = BDD.true(self.bddEnc.DDmanager)
-        inputs_cube = self.bddEnc.inputsCube
+        protocols = {agent: self.protocol({agent}) for agent in self.agents}
+        enabled = (self.weak_pre(self.reachable_states) &
+                   self.reachable_states & self.bddEnc.statesInputsMask)
         
-        enabled = self.weak_pre(true) & self.reachable_states
-        
-        product = true
-        for ag in self.agents:
-            ag_act_cube = self.inputs_cube_for_agents((ag,))
-            product = product & enabled.forsome(inputs_cube - ag_act_cube)
-        
-        return product - enabled
+        for s in self.pick_all_states(self.reachable_states):
+            product = self.bddEnc.statesInputsMask
+            for agent in self.agents:
+                product &= protocols[agent] & s
+            if (enabled & s) != product:
+                return product.xor(enabled & s)
+        return BDD.false(self.bddEnc.DDmanager)
     
     def check_uniform_choice(self):
         """
@@ -297,32 +299,33 @@ class MAS(BddFsm):
         Return a FALSE BDD if this MAS satisfies the uniform-choice property,
         or a set of moves showing why this MAS does not satisfy it, otherwise.
         """
+        
         true = BDD.true(self.bddEnc.DDmanager)
         false = BDD.false(self.bddEnc.DDmanager)
         inputs_cube = self.bddEnc.inputsCube
         states_cube = self.bddEnc.statesCube
         
-        # For each agent,
-        # for each equivalence class,
-        # check that the portion of the protocol of the agent relevant for
-        # the equivalence class is effectively the product of possibilities
+        if len(self.agents) <= 0:
+            return false
+        
         for agent in self.agents:
             act_cube = self.inputs_cube_for_agents({agent})
-            protocol = (self.weak_pre(true).forsome(inputs_cube - act_cube) &
-                        self.reachable_states)
+            protocol = self.protocol({agent})
             remaining = protocol
             
             while remaining.isnot_false():
-                si = self.pick_one_state_inputs(remaining)
-                s = si.forsome(inputs_cube)
-                i = (s & remaining).forsome(states_cube)
-                eq = self.equivalent_states(s, {agent}) & self.reachable_states
+                # One state
+                s = self.pick_one_state(remaining.forsome(inputs_cube))
+                # The equivalence class of s
+                eq = (self.equivalent_states(s, {agent}) &
+                      self.reachable_states)
+                # The actions for agent in s
+                i = (protocol & s).forsome(states_cube)
                 
-                product = eq & i
-                diff = product.xor(protocol & eq)
-                
-                if diff.isnot_false():
-                    return diff
+                for sp in self.pick_all_states(eq):
+                    ip = (protocol & sp).forsome(states_cube)
+                    if ip != i:
+                        return (s & i) | (sp & ip)
                 
                 remaining = remaining - eq
         return false
