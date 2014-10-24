@@ -1175,6 +1175,8 @@ def eval_strat_improved(fsm, spec, states):
     states -- a BDD representing a set of states of fsm.
     """
     
+    assert(len(config.partial.alternate.type & {"univ", "strat"}) > 0)
+    
     __strategies[spec] = 0
     __filterings[spec] = 0
     
@@ -1213,29 +1215,42 @@ def eval_strat_alternate(fsm, spec, states, pstrat):
     pstrat -- a uniform partial strategy reachable from states.
     """
     
+    # TODO Change such that it works to only filter with universal or strategic
+    # evaluation
+    
     gamma = {atom.value for atom in spec.group}
     fullpstrat = (pstrat |
                   (fsm.protocol(gamma) -
                    pstrat.forsome(fsm.bddEnc.inputsCube)))
     
-    fullpstrat = fullpstrat & reachable_sub(fsm, states, fullpstrat)
+    # Get losing states
+    if "strat" in config.partial.alternate.type:
+        fullpstrat = fullpstrat & reachable_sub(fsm, states, fullpstrat)
+        
+        notlosing = filter_strat(fsm, spec, states, fullpstrat, variant="FS")
+        notlosing = notlosing.forsome(fsm.bddEnc.inputsCube)
+        notlosing = notlosing & states
+        lose = states - all_equiv_sat(fsm, notlosing, gamma)
+        
+        states = states - lose
+    else:
+        lose = BDD.false(fsm.bddEnc.DDmanager)
     
-    notlosing = filter_strat(fsm, spec, states, fullpstrat, variant="FS")
-    notlosing = notlosing.forsome(fsm.bddEnc.inputsCube)
-    notlosing = notlosing & states
-    lose = states - all_equiv_sat(fsm, notlosing, gamma)
-    
-    states = states - lose
-    fullpstrat = fullpstrat & reachable_sub(fsm, states, fullpstrat)
-    
-    swin = eval_univ(fsm, strat_to_univ(spec), states, fullpstrat,
-                       variant="FS")
-    win = all_equiv_sat(fsm, swin, gamma) & states
-    
-    states = states - win
+    # Get winning states
+    if "univ" in config.partial.alternate.type:
+        fullpstrat = fullpstrat & reachable_sub(fsm, states, fullpstrat)
+        
+        swin = eval_univ(fsm, strat_to_univ(spec), states, fullpstrat,
+                           variant="FS")
+        win = all_equiv_sat(fsm, swin, gamma) & states
+        
+        states = states - win
+    else:
+        win = BDD.false(fsm.bddEnc.DDmanager)
     
     __filterings[spec] += 1
     
+    # Check whether there are still states to decide
     if states.is_false():
         __strategies[spec] += 1
         
@@ -1247,16 +1262,24 @@ def eval_strat_alternate(fsm, spec, states, pstrat):
         
         return win
     
+    # Expand the partial strategy to decide for the remaining states
     else:
+        # Expand the partial strategy: get new reachable states
         new = (fsm.post(pstrat) - 
                pstrat.forsome(fsm.bddEnc.inputsCube)).forsome(
                fsm.bddEnc.inputsCube) & fsm.bddEnc.statesMask
         if new.is_false():
-            assert(False) # Should never occur
-            return win
+            # No new states, pstrat is already maximal
+            # Winning states in win if win has some meaning
+            # otherwise lose has some meaning and winning states are the others
+            if "univ" in config.partial.alternate.type:
+                return win
+            else:
+                return states - lose
         
         remaining = states
         
+        # Split the new moves
         for npstrat in split(fsm, new & fsm.protocol(gamma), gamma, pstrat):
             newwin = eval_strat_alternate(fsm, spec, remaining,
                                           pstrat | npstrat)

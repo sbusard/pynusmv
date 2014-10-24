@@ -119,3 +119,15 @@ config.partial.separation = AttrDict()
 #   reach: the first reached state, from initial states,
 #          and its equivalence class are chosen
 config.partial.separation.type = None
+
+
+# Alternating variant:
+# --------------------
+
+config.partial.alternate = AttrDict()
+
+# Which technique to use for alternation
+#   univ: perform universal filtering
+#   strat: perform full-observability-based filtering
+# This parameter should contain at least one of the two values
+config.partial.alternate.type = {"univ", "strat"}
