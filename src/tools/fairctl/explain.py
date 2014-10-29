@@ -30,7 +30,7 @@ def explain_all_succ(fsm, state, sat):
     sat -- a BDD representing a set of states of fsm.    
     """
     successors = set()
-    for next in fsm.pick_all_states(fsm.post(state) & sat)
+    for next in fsm.pick_all_states(fsm.post(state) & sat):
         inputs = fsm.pick_one_inputs(fsm.get_inputs_between_states(state, next))
         successors.add((inputs, next))
     return successors
