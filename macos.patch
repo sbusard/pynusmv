@@ -1,0 +1,31 @@
+--- src/nusmv/src/sat/Makefile
++++ src/nusmv/src/sat/Makefile
+@@ -82,7 +82,7 @@ CONFIG_HEADER = $(top_builddir)/config.h
+ CONFIG_CLEAN_FILES =
+ CONFIG_CLEAN_VPATH_FILES =
+ LTLIBRARIES = $(noinst_LTLIBRARIES)
+-libsat_la_DEPENDENCIES = solvers/libsatsolvers.la
++libsat_la_DEPENDENCIES = 
+ am__objects_1 = satUtils.lo SatSolver.lo SatIncSolver.lo
+ am_libsat_la_OBJECTS = $(am__objects_1)
+ libsat_la_OBJECTS = $(am_libsat_la_OBJECTS)
+@@ -340,7 +340,7 @@ sat_HEADERS = sat.h SatSolver.h  SatIncS
+ # -------------------------------------------------------
+ noinst_LTLIBRARIES = libsat.la
+ libsat_la_SOURCES = $(PKG_SOURCES)
+-libsat_la_LIBADD = solvers/libsatsolvers.la
++libsat_la_LIBADD = 
+ all: all-recursive
+ 
+ .SUFFIXES:
+--- src/nusmv/src/sat/solvers/Makefile
++++ src/nusmv/src/sat/solvers/Makefile
+@@ -319,7 +319,7 @@ satsolversdir = $(includedir)/nusmv/sat/
+ satsolvers_HEADERS = SatZchaff.h SatMinisat.h
+ 
+ # -------------------------------------------------------
+-noinst_LTLIBRARIES = libsatsolvers.la
++noinst_LTLIBRARIES = 
+ libsatsolvers_la_SOURCES = $(PKG_SOURCES)
+ nodist_libsatsolvers_la_SOURCES = $(BUILT_SOURCES)
+ all: $(BUILT_SOURCES)
