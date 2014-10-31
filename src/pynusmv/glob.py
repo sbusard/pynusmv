@@ -30,7 +30,7 @@ from .nusmv.fsm import fsm as nsfsm
 from .nusmv.set import set as nsset
 from .nusmv.fsm.bdd import bdd as nsbddfsm
 from .nusmv.trace import trace as nstrace
-from .nusmv.trace.exec import exec as nstraceexec
+from .nusmv.trace.exec_ import exec_ as nstraceexec
 
 from .fsm import BddEnc, SymbTable
 from .node import FlatHierarchy

@@ -1,4 +1,4 @@
-%module(package="pynusmv.nusmv.trace.exec") exec
+%module(package="pynusmv.nusmv.trace.exec_") exec_
 
 %{
 #include "../../../../nusmv/nusmv-config.h"

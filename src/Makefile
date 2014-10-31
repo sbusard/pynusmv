@@ -18,7 +18,7 @@ OS=
 endif
 
 ifndef PYTHON
-PYTHON3=python
+PYTHON=python3
 endif
 
 ifndef SWIG

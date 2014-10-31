@@ -195,7 +195,7 @@ class TestImport(unittest.TestCase):
 		self.assertIsNotNone(trace_eval)
 		
 	def test_trace_exec(self):
-		from pynusmv.nusmv.trace.exec import exec as trace_exec
+		from pynusmv.nusmv.trace.exec_ import exec_ as trace_exec
 		self.assertIsNotNone(trace_exec)
 		
 	def test_loaders(self):

@@ -926,8 +926,8 @@ extensions.append(
                 runtime_library_dirs = runtime_library_dirs)
     )
 extensions.append(
-     Extension('pynusmv.nusmv.trace.exec._exec',
-                ['pynusmv/nusmv/trace/exec/exec.i'],
+     Extension('pynusmv.nusmv.trace.exec_._exec_',
+                ['pynusmv/nusmv/trace/exec_/exec_.i'],
                 depends = [ 'nusmv/nusmv-config.h',
                             'nusmv/src/utils/defs.h',
                             'nusmv/src/utils/object.h',
@@ -943,8 +943,8 @@ extensions.append(
                             
                             'pynusmv/nusmv/typedefs.tpl',
                             
-                            'pynusmv/nusmv/trace/exec/exec.py',
-                            'pynusmv/nusmv/trace/exec/exec_wrap.c'],
+                            'pynusmv/nusmv/trace/exec_/exec_.py',
+                            'pynusmv/nusmv/trace/exec_/exec__wrap.c'],
                 swig_opts = swig_opts, libraries = libraries,
                 library_dirs = library_dirs, include_dirs = include_dirs,
                 runtime_library_dirs = runtime_library_dirs)
