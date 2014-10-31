@@ -75,9 +75,9 @@ def fixpoint(funct, start):
 
     :rtype: :class:`BDD <pynusmv.dd.BDD>`
 
-    .. note:: μZ.f(Z) least fixpoint is implemented with
+    .. note:: mu Z.f(Z) least fixpoint is implemented with
               `fixpoint(funct, false)`.
-              νZ.f(Z) greatest fixpoint is implemented with
+              nu Z.f(Z) greatest fixpoint is implemented with
               `fixpoint(funct, true)`.
 
     """
