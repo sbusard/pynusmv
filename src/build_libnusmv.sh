@@ -2,20 +2,23 @@
 set -e
 
 if [[ -n `locate libexpat` ]]
+then
     libexpat="-lexpat"
-else:
+else
     libexpat=""
 fi
 
 if [[ -n `locate libreadline` ]]
+then
     libreadline="-lreadline"
-else:
+else
     libreadline=""
 fi
 
 if [[ -n `locate libncurses` ]]
+then
     libncurses="-lncurses"
-else:
+else
     libncurses=""
 fi
 
