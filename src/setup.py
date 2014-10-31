@@ -1,8 +1,12 @@
 from distutils.core import setup
 from distutils.extension import Extension
+import sys
 
 include_dirs = ['nusmv', 'nusmv/src', 'cudd-2.4.1.1/include']
-swig_opts = ['-py3']
+if sys.version_info[0] >= 3:
+    swig_opts = ['-py3']
+else:
+    swig_opts = []
 libraries = ['nusmv']
 runtime_library_dirs = ['lib']
 library_dirs = ['lib']

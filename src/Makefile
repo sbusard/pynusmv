@@ -17,8 +17,8 @@ else
 OS=
 endif
 
-ifndef PYTHON3
-PYTHON3=python3
+ifndef PYTHON
+PYTHON3=python
 endif
 
 ifndef SWIG
@@ -57,13 +57,13 @@ nusmv: cudd
 pynusmv: nusmv
 ifneq ($(SWIG),)
 	@if [ ! -f lib/libnusmv.so ]; then ./build_libnusmv.sh; fi; \
-	$(PYTHON3) setup.py build_ext --inplace --swig=$(SWIG)
+	$(PYTHON) setup.py build_ext --inplace --swig=$(SWIG)
 else
 ifneq ($(wildcard ../dep/swig-2.0.6/swig),)
 	@if [ ! -f lib/libnusmv.so ]; then ./build_libnusmv.sh; fi; \
-	$(PYTHON3) setup.py build_ext --inplace --swig=../dep/swig-2.0.6/swig
+	$(PYTHON) setup.py build_ext --inplace --swig=../dep/swig-2.0.6/swig
 else
 	@if [ ! -f lib/libnusmv.so ]; then ./build_libnusmv.sh; fi; \
-	$(PYTHON3) setup.py build_ext --inplace
+	$(PYTHON) setup.py build_ext --inplace
 endif
 endif

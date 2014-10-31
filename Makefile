@@ -3,13 +3,13 @@
 all: dep src
 
 dep:
-	export PYTHON3
+	export PYTHON
 	export SWIG
 	export PYPARSING
 	$(MAKE) -C dep
 
 src:
-	export PYTHON3
+	export PYTHON
 	export SWIG
 	export PYPARSING
 	$(MAKE) -C src

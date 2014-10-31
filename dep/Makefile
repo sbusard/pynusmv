@@ -2,9 +2,9 @@
 
 all: swig pyparsing
 
-PYTHON3:=python3
+PYTHON:=python3
 SWIG:=$(shell which swig)
-PYPARSING:=$(shell $(PYTHON3) -c "import pyparsing" 1>&2 2> /dev/null; echo $$?)
+PYPARSING:=$(shell $(PYTHON) -c "import pyparsing" 1>&2 2> /dev/null; echo $$?)
 
 swig:
 ifeq ($(SWIG),) # SWIG must be built

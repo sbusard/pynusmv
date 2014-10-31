@@ -40,7 +40,7 @@ make
 
 
 These Makefiles accept arguments:
-    - PYTHON3 defines the Python 3 command. By default, `python3` is used.
+    - PYTHON defines the Python command. By default, `python3` is used.
     - SWIG defines the SWIG command. By default, if `swig` exists, it is used,
       otherwise, SWIG is compiled with the given sources; if this argument is 
       not empty, it is used as the `swig` command.
@@ -52,7 +52,7 @@ These Makefiles accept arguments:
 For example, if you want to use `python3.2` instead of `python3` and to compile
 SWIG from sources even if you have SWIG, you can use:
 
-make PYTHON3=python3.2 SWIG=
+make PYTHON=python3.2 SWIG=
 
 
 PyNuSMV is then located into src/pynusmv directory.
