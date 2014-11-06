@@ -5,7 +5,10 @@ hierarchary.
 """
 
 import re
-from collections.abc import Mapping, Sequence
+try:
+    from collections.abc import Mapping, Sequence
+except ImportError:
+    from collections import Mapping, Sequence
 from collections import OrderedDict
 import string
 import random
