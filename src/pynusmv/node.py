@@ -1169,12 +1169,18 @@ class Equal(Expression):
 
     def __bool__(self):
         return nsnode.node_equal(self.car._ptr, self.cdr._ptr) != 0
+    
+    def __nonzero__(self):
+        return self.__bool__()
 
 
 class Notequal(Expression):
 
     def __bool__(self):
         return nsnode.node_equal(self.car._ptr, self.cdr._ptr) == 0
+    
+    def __nonzero__(self):
+        return self.__bool__()
 
 
 class Lt(Expression):
