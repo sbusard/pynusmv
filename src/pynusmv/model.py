@@ -1322,6 +1322,9 @@ class Equal(Operator):
             return self.left._equals(self.right)
         else:
             return self.left == self.right
+    
+    def __nonzero__(self):
+        return self.__bool__()
 
     def __deepcopy__(self, memo):
         return Equal(deepcopy(self.left, memo),
@@ -1363,6 +1366,9 @@ class NotEqual(Operator):
             return not self.left._equals(self.right)
         else:
             return self.left != self.right
+    
+    def __nonzero__(self):
+        return self.__bool__()
 
     def __deepcopy__(self, memo):
         return NotEqual(deepcopy(self.left, memo),
