@@ -333,10 +333,10 @@ def nc(fsm, group, phi):
     group -- a non-empty list of (str) names of agents of fsm
     phi -- a BDD representing the set of states of fsm satisfying phi
     """
-    # nC<g> p = μZ. p | nE<g> Z
+    # nC<g> p = mu Z. p | nE<g> Z
     #return fp(lambda Z: (phi | ne(fsm, group, Z)),
     #          BDD.false(fsm.bddEnc.DDmanager))
-    # nC<g> p = μZ. nE<g> (p | Z)
+    # nC<g> p = mu Z. nE<g> (p | Z)
     return fp(lambda Z: ne(fsm, group, (Z | phi)),
               BDD.false(fsm.bddEnc.DDmanager))
               

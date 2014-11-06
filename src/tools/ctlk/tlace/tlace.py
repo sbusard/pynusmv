@@ -1,4 +1,4 @@
-class Tlacenode:
+class Tlacenode(object):
     """
     A Tlacenode is a TLACE node.
     
@@ -43,7 +43,7 @@ class Tlacenode:
         return self._universals
 
 
-class Tlacebranch:
+class Tlacebranch(object):
     """
     A Tlacebranch is a TLACE branch.
     It contains an existential formula.
