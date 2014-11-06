@@ -2532,7 +2532,23 @@ class ModuleMetaClass(type):
         return ModuleMetaClass(cls.NAME, cls.__bases__, newnamespace)
 
 
-class Module(Modtype, metaclass=ModuleMetaClass):
+def _with_metaclass(meta, *bases):
+    """
+    Create a base class with a metaclass.
+    
+    Copyright (c) 2010-2014 Benjamin Peterson
+    This function comes from the six python package:
+    https://pypi.python.org/pypi/six
+    """
+    # This requires a bit of explanation: the basic idea is to make a dummy
+    # metaclass for one level of class instantiation that replaces itself with
+    # the actual metaclass.
+    class metaclass(meta):
+        def __new__(cls, name, this_bases, d):
+            return meta(name, bases, d)
+    return type.__new__(metaclass, 'temporary_class', (), {})
+
+class Module(_with_metaclass(ModuleMetaClass, Modtype)):
 
     """
     A generic module.
