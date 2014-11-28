@@ -29,6 +29,7 @@ from .exception import NuSMVInitError, PyNuSMVError
 
 
 # Set of pointer wrappers to collect when deiniting NuSMV
+__collecting = True
 __collector = None
 
 
@@ -47,16 +48,25 @@ class _PyNuSMVContext(object):
             deinit_nusmv()
 
 
-def init_nusmv():
+def init_nusmv(collecting=True):
     """
     Initialize NuSMV. Must be called only once before calling
     :func:`deinit_nusmv`.
+    
+    :param collecting: Whether or not collecting pointer wrappers to free them
+                       before deiniting nusmv.
+    
+    .. warning: Deactivating the collection of pointer wrappers may provoke
+                segmentation faults when deiniting nusmv without correctly
+                freeing all pointer wrappers in advance.
+                On the other hand, collection may blow memory.
 
     """
-    global __collector
+    global __collector, __collecting
     if __collector is not None:
         raise NuSMVInitError("Cannot initialize NuSMV twice.")
     else:
+        __collecting = collecting
         __collector = []
         nscinit.NuSMVCore_init_data()
         nscinit.NuSMVCore_init(None, 0)  # No addons specified
@@ -128,8 +138,9 @@ def _register_wrapper(wrapper):
     :type wrapper: :class:`PointerWrapper <pynusmv.utils.PointerWrapper>`
 
     """
-    global __collector
+    global __collector, __collecting
     if __collector is None:
         raise NuSMVInitError("Cannot register before initializing NuSMV.")
     else:
-        __collector.append(weakref.ref(wrapper))
+        if __collecting:
+            __collector.append(weakref.ref(wrapper))
