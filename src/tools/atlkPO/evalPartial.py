@@ -1250,9 +1250,19 @@ def eval_strat_alternate(fsm, spec, states, pstrat):
     
     __filterings[spec] += 1
     
+    if config.debug and __filterings[spec] % 1000 == 0:
+        print("Partial strategies (FS): {} filtering{} done so far"
+              .format(__filterings[spec],
+                      "s" if __filterings[spec] > 1 else ""))
+    
     # Check whether there are still states to decide
     if states.is_false():
         __strategies[spec] += 1
+        
+        if config.debug and __strategies[spec] % 1000 == 0:
+            print("Partial strategies (FS): {} strateg{} checked so far"
+                  .format(__strategies[spec],
+                          "ies" if __strategies[spec] > 1 else "y"))
         
         # Collect to avoid memory overflow
         if (config.garbage.type == "each" or config.garbage.type == "step"

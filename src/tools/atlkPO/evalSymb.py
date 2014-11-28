@@ -941,32 +941,47 @@ def eval_strat(fsm, spec):
     
     # Create the transition relations for agents if needed
     if not hasattr(fsm, "transitions") or group_name not in fsm.transitions:
+        
+        if config.debug:
+            print("Fully symbolic approach: encoding strategies for {}."
+                  .format(group_name))
+        
         encode_strat(fsm, strat, agents_obs, agents_actions, group_name)
 
     # Compute the set of winning states
+    if config.debug:
+        print("Fully symbolic approach: computing winning states for {}."
+              .format(spec))
+    
     if type(spec) is CEX:
-        return cex_symbolic(fsm, group_name,
-                            evalATLK(fsm, spec.child, variant="SF"))
+        win = cex_symbolic(fsm, group_name,
+                           evalATLK(fsm, spec.child, variant="SF"))
 
     elif type(spec) is CEG:
-        return cew_symbolic(fsm, group_name,
-                            evalATLK(fsm, spec.child, variant="SF"),
-                            BDD.false(fsm.bddEnc.DDmanager))
+        win = cew_symbolic(fsm, group_name,
+                           evalATLK(fsm, spec.child, variant="SF"),
+                           BDD.false(fsm.bddEnc.DDmanager))
 
     elif type(spec) is CEU:
-        return ceu_symbolic(fsm, group_name,
-                            evalATLK(fsm, spec.left, variant="SF"),
-                            evalATLK(fsm, spec.right, variant="SF"))
+        win = ceu_symbolic(fsm, group_name,
+                           evalATLK(fsm, spec.left, variant="SF"),
+                           evalATLK(fsm, spec.right, variant="SF"))
 
     elif type(spec) is CEF:
-        return ceu_symbolic(fsm, group_name,
-                            BDD.true(fsm.bddEnc.DDmanager),
-                            evalATLK(fsm, spec.child, variant="SF"))
+        win = ceu_symbolic(fsm, group_name,
+                           BDD.true(fsm.bddEnc.DDmanager),
+                           evalATLK(fsm, spec.child, variant="SF"))
 
     elif type(spec) is CEW:
-        return cew_symbolic(fsm, group_name,
-                            evalATLK(fsm, spec.left, variant="SF"),
-                            evalATLK(fsm, spec.right, variant="SF"))
+        win = cew_symbolic(fsm, group_name,
+                           evalATLK(fsm, spec.left, variant="SF"),
+                           evalATLK(fsm, spec.right, variant="SF"))
+    
+    if config.debug:
+        print("Fully symbolic approach: winning states for {} computed."
+              .format(spec))
+    
+    return win
 
 
 def spec_to_group_name(spec):

@@ -629,6 +629,11 @@ def eval_strat_FSF(fsm, spec):
     nbstrats = 0
     for strat in split(fsm, winning, agents):
         nbstrats += 1
+        
+        if config.debug and nbstrats % 1000 == 0:
+            print("Eval strategies (FSF): {} strateg{} checked so far"
+                  .format(nbstrats, "ies" if nbstrats > 1 else "y"))
+        
         # Second filtering
         winning = filter_strat(fsm, spec, strat, variant="FSF")
         winning = winning.forsome(fsm.bddEnc.inputsCube)
@@ -640,7 +645,8 @@ def eval_strat_FSF(fsm, spec):
              and nbstrats % config.garbage.step == 0)):
             gc.collect()
     
-    # DEBUG Print number of strategies
-    #print("Eval_strat_FSF: {} strategies".format(nbstrats))
+    if config.debug:
+        print("Eval strategies (FSF): {} strateg{} checked"
+              .format(nbstrats, "ies" if nbstrats > 1 else "y"))
     
     return sat
