@@ -6,6 +6,7 @@ Partial strategies implementation.
 from pynusmv.dd import BDD
 from pynusmv.mc import eval_simple_expression
 from pynusmv.utils import fixpoint as fp
+from pynusmv.init import collect
 
 from ..atlkFO.ast import (TrueExp, FalseExp, Init, Reachable,
                           Atom, Not, And, Or, Implies, Iff, 
@@ -905,7 +906,7 @@ def eval_strat(fsm, spec, states):
                 if (config.garbage.type == "each" or
                     (config.garbage.type == "step"
                         and nbstrats % config.garbage.step == 0)):
-                    gc.collect()
+                    collect()
         
             else:
                 # All strategies have been checked, the remaining states do not
@@ -1076,7 +1077,7 @@ def eval_strat_recur(fsm, spec, states, toSplit=None, toKeep=None):
             if (config.garbage.type == "each" or config.garbage.type == "step"
                 and __strategies[spec] % config.garbage.step == 0):
                 
-                gc.collect()
+                collect()
         
         else:
             sat = sat | eval_strat_recur(fsm, spec, states,
@@ -1268,7 +1269,7 @@ def eval_strat_alternate(fsm, spec, states, pstrat):
         if (config.garbage.type == "each" or config.garbage.type == "step"
             and __strategies[spec] % config.garbage.step == 0):
             
-            gc.collect()
+            collect()
         
         return win
     

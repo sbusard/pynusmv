@@ -144,3 +144,18 @@ def _register_wrapper(wrapper):
     else:
         if __collecting:
             __collector.append(weakref.ref(wrapper))
+
+
+def collect():
+    """
+    Launch Python garbage collection and unregister all already-collected
+    wrappers.
+
+    """
+    gc.collect()
+    global __collector, __collecting
+    if __collector is None:
+        raise NuSMVInitError("Cannot collect before initializing NuSMV.")
+    else:
+        if __collecting:
+            __collector = [wr for wr in __collector if wr() is not None]
