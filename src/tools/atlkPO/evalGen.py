@@ -539,6 +539,10 @@ def eval_strat(fsm, spec):
             (config.garbage.type == "step"
                 and nbstrats % config.garbage.step == 0)):
             collect()
+        
+        if config.debug and nbstrats % 1000 == 0:
+            print("Eval strategies (SF): {} strateg{} checked so far"
+                  .format(nbstrats, "ies" if nbstrats > 1 else "y"))
     
     # DEBUG Print number of strategies
     print("Eval_strat: {} strategies".format(nbstrats))
