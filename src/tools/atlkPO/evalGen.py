@@ -10,7 +10,6 @@ import gc
 from pynusmv.dd import BDD
 from pynusmv.mc import eval_simple_expression
 from pynusmv.utils import fixpoint as fp
-from pynusmv.init import collect
 
 from ..atlkFO.ast import (TrueExp, FalseExp, Init, Reachable,
                           Atom, Not, And, Or, Implies, Iff, 
@@ -538,7 +537,7 @@ def eval_strat(fsm, spec):
         if (config.garbage.type == "each" or
             (config.garbage.type == "step"
                 and nbstrats % config.garbage.step == 0)):
-            collect()
+            gc.collect()
         
         if config.debug and nbstrats % 1000 == 0:
             print("Eval strategies (SF): {} strateg{} checked so far"
@@ -598,7 +597,7 @@ def eval_strat_improved(fsm, spec, toSplit=None, toKeep=None):
             if (config.garbage.type == "each" or
                 (config.garbage.type == "step"
                  and __strategies[spec] % config.garbage.step == 0)):
-                collect()
+                gc.collect()
         
         else:
             sat = sat | eval_strat_improved(fsm, spec, 
@@ -648,7 +647,7 @@ def eval_strat_FSF(fsm, spec):
         if (config.garbage.type == "each" or
             (config.garbage.type == "step"
              and nbstrats % config.garbage.step == 0)):
-            collect()
+            gc.collect()
     
     if config.debug:
         print("Eval strategies (FSF): {} strateg{} checked"

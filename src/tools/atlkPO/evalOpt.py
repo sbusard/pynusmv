@@ -10,7 +10,6 @@ import gc
 from pynusmv.dd import BDD
 from pynusmv.mc import eval_simple_expression
 from pynusmv.utils import fixpoint as fp
-from pynusmv.init import collect
 
 from ..atlkFO.ast import (TrueExp, FalseExp, Init, Reachable,
                           Atom, Not, And, Or, Implies, Iff, 
@@ -264,7 +263,7 @@ def split_eval(fsm, spec, common, rest):
                 
                 # then, get equiv sat
                 sat = sat | all_equiv_sat(fsm, winning, gamma)
-                collect()
+                gc.collect()
             else:
                 sat = sat | split_eval(fsm, spec, common | newcommon | splitted,
                                        newrest)

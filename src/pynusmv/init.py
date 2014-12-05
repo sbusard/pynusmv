@@ -67,7 +67,7 @@ def init_nusmv(collecting=True):
         raise NuSMVInitError("Cannot initialize NuSMV twice.")
     else:
         __collecting = collecting
-        __collector = []
+        __collector = set()
         nscinit.NuSMVCore_init_data()
         nscinit.NuSMVCore_init(None, 0)  # No addons specified
         nscinit.NuSMVCore_init_cmd_options()
@@ -113,8 +113,7 @@ def deinit_nusmv(ddinfo=False):
         gc.collect()
         # Then garbage collect with PyNuSMV
         for elem in __collector:
-            if elem() is not None:
-                elem()._free()
+                elem._free()
         __collector = None
         nscinit.NuSMVCore_quit()
 
@@ -127,6 +126,21 @@ def reset_nusmv():
     """
     deinit_nusmv()
     init_nusmv()
+
+
+class _WeakWrapper():
+    
+    def __init__(self, object, collector):
+        self.collector = collector
+        self.object = weakref.ref(object, self._unref)
+    
+    def _unref(self, o):
+        self.collector.discard(self)
+    
+    def _free(self):
+        o = self.object()
+        if o is not None:
+            o._free()
 
 
 def _register_wrapper(wrapper):
@@ -143,19 +157,4 @@ def _register_wrapper(wrapper):
         raise NuSMVInitError("Cannot register before initializing NuSMV.")
     else:
         if __collecting:
-            __collector.append(weakref.ref(wrapper))
-
-
-def collect():
-    """
-    Launch Python garbage collection and unregister all already-collected
-    wrappers.
-
-    """
-    gc.collect()
-    global __collector, __collecting
-    if __collector is None:
-        raise NuSMVInitError("Cannot collect before initializing NuSMV.")
-    else:
-        if __collecting:
-            __collector = [wr for wr in __collector if wr() is not None]
+            __collector.add(_WeakWrapper(wrapper, __collector))

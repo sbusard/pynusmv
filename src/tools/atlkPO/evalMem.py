@@ -11,7 +11,6 @@ import gc
 from pynusmv.dd import BDD
 from pynusmv.mc import eval_simple_expression
 from pynusmv.utils import fixpoint as fp
-from pynusmv.init import collect
 
 from ..atlkFO.ast import (TrueExp, FalseExp, Init, Reachable,
                           Atom, Not, And, Or, Implies, Iff, 
@@ -560,7 +559,7 @@ def eval_strat(fsm, spec):
                    .forsome(fsm.bddEnc.inputsCube))
         sat += all_equiv_sat(fsm, winning, agents)
         
-        collect()
+        gc.collect()
         
         nbstrats += 1
     
