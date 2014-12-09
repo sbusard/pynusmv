@@ -6,6 +6,7 @@ Partial strategies implementation.
 from pynusmv.dd import BDD
 from pynusmv.mc import eval_simple_expression
 from pynusmv.utils import fixpoint as fp
+from pynusmv.exception import PyNuSMVError
 
 from ..atlkFO.ast import (TrueExp, FalseExp, Init, Reachable,
                           Atom, Not, And, Or, Implies, Iff, 
@@ -32,7 +33,7 @@ class StrategyFound(Exception):
         self.satisfied = satisfied
 
 
-def evalATLK(fsm, spec, states=None, variant="SF"):
+def evalATLK(fsm, spec, states=None, variant="SF", semantics="group"):
     """
     Return the BDD representing the subset of "states" of fsm satisfying spec.
     
@@ -51,6 +52,10 @@ def evalATLK(fsm, spec, states=None, variant="SF"):
                  
     If variant is not in {"SF", "FS", "FSF"}, the standard "SF" way is used.
     """
+    
+    if semantics != "group":
+        raise PyNuSMVError("Partial evalATLK: unsupported semantics:" +
+                           semantics)
     
     if not states:
         states = fsm.init
@@ -1306,13 +1311,13 @@ def eval_strat_alternate(fsm, spec, states, pstrat):
 
 __evalATLK_cache = {}
 __orig_evalATLK = evalATLK
-def __cached_evalATLK(fsm, spec, states=None, variant="SF"):
+def __cached_evalATLK(fsm, spec, states=None, variant="SF", semantics="group"):
     if config.partial.caching:
         if states is None:
             states = fsm.init
         
-        if (fsm, spec) in __evalATLK_cache.keys():
-            sat, unsat = __evalATLK_cache[(fsm, spec)]
+        if (fsm, spec, semantics) in __evalATLK_cache.keys():
+            sat, unsat = __evalATLK_cache[(fsm, spec, semantics)]
         else:
             false = BDD.false(fsm.bddEnc.DDmanager)
             sat, unsat = false, false
@@ -1320,15 +1325,17 @@ def __cached_evalATLK(fsm, spec, states=None, variant="SF"):
         remaining = states - (sat + unsat)
     
         if remaining.isnot_false():
-            remsat = __orig_evalATLK(fsm, spec, remaining, variant)
+            remsat = __orig_evalATLK(fsm, spec, remaining, variant,
+                                     semantics=semantics)
             remunsat = remaining - remsat
-            __evalATLK_cache[(fsm, spec)] = (sat + remsat, unsat + remunsat)
+            __evalATLK_cache[(fsm, spec, semantics)] = (sat + remsat,
+                                                        unsat + remunsat)
         else:
             remsat = BDD.false(fsm.bddEnc.DDmanager)
     
         return sat + remsat
     
     else:
-        return __orig_evalATLK(fsm, spec, states, variant)
+        return __orig_evalATLK(fsm, spec, states, variant, semantics=semantics)
 
 evalATLK = __cached_evalATLK

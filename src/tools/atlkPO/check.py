@@ -21,7 +21,7 @@ __implementations = {"naive" : evalATLK_naive,
                      "partial" : evalATLK_partial,
                      "symbolic" : evalATLK_symb}
 
-def check(mas, spec, variant="SF", implem="generator"):
+def check(mas, spec, variant="SF", semantics="group", implem="generator"):
     """
     Return whether the system satisfies the ATLK specification.
     
@@ -44,14 +44,23 @@ def check(mas, spec, variant="SF", implem="generator"):
               * "memory" another memory-optimized version;
               * "partial" a version based on partial strategies;
               * "symbolic" a version based on a fully symbolic approach.
+    semantics -- the semantics to use for starting point and strategy point
+                 equivalence:
+                 * "group" for the original ATLK_irF semantics considering
+                   the group as a single agent (distributed knowledge is used)
+                 * "individual" for the original ATL_ir semantics considering
+                   the group as individual agents (individual knowledge is
+                   used)
                  
     If variant is not in {"SF", "FS", "FSF"}, the standard "SF" way is used.          
+    If semantics is not in {"group", "individual"}, "group" semantics is used.
     If implem is not in {"naive","generator","optimized","memory","partial",
     "symbolic"}, the standard "generator" way is used.
     
     """
     if implem in __implementations:
-        sat = __implementations[implem](mas, spec, variant=variant)
+        sat = __implementations[implem](mas, spec, variant=variant,
+                                        semantics=semantics)
     else:
         sat = evalATLK_gen(mas, spec, variant=variant)
     return (~sat & mas.bddEnc.statesInputsMask & mas.init).is_false()

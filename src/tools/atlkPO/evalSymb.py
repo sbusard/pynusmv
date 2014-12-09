@@ -13,6 +13,7 @@ from pynusmv.fsm import BddTrans
 from pynusmv.mc import eval_simple_expression
 from pynusmv.utils import fixpoint as fp
 from pynusmv import node, glob
+from pynusmv.exception import PyNuSMVError
 
 from pynusmv.nusmv.compile.symb_table import symb_table as nssymb_table
 
@@ -27,7 +28,7 @@ from ..atlkFO.eval import nk, ne, nc
 from . import config
 
 
-def evalATLK(fsm, spec, variant="SF"):
+def evalATLK(fsm, spec, variant="SF", semantics="group"):
     """
     Return the BDD representing the set of states of fsm satisfying spec.
     
@@ -43,6 +44,10 @@ def evalATLK(fsm, spec, variant="SF"):
                  
     If variant is not in {"SF", "FSF"}, the standard "SF" way is used.
     """
+    
+    if semantics != "group":
+        raise PyNuSMVError("Symbolic evalATLK: unsupported semantics:" +
+                           semantics)
     
     if type(spec) is TrueExp:
         return BDD.true(fsm.bddEnc.DDmanager)

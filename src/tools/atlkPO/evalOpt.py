@@ -10,6 +10,7 @@ import gc
 from pynusmv.dd import BDD
 from pynusmv.mc import eval_simple_expression
 from pynusmv.utils import fixpoint as fp
+from pynusmv.exception import PyNuSMVError
 
 from ..atlkFO.ast import (TrueExp, FalseExp, Init, Reachable,
                           Atom, Not, And, Or, Implies, Iff, 
@@ -21,7 +22,7 @@ from ..atlkFO.ast import (TrueExp, FalseExp, Init, Reachable,
 from ..atlkFO.eval import (fair_states, ex, eg, eu, nk, ne, nd, nc)
 
 
-def evalATLK(fsm, spec, variant="SF"):
+def evalATLK(fsm, spec, variant="SF", semantics="group"):
     """
     Return the BDD representing the set of states of fsm satisfying spec.
     
@@ -39,6 +40,10 @@ def evalATLK(fsm, spec, variant="SF"):
                  
     If variant is not in {"SF", "FS", "FSF"}, the standard "SF" way is used.
     """
+    
+    if semantics != "group":
+        raise PyNuSMVError("Optimal evalATLK: unsupported semantics:" +
+                           semantics)
     
     if type(spec) is TrueExp:
         return BDD.true(fsm.bddEnc.DDmanager)
