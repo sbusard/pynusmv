@@ -11,6 +11,8 @@ from pynusmv.dd import BDD
 from pynusmv.mc import eval_simple_expression
 from pynusmv.utils import fixpoint as fp
 
+from ..mas.mas import Agent, Group
+
 from ..atlkFO.ast import (TrueExp, FalseExp, Init, Reachable,
                           Atom, Not, And, Or, Implies, Iff, 
                           AF, AG, AX, AU, AW, EF, EG, EX, EU, EW,
@@ -724,15 +726,21 @@ def eval_strat(fsm, spec, semantics="group"):
     spec -- an AST-based ATLK specification with a top strategic operator.
     semantics -- the semantics to use (group or individual)
     
-    """    
+    """
     sat = BDD.false(fsm.bddEnc.DDmanager)
     agents = {atom.value for atom in spec.group}
     
     # Restrict protocol to reachable states to avoid splitting useless
     # equivalence classes
-    strats = split(fsm, fsm.protocol(agents) & fsm.reachable_states, agents,
-                   semantics=semantics)
+    protocol = fsm.protocol(agents) & fsm.reachable_states
+    strats = split(fsm, protocol, agents, semantics=semantics)
     nbstrats = 0
+    
+    if config.debug:
+        moves_count = fsm.count_states_inputs(protocol)
+        print("Eval strategies (SF): {} move{} in protocol"
+              .format(moves_count, "s" if moves_count > 1 else ""))
+    
     for strat in strats:
         nbstrats += 1
         winning = (filter_strat(fsm, spec, strat, variant="SF").
@@ -836,8 +844,21 @@ def eval_strat_FSF(fsm, spec, semantics="group"):
     sat = BDD.false(fsm.bddEnc.DDmanager)
     agents = {atom.value for atom in spec.group}
     
+    protocol = fsm.protocol(agents) & fsm.reachable_states
+    
+    if config.debug:
+        moves_count = fsm.count_states_inputs(protocol)
+        print("Eval strategies (FSF): {} move{} in protocol"
+              .format(moves_count, "s" if moves_count > 1 else ""))
+    
     # First filtering
-    winning = filter_strat(fsm, spec, variant="FSF", semantics=semantics)
+    winning = filter_strat(fsm, spec, strat=protocol, variant="FSF",
+                           semantics=semantics)
+    
+    if config.debug:
+        moves_count = fsm.count_states_inputs(winning)
+        print("Eval strategies (FSF): {} move{} after filtering"
+              .format(moves_count, "s" if moves_count > 1 else ""))
     
     if winning.is_false(): # no state/inputs pairs are winning => return false
         return winning
