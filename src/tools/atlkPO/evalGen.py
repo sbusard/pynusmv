@@ -426,11 +426,12 @@ def get_equiv_class(fsm, gamma, state, semantics="group"):
         while old != eq:
             old = eq
             for agent in gamma:
-                eq |= fsm.equivalent_states(old, {agent})
+                eq |= (fsm.equivalent_states(old, {agent}) &
+                       fsm.reachable_states)
             
         return eq
     else:
-        return fsm.equivalent_states(state, gamma)
+        return fsm.equivalent_states(state, gamma) & fsm.reachable_states
 
 
 def is_conflicting(fsm, eqclass, gamma, semantics="group"):

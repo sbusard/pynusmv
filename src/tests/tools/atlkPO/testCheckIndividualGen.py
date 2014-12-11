@@ -450,3 +450,33 @@ class TestCheck(unittest.TestCase):
         strats = split(fsm, fsm.protocol(agents) & fsm.reachable_states,
                        agents, semantics='individual')
         self.assertEqual(len(list(strats)), 16)
+        
+        self.assertTrue(check(fsm, parseATLK("<'a1', 'a2'> F 'v1 & v2'")[0], semantics="individual"))
+        self.assertFalse(check(fsm, parseATLK("<'a1', 'a2'> G '!v1 & !v2'")[0], semantics="individual"))
+        self.assertTrue(check(fsm, parseATLK("AG('!v1 & !v2' -> <'a1', 'a2'> G '!v1 | !v2')")[0], semantics="individual"))
+    
+    def test_counters_FS(self):
+        fsm = self.counters()
+        
+        from tools.atlkPO.evalGen import split
+        agents = {'a1', 'a2'}
+        strats = split(fsm, fsm.protocol(agents) & fsm.reachable_states,
+                       agents, semantics='individual')
+        self.assertEqual(len(list(strats)), 16)
+        
+        self.assertTrue(check(fsm, parseATLK("<'a1', 'a2'> F 'v1 & v2'")[0], variant="FS", semantics="individual"))
+        self.assertFalse(check(fsm, parseATLK("<'a1', 'a2'> G '!v1 & !v2'")[0], variant="FS", semantics="individual"))
+        self.assertTrue(check(fsm, parseATLK("AG('!v1 & !v2' -> <'a1', 'a2'> G '!v1 | !v2')")[0], variant="FS", semantics="individual"))
+    
+    def test_counters_FSF(self):
+        fsm = self.counters()
+        
+        from tools.atlkPO.evalGen import split
+        agents = {'a1', 'a2'}
+        strats = split(fsm, fsm.protocol(agents) & fsm.reachable_states,
+                       agents, semantics='individual')
+        self.assertEqual(len(list(strats)), 16)
+        
+        self.assertTrue(check(fsm, parseATLK("<'a1', 'a2'> F 'v1 & v2'")[0], variant="FSF", semantics="individual"))
+        self.assertFalse(check(fsm, parseATLK("<'a1', 'a2'> G '!v1 & !v2'")[0], variant="FSF", semantics="individual"))
+        self.assertTrue(check(fsm, parseATLK("AG('!v1 & !v2' -> <'a1', 'a2'> G '!v1 | !v2')")[0], variant="FSF", semantics="individual"))
