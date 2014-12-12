@@ -41,13 +41,18 @@ def evalATLK(fsm, spec, variant="SF", semantics="group"):
                * "FSF" for the filter-split-filter way: filtering winning
                  sub-protocol before encoding it and performing the fully
                  symbolic model checking
+    semantics -- the semantics to use for starting point and strategy point
+                 equivalence; must be
+                 * "group" for the original ATLK_irF semantics considering
+                   the group as a single agent (distributed knowledge is used)
+                 * "individual" for the original ATL_ir semantics considering
+                   the group as individual agents (individual knowledge is
+                   used)
                  
     If variant is not in {"SF", "FSF"}, the standard "SF" way is used.
+    If semantics is not in {"group", "individual"}, the "group" semantics is
+    used.
     """
-    
-    if semantics != "group":
-        raise PyNuSMVError("Symbolic evalATLK: unsupported semantics:" +
-                           semantics)
     
     if type(spec) is TrueExp:
         return BDD.true(fsm.bddEnc.DDmanager)
@@ -208,11 +213,11 @@ def evalATLK(fsm, spec, variant="SF", semantics="group"):
                    
     elif type(spec) in {CEX, CEG, CEU, CEF, CEW}:
         if variant == "SF":
-            return eval_strat(fsm, spec)
+            return eval_strat(fsm, spec, semantics=semantics)
         elif variant == "FSF":
-            return eval_strat_FSF(fsm, spec)
+            return eval_strat_FSF(fsm, spec, semantics=semantics)
         else:
-            return eval_strat(fsm, spec)
+            return eval_strat(fsm, spec, semantics=semantics)
         
     else:
         # TODO Generate error
@@ -510,7 +515,153 @@ def cew_symbolic(fsm, name, left, right):
                            BDD.true(fsm.bddEnc.DDmanager))))))
 
 
-def split_one(fsm, strats, gamma):
+def get_equiv_class(fsm, gamma, state, semantics="group"):
+    """
+    Return the equivalence class for gamma state belongs to. The equivalence
+    class depends on semantics; if semantics is individual, the common
+    knowledge based equivalence class for gamma containing state is returned;
+    otherwise (assuming semantics is group), the distributed knowledge based
+    equivalence fo gamma containing state is returned.
+    
+    fsm -- the model
+    gamma -- a set of agents of fsm
+    semantics -- the semantic to use (group or individual);
+                 if not "individual", "group" semantics is used
+    """
+    if semantics == "individual":
+        old = BDD.false(fsm.bddEnc.DDmanager)
+        eq = state
+        while old != eq:
+            old = eq
+            for agent in gamma:
+                eq |= (fsm.equivalent_states(old, {agent}) &
+                       fsm.reachable_states)
+            
+        return eq
+    else:
+        return fsm.equivalent_states(state, gamma) & fsm.reachable_states
+
+
+def is_conflicting(fsm, eqclass, gamma, semantics="group"):
+    """
+    Return whether the given equivalence class for gamma is conflicting or not.
+    
+    fsm -- the model
+    eqclass -- a BDD representing a set of states/inputs pairs
+    gamma -- a set of agents of fsm
+    semantics -- the semantic to use for splitting (group or individual);
+                 if not "individual", "group" semantics is used
+    
+    If semantics is "individual", eqclass must be a group knowledge based
+    equivalence class for gamma; otherwise, semantics is assumed to be "group"
+    and eqclass must be a distributed knowledge based equivalence class.
+    
+    """
+    if semantics == "individual":
+        # Consider each agent separately
+        for agent in gamma:
+            nagent_cube = (fsm.bddEnc.inputsCube -
+                           fsm.inputs_cube_for_agents({agent}))
+            agentclass = eqclass
+            # Get one equivalence class for agent at a time
+            while agentclass.isnot_false():
+                si = fsm.pick_one_state_inputs(agentclass)
+                s = si.forsome(fsm.bddEnc.inputsCube)
+                eqcl = agentclass & get_equiv_class(fsm, {agent}, s)
+                
+                # Check if the equivalence class is conflicting for agent
+                if ((eqcl - (eqcl & si.forsome(fsm.bddEnc.statesCube |
+                                               nagent_cube)))
+                     .isnot_false()):
+                    return True
+                
+                agentclass -= eqcl
+        
+        return False
+    else:
+        si = fsm.pick_one_state_inputs(eqclass)
+        ngamma_cube = fsm.bddEnc.inputsCube - fsm.inputs_cube_for_agents(gamma)
+        return (eqclass - (eqclass & si.forsome(fsm.bddEnc.statesCube |
+                                                ngamma_cube))).isnot_false()
+
+def split_for_one_agent(fsm, strat, agent):
+    """
+    Split the given set of moves strat into non-conflicting sub-strategies for
+    agent.
+    
+    fsm -- the model
+    strat -- a BDD representing a set of states/inputs pairs
+    agent -- an agent of fsm
+    
+    The strategies are restricted to moves of strat instead of general
+    strategies for agent.
+    """
+    
+    if strat.is_false():
+        yield strat
+    
+    else:
+        nagent_cube = (fsm.bddEnc.inputsCube -
+                       fsm.inputs_cube_for_agents({agent}))
+        
+        s = fsm.pick_one_state(strat)
+        eqclass = get_equiv_class(fsm, {agent}, s) & strat
+        # semantics here has no impact since individual meets group semantics
+        # with one single agent
+        
+        strat = strat - eqclass
+        
+        while eqclass.isnot_false():
+            si = fsm.pick_one_state_inputs(eqclass)
+            ia = si.forsome(fsm.bddEnc.statesCube | nagent_cube)
+            ncss = eqclass & ia
+            
+            eqclass -= ncss
+            
+            for sstrat in split_for_one_agent(fsm, strat, agent):
+                yield sstrat | ncss
+
+
+def split_conflicting(fsm, eqclass, gamma, semantics="group"):
+    """
+    Split the given equivalence class for gamma into non conflicting
+    sub-strategies.
+    
+    fsm -- the model
+    eqclass -- a BDD representing a set of states/inputs pairs
+    gamma -- a set of agents of fsm
+    semantics -- the semantic to use for splitting (group or individual);
+                 if not "individual", "group" semantics is used
+    
+    If semantics is "individual", eqclass must be a group knowledge based
+    equivalence class for gamma; otherwise, semantics is assumed to be "group"
+    and eqclass must be a distributed knowledge based equivalence class.
+    
+    Generate all splitted non conflicting sub-strategies.
+    
+    """
+    if semantics == "individual":
+        if len(gamma) <= 0:
+            yield eqclass
+        else:
+            agent = next(iter(gamma))
+            agents = gamma - {agent}
+            for sstrat in split_conflicting(fsm, eqclass, agents,
+                                            semantics="individual"):
+                for strat in split_for_one_agent(fsm, sstrat, agent):
+                    yield strat
+    else:
+        ngamma_cube = fsm.bddEnc.inputsCube - fsm.inputs_cube_for_agents(gamma)
+        # Split eqclass into non-conflicting subsets
+        while eqclass.isnot_false():
+            si = fsm.pick_one_state_inputs(eqclass)
+            ncss = eqclass & si.forsome(fsm.bddEnc.statesCube | ngamma_cube)
+            eqclass = eqclass - ncss
+
+            yield ncss
+
+
+def split_one(fsm, strats, gamma, semantics="group"):
     """
     Split one equivalence class of strats and return triples composed of
     the common non-conflicting part already encountered,
@@ -519,6 +670,8 @@ def split_one(fsm, strats, gamma):
     fsm -- the model
     strats -- a BDD representing a set of states/inputs pairs
     gamma -- a set of agents of fsm
+    semantics -- the semantic to use for splitting (group or individual);
+                 if not "individual", "group" semantics is used
     
     Return a generator of all triples of common parts, splits
     and rest of strats.
@@ -529,30 +682,23 @@ def split_one(fsm, strats, gamma):
         return
         
     else:
-        ngamma_cube = fsm.bddEnc.inputsCube - fsm.inputs_cube_for_agents(gamma)
         common = BDD.false(fsm.bddEnc.DDmanager)
         
         while strats.isnot_false():
             # Get one equivalence class
             si = fsm.pick_one_state_inputs(strats)
             s = si.forsome(fsm.bddEnc.inputsCube)
-            eqs = fsm.equivalent_states(s, gamma)
+            eqs = get_equiv_class(fsm, gamma, s, semantics=semantics)
             eqcl = strats & eqs
             
             # Remove it from strats
             strats = strats - eqcl
             
             # The current equivalence class is conflicting
-            if((eqcl - (eqcl & si.forsome(fsm.bddEnc.statesCube| ngamma_cube)))
-                .isnot_false()):
-                # Split eqcl into non-conflicting subsets
-                while eqcl.isnot_false():
-                    si = fsm.pick_one_state_inputs(eqcl)
-                    ncss = (eqcl &
-                            si.forsome(fsm.bddEnc.statesCube |ngamma_cube))
-                    eqcl = eqcl - ncss
-
-                    yield (common, ncss, strats)
+            if is_conflicting(fsm, eqcl, gamma, semantics=semantics):
+                for non_conflicting in split_conflicting(fsm, eqcl, gamma,
+                                                         semantics=semantics):
+                    yield (common, non_conflicting, strats)
                 return
             
             else:
@@ -563,13 +709,14 @@ def split_one(fsm, strats, gamma):
         yield (common, strats, strats)
 
 
-def split(fsm, strats, gamma):
+def split(fsm, strats, gamma, semantics="group"):
     """
     Split strats into all its non-conflicting greatest subsets.
     
     fsm -- the model
     strats -- a BDD representing a set of states/inputs pairs
     gamma -- a set of agents of fsm
+    semantics -- the semantic to use for splitting (group or individual)
     
     Return a generator of all non-conflicting greatest subsets of strats.
     
@@ -577,13 +724,16 @@ def split(fsm, strats, gamma):
     if strats.is_false():
         yield strats
     else:
+        # semantics should be group
         # Split one equivalence class
-        for common, splitted, rest in split_one(fsm, strats, gamma):
-            for strat in split(fsm, rest, gamma):
+        for common, splitted, rest in split_one(fsm, strats, gamma,
+                                                semantics=semantics):
+            for strat in split(fsm, rest, gamma,
+                               semantics=semantics):
                 yield (common | strat | splitted)
 
 
-def filter_strat(fsm, spec, strat=None, variant="SF"):
+def filter_strat(fsm, spec, strat=None, variant="SF", semantics="group"):
     """
     Returns the subset SA of strat (or the whole system if strat is None),
     state/action pairs of fsm, such that there is a strategy to satisfy spec
@@ -595,13 +745,20 @@ def filter_strat(fsm, spec, strat=None, variant="SF"):
     strat -- the subset of the system to consider.
     variant -- the variant of the algorithm to evaluate strategic operators;
                must be
-               * "SF" for the standard way: splitting in uniform strategies
-                 then filtering winning states,
+               * "SF" for the standard way: splitting in uniform strategies then
+                 filtering winning states,
                * "FS" for the alternating way: filtering winning states, then
                  splitting one conflicting equivalence class, then recurse
-               * "FSF" for the filter-split-filter way: filtering winning
-                 states then splitting all remaining actions into uniform
-                 strategies, then filtering final winning states.
+               * "FSF" for the filter-split-filter way: filtering winning states
+                 then splitting all remaining actions into uniform strategies,
+                 then filtering final winning states.
+    semantics -- the semantics to use for starting point and strategy point
+                 equivalence; must be
+                 * "group" for the original ATLK_irF semantics considering
+                   the group as a single agent (distributed knowledge is used)
+                 * "individual" for the original ATL_ir semantics considering
+                   the group as individual agents (individual knowledge is
+                   used)
                  
     If variant is not in {"SF", "FS", "FSF"}, the standard "SF" way is used.
     """
@@ -612,45 +769,61 @@ def filter_strat(fsm, spec, strat=None, variant="SF"):
     # Filtering
     if type(spec) is CEX:
         winning = cex_si(fsm, agents,
-                         evalATLK(fsm, spec.child, variant=variant), strat)
+                         evalATLK(fsm, spec.child, variant=variant,
+                                  semantics=semantics), strat)
 
     elif type(spec) is CEG:
-        winning = ceg_si(fsm, agents,
-                         evalATLK(fsm, spec.child, variant=variant), strat)
+        winning = ceg_si(fsm, agents, evalATLK(fsm, spec.child,
+                                               variant=variant,
+                                               semantics=semantics), strat)
 
     elif type(spec) is CEU:
-        winning = ceu_si(fsm, agents, 
-                         evalATLK(fsm, spec.left, variant=variant),
-                         evalATLK(fsm, spec.right, variant=variant), strat)
+        winning = ceu_si(fsm, agents, evalATLK(fsm, spec.left,
+                                               variant=variant,
+                                               semantics=semantics),
+                         evalATLK(fsm, spec.right, variant=variant,
+                                  semantics=semantics), strat)
 
     elif type(spec) is CEF:
         # <g> F p = <g>[true U p]
         winning = ceu_si(fsm, agents, BDD.true(fsm.bddEnc.DDmanager),
-                         evalATLK(fsm, spec.child, variant=variant), strat)
+                         evalATLK(fsm, spec.child, variant=variant,
+                                  semantics=semantics), strat)
 
     elif type(spec) is CEW:
-       winning = cew_si(fsm, agents, evalATLK(fsm, spec.left, variant=variant),
-                        evalATLK(fsm, spec.right, variant=variant), strat)
+       winning = cew_si(fsm, agents, evalATLK(fsm, spec.left, variant=variant,
+                                              semantics=semantics),
+                        evalATLK(fsm, spec.right, variant=variant,
+                                 semantics=semantics), strat)
     
     
     return winning & fsm.bddEnc.statesInputsMask & fsm.protocol(agents)
 
 
-def all_equiv_sat(fsm, winning, agents):
+def all_equiv_sat(fsm, winning, agents, semantics="group"):
     """
     Return the states s of winning such that all states indistinguishable
     from s by agents are in winning.
     
     fsm -- a MAS representing the system;
     winning -- a BDD representing a set of states of fsm;
-    agents -- a set of agents.
+    agents -- a set of agents;
+    semantics -- the semantics to use (group or individual); if not
+                 "individual", "group" semantics is used.
     
     """
-    # Get states for which all states belong to winning
-    # wineq is the set of states for which all equiv states are in winning
-    nwinning = ~winning & fsm.bddEnc.statesInputsMask
-    return ~(fsm.equivalent_states(nwinning &
-             fsm.reachable_states, frozenset(agents))) & winning
+    if semantics == "individual":
+        equiv_sat = BDD.true(fsm.bddEnc.DDmanager)
+        for agent in agents:
+            equiv_sat &= all_equiv_sat(fsm, winning, {agent},
+                                       semantics="group")
+        return equiv_sat
+    else:
+        # Get states for which all states belong to winning
+        # wineq is the set of states for which all equiv states are in winning
+        nwinning = ~winning & fsm.bddEnc.statesInputsMask
+        return ~(fsm.equivalent_states(nwinning &
+                 fsm.reachable_states, frozenset(agents))) & winning
 
 
 def vars_trans_from_protocol(fsm, original_variables, original_trans,
@@ -879,12 +1052,10 @@ def encode_vars_trans(fsm, name, new_variables, new_trans):
     # computed
     fsm.transitions[name] = None
 
-def encode_strat(fsm, strat, observables, actions, name):
+def encode_strat(fsm, agents, name, strat=None, semantics="group"):
     """
-    Encode the strategies stored in strat in fsm given by strat with name
-    as prefix. The strategies are represented by strat (a set of moves),
-    observables (the observable state variables) and actions (the input
-    variables representing the actions of the moves).
+    Encode the strategies of the given agents in fsm under the given name;
+    if strat is not None, the strategies of agents are restricted to strat
     
     The result is
         - the variables necessary to encode strat have been declared and
@@ -901,48 +1072,102 @@ def encode_strat(fsm, strat, observables, actions, name):
     Note: we assume that the flat hierarchy of fsm is glob.flat_hierarchy()
     """
     
-    if not hasattr(fsm, "transitions"):
-        fsm.transitions = {}
+    if strat is None:
+        strat = BDD.true(fsm.bddEnc.DDmanager)
     
-    flat = glob.flat_hierarchy()
-    symb_table = fsm.bddEnc.symbTable
-    new_layer = name
-    
-    # Get original transition relation and original variables
-    original_trans = flat.trans
-    original_variables = []
-    for variable in flat.variables:
-        original_variables.append((variable,
-                                   symb_table.get_variable_type(variable),
-                                   nssymb_table.SymbTable_get_symbol_category
-                                   (symb_table._ptr, variable._ptr)))
-    
-    # Get variables and transition relations
-    new_variables, new_trans = vars_trans_from_protocol(fsm,
-                               original_variables, original_trans,
-                               strat, observables, actions, name)
-    
-    encode_vars_trans(fsm, name, new_variables, new_trans)
+    if semantics == "individual":
+        if not hasattr(fsm, "transitions"):
+            fsm.transitions = {}
+        
+        # TODO Do not re-encode variables for agents already encoded
+        
+        flat = glob.flat_hierarchy()
+        symb_table = fsm.bddEnc.symbTable
+        new_layer = name
+        
+        # Get original transition relation and original variables
+        original_trans = flat.trans
+        original_variables = []
+        for variable in flat.variables:
+            original_variables.append((variable,
+                                       symb_table.get_variable_type(variable),
+                                       nssymb_table.
+                                       SymbTable_get_symbol_category
+                                       (symb_table._ptr, variable._ptr)))
+        
+        new_variables = []
+        new_trans = {}
+        for agent in agents:
+            agent_strat = fsm.protocol({agent}) & strat
+            nvars, ntrans = vars_trans_from_protocol(fsm,
+                                       original_variables, original_trans,
+                                       agent_strat,
+                                       fsm.agents_observed_variables[agent],
+                                       fsm.agents_inputvars[agent], name)
+            
+            new_variables += list(nvars)
+            for trans_name, trans in ntrans.items():
+                if trans_name not in new_trans:
+                    new_trans[trans_name] = trans
+                else:
+                    new_trans[trans_name] &= trans
+
+        encode_vars_trans(fsm, name, new_variables, new_trans)
+        
+    else:
+        agents_actions = set()
+        for agent in agents:
+            agents_actions |= fsm.agents_inputvars[agent]
+        agents_obs = set()
+        for agent in agents:
+            agents_obs |= fsm.agents_observed_variables[agent]
+        
+        agents_strat = fsm.protocol(agents) & strat
+        
+        if not hasattr(fsm, "transitions"):
+            fsm.transitions = {}
+        
+        flat = glob.flat_hierarchy()
+        symb_table = fsm.bddEnc.symbTable
+        new_layer = name
+        
+        # Get original transition relation and original variables
+        original_trans = flat.trans
+        original_variables = []
+        for variable in flat.variables:
+            original_variables.append((variable,
+                                       symb_table.get_variable_type(variable),
+                                       nssymb_table.
+                                       SymbTable_get_symbol_category
+                                       (symb_table._ptr, variable._ptr)))
+        
+        # Get variables and transition relations
+        new_variables, new_trans = vars_trans_from_protocol(fsm,
+                                   original_variables, original_trans,
+                                   agents_strat, agents_obs, agents_actions,
+                                   name)
+        
+        encode_vars_trans(fsm, name, new_variables, new_trans)
 
 
-def eval_strat(fsm, spec):
+def eval_strat(fsm, spec, semantics="group"):
     """
     Return the BDD representing the set of states of fsm satisfying spec.
     spec is a strategic operator <G> pi.
     
     fsm -- a MAS representing the system;
     spec -- an AST-based ATLK specification with a top strategic operator.
+    semantics -- the semantics to use for starting point and strategy point
+                 equivalence; must be
+                 * "group" for the original ATLK_irF semantics considering
+                   the group as a single agent (distributed knowledge is used)
+                 * "individual" for the original ATL_ir semantics considering
+                   the group as individual agents (individual knowledge is
+                   used)
     """
     
     agents = {atom.value for atom in spec.group}
-    agents_actions = set()
-    for agent in agents:
-        agents_actions |= fsm.agents_inputvars[agent]
-    agents_obs = set()
-    for agent in agents:
-        agents_obs |= fsm.agents_observed_variables[agent]
-    strat = fsm.protocol(agents)
-    group_name = "_".join(sorted(agents))
+    group_name = semantics + "_" + "_".join(sorted(agents))
     
     # Create the transition relations for agents if needed
     if not hasattr(fsm, "transitions") or group_name not in fsm.transitions:
@@ -951,7 +1176,7 @@ def eval_strat(fsm, spec):
             print("Fully symbolic approach: encoding strategies for {}."
                   .format(group_name))
         
-        encode_strat(fsm, strat, agents_obs, agents_actions, group_name)
+        encode_strat(fsm, agents, group_name, semantics=semantics)
 
     # Compute the set of winning states
     if config.debug:
@@ -960,27 +1185,34 @@ def eval_strat(fsm, spec):
     
     if type(spec) is CEX:
         win = cex_symbolic(fsm, group_name,
-                           evalATLK(fsm, spec.child, variant="SF"))
+                           evalATLK(fsm, spec.child, variant="SF",
+                                    semantics=semantics))
 
     elif type(spec) is CEG:
         win = cew_symbolic(fsm, group_name,
-                           evalATLK(fsm, spec.child, variant="SF"),
+                           evalATLK(fsm, spec.child, variant="SF",
+                                    semantics=semantics),
                            BDD.false(fsm.bddEnc.DDmanager))
 
     elif type(spec) is CEU:
         win = ceu_symbolic(fsm, group_name,
-                           evalATLK(fsm, spec.left, variant="SF"),
-                           evalATLK(fsm, spec.right, variant="SF"))
+                           evalATLK(fsm, spec.left, variant="SF",
+                                    semantics=semantics),
+                           evalATLK(fsm, spec.right, variant="SF",
+                                    semantics=semantics))
 
     elif type(spec) is CEF:
         win = ceu_symbolic(fsm, group_name,
                            BDD.true(fsm.bddEnc.DDmanager),
-                           evalATLK(fsm, spec.child, variant="SF"))
+                           evalATLK(fsm, spec.child, variant="SF",
+                                    semantics=semantics))
 
     elif type(spec) is CEW:
         win = cew_symbolic(fsm, group_name,
-                           evalATLK(fsm, spec.left, variant="SF"),
-                           evalATLK(fsm, spec.right, variant="SF"))
+                           evalATLK(fsm, spec.left, variant="SF",
+                                    semantics=semantics),
+                           evalATLK(fsm, spec.right, variant="SF",
+                                    semantics=semantics))
     
     if config.debug:
         print("Fully symbolic approach: winning states for {} computed."
@@ -993,6 +1225,7 @@ def spec_to_group_name(spec):
     """Return a name that can be used as a NuSMV identifier, based on spec."""
     return "spec" + (str(spec)
                      .replace(" ", "_")
+                      .replace(",", "_")
                      .replace("&", "and")
                      .replace("|", "or")
                      .replace("<", "")
@@ -1004,9 +1237,10 @@ def spec_to_group_name(spec):
                      .replace(")", "")
                      .replace("[", "")
                      .replace("]", "")
+                     .replace("!", "")
                     )
     
-def eval_strat_FSF(fsm, spec):
+def eval_strat_FSF(fsm, spec, semantics="group"):
     """
     Return the BDD representing the set of states of fsm satisfying spec.
     spec is a strategic operator <G> pi.
@@ -1016,6 +1250,13 @@ def eval_strat_FSF(fsm, spec):
     
     fsm -- a MAS representing the system;
     spec -- an AST-based ATLK specification with a top strategic operator.
+    semantics -- the semantics to use for starting point and strategy point
+                 equivalence; must be
+                 * "group" for the original ATLK_irF semantics considering
+                   the group as a single agent (distributed knowledge is used)
+                 * "individual" for the original ATL_ir semantics considering
+                   the group as individual agents (individual knowledge is
+                   used)
     
     """
     
@@ -1024,7 +1265,7 @@ def eval_strat_FSF(fsm, spec):
     # group of agents is better (this means limiting oneself to a set of
     # sub-formulas...)
     
-    group_name = spec_to_group_name(spec)
+    group_name = semantics + "_" + spec_to_group_name(spec)
     
     # Create the transition relations for agents if needed
     if not hasattr(fsm, "transitions") or group_name not in fsm.transitions:
@@ -1036,14 +1277,8 @@ def eval_strat_FSF(fsm, spec):
         if strat.is_false():
             return strat
         
-        agents_actions = set()
-        for agent in agents:
-            agents_actions |= fsm.agents_inputvars[agent]
-        agents_obs = set()
-        for agent in agents:
-            agents_obs |= fsm.agents_observed_variables[agent]
-        
-        encode_strat(fsm, strat, agents_obs, agents_actions, group_name)
+        encode_strat(fsm, agents, group_name, strat=strat,
+                     semantics=semantics)
 
     # Compute the set of winning states
     if type(spec) is CEX:
