@@ -187,25 +187,6 @@ class TestCheck(unittest.TestCase):
         self.assertFalse(check(fsm, parseATLK("AF 'win'")[0], semantics="individual"))
         
     
-    @unittest.expectedFailure # MC algo does not deal with fairness on action for now
-    def test_cardgame_fair_not_improved(self):
-        fsm = self.cardgame_fair()
-        
-        self.assertTrue(check(fsm, parseATLK("K<'player'>'pcard=none' & K<'player'>'dcard=none'")[0], semantics="individual"))
-        self.assertTrue(check(fsm, parseATLK("AG('step = 1' -> ~(K<'player'> 'dcard=Ac' | K<'player'> 'dcard=K' | K<'player'> 'dcard=Q'))")[0], semantics="individual"))
-        
-        self.assertTrue(check(fsm, parseATLK("AG('step = 1' -> ~<'player'> X 'win')")[0], semantics="individual"))
-        self.assertTrue(check(fsm, parseATLK("['player'] X 'pcard=Ac'")[0], semantics="individual"))
-        self.assertTrue(check(fsm, parseATLK("<'dealer'> X 'pcard=Ac'")[0], semantics="individual"))
-        self.assertTrue(check(fsm, parseATLK("<'dealer'> G ~'win'")[0], semantics="individual"))
-        self.assertFalse(check(fsm, parseATLK("['dealer'] F 'win'")[0], semantics="individual"))
-        
-        # Player can win
-        self.assertTrue(check(fsm, parseATLK("<'player'> F 'win'")[0], semantics="individual"))
-        # Dealer can avoid fairness
-        self.assertTrue(check(fsm, parseATLK("<'dealer'> F 'FALSE'")[0], semantics="individual"))
-        
-    
     def test_cardgame_post_fair_not_improved(self):
         fsm = self.cardgame_post_fair()
         
@@ -251,21 +232,6 @@ class TestCheck(unittest.TestCase):
         self.assertTrue(check(fsm, parseATLK("<'transmitter'> X ~'received'")[0], semantics="individual"))
         self.assertFalse(check(fsm, parseATLK("<'transmitter'> F 'received'")[0], semantics="individual"))
         self.assertTrue(check(fsm, parseATLK("<'sender'> G ~'received'")[0], semantics="individual"))
-    
-    
-    @unittest.expectedFailure # MC algo does not deal with fairness on action for now
-    def test_transmission_fair_not_improved(self):
-        fsm = self.transmission_fair()
-        
-        self.assertTrue(check(fsm, parseATLK("<'sender'> F 'received'")[0], semantics="individual"))
-        self.assertTrue(check(fsm, parseATLK("<'transmitter'> G ~'received'")[0], semantics="individual"))
-        self.assertFalse(check(fsm, parseATLK("<'sender'> X 'received'")[0], semantics="individual"))
-        self.assertTrue(check(fsm, parseATLK("<'transmitter'> X ~'received'")[0], semantics="individual"))
-        self.assertTrue(check(fsm, parseATLK("<'transmitter'> F 'received'")[0], semantics="individual"))
-        
-        # False because the sender does not know if the bit is already
-        # transmitted (and in this case, no strategy can avoid 'received')
-        self.assertFalse(check(fsm, parseATLK("<'sender'> G ~'received'")[0], semantics="individual"))
     
     
     def test_transmission_post_fair_not_improved(self):
@@ -338,7 +304,6 @@ class TestCheck(unittest.TestCase):
         self.assertTrue(check(fsm, parseATLK("['dealer'] F 'win'")[0], variant="FS", semantics="individual"))
         
         
-    @unittest.skip("Model checking takes too long.")
     def test_cardgame_post_fair_improved(self):
         fsm = self.cardgame_post_fair()
         
@@ -411,7 +376,6 @@ class TestCheck(unittest.TestCase):
         self.assertTrue(check(fsm, parseATLK("['dealer'] F 'win'")[0], variant="FSF", semantics="individual"))
         
         
-    @unittest.skip("Model checking takes too long.")
     def test_cardgame_post_fair_FSF(self):
         fsm = self.cardgame_post_fair()
         

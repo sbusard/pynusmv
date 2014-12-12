@@ -49,8 +49,17 @@ def evalATLK(fsm, spec, states=None, variant="SF", semantics="group"):
                * "FSF" for the filter-split-filter way: filtering winning
                  states then splitting all remaining actions into uniform
                  strategies, then filtering final winning states.
+    semantics -- the semantics to use for starting point and strategy point
+                 equivalence; must be
+                 * "group" for the original ATLK_irF semantics considering
+                   the group as a single agent (distributed knowledge is used)
+                 * "individual" for the original ATL_ir semantics considering
+                   the group as individual agents (individual knowledge is
+                   used)
                  
     If variant is not in {"SF", "FS", "FSF"}, the standard "SF" way is used.
+    If semantics is not in {"group", "individual"}, the "group" semantics is
+    used.
     """
     
     if not states:
