@@ -6,6 +6,7 @@ decrease the memory consumption of the implementation.
 """
 
 import gc
+from functools import reduce
 
 from pynusmv.dd import BDD
 from pynusmv.mc import eval_simple_expression
@@ -250,8 +251,9 @@ def evalATLK(fsm, spec, variant="SF", semantics="group"):
             sat = eval_strat_improved(fsm, spec, semantics=semantics)
             
             # DEBUG Print number of strategies and filterings up to know
-            #print("Eval_strat_FS: {} strategies, {} filterings"
-            #      .format(strategies[spec], filterings[spec]))
+            if config.debug:
+                print("Eval_strat_FS: {} strategies, {} filterings"
+                      .format(__strategies[spec], __filterings[spec]))
             
             return sat
         elif variant == "FSF":
@@ -718,6 +720,26 @@ def all_equiv_sat(fsm, winning, agents, semantics="group"):
                  fsm.reachable_states, frozenset(agents))) & winning
 
 
+def agents_in_group(fsm, group):
+    """
+    Return the set of agents in the given group in fsm.
+    
+    This procedure recursively searches for all basic agents in the groups
+    possibly composing group.
+    
+    fsm -- the model;
+    group -- a group name of the model.
+    """
+    
+    agents = set()
+    for agent in fsm.groups[group]:
+        if agent in fsm.groups:
+            agents |= agents_in_group(fsm, agent)
+        else:
+            agents.add(agent)
+    return agents
+
+
 def eval_strat(fsm, spec, semantics="group"):
     """
     Return the BDD representing the set of states of fsm satisfying spec.
@@ -730,6 +752,10 @@ def eval_strat(fsm, spec, semantics="group"):
     """
     sat = BDD.false(fsm.bddEnc.DDmanager)
     agents = {atom.value for atom in spec.group}
+    
+    if semantics == "individual":
+        agents = reduce(lambda a, b: a | b,
+                        (agents_in_group(fsm, group) for group in agents))
     
     # Restrict protocol to reachable states to avoid splitting useless
     # equivalence classes
@@ -782,6 +808,11 @@ def eval_strat_improved(fsm, spec, toSplit=None, toKeep=None,
     """
     sat = BDD.false(fsm.bddEnc.DDmanager)
     agents = {atom.value for atom in spec.group}
+    
+    if semantics == "individual":
+        agents = reduce(lambda a, b: a | b,
+                        (agents_in_group(fsm, group) for group in agents))
+    
     gamma = agents
     ngamma_cube = fsm.bddEnc.inputsCube - fsm.inputs_cube_for_agents(gamma)
     
@@ -844,6 +875,10 @@ def eval_strat_FSF(fsm, spec, semantics="group"):
     
     sat = BDD.false(fsm.bddEnc.DDmanager)
     agents = {atom.value for atom in spec.group}
+    
+    if semantics == "individual":
+        agents = reduce(lambda a, b: a | b,
+                        (agents_in_group(fsm, group) for group in agents))
     
     protocol = fsm.protocol(agents) & fsm.reachable_states
     

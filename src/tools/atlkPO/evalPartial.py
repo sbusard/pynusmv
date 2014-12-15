@@ -3,6 +3,8 @@ ATLK with partial observability evaluation functions.
 Partial strategies implementation.
 """
 
+from functools import reduce
+
 from pynusmv.dd import BDD
 from pynusmv.mc import eval_simple_expression
 from pynusmv.utils import fixpoint as fp
@@ -968,6 +970,26 @@ def filter_strat(fsm, spec, states, strat=None, variant="SF",
     return winning & fsm.bddEnc.statesInputsMask & fsm.protocol(agents)
 
 
+def agents_in_group(fsm, group):
+    """
+    Return the set of agents in the given group in fsm.
+    
+    This procedure recursively searches for all basic agents in the groups
+    possibly composing group.
+    
+    fsm -- the model;
+    group -- a group name of the model.
+    """
+    
+    agents = set()
+    for agent in fsm.groups[group]:
+        if agent in fsm.groups:
+            agents |= agents_in_group(fsm, agent)
+        else:
+            agents.add(agent)
+    return agents
+
+
 def eval_strat(fsm, spec, states, semantics="group"):
     """
     Return the BDD representing the subset of states satisfying spec.
@@ -988,6 +1010,10 @@ def eval_strat(fsm, spec, states, semantics="group"):
     """
     
     agents = {atom.value for atom in spec.group}
+    
+    if semantics == "individual":
+        agents = reduce(lambda a, b: a | b,
+                        (agents_in_group(fsm, group) for group in agents))
     
     if config.debug:
         print("Evaluating partial strategies for ", spec)
@@ -1412,6 +1438,11 @@ def eval_strat_improved(fsm, spec, states, semantics="group"):
     __filterings[spec] = 0
     
     gamma = {atom.value for atom in spec.group}
+    
+    if semantics == "individual":
+        gamma = reduce(lambda a, b: a | b,
+                       (agents_in_group(fsm, group) for group in gamma))
+    
     sat = BDD.false(fsm.bddEnc.DDmanager)
     
     states = get_equiv_class(fsm, gamma, states, semantics=semantics)

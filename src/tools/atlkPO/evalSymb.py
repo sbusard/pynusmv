@@ -1150,6 +1150,26 @@ def encode_strat(fsm, agents, name, strat=None, semantics="group"):
         encode_vars_trans(fsm, name, new_variables, new_trans)
 
 
+def agents_in_group(fsm, group):
+    """
+    Return the set of agents in the given group in fsm.
+    
+    This procedure recursively searches for all basic agents in the groups
+    possibly composing group.
+    
+    fsm -- the model;
+    group -- a group name of the model.
+    """
+    
+    agents = set()
+    for agent in fsm.groups[group]:
+        if agent in fsm.groups:
+            agents |= agents_in_group(fsm, agent)
+        else:
+            agents.add(agent)
+    return agents
+
+
 def eval_strat(fsm, spec, semantics="group"):
     """
     Return the BDD representing the set of states of fsm satisfying spec.
@@ -1167,6 +1187,11 @@ def eval_strat(fsm, spec, semantics="group"):
     """
     
     agents = {atom.value for atom in spec.group}
+    
+    if semantics == "individual":
+        agents = reduce(lambda a, b: a | b,
+                        (agents_in_group(fsm, group) for group in agents))
+    
     group_name = semantics + "_" + "_".join(sorted(agents))
     
     # Create the transition relations for agents if needed
@@ -1270,6 +1295,10 @@ def eval_strat_FSF(fsm, spec, semantics="group"):
     # Create the transition relations for agents if needed
     if not hasattr(fsm, "transitions") or group_name not in fsm.transitions:
         agents = {atom.value for atom in spec.group}
+        
+        if semantics == "individual":
+            agents = reduce(lambda a, b: a | b,
+                            (agents_in_group(fsm, group) for group in agents))
 
         strat = filter_strat(fsm, spec, strat=fsm.protocol(agents),
                              variant="FSF")
