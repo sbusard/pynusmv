@@ -15,7 +15,8 @@ class MAS(BddFsm):
     epistemic -- a dictionary of agent->the NuSMV node-based TRANS of the agent.
     """
     
-    def __init__(self, ptr, observed, inputvars, epistemic=None, freeit=False):
+    def __init__(self, ptr, observed, inputvars, epistemic, groups=None,
+                 freeit=False):
         """
         Create a new MAS.
         
@@ -26,6 +27,9 @@ class MAS(BddFsm):
         inputvars -- a dictionary of agents' input variables
                      (agent->Set of input vars)
         epistemic -- a dictionary of epistemic relations (agent->EPISTEMIC)
+        groups -- if not None, a dictionary of group name -> set of names of
+                  the agents of the group; the groups names and the agents
+                  names must be present in epistemic
         freeit -- whether or not free the pointer
         """
         super(MAS, self).__init__(ptr, freeit=freeit)
@@ -33,6 +37,7 @@ class MAS(BddFsm):
         self._epistemic_trans = {}
         self._agents_observed_variables = observed
         self._agents_inputvars = inputvars
+        self._groups = groups
         self._protocols = {}
         
     
@@ -52,6 +57,11 @@ class MAS(BddFsm):
     def agents_inputvars(self):
         """The input variables of each agent (as a dictionary)."""
         return self._agents_inputvars
+    
+    @property
+    def groups(self):
+        """The set of groups of the MAS, with corresponding agents."""
+        return self._groups
         
         
     def _compute_epistemic_trans(self, agents):

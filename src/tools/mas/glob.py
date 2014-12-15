@@ -18,7 +18,7 @@ from pynusmv.glob import (load_from_file, load,
                                prop_database as _prop_database,
                                compute_model as _compute_model)
                                
-from .mas import MAS
+from .mas import MAS, Group
 
 import itertools
 
@@ -244,6 +244,7 @@ def mas(agents=None):
             inputvars = {ag: {nsnode.sprint_node(v)
                               for v in inputvars[ag]}
                          for ag in inputvars.keys()}
+            groups = None
         
         else:
             _compute_model()
@@ -255,6 +256,11 @@ def mas(agents=None):
             inputvars = {str(agent.name): {str(ivar)
                                            for ivar in agent.actions}
                          for agent in agents}
+            # groups:
+            # a dictionary of group name -> names of agents of the group
+            groups = {str(group.name): {str(agent.name)
+                                        for agent in group.agents}
+                      for group in agents if isinstance(group, Group)}
             # singletrans: a dictionary of agent name -> epistemic transition
             singletrans = {}
             for agent in agents:
@@ -270,6 +276,6 @@ def mas(agents=None):
         # Create the MAS
         fsm = _prop_database().master.bddFsm
         __mas = MAS(fsm._ptr, observedvars, inputvars, singletrans,
-                    freeit=False)
+                    groups=groups, freeit=False)
         
     return __mas
