@@ -972,21 +972,25 @@ def filter_strat(fsm, spec, states, strat=None, variant="SF",
 
 def agents_in_group(fsm, group):
     """
-    Return the set of agents in the given group in fsm.
+    Return the set of agents in the given group in fsm. If group is not a group
+    of fsm, group is returned alone.
     
     This procedure recursively searches for all basic agents in the groups
     possibly composing group.
     
     fsm -- the model;
-    group -- a group name of the model.
+    group -- a group or agent name of the model.
     """
     
-    agents = set()
-    for agent in fsm.groups[group]:
-        if agent in fsm.groups:
-            agents |= agents_in_group(fsm, agent)
-        else:
-            agents.add(agent)
+    if group in fsm.groups:
+        agents = set()
+        for agent in fsm.groups[group]:
+            if agent in fsm.groups:
+                agents |= agents_in_group(fsm, agent)
+            else:
+                agents.add(agent)
+    else:
+        agents = {group}
     return agents
 
 
@@ -1487,6 +1491,10 @@ def eval_strat_alternate(fsm, spec, states, pstrat, semantics="group"):
     """
     
     gamma = {atom.value for atom in spec.group}
+    if semantics == "individual":
+        gamma = reduce(lambda a, b: a | b,
+                       (agents_in_group(fsm, group) for group in gamma))
+    
     fullpstrat = (pstrat |
                   (fsm.protocol(gamma) -
                    pstrat.forsome(fsm.bddEnc.inputsCube)))

@@ -1152,21 +1152,25 @@ def encode_strat(fsm, agents, name, strat=None, semantics="group"):
 
 def agents_in_group(fsm, group):
     """
-    Return the set of agents in the given group in fsm.
+    Return the set of agents in the given group in fsm. If group is not a group
+    of fsm, group is returned alone.
     
     This procedure recursively searches for all basic agents in the groups
     possibly composing group.
     
     fsm -- the model;
-    group -- a group name of the model.
+    group -- a group or agent name of the model.
     """
     
-    agents = set()
-    for agent in fsm.groups[group]:
-        if agent in fsm.groups:
-            agents |= agents_in_group(fsm, agent)
-        else:
-            agents.add(agent)
+    if group in fsm.groups:
+        agents = set()
+        for agent in fsm.groups[group]:
+            if agent in fsm.groups:
+                agents |= agents_in_group(fsm, agent)
+            else:
+                agents.add(agent)
+    else:
+        agents = {group}
     return agents
 
 
