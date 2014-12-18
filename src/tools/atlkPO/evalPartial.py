@@ -1440,6 +1440,7 @@ def eval_strat_improved(fsm, spec, states, semantics="group"):
     
     __strategies[spec] = 0
     __filterings[spec] = 0
+    __ignorings[spec] = 0
     
     gamma = {atom.value for atom in spec.group}
     
@@ -1464,9 +1465,11 @@ def eval_strat_improved(fsm, spec, states, semantics="group"):
     if config.debug:
         nbs = __strategies[spec]
         nbf = __filterings[spec]
-        print("{} strateg{}, {} filtering{} computed."
+        nbi = __ignorings[spec]
+        print("{} strateg{}, {} filtering{}, {} ignoring{} computed."
               .format(nbs, "y" if nbs <= 1 else "ies",
-                      nbf, "" if nbf <= 1 else "s"))
+                      nbf, "" if nbf <= 1 else "s",
+                      nbi, "" if nbi <= 1 else "s"))
     
     return sat
 
@@ -1535,12 +1538,12 @@ def eval_strat_alternate(fsm, spec, states, pstrat, semantics="group"):
     
     # Check whether there are still states to decide
     if states.is_false():
-        __strategies[spec] += 1
+        __ignorings[spec] += 1
         
-        if config.debug and __strategies[spec] % 1000 == 0:
-            print("Partial strategies (FS): {} strateg{} checked so far"
-                  .format(__strategies[spec],
-                          "ies" if __strategies[spec] > 1 else "y"))
+        if config.debug and __ignorings[spec] % 1000 == 0:
+            print("Partial strategies (FS): {} ignoring{} done so far"
+                  .format(__ignorings[spec],
+                          "s" if __ignorings[spec] > 1 else ""))
         
         # Collect to avoid memory overflow
         if (config.garbage.type == "each" or config.garbage.type == "step"
@@ -1557,6 +1560,13 @@ def eval_strat_alternate(fsm, spec, states, pstrat, semantics="group"):
                pstrat.forsome(fsm.bddEnc.inputsCube)).forsome(
                fsm.bddEnc.inputsCube) & fsm.bddEnc.statesMask
         if new.is_false():
+            __strategies[spec] += 1
+
+            if config.debug and __strategies[spec] % 1000 == 0:
+                print("Partial strategies (FS): {} strateg{} checked so far"
+                      .format(__strategies[spec],
+                              "ies" if __strategies[spec] > 1 else "y"))
+            
             # No new states, pstrat is already maximal
             # Winning states in win if win has some meaning
             # otherwise lose has some meaning and winning states are the others
