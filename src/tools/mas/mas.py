@@ -37,7 +37,7 @@ class MAS(BddFsm):
         self._epistemic_trans = {}
         self._agents_observed_variables = observed
         self._agents_inputvars = inputvars
-        self._groups = groups
+        self._groups = groups if groups is not None else {}
         self._protocols = {}
         
     
