@@ -748,7 +748,7 @@ def split_conflicting(fsm, eqclass, gamma, pustrat, semantics="group"):
         if len(gamma) <= 0:
             yield eqclass
         else:
-            agent = next(iter(gamma))
+            agent = next(iter(sorted(gamma)))
             agents = gamma - {agent}
             for sstrat in split_conflicting(fsm, eqclass, agents, pustrat,
                                             semantics="individual"):
