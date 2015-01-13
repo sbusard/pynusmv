@@ -1,5 +1,3 @@
-
-
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
@@ -115,7 +113,7 @@
 <span class="sd">        :param boolean freeit: whether or not free the pointer</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">ptr</span><span class="p">,</span> <span class="n">freeit</span><span class="o">=</span><span class="n">freeit</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">BddFsm</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">ptr</span><span class="p">,</span> <span class="n">freeit</span><span class="o">=</span><span class="n">freeit</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_reachable</span> <span class="o">=</span> <span class="bp">None</span>
 
     <span class="nd">@property</span>
@@ -549,7 +547,7 @@
 <span class="sd">        :param freeit: whether or not freeing the pointer</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">ptr</span><span class="p">,</span> <span class="n">freeit</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">BddTrans</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">ptr</span><span class="p">,</span> <span class="n">freeit</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_enc</span> <span class="o">=</span> <span class="n">enc</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_manager</span> <span class="o">=</span> <span class="n">manager</span>
 
@@ -937,9 +935,12 @@
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Create a new layer in this symbol table.</span>
 
-<span class="sd">        :param :class:`str` layer_name: the name of the created layer</span>
+<span class="sd">        :param layer_name: the name of the created layer</span>
+<span class="sd">        :type layer_name: :class:`str`</span>
 <span class="sd">        :param ins_policy: the insertion policy for inserting the new layer</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">nssymb_table</span><span class="o">.</span><span class="n">SymbTable_get_layer</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_ptr</span><span class="p">,</span> <span class="n">layer_name</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">NuSMVSymbTableError</span><span class="p">(</span><span class="s">&quot;Layer </span><span class="si">%s</span><span class="s"> already exists.&quot;</span> <span class="o">%</span> <span class="n">layer_name</span><span class="p">)</span>
         <span class="n">nssymb_table</span><span class="o">.</span><span class="n">SymbTable_create_layer</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_ptr</span><span class="p">,</span> <span class="n">layer_name</span><span class="p">,</span> <span class="n">ins_policy</span><span class="p">)</span>
 </div>
 <div class="viewcode-block" id="SymbTable.get_variable_type"><a class="viewcode-back" href="../../pynusmv.html#pynusmv.fsm.SymbTable.get_variable_type">[docs]</a>    <span class="k">def</span> <span class="nf">get_variable_type</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">variable</span><span class="p">):</span>
@@ -963,7 +964,8 @@
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Return whether the given `variable` name can be declared in `layer`.</span>
 
-<span class="sd">        :param :class:`str` layer: the name of the layer</span>
+<span class="sd">        :param layer: the name of the layer</span>
+<span class="sd">        :type layer: :class:`str`</span>
 <span class="sd">        :param variable: the name of the variable</span>
 <span class="sd">        :type variable: :class:`Node &lt;pynusmv.node.Node&gt;`</span>
 <span class="sd">        :rtype: :class:`bool`</span>
@@ -1223,7 +1225,7 @@
     </div>
     <div class="footer">
         &copy; Copyright 2013-2014, Simon Busard.
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.3.
     </div>
   </body>
 </html>

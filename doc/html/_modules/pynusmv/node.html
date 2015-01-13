@@ -1,5 +1,3 @@
-
-
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
@@ -50,11 +48,16 @@
             
   <h1>Source code for pynusmv.node</h1><div class="highlight"><pre>
 <span class="sd">&quot;&quot;&quot;</span>
-
+<span class="sd">The :mod:`pynusmv.node` module provides classes representing NuSMV internal</span>
+<span class="sd">nodes, as well as a class :class:`FlatHierarchy` to represent a NuSMV flat</span>
+<span class="sd">hierarchary.</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="kn">import</span> <span class="nn">re</span>
-<span class="kn">from</span> <span class="nn">collections.abc</span> <span class="kn">import</span> <span class="n">Mapping</span><span class="p">,</span> <span class="n">Sequence</span>
+<span class="k">try</span><span class="p">:</span>
+    <span class="kn">from</span> <span class="nn">collections.abc</span> <span class="kn">import</span> <span class="n">Mapping</span><span class="p">,</span> <span class="n">Sequence</span>
+<span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
+    <span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">Mapping</span><span class="p">,</span> <span class="n">Sequence</span>
 <span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">OrderedDict</span>
 <span class="kn">import</span> <span class="nn">string</span>
 <span class="kn">import</span> <span class="nn">random</span>
@@ -135,7 +138,7 @@
         <span class="n">right_ptr</span> <span class="o">=</span> <span class="n">right</span><span class="o">.</span><span class="n">_ptr</span> <span class="k">if</span> <span class="n">right</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span> <span class="k">else</span> <span class="n">right</span>
 
         <span class="n">ptr</span> <span class="o">=</span> <span class="n">nsnode</span><span class="o">.</span><span class="n">find_node</span><span class="p">(</span><span class="n">type_</span><span class="p">,</span> <span class="n">left_ptr</span><span class="p">,</span> <span class="n">right_ptr</span><span class="p">)</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">ptr</span><span class="p">,</span> <span class="n">freeit</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">Node</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">ptr</span><span class="p">,</span> <span class="n">freeit</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">type</span> <span class="o">=</span> <span class="n">type_</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_car</span> <span class="o">=</span> <span class="n">left</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_cdr</span> <span class="o">=</span> <span class="n">right</span>
@@ -323,7 +326,7 @@
     <span class="sd">&quot;&quot;&quot;The boolean type.&quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">None</span><span class="p">,</span> <span class="bp">None</span><span class="p">,</span> <span class="n">type_</span><span class="o">=</span><span class="n">BOOLEAN</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">Boolean</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">None</span><span class="p">,</span> <span class="bp">None</span><span class="p">,</span> <span class="n">type_</span><span class="o">=</span><span class="n">BOOLEAN</span><span class="p">)</span>
 
 </div>
 <div class="viewcode-block" id="UnsignedWord"><a class="viewcode-back" href="../../pynusmv.html#pynusmv.node.UnsignedWord">[docs]</a><span class="k">class</span> <span class="nc">UnsignedWord</span><span class="p">(</span><span class="n">Type</span><span class="p">):</span>
@@ -331,7 +334,7 @@
     <span class="sd">&quot;&quot;&quot;An unsigned word type.&quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">length</span><span class="p">):</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">length</span><span class="p">,</span> <span class="bp">None</span><span class="p">,</span> <span class="n">type_</span><span class="o">=</span><span class="n">UNSIGNED_WORD</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">UnsignedWord</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">length</span><span class="p">,</span> <span class="bp">None</span><span class="p">,</span> <span class="n">type_</span><span class="o">=</span><span class="n">UNSIGNED_WORD</span><span class="p">)</span>
 
     <span class="nd">@property</span>
 <div class="viewcode-block" id="UnsignedWord.length"><a class="viewcode-back" href="../../pynusmv.html#pynusmv.node.UnsignedWord.length">[docs]</a>    <span class="k">def</span> <span class="nf">length</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -343,7 +346,7 @@
     <span class="sd">&quot;&quot;&quot;An unsigned word type.&quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">length</span><span class="p">):</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">length</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">Word</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">length</span><span class="p">)</span>
 
 </div>
 <div class="viewcode-block" id="SignedWord"><a class="viewcode-back" href="../../pynusmv.html#pynusmv.node.SignedWord">[docs]</a><span class="k">class</span> <span class="nc">SignedWord</span><span class="p">(</span><span class="n">Type</span><span class="p">):</span>
@@ -351,7 +354,7 @@
     <span class="sd">&quot;&quot;&quot;A signed word type.&quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">length</span><span class="p">):</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">length</span><span class="p">,</span> <span class="bp">None</span><span class="p">,</span> <span class="n">type_</span><span class="o">=</span><span class="n">SIGNED_WORD</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">SignedWord</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">length</span><span class="p">,</span> <span class="bp">None</span><span class="p">,</span> <span class="n">type_</span><span class="o">=</span><span class="n">SIGNED_WORD</span><span class="p">)</span>
 
     <span class="nd">@property</span>
 <div class="viewcode-block" id="SignedWord.length"><a class="viewcode-back" href="../../pynusmv.html#pynusmv.node.SignedWord.length">[docs]</a>    <span class="k">def</span> <span class="nf">length</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -378,7 +381,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">start</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_handle_next_expression</span><span class="p">(</span><span class="n">start</span><span class="p">)</span>
         <span class="n">stop</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_handle_next_expression</span><span class="p">(</span><span class="n">stop</span><span class="p">)</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">start</span><span class="p">,</span> <span class="n">stop</span><span class="p">,</span> <span class="n">type_</span><span class="o">=</span><span class="n">TWODOTS</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">Range</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">start</span><span class="p">,</span> <span class="n">stop</span><span class="p">,</span> <span class="n">type_</span><span class="o">=</span><span class="n">TWODOTS</span><span class="p">)</span>
 
     <span class="nd">@property</span>
 <div class="viewcode-block" id="Range.start"><a class="viewcode-back" href="../../pynusmv.html#pynusmv.node.Range.start">[docs]</a>    <span class="k">def</span> <span class="nf">start</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -409,7 +412,7 @@
 <span class="sd">                     There is no check made by this constructor to verify</span>
 <span class="sd">                     that `start` and `stop` belong to this sub-language.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">Range</span><span class="p">(</span><span class="n">start</span><span class="p">,</span> <span class="n">stop</span><span class="p">),</span> <span class="n">elementtype</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">ArrayType</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">Range</span><span class="p">(</span><span class="n">start</span><span class="p">,</span> <span class="n">stop</span><span class="p">),</span> <span class="n">elementtype</span><span class="p">)</span>
 
     <span class="nd">@property</span>
 <div class="viewcode-block" id="ArrayType.start"><a class="viewcode-back" href="../../pynusmv.html#pynusmv.node.ArrayType.start">[docs]</a>    <span class="k">def</span> <span class="nf">start</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -597,7 +600,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">left</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_handle_next_expression</span><span class="p">(</span><span class="n">left</span><span class="p">)</span>
         <span class="n">right</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_handle_next_expression</span><span class="p">(</span><span class="n">right</span><span class="p">)</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">left</span><span class="p">,</span> <span class="n">right</span><span class="p">,</span> <span class="n">type_</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">Expression</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">left</span><span class="p">,</span> <span class="n">right</span><span class="p">,</span> <span class="n">type_</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">__hash__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="nb">id</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_ptr</span><span class="p">)</span>
@@ -900,7 +903,7 @@
                                 <span class="n">nsnode</span><span class="o">.</span><span class="n">string2node</span>
                                 <span class="p">(</span><span class="n">nsutils</span><span class="o">.</span><span class="n">find_string</span><span class="p">(</span><span class="n">message</span><span class="p">)),</span>
                                 <span class="n">nsnode</span><span class="o">.</span><span class="n">int2node</span><span class="p">(</span><span class="n">kind</span><span class="p">))</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">left</span><span class="p">,</span> <span class="n">nsnode</span><span class="o">.</span><span class="n">int2node</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span> <span class="n">type_</span><span class="o">=</span><span class="n">FAILURE</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">Failure</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">left</span><span class="p">,</span> <span class="n">nsnode</span><span class="o">.</span><span class="n">int2node</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span> <span class="n">type_</span><span class="o">=</span><span class="n">FAILURE</span><span class="p">)</span>
 
     <span class="nd">@property</span>
 <div class="viewcode-block" id="Failure.message"><a class="viewcode-back" href="../../pynusmv.html#pynusmv.node.Failure.message">[docs]</a>    <span class="k">def</span> <span class="nf">message</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -916,7 +919,7 @@
     <span class="sd">&quot;&quot;&quot;The FALSE expression.&quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">None</span><span class="p">,</span> <span class="bp">None</span><span class="p">,</span> <span class="n">type_</span><span class="o">=</span><span class="n">FALSEEXP</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">Falseexp</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">None</span><span class="p">,</span> <span class="bp">None</span><span class="p">,</span> <span class="n">type_</span><span class="o">=</span><span class="n">FALSEEXP</span><span class="p">)</span>
 
 </div>
 <div class="viewcode-block" id="Trueexp"><a class="viewcode-back" href="../../pynusmv.html#pynusmv.node.Trueexp">[docs]</a><span class="k">class</span> <span class="nc">Trueexp</span><span class="p">(</span><span class="n">Leaf</span><span class="p">):</span>
@@ -924,7 +927,7 @@
     <span class="sd">&quot;&quot;&quot;The TRUE expression.&quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">None</span><span class="p">,</span> <span class="bp">None</span><span class="p">,</span> <span class="n">type_</span><span class="o">=</span><span class="n">TRUEEXP</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">Trueexp</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">None</span><span class="p">,</span> <span class="bp">None</span><span class="p">,</span> <span class="n">type_</span><span class="o">=</span><span class="n">TRUEEXP</span><span class="p">)</span>
 
 </div>
 <div class="viewcode-block" id="Self"><a class="viewcode-back" href="../../pynusmv.html#pynusmv.node.Self">[docs]</a><span class="k">class</span> <span class="nc">Self</span><span class="p">(</span><span class="n">Leaf</span><span class="p">):</span>
@@ -932,7 +935,7 @@
     <span class="sd">&quot;&quot;&quot;The `self` expression.&quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">None</span><span class="p">,</span> <span class="bp">None</span><span class="p">,</span> <span class="n">type_</span><span class="o">=</span><span class="n">SELF</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">Self</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">None</span><span class="p">,</span> <span class="bp">None</span><span class="p">,</span> <span class="n">type_</span><span class="o">=</span><span class="n">SELF</span><span class="p">)</span>
 
 </div>
 <div class="viewcode-block" id="Atom"><a class="viewcode-back" href="../../pynusmv.html#pynusmv.node.Atom">[docs]</a><span class="k">class</span> <span class="nc">Atom</span><span class="p">(</span><span class="n">Leaf</span><span class="p">):</span>
@@ -1118,7 +1121,7 @@
                                    <span class="n">nsnode</span><span class="o">.</span><span class="n">find_node</span><span class="p">(</span><span class="n">COLON</span><span class="p">,</span> <span class="n">condition</span><span class="o">.</span><span class="n">_ptr</span><span class="p">,</span>
                                                     <span class="n">expression</span><span class="o">.</span><span class="n">_ptr</span><span class="p">),</span>
                                    <span class="n">res</span><span class="p">)</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">res</span><span class="o">.</span><span class="n">car</span><span class="p">,</span> <span class="n">res</span><span class="o">.</span><span class="n">cdr</span><span class="p">,</span> <span class="n">type_</span><span class="o">=</span><span class="n">CASE</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">Case</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">res</span><span class="o">.</span><span class="n">car</span><span class="p">,</span> <span class="n">res</span><span class="o">.</span><span class="n">cdr</span><span class="p">,</span> <span class="n">type_</span><span class="o">=</span><span class="n">CASE</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_values</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">(</span><span class="nb">reversed</span><span class="p">(</span><span class="n">values</span><span class="p">))</span>
 
     <span class="nd">@property</span>
@@ -1157,7 +1160,8 @@
         <span class="n">condition</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_handle_next_expression</span><span class="p">(</span><span class="n">condition</span><span class="p">)</span>
         <span class="n">true</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_handle_next_expression</span><span class="p">(</span><span class="n">true</span><span class="p">)</span>
         <span class="n">false</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_handle_next_expression</span><span class="p">(</span><span class="n">false</span><span class="p">)</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">Colon</span><span class="p">(</span><span class="n">condition</span><span class="p">,</span> <span class="n">true</span><span class="p">),</span> <span class="n">false</span><span class="p">,</span> <span class="n">type_</span><span class="o">=</span><span class="n">IFTHENELSE</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">Ifthenelse</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">Colon</span><span class="p">(</span><span class="n">condition</span><span class="p">,</span> <span class="n">true</span><span class="p">),</span> <span class="n">false</span><span class="p">,</span>
+                                         <span class="n">type_</span><span class="o">=</span><span class="n">IFTHENELSE</span><span class="p">)</span>
 
     <span class="nd">@property</span>
 <div class="viewcode-block" id="Ifthenelse.condition"><a class="viewcode-back" href="../../pynusmv.html#pynusmv.node.Ifthenelse.condition">[docs]</a>    <span class="k">def</span> <span class="nf">condition</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -1207,7 +1211,7 @@
 <span class="sd">        :param expression: the child of the NOT expression</span>
 <span class="sd">        :type expression: :class:`Node` or :class:`str` or :class:`int`</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">expression</span><span class="p">,</span> <span class="bp">None</span><span class="p">,</span> <span class="n">type_</span><span class="o">=</span><span class="n">NOT</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">Not</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">expression</span><span class="p">,</span> <span class="bp">None</span><span class="p">,</span> <span class="n">type_</span><span class="o">=</span><span class="n">NOT</span><span class="p">)</span>
 
     <span class="nd">@property</span>
 <div class="viewcode-block" id="Not.expression"><a class="viewcode-back" href="../../pynusmv.html#pynusmv.node.Not.expression">[docs]</a>    <span class="k">def</span> <span class="nf">expression</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -1218,12 +1222,18 @@
 
     <span class="k">def</span> <span class="nf">__bool__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">nsnode</span><span class="o">.</span><span class="n">node_equal</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">car</span><span class="o">.</span><span class="n">_ptr</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">cdr</span><span class="o">.</span><span class="n">_ptr</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">0</span>
+    
+    <span class="k">def</span> <span class="nf">__nonzero__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__bool__</span><span class="p">()</span>
 
 </div>
 <div class="viewcode-block" id="Notequal"><a class="viewcode-back" href="../../pynusmv.html#pynusmv.node.Notequal">[docs]</a><span class="k">class</span> <span class="nc">Notequal</span><span class="p">(</span><span class="n">Expression</span><span class="p">):</span>
 
     <span class="k">def</span> <span class="nf">__bool__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">nsnode</span><span class="o">.</span><span class="n">node_equal</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">car</span><span class="o">.</span><span class="n">_ptr</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">cdr</span><span class="o">.</span><span class="n">_ptr</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span>
+    
+    <span class="k">def</span> <span class="nf">__nonzero__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__bool__</span><span class="p">()</span>
 
 </div>
 <div class="viewcode-block" id="Lt"><a class="viewcode-back" href="../../pynusmv.html#pynusmv.node.Lt">[docs]</a><span class="k">class</span> <span class="nc">Lt</span><span class="p">(</span><span class="n">Expression</span><span class="p">):</span>
@@ -1281,7 +1291,7 @@
 <span class="sd">        :param expression: the child of the expression</span>
 <span class="sd">        :type expression: :class:`Node` or :class:`str` or :class:`int`</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">expression</span><span class="p">,</span> <span class="bp">None</span><span class="p">,</span> <span class="n">type_</span><span class="o">=</span><span class="n">UMINUS</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">Uminus</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">expression</span><span class="p">,</span> <span class="bp">None</span><span class="p">,</span> <span class="n">type_</span><span class="o">=</span><span class="n">UMINUS</span><span class="p">)</span>
 
     <span class="nd">@property</span>
 <div class="viewcode-block" id="Uminus.expression"><a class="viewcode-back" href="../../pynusmv.html#pynusmv.node.Uminus.expression">[docs]</a>    <span class="k">def</span> <span class="nf">expression</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -1299,7 +1309,7 @@
 <span class="sd">        :param expression: the child of the NEXT expression</span>
 <span class="sd">        :type expression: :class:`Node` or :class:`str` or :class:`int`</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">expression</span><span class="p">,</span> <span class="bp">None</span><span class="p">,</span> <span class="n">type_</span><span class="o">=</span><span class="n">NEXT</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">Next</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">expression</span><span class="p">,</span> <span class="bp">None</span><span class="p">,</span> <span class="n">type_</span><span class="o">=</span><span class="n">NEXT</span><span class="p">)</span>
 
     <span class="nd">@property</span>
 <div class="viewcode-block" id="Next.expression"><a class="viewcode-back" href="../../pynusmv.html#pynusmv.node.Next.expression">[docs]</a>    <span class="k">def</span> <span class="nf">expression</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -1344,7 +1354,8 @@
         <span class="n">word</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_handle_next_expression</span><span class="p">(</span><span class="n">word</span><span class="p">)</span>
         <span class="n">start</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_handle_next_expression</span><span class="p">(</span><span class="n">start</span><span class="p">)</span>
         <span class="n">stop</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_handle_next_expression</span><span class="p">(</span><span class="n">stop</span><span class="p">)</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">word</span><span class="p">,</span> <span class="n">Colon</span><span class="p">(</span><span class="n">start</span><span class="p">,</span> <span class="n">stop</span><span class="p">),</span> <span class="n">type_</span><span class="o">=</span><span class="n">BIT_SELECTION</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">BitSelection</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">word</span><span class="p">,</span> <span class="n">Colon</span><span class="p">(</span><span class="n">start</span><span class="p">,</span> <span class="n">stop</span><span class="p">),</span>
+                                           <span class="n">type_</span><span class="o">=</span><span class="n">BIT_SELECTION</span><span class="p">)</span>
 
     <span class="nd">@property</span>
 <div class="viewcode-block" id="BitSelection.word"><a class="viewcode-back" href="../../pynusmv.html#pynusmv.node.BitSelection.word">[docs]</a>    <span class="k">def</span> <span class="nf">word</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -1374,7 +1385,7 @@
 <span class="sd">        :param expression: the expression to cast</span>
 <span class="sd">        :type expression: :class:`Node` or :class:`str` or :class:`int`</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">expression</span><span class="p">,</span> <span class="bp">None</span><span class="p">,</span> <span class="n">type_</span><span class="o">=</span><span class="n">CAST_BOOL</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">CastBool</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">expression</span><span class="p">,</span> <span class="bp">None</span><span class="p">,</span> <span class="n">type_</span><span class="o">=</span><span class="n">CAST_BOOL</span><span class="p">)</span>
 
     <span class="nd">@property</span>
 <div class="viewcode-block" id="CastBool.expression"><a class="viewcode-back" href="../../pynusmv.html#pynusmv.node.CastBool.expression">[docs]</a>    <span class="k">def</span> <span class="nf">expression</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -1392,7 +1403,7 @@
 <span class="sd">        :param expression: the expression to cast</span>
 <span class="sd">        :type expression: :class:`Node` or :class:`str` or :class:`int`</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">expression</span><span class="p">,</span> <span class="bp">None</span><span class="p">,</span> <span class="n">type_</span><span class="o">=</span><span class="n">CAST_WORD1</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">CastWord1</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">expression</span><span class="p">,</span> <span class="bp">None</span><span class="p">,</span> <span class="n">type_</span><span class="o">=</span><span class="n">CAST_WORD1</span><span class="p">)</span>
 
     <span class="nd">@property</span>
 <div class="viewcode-block" id="CastWord1.expression"><a class="viewcode-back" href="../../pynusmv.html#pynusmv.node.CastWord1.expression">[docs]</a>    <span class="k">def</span> <span class="nf">expression</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -1410,7 +1421,7 @@
 <span class="sd">        :param expression: the expression to cast</span>
 <span class="sd">        :type expression: :class:`Node` or :class:`str` or :class:`int`</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">expression</span><span class="p">,</span> <span class="bp">None</span><span class="p">,</span> <span class="n">type_</span><span class="o">=</span><span class="n">CAST_SIGNED</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">CastSigned</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">expression</span><span class="p">,</span> <span class="bp">None</span><span class="p">,</span> <span class="n">type_</span><span class="o">=</span><span class="n">CAST_SIGNED</span><span class="p">)</span>
 
     <span class="nd">@property</span>
 <div class="viewcode-block" id="CastSigned.expression"><a class="viewcode-back" href="../../pynusmv.html#pynusmv.node.CastSigned.expression">[docs]</a>    <span class="k">def</span> <span class="nf">expression</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -1428,7 +1439,7 @@
 <span class="sd">        :param expression: the expression to cast</span>
 <span class="sd">        :type expression: :class:`Node` or :class:`str` or :class:`int`</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">expression</span><span class="p">,</span> <span class="bp">None</span><span class="p">,</span> <span class="n">type_</span><span class="o">=</span><span class="n">CAST_UNSIGNED</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">CastUnsigned</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">expression</span><span class="p">,</span> <span class="bp">None</span><span class="p">,</span> <span class="n">type_</span><span class="o">=</span><span class="n">CAST_UNSIGNED</span><span class="p">)</span>
 
     <span class="nd">@property</span>
 <div class="viewcode-block" id="CastUnsigned.expression"><a class="viewcode-back" href="../../pynusmv.html#pynusmv.node.CastUnsigned.expression">[docs]</a>    <span class="k">def</span> <span class="nf">expression</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -1458,8 +1469,9 @@
 <span class="sd">        :param third: the third element of the WAWRITE node</span>
 <span class="sd">        :type third: :class:`Node` or :class:`str`</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">first</span><span class="p">,</span> <span class="n">Expression</span><span class="p">(</span><span class="n">second</span><span class="p">,</span> <span class="n">third</span><span class="p">,</span> <span class="n">type_</span><span class="o">=</span><span class="n">WAWRITE</span><span class="p">),</span>
-                         <span class="n">type_</span><span class="o">=</span><span class="n">WAWRITE</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">Wawrite</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">first</span><span class="p">,</span>
+                                      <span class="n">Expression</span><span class="p">(</span><span class="n">second</span><span class="p">,</span> <span class="n">third</span><span class="p">,</span> <span class="n">type_</span><span class="o">=</span><span class="n">WAWRITE</span><span class="p">),</span>
+                                      <span class="n">type_</span><span class="o">=</span><span class="n">WAWRITE</span><span class="p">)</span>
 
 </div>
 <div class="viewcode-block" id="Uwconst"><a class="viewcode-back" href="../../pynusmv.html#pynusmv.node.Uwconst">[docs]</a><span class="k">class</span> <span class="nc">Uwconst</span><span class="p">(</span><span class="n">Expression</span><span class="p">):</span>
@@ -1485,7 +1497,7 @@
 <span class="sd">        :param expression: the expression</span>
 <span class="sd">        :type expression: :class:`Node` or :class:`str`</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">expression</span><span class="p">,</span> <span class="bp">None</span><span class="p">,</span> <span class="n">type_</span><span class="o">=</span><span class="n">WSIZEOF</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">Wsizeof</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">expression</span><span class="p">,</span> <span class="bp">None</span><span class="p">,</span> <span class="n">type_</span><span class="o">=</span><span class="n">WSIZEOF</span><span class="p">)</span>
 
     <span class="nd">@property</span>
 <div class="viewcode-block" id="Wsizeof.expression"><a class="viewcode-back" href="../../pynusmv.html#pynusmv.node.Wsizeof.expression">[docs]</a>    <span class="k">def</span> <span class="nf">expression</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -1503,7 +1515,7 @@
 <span class="sd">        :param expression: the expression to cast</span>
 <span class="sd">        :type expression: :class:`Node` or :class:`str` or :class:`int`</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">expression</span><span class="p">,</span> <span class="bp">None</span><span class="p">,</span> <span class="n">type_</span><span class="o">=</span><span class="n">CAST_TOINT</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">CastToint</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">expression</span><span class="p">,</span> <span class="bp">None</span><span class="p">,</span> <span class="n">type_</span><span class="o">=</span><span class="n">CAST_TOINT</span><span class="p">)</span>
 
     <span class="nd">@property</span>
 <div class="viewcode-block" id="CastToint.expression"><a class="viewcode-back" href="../../pynusmv.html#pynusmv.node.CastToint.expression">[docs]</a>    <span class="k">def</span> <span class="nf">expression</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -1837,7 +1849,7 @@
                     <span class="s">&#39;&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="n">string</span><span class="o">.</span><span class="n">ascii_lowercase</span><span class="p">)</span>
                             <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">6</span><span class="p">)))</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_anonymous</span> <span class="o">=</span> <span class="bp">True</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">Declaration</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">name</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -1859,7 +1871,7 @@
     <span class="sd">&quot;&quot;&quot;A declared VAR.&quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">type_</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">type_</span><span class="p">,</span> <span class="s">&quot;VAR&quot;</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">DVar</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">type_</span><span class="p">,</span> <span class="s">&quot;VAR&quot;</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
 
 </div>
 <div class="viewcode-block" id="DIVar"><a class="viewcode-back" href="../../pynusmv.html#pynusmv.node.DIVar">[docs]</a><span class="k">class</span> <span class="nc">DIVar</span><span class="p">(</span><span class="n">Declaration</span><span class="p">):</span>
@@ -1867,7 +1879,7 @@
     <span class="sd">&quot;&quot;&quot;A declared IVAR.&quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">type_</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">type_</span><span class="p">,</span> <span class="s">&quot;IVAR&quot;</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">DIVar</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">type_</span><span class="p">,</span> <span class="s">&quot;IVAR&quot;</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
 
 </div>
 <div class="viewcode-block" id="DFVar"><a class="viewcode-back" href="../../pynusmv.html#pynusmv.node.DFVar">[docs]</a><span class="k">class</span> <span class="nc">DFVar</span><span class="p">(</span><span class="n">Declaration</span><span class="p">):</span>
@@ -1875,7 +1887,7 @@
     <span class="sd">&quot;&quot;&quot;A declared FROZENVAR.&quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">type_</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">type_</span><span class="p">,</span> <span class="s">&quot;FROZENVAR&quot;</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">DFVar</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">type_</span><span class="p">,</span> <span class="s">&quot;FROZENVAR&quot;</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
 
 </div>
 <div class="viewcode-block" id="DDef"><a class="viewcode-back" href="../../pynusmv.html#pynusmv.node.DDef">[docs]</a><span class="k">class</span> <span class="nc">DDef</span><span class="p">(</span><span class="n">Declaration</span><span class="p">):</span>
@@ -1883,7 +1895,7 @@
     <span class="sd">&quot;&quot;&quot;A declared DEFINE.&quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">type_</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">type_</span><span class="p">,</span> <span class="s">&quot;DEFINE&quot;</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">DDef</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">type_</span><span class="p">,</span> <span class="s">&quot;DEFINE&quot;</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
 
 </div>
 <span class="n">type_to_class</span> <span class="o">=</span> <span class="p">{</span>
@@ -2212,7 +2224,7 @@
 <span class="sd">        :param boolean freeit: whether or not free the pointer</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">ptr</span><span class="p">,</span> <span class="n">freeit</span><span class="o">=</span><span class="n">freeit</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">FlatHierarchy</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">ptr</span><span class="p">,</span> <span class="n">freeit</span><span class="o">=</span><span class="n">freeit</span><span class="p">)</span>
 
     <span class="nd">@property</span>
 <div class="viewcode-block" id="FlatHierarchy.symbTable"><a class="viewcode-back" href="../../pynusmv.html#pynusmv.node.FlatHierarchy.symbTable">[docs]</a>    <span class="k">def</span> <span class="nf">symbTable</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -2328,7 +2340,7 @@
     </div>
     <div class="footer">
         &copy; Copyright 2013-2014, Simon Busard.
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.3.
     </div>
   </body>
 </html>

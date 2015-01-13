@@ -1,5 +1,3 @@
-
-
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
@@ -115,7 +113,7 @@
 <span class="sd">        :param freeit: whether the pointer must be freed with the BDD, or not.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">ptr</span><span class="p">,</span> <span class="n">freeit</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">BDD</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">ptr</span><span class="p">,</span> <span class="n">freeit</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_manager</span> <span class="o">=</span> <span class="n">dd_manager</span>
 
     <span class="k">def</span> <span class="nf">_free</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -359,6 +357,12 @@
         <span class="k">return</span> <span class="n">BDD</span><span class="p">(</span><span class="n">nsdd</span><span class="o">.</span><span class="n">bdd_imply</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_manager</span><span class="o">.</span><span class="n">_ptr</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ptr</span><span class="p">,</span> <span class="n">other</span><span class="o">.</span><span class="n">_ptr</span><span class="p">),</span>
                    <span class="bp">self</span><span class="o">.</span><span class="n">_manager</span><span class="p">,</span> <span class="n">freeit</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
 </div>
+<div class="viewcode-block" id="BDD.diff"><a class="viewcode-back" href="../../pynusmv.html#pynusmv.dd.BDD.diff">[docs]</a>    <span class="k">def</span> <span class="nf">diff</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span> <span class="o">&amp;</span> <span class="o">~</span><span class="n">other</span>
+    </div>
+<div class="viewcode-block" id="BDD.intersection"><a class="viewcode-back" href="../../pynusmv.html#pynusmv.dd.BDD.intersection">[docs]</a>    <span class="k">def</span> <span class="nf">intersection</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">and_</span><span class="p">(</span><span class="n">other</span><span class="p">)</span>
+</div>
 <div class="viewcode-block" id="BDD.forsome"><a class="viewcode-back" href="../../pynusmv.html#pynusmv.dd.BDD.forsome">[docs]</a>    <span class="k">def</span> <span class="nf">forsome</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cube</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Existentially abstract all the variables in cube from this BDD.</span>
@@ -480,7 +484,7 @@
     <span class="c"># and returned.</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ptr</span><span class="p">,</span> <span class="n">ddmanager</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">freeit</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">ptr</span><span class="p">,</span> <span class="n">freeit</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">BDDList</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">ptr</span><span class="p">,</span> <span class="n">freeit</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_manager</span> <span class="o">=</span> <span class="n">ddmanager</span>
 
     <span class="k">def</span> <span class="nf">_free</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -604,7 +608,7 @@
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ptr</span><span class="p">,</span> <span class="n">fsm</span><span class="p">,</span> <span class="n">freeit</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">ptr</span><span class="p">,</span> <span class="n">fsm</span><span class="o">.</span><span class="n">bddEnc</span><span class="o">.</span><span class="n">DDmanager</span><span class="p">,</span> <span class="n">freeit</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">State</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">ptr</span><span class="p">,</span> <span class="n">fsm</span><span class="o">.</span><span class="n">bddEnc</span><span class="o">.</span><span class="n">DDmanager</span><span class="p">,</span> <span class="n">freeit</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_fsm</span> <span class="o">=</span> <span class="n">fsm</span>
 
 <div class="viewcode-block" id="State.get_str_values"><a class="viewcode-back" href="../../pynusmv.html#pynusmv.dd.State.get_str_values">[docs]</a>    <span class="k">def</span> <span class="nf">get_str_values</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">layers</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
@@ -684,7 +688,7 @@
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ptr</span><span class="p">,</span> <span class="n">fsm</span><span class="p">,</span> <span class="n">freeit</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">ptr</span><span class="p">,</span> <span class="n">fsm</span><span class="o">.</span><span class="n">bddEnc</span><span class="o">.</span><span class="n">DDmanager</span><span class="p">,</span> <span class="n">freeit</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">Inputs</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">ptr</span><span class="p">,</span> <span class="n">fsm</span><span class="o">.</span><span class="n">bddEnc</span><span class="o">.</span><span class="n">DDmanager</span><span class="p">,</span> <span class="n">freeit</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_fsm</span> <span class="o">=</span> <span class="n">fsm</span>
 
 <div class="viewcode-block" id="Inputs.get_str_values"><a class="viewcode-back" href="../../pynusmv.html#pynusmv.dd.Inputs.get_str_values">[docs]</a>    <span class="k">def</span> <span class="nf">get_str_values</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">layers</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
@@ -765,7 +769,7 @@
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ptr</span><span class="p">,</span> <span class="n">fsm</span><span class="p">,</span> <span class="n">freeit</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">ptr</span><span class="p">,</span> <span class="n">fsm</span><span class="o">.</span><span class="n">bddEnc</span><span class="o">.</span><span class="n">DDmanager</span><span class="p">,</span> <span class="n">freeit</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">StateInputs</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">ptr</span><span class="p">,</span> <span class="n">fsm</span><span class="o">.</span><span class="n">bddEnc</span><span class="o">.</span><span class="n">DDmanager</span><span class="p">,</span> <span class="n">freeit</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_fsm</span> <span class="o">=</span> <span class="n">fsm</span>
 
 <div class="viewcode-block" id="StateInputs.get_str_values"><a class="viewcode-back" href="../../pynusmv.html#pynusmv.dd.StateInputs.get_str_values">[docs]</a>    <span class="k">def</span> <span class="nf">get_str_values</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -823,7 +827,7 @@
 <span class="sd">        Compute the difference between this cube and `other`</span>
 
 <span class="sd">        :param other: the other cube</span>
-<span class="sd">        :type other: :class:`Cube`</span>
+<span class="sd">        :type other: :class:`BDD`</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c"># Call to bdd_ptr bdd_cube_diff (DdManager *, bdd_ptr, bdd_ptr);</span>
@@ -832,20 +836,20 @@
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_manager</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">MissingManagerError</span><span class="p">()</span>
-        <span class="k">return</span> <span class="n">Cube</span><span class="p">(</span>
-            <span class="n">nsdd</span><span class="o">.</span><span class="n">bdd_cube_diff</span><span class="p">(</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_manager</span><span class="o">.</span><span class="n">_ptr</span><span class="p">,</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_ptr</span><span class="p">,</span>
-                <span class="n">other</span><span class="o">.</span><span class="n">_ptr</span><span class="p">),</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_manager</span><span class="p">,</span>
-            <span class="n">freeit</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="n">Cube</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">Cube</span><span class="p">(</span><span class="n">nsdd</span><span class="o">.</span><span class="n">bdd_cube_diff</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_manager</span><span class="o">.</span><span class="n">_ptr</span><span class="p">,</span>
+                                           <span class="bp">self</span><span class="o">.</span><span class="n">_ptr</span><span class="p">,</span>
+                                           <span class="n">other</span><span class="o">.</span><span class="n">_ptr</span><span class="p">),</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">_manager</span><span class="p">,</span> <span class="n">freeit</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="nb">super</span><span class="p">(</span><span class="n">Cube</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">other</span><span class="p">)</span>
 </div>
 <div class="viewcode-block" id="Cube.intersection"><a class="viewcode-back" href="../../pynusmv.html#pynusmv.dd.Cube.intersection">[docs]</a>    <span class="k">def</span> <span class="nf">intersection</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Compute the intersection of this Cube and `other`.</span>
 
 <span class="sd">        :param other: the other Cube</span>
-<span class="sd">        :type other: :class:`Cube`</span>
+<span class="sd">        :type other: :class:`BDD`</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c"># Call to bdd_ptr bdd_cube_intersection (DdManager *, bdd_ptr,</span>
@@ -855,9 +859,12 @@
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_manager</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">MissingManagerError</span><span class="p">()</span>
-        <span class="k">return</span> <span class="n">Cube</span><span class="p">(</span><span class="n">nsdd</span><span class="o">.</span><span class="n">bdd_cube_intersection</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_manager</span><span class="o">.</span><span class="n">_ptr</span><span class="p">,</span>
-                                               <span class="bp">self</span><span class="o">.</span><span class="n">_ptr</span><span class="p">,</span> <span class="n">other</span><span class="o">.</span><span class="n">_ptr</span><span class="p">),</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">_manager</span><span class="p">,</span> <span class="n">freeit</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="n">Cube</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">Cube</span><span class="p">(</span><span class="n">nsdd</span><span class="o">.</span><span class="n">bdd_cube_intersection</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_manager</span><span class="o">.</span><span class="n">_ptr</span><span class="p">,</span>
+                                                   <span class="bp">self</span><span class="o">.</span><span class="n">_ptr</span><span class="p">,</span> <span class="n">other</span><span class="o">.</span><span class="n">_ptr</span><span class="p">),</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">_manager</span><span class="p">,</span> <span class="n">freeit</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="nb">super</span><span class="p">(</span><span class="n">Cube</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">intersection</span><span class="p">(</span><span class="n">other</span><span class="p">)</span>
 </div>
 <div class="viewcode-block" id="Cube.union"><a class="viewcode-back" href="../../pynusmv.html#pynusmv.dd.Cube.union">[docs]</a>    <span class="k">def</span> <span class="nf">union</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -873,13 +880,14 @@
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_manager</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">MissingManagerError</span><span class="p">()</span>
-        <span class="k">return</span> <span class="n">BDD</span><span class="p">(</span>
-            <span class="n">nsdd</span><span class="o">.</span><span class="n">bdd_cube_union</span><span class="p">(</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_manager</span><span class="o">.</span><span class="n">_ptr</span><span class="p">,</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_ptr</span><span class="p">,</span>
-                <span class="n">other</span><span class="o">.</span><span class="n">_ptr</span><span class="p">),</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_manager</span><span class="p">,</span>
-            <span class="n">freeit</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="n">Cube</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">Cube</span><span class="p">(</span><span class="n">nsdd</span><span class="o">.</span><span class="n">bdd_cube_union</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_manager</span><span class="o">.</span><span class="n">_ptr</span><span class="p">,</span>
+                                            <span class="bp">self</span><span class="o">.</span><span class="n">_ptr</span><span class="p">,</span>
+                                            <span class="n">other</span><span class="o">.</span><span class="n">_ptr</span><span class="p">),</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">_manager</span><span class="p">,</span>
+                        <span class="n">freeit</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="nb">super</span><span class="p">(</span><span class="n">Cube</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">union</span><span class="p">(</span><span class="n">other</span><span class="p">)</span>
 </div>
     <span class="k">def</span> <span class="nf">__sub__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">other</span><span class="p">)</span>
@@ -943,7 +951,7 @@
     </div>
     <div class="footer">
         &copy; Copyright 2013-2014, Simon Busard.
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.3.
     </div>
   </body>
 </html>

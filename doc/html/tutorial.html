@@ -1,5 +1,3 @@
-
-
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
@@ -15,7 +13,7 @@
     
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    '',
+        URL_ROOT:    './',
         VERSION:     '0.10',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
@@ -58,7 +56,7 @@
 <span id="tutorial"></span><h1>Getting started<a class="headerlink" href="#getting-started" title="Permalink to this headline">¶</a></h1>
 <p>This page presents a short overview of PyNuSMV capabilities with a small example.
 Let&#8217;s consider the following SMV model. This model is composed of two counters, incrementing from 0 to 3, and looping. They run asynchronously and the running one is defined at each step by the <tt class="docutils literal"><span class="pre">run</span></tt> action.</p>
-<div class="highlight-python"><pre>MODULE counter(run, start, stop)
+<div class="highlight-python"><div class="highlight"><pre>MODULE counter(run, start, stop)
     -- A modulo counter
     -- Go from start (inclusive) to stop (exclusive) by 1-increments
     -- Run only when run is true
@@ -82,7 +80,8 @@ MODULE main
         stop := 3;
         
         
-SPEC AF c1.c = stop - 1</pre>
+SPEC AF c1.c = stop - 1
+</pre></div>
 </div>
 <p>Considering that the model is saved in the <tt class="docutils literal"><span class="pre">counters.smv</span></tt> file in the current directory, we can now run Python.
 The following Python session shows the basics of PyNuSMV. After importing pynusmv, the function <a class="reference internal" href="pynusmv.html#pynusmv.init.init_nusmv" title="pynusmv.init.init_nusmv"><tt class="xref py py-func docutils literal"><span class="pre">init_nusmv</span></tt></a> <strong>must</strong> be called before calling any other PyNuSMV functionality. The function <a class="reference internal" href="pynusmv.html#pynusmv.init.deinit_nusmv" title="pynusmv.init.deinit_nusmv"><tt class="xref py py-func docutils literal"><span class="pre">deinit_nusmv</span></tt></a> must also be called after using PyNuSMV to release all resources hold by NuSMV. After initializing PyNuSMV, the model is read with the function <tt class="xref py py-func docutils literal"><span class="pre">load_from_file</span></tt> and the model is computed, that is, flattened and encoded into BDDs, with the function <a class="reference internal" href="pynusmv.html#pynusmv.glob.compute_model" title="pynusmv.glob.compute_model"><tt class="xref py py-func docutils literal"><span class="pre">compute_model</span></tt></a>.</p>
@@ -178,7 +177,7 @@ The following Python session shows the basics of PyNuSMV. After importing pynusm
     </div>
     <div class="footer">
         &copy; Copyright 2013-2014, Simon Busard.
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.3.
     </div>
   </body>
 </html>
