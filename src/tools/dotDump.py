@@ -123,7 +123,7 @@ def dumpDot(fsm):
                    for s1 in states for s2 in states
                    for i in (fsm.pick_all_inputs(
                                          fsm.get_inputs_between_states(s1,s2))
-                             if len(fsm.bddEnc.get_inputs_vars()) > 0
+                             if len(fsm.bddEnc.inputsVars()) > 0
                              else {None})}
     
     print("digraph {")
