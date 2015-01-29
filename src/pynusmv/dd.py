@@ -395,28 +395,48 @@ class BDD(PointerWrapper):
     # ==========================================================================
 
     @staticmethod
-    def true(manager):
+    def true(manager_or_fsm=None):
         """
         Return the TRUE BDD.
 
-        :param manager: the manager of the returned BDD
-        :type manager: :class:`DDManager`
+        :param manager_or_fsm: if not `None`, the manager of the returned BDD
+                               or the FSM; otherwise, the global FSM is used.
+        :type manager_or_fsm: :class:`DDManager` or :class:`BddFsm`
 
         """
         # Call to bdd_ptr bdd_true (DdManager *);
+        
+        from .fsm import BddFsm
+        if manager_or_fsm is None:
+            from .glob import prop_database
+            manager = prop_database().master.bddFsm.bddEnc.DDmanager
+        elif isinstance(manager_or_fsm, BddFsm):
+            manager = manager_or_fsm.bddEnc.DDmanager
+        else:
+            manager = manager_or_fsm
 
         return BDD(nsdd.bdd_true(manager._ptr), manager, freeit=True)
 
     @staticmethod
-    def false(manager):
+    def false(manager_or_fsm=None):
         """
         Return the FALSE BDD.
 
-        :param manager: the manager of the returned BDD
-        :type manager: :class:`DDManager`
+        :param manager_or_fsm: if not `None`, the manager of the returned BDD
+                               or the FSM; otherwise, the global FSM is used.
+        :type manager_or_fsm: :class:`DDManager` or :class:`BddFsm`
 
         """
         # Call to bdd_ptr bdd_false (DdManager *);
+        
+        from .fsm import BddFsm
+        if manager_or_fsm is None:
+            from .glob import prop_database
+            manager = prop_database().master.bddFsm.bddEnc.DDmanager
+        elif isinstance(manager_or_fsm, BddFsm):
+            manager = manager_or_fsm.bddEnc.DDmanager
+        else:
+            manager = manager_or_fsm
 
         return BDD(nsdd.bdd_false(manager._ptr), manager, freeit=True)
 

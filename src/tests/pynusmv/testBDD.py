@@ -33,11 +33,41 @@ class TestBDD(unittest.TestCase):
         self.assertFalse(true.isnot_true())
         self.assertTrue(true.isnot_false())
         
+        true = BDD.true()
+        self.assertIsNotNone(true)
+        self.assertTrue(true.is_true())
+        self.assertFalse(true.is_false())
+        self.assertFalse(true.isnot_true())
+        self.assertTrue(true.isnot_false())
+        
+        true = BDD.true(fsm)
+        self.assertIsNotNone(true)
+        self.assertTrue(true.is_true())
+        self.assertFalse(true.is_false())
+        self.assertFalse(true.isnot_true())
+        self.assertTrue(true.isnot_false())
+        
 
     def test_get_false(self):
         (fsm, enc, manager) = self.init_model()
         
         false = BDD.false(manager)
+        self.assertIsNotNone(false)
+        self.assertTrue(false.is_false())
+        self.assertFalse(false.is_true())
+        self.assertTrue(false.isnot_true())
+        self.assertFalse(false.isnot_false())
+        self.assertTrue(false.isnot_true())
+        
+        false = BDD.false()
+        self.assertIsNotNone(false)
+        self.assertTrue(false.is_false())
+        self.assertFalse(false.is_true())
+        self.assertTrue(false.isnot_true())
+        self.assertFalse(false.isnot_false())
+        self.assertTrue(false.isnot_true())
+        
+        false = BDD.false()
         self.assertIsNotNone(false)
         self.assertTrue(false.is_false())
         self.assertFalse(false.is_true())
