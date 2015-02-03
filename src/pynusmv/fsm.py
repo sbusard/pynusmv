@@ -231,6 +231,28 @@ class BddFsm(PointerWrapper):
         if state is None:
             raise NuSMVBddPickingError("Cannot pick state from BDD.")
         return State(state, self, freeit=True)
+    
+    def pick_one_state_random(self, bdd):
+        """
+        Return a BDD representing a state of `bdd`, picked at random.
+
+        :rtype: :class:`State <pynusmv.dd.State>`
+        :raise: a :exc:`NuSMVBddPickingError
+                <pynusmv.exception.NuSMVBddPickingError>`
+                if `bdd` is false or an error occurs while picking one state
+
+        """
+        # Abstract inputs
+        bdd = bdd.forsome(self.bddEnc.inputsCube)
+
+        # The BDD contains no states
+        if bdd.is_false():
+            raise NuSMVBddPickingError("Cannot pick state from false BDD.")
+
+        state = bddEnc.pick_one_state_rand(self.bddEnc._ptr, bdd._ptr)
+        if state is None:
+            raise NuSMVBddPickingError("Cannot pick state from BDD.")
+        return State(state, self, freeit=True)
 
     def pick_one_inputs(self, bdd):
         """
@@ -252,6 +274,27 @@ class BddFsm(PointerWrapper):
         if inputs is None:
             raise NuSMVBddPickingError("Cannot pick inputs from BDD.")
         return Inputs(inputs, self, freeit=True)
+    
+    def pick_one_inputs_random(self, bdd):
+        """
+        Return a BDD representing an inputs of `bdd`, picked at random.
+
+        :rtype: :class:`Inputs <pynusmv.dd.Inputs>`
+        :raise: a :exc:`NuSMVBddPickingError
+                <pynusmv.exception.NuSMVBddPickingError>`
+                if `bdd` is false or an error occurs while picking one inputs
+
+        """
+        # Abstract inputs
+        bdd = bdd.forsome(self.bddEnc.statesCube)
+
+        # The BDD contains no states
+        if bdd.is_false():
+            raise NuSMVBddPickingError("Cannot pick inputs from false BDD.")
+        inputs = bddEnc.pick_one_input_rand(self.bddEnc._ptr, bdd._ptr)
+        if inputs is None:
+            raise NuSMVBddPickingError("Cannot pick inputs from BDD.")
+        return Inputs(inputs, self, freeit=True)
 
     def pick_one_state_inputs(self, bdd):
         """
@@ -268,6 +311,26 @@ class BddFsm(PointerWrapper):
             raise NuSMVBddPickingError("Cannot pick state/inputs"
                                        " from false BDD.")
         si = bddEnc.pick_one_state_input(self.bddEnc._ptr, bdd._ptr)
+        if si is None:
+            raise NuSMVBddPickingError("Cannot pick state/inputs from BDD.")
+        return StateInputs(si, self, freeit=True)
+    
+    def pick_one_state_inputs_random(self, bdd):
+        """
+        Return a BDD representing a state/inputs pair of `bdd`, picked at
+        random.
+
+        :rtype: :class:`StateInputs <pynusmv.dd.StateInputs>`
+        :raise: a :exc:`NuSMVBddPickingError
+                <pynusmv.exception.NuSMVBddPickingError>`
+                if `bdd` is false or an error occurs while picking one pair
+
+        """
+        # The BDD contains no pairs
+        if bdd.is_false():
+            raise NuSMVBddPickingError("Cannot pick state/inputs"
+                                       " from false BDD.")
+        si = bddEnc.pick_one_state_input_rand(self.bddEnc._ptr, bdd._ptr)
         if si is None:
             raise NuSMVBddPickingError("Cannot pick state/inputs from BDD.")
         return StateInputs(si, self, freeit=True)

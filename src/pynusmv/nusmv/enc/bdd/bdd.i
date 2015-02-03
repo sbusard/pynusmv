@@ -37,10 +37,35 @@ bdd_ptr pick_one_state(const BddEnc_ptr self, bdd_ptr states) {
 
 
 // Result is NULL if an error occured, not NULL otherwise
+bdd_ptr pick_one_state_rand(const BddEnc_ptr self, bdd_ptr states) {
+    bdd_ptr result;
+    CATCH {
+        result = BddEnc_pick_one_state_rand(self, states);
+    }
+    FAIL {
+        result = NULL;
+    }
+    return result;
+}
+
+
+// Result is NULL if an error occured, not NULL otherwise
 bdd_ptr pick_one_input(const BddEnc_ptr self, bdd_ptr inputs) {
     bdd_ptr result;
     CATCH {
         result = BddEnc_pick_one_input(self, inputs);
+    }
+    FAIL {
+        result = NULL;
+    }
+    return result;
+}
+
+// Result is NULL if an error occured, not NULL otherwise
+bdd_ptr pick_one_input_rand(const BddEnc_ptr self, bdd_ptr inputs) {
+    bdd_ptr result;
+    CATCH {
+        result = BddEnc_pick_one_input_rand(self, inputs);
     }
     FAIL {
         result = NULL;
@@ -215,8 +240,26 @@ bdd_ptr pick_one_state_input(const BddEnc_ptr self, bdd_ptr si)
         BDD_ENC_CHECK_INSTANCE(self);
         result = bdd_pick_one_minterm(self->dd, si,
                                       array_fetch_p(bdd_ptr,
-                                      self->minterm_state_frozen_input_vars, 0),
-                                     self->minterm_state_frozen_input_vars_dim);
+                                      self->minterm_state_frozen_input_vars,
+                                      0),
+                                    self->minterm_state_frozen_input_vars_dim);
+    }
+    FAIL {
+        result = NULL;
+    }
+    return result;
+}
+
+bdd_ptr pick_one_state_input_rand(const BddEnc_ptr self, bdd_ptr si)
+{
+    bdd_ptr result;
+    CATCH {
+        BDD_ENC_CHECK_INSTANCE(self);
+        result = bdd_pick_one_minterm_rand(self->dd, si,
+                                      array_fetch_p(bdd_ptr,
+                                      self->minterm_state_frozen_input_vars,
+                                      0),
+                                    self->minterm_state_frozen_input_vars_dim);
     }
     FAIL {
         result = NULL;
