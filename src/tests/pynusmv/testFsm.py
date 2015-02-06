@@ -33,6 +33,17 @@ class TestFsm(unittest.TestCase):
         q = evalSexp(fsm, "q")
         
         self.assertEqual(p & q, fsm.init)
+    
+    
+    def test_reachable_states(self):
+        fsm = self.model()
+        p = evalSexp(fsm, "p")
+        q = evalSexp(fsm, "q")
+        
+        self.assertEqual(p | q, fsm.reachable_states)
+        
+        fsm.reachable_states = p & q
+        self.assertEqual(p & q, fsm.reachable_states)
         
         
     def test_state_constraints(self):

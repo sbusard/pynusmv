@@ -148,7 +148,26 @@ class BddFsm(PointerWrapper):
             ite = bddFsm.FairnessListIterator_next(ite)
 
         return fairBdds
+    
+    @property
+    def reachable_states(self):
+        """
+        Return a the set of reachable states of this FSM, represented as a BDD.
 
+        :rtype: :class:`BDD <pynusmv.dd.BDD>`
+
+        """
+        if self._reachable is None:
+            self._reachable = BDD(bddFsm.BddFsm_get_reachable_states( 
+                                  self._ptr),
+                                  self.bddEnc.DDmanager)
+        return self._reachable
+    
+    @reachable_states.setter
+    def reachable_states(self, reachable_states):
+        self._reachable = reachable_states
+        bddFsm.BddFsm_set_reachable_states(self._ptr, reachable_states._ptr)
+    
     def pre(self, states, inputs=None):
         """
         Return the pre-image of `states` in this FSM.
@@ -473,23 +492,6 @@ class BddFsm(PointerWrapper):
             raise NuSMVBddPickingError("Cannot pick all state/inputs pairs.")
         else:
             return frozenset(StateInputs(te, self) for te in t)
-
-    @property
-    def reachable_states(self):
-        """
-        Return a the set of reachable states of this FSM, represented as a BDD.
-
-        :rtype: :class:`BDD <pynusmv.dd.BDD>`
-
-        """
-        if self._reachable is None:
-            # self._reachable = fixpoint(lambda Z: (self.init | self.post(Z)),
-            #                           BDD.false(self.bddEnc.DDmanager))
-            self._reachable = BDD(
-                bddFsm.BddFsm_get_reachable_states(
-                    self._ptr),
-                self.bddEnc.DDmanager)
-        return self._reachable
 
     # =========================================================================
     # ===== Static methods ====================================================
