@@ -116,7 +116,7 @@ def dumpDot(fsm):
     
     """
     
-    init = fsm.init
+    init = fsm.init & fsm.state_constraints & fsm.bddEnc.statesMask
     fair_attr = fairness_attr(fsm)
     states = fsm.pick_all_states(fsm.reachable_states)
     transitions = {(s1,i,s2)
@@ -124,7 +124,8 @@ def dumpDot(fsm):
                    for i in (fsm.pick_all_inputs(
                                          fsm.get_inputs_between_states(s1,s2))
                              if len(fsm.bddEnc.inputsVars) > 0
-                             else {None})}
+                             else {None})
+                   if s2 <= fsm.post(s1, inputs=i)}
     
     print("digraph {")
     

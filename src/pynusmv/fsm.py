@@ -181,17 +181,19 @@ class BddFsm(PointerWrapper):
         :rtype: :class:`BDD <pynusmv.dd.BDD>`
 
         """
+        states = states & self.bddEnc.statesMask
         if inputs is None:
-            return BDD(
-                bddFsm.BddFsm_get_backward_image(
-                    self._ptr,
-                    states._ptr),
-                self.bddEnc.DDmanager,
-                freeit=True)
+            return (BDD(bddFsm.BddFsm_get_backward_image(
+                        self._ptr,states._ptr),
+                        self.bddEnc.DDmanager,
+                        freeit=True)
+                    & self.bddEnc.statesMask)
         else:
-            return BDD(bddFsm.BddFsm_get_constrained_backward_image
-                       (self._ptr, states._ptr, inputs._ptr),
-                       self.bddEnc.DDmanager, freeit=True)
+            inputs = inputs & self.bddEnc.statesInputsMask
+            return (BDD(bddFsm.BddFsm_get_constrained_backward_image
+                        (self._ptr, states._ptr, inputs._ptr),
+                        self.bddEnc.DDmanager, freeit=True)
+                    & self.bddEnc.statesMask)
 
     def weak_pre(self, states):
         """
@@ -204,9 +206,11 @@ class BddFsm(PointerWrapper):
         :rtype: :class:`BDD <pynusmv.dd.BDD>`
 
         """
-        return BDD(bddFsm.BddFsm_get_weak_backward_image(self._ptr,
-                                                         states._ptr),
-                   self.bddEnc.DDmanager, freeit=True)
+        states = states & self.bddEnc.statesMask
+        return (BDD(bddFsm.BddFsm_get_weak_backward_image(self._ptr,
+                                                          states._ptr),
+                    self.bddEnc.DDmanager, freeit=True)
+                & self.bddEnc.statesInputsMask)
 
     def post(self, states, inputs=None):
         """
@@ -221,13 +225,18 @@ class BddFsm(PointerWrapper):
         :rtype: :class:`BDD <pynusmv.dd.BDD>`
 
         """
+        states = states & self.bddEnc.statesMask
         if inputs is None:
-            return BDD(bddFsm.BddFsm_get_forward_image(self._ptr, states._ptr),
-                       self.bddEnc.DDmanager, freeit=True)
+            return (BDD(bddFsm.BddFsm_get_forward_image(self._ptr,
+                                                        states._ptr),
+                        self.bddEnc.DDmanager, freeit=True)
+                    & self.bddEnc.statesMask)
         else:
-            return BDD(bddFsm.BddFsm_get_constrained_forward_image
-                       (self._ptr, states._ptr, inputs._ptr),
-                       self.bddEnc.DDmanager, freeit=True)
+            inputs = inputs & self.bddEnc.inputsMask
+            return (BDD(bddFsm.BddFsm_get_constrained_forward_image
+                        (self._ptr, states._ptr, inputs._ptr),
+                        self.bddEnc.DDmanager, freeit=True)
+                    & self.bddEnc.statesMask)
 
     def pick_one_state(self, bdd):
         """
@@ -369,7 +378,8 @@ class BddFsm(PointerWrapper):
         inputs = bddFsm.BddFsm_states_to_states_get_inputs(self._ptr,
                                                            current._ptr,
                                                            next_._ptr)
-        return BDD(inputs, self.bddEnc.DDmanager, freeit=True)
+        return (BDD(inputs, self.bddEnc.DDmanager, freeit=True)
+                & self.bddEnc.inputsMask)
 
     def count_states(self, bdd):
         """
