@@ -968,6 +968,10 @@ class SymbTable(PointerWrapper):
         SYMB_LAYER_POS_BOTTOM=nssymb_table.SYMB_LAYER_POS_BOTTOM,
         SYMB_LAYER_POS_FORCE_BOTTOM=nssymb_table.SYMB_LAYER_POS_FORCE_BOTTOM
     )
+    
+    SYMBOL_STATE_VAR = nssymb_table.SYMBOL_STATE_VAR
+    SYMBOL_FROZEN_VAR = nssymb_table.SYMBOL_FROZEN_VAR
+    SYMBOL_INPUT_VAR = nssymb_table.SYMBOL_INPUT_VAR
 
     @property
     def layer_names(self):
@@ -1128,6 +1132,31 @@ class SymbTable(PointerWrapper):
             type_ = self._get_type_from_node(type_)
         layer = self._get_layer(layer)
         nssymb_table.SymbLayer_declare_frozen_var(layer, fvar._ptr, type_)
+    
+    def declare_var(self, layer, name, type_, kind):
+        """
+        Declare a new variable in this symbol table.
+        
+        :param layer: the name of the layer in which insert the variable
+        :type layer: :class:`str`
+        :param name: the name of the variable
+        :type name: :class:`Node <pynusmv.node.Node>`
+        :param type_: the type of the declared variable
+        :type type_: :class:`Node <pynusmv.node.Node>`
+        :param kind: the kind of the declared variable
+        :raise: a :exc:`NuSMVSymbTableError
+            <pynusmv.exception.NuSMVSymbTableError>` if the variable is already
+            defined in the given layer
+
+        .. warning:: `type_` must be already resolved, that is, the body
+                     of `type_` must be leaf values.
+        """
+        if kind is self.SYMBOL_STATE_VAR:
+            self.declare_state_var(layer, name, type_)
+        elif kind is self.SYMBOL_FROZEN_VAR:
+            self.declare_frozen_var(layer, name, type_)
+        elif kind is self.SYMBOL_INPUT_VAR:
+            self.declare_input_var(layer, name, type_)
 
     def is_input_var(self, ivar):
         """
