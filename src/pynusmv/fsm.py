@@ -945,7 +945,7 @@ class BddEnc(PointerWrapper):
         while not nsutils.ListIter_is_end(ite):
             var_node = nsutils.NodeList_get_elem_at(variables, ite)
             varname = nsnode.sprint_node(var_node)
-            isVar = nssymb_table.SymbCache_is_symbol_state_frozen_var(
+            isVar = nssymb_table.SymbTable_is_symbol_state_frozen_var(
                 st._ptr, var_node)
             if isVar:
                 varnames.add(varname)
