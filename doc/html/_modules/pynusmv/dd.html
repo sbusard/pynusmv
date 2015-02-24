@@ -444,28 +444,50 @@
     <span class="c"># ==========================================================================</span>
 
     <span class="nd">@staticmethod</span>
-<div class="viewcode-block" id="BDD.true"><a class="viewcode-back" href="../../pynusmv.html#pynusmv.dd.BDD.true">[docs]</a>    <span class="k">def</span> <span class="nf">true</span><span class="p">(</span><span class="n">manager</span><span class="p">):</span>
+<div class="viewcode-block" id="BDD.true"><a class="viewcode-back" href="../../pynusmv.html#pynusmv.dd.BDD.true">[docs]</a>    <span class="k">def</span> <span class="nf">true</span><span class="p">(</span><span class="n">manager_or_fsm</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Return the TRUE BDD.</span>
 
-<span class="sd">        :param manager: the manager of the returned BDD</span>
-<span class="sd">        :type manager: :class:`DDManager`</span>
+<span class="sd">        :param manager_or_fsm: if not `None`, the manager of the returned BDD</span>
+<span class="sd">                               or the FSM; otherwise, the global FSM is used.</span>
+<span class="sd">        :type manager_or_fsm: :class:`DDManager` or</span>
+<span class="sd">                              :class:`BddFsm &lt;pynusmv.fsm.BddFsm&gt;`</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c"># Call to bdd_ptr bdd_true (DdManager *);</span>
+        
+        <span class="kn">from</span> <span class="nn">.fsm</span> <span class="kn">import</span> <span class="n">BddFsm</span>
+        <span class="k">if</span> <span class="n">manager_or_fsm</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="kn">from</span> <span class="nn">.glob</span> <span class="kn">import</span> <span class="n">prop_database</span>
+            <span class="n">manager</span> <span class="o">=</span> <span class="n">prop_database</span><span class="p">()</span><span class="o">.</span><span class="n">master</span><span class="o">.</span><span class="n">bddFsm</span><span class="o">.</span><span class="n">bddEnc</span><span class="o">.</span><span class="n">DDmanager</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">manager_or_fsm</span><span class="p">,</span> <span class="n">BddFsm</span><span class="p">):</span>
+            <span class="n">manager</span> <span class="o">=</span> <span class="n">manager_or_fsm</span><span class="o">.</span><span class="n">bddEnc</span><span class="o">.</span><span class="n">DDmanager</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">manager</span> <span class="o">=</span> <span class="n">manager_or_fsm</span>
 
         <span class="k">return</span> <span class="n">BDD</span><span class="p">(</span><span class="n">nsdd</span><span class="o">.</span><span class="n">bdd_true</span><span class="p">(</span><span class="n">manager</span><span class="o">.</span><span class="n">_ptr</span><span class="p">),</span> <span class="n">manager</span><span class="p">,</span> <span class="n">freeit</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
 </div>
     <span class="nd">@staticmethod</span>
-<div class="viewcode-block" id="BDD.false"><a class="viewcode-back" href="../../pynusmv.html#pynusmv.dd.BDD.false">[docs]</a>    <span class="k">def</span> <span class="nf">false</span><span class="p">(</span><span class="n">manager</span><span class="p">):</span>
+<div class="viewcode-block" id="BDD.false"><a class="viewcode-back" href="../../pynusmv.html#pynusmv.dd.BDD.false">[docs]</a>    <span class="k">def</span> <span class="nf">false</span><span class="p">(</span><span class="n">manager_or_fsm</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Return the FALSE BDD.</span>
 
-<span class="sd">        :param manager: the manager of the returned BDD</span>
-<span class="sd">        :type manager: :class:`DDManager`</span>
+<span class="sd">        :param manager_or_fsm: if not `None`, the manager of the returned BDD</span>
+<span class="sd">                               or the FSM; otherwise, the global FSM is used.</span>
+<span class="sd">        :type manager_or_fsm: :class:`DDManager` or</span>
+<span class="sd">                              :class:`BddFsm &lt;pynusmv.fsm.BddFsm&gt;`</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c"># Call to bdd_ptr bdd_false (DdManager *);</span>
+        
+        <span class="kn">from</span> <span class="nn">.fsm</span> <span class="kn">import</span> <span class="n">BddFsm</span>
+        <span class="k">if</span> <span class="n">manager_or_fsm</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="kn">from</span> <span class="nn">.glob</span> <span class="kn">import</span> <span class="n">prop_database</span>
+            <span class="n">manager</span> <span class="o">=</span> <span class="n">prop_database</span><span class="p">()</span><span class="o">.</span><span class="n">master</span><span class="o">.</span><span class="n">bddFsm</span><span class="o">.</span><span class="n">bddEnc</span><span class="o">.</span><span class="n">DDmanager</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">manager_or_fsm</span><span class="p">,</span> <span class="n">BddFsm</span><span class="p">):</span>
+            <span class="n">manager</span> <span class="o">=</span> <span class="n">manager_or_fsm</span><span class="o">.</span><span class="n">bddEnc</span><span class="o">.</span><span class="n">DDmanager</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">manager</span> <span class="o">=</span> <span class="n">manager_or_fsm</span>
 
         <span class="k">return</span> <span class="n">BDD</span><span class="p">(</span><span class="n">nsdd</span><span class="o">.</span><span class="n">bdd_false</span><span class="p">(</span><span class="n">manager</span><span class="o">.</span><span class="n">_ptr</span><span class="p">),</span> <span class="n">manager</span><span class="p">,</span> <span class="n">freeit</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
 
@@ -564,9 +586,9 @@
             <span class="n">result</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">elem</span><span class="p">)</span>
         <span class="k">return</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
 
-    <span class="c"># ==========================================================================</span>
-    <span class="c"># ===== Class methods ====================================================</span>
-    <span class="c"># ==========================================================================</span>
+    <span class="c"># =========================================================================</span>
+    <span class="c"># ===== Class methods =====================================================</span>
+    <span class="c"># =========================================================================</span>
 </div>
     <span class="nd">@staticmethod</span>
 <div class="viewcode-block" id="BDDList.from_tuple"><a class="viewcode-back" href="../../pynusmv.html#pynusmv.dd.BDDList.from_tuple">[docs]</a>    <span class="k">def</span> <span class="nf">from_tuple</span><span class="p">(</span><span class="n">bddtuple</span><span class="p">):</span>

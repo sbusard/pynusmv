@@ -2618,6 +2618,20 @@ Can also be replaced.</p>
 <dd><p>The list of fairness constraints, as BDDs.</p>
 </dd></dl>
 
+<dl class="attribute">
+<dt id="pynusmv.fsm.BddFsm.reachable_states">
+<tt class="descname">reachable_states</tt><a class="reference internal" href="_modules/pynusmv/fsm.html#BddFsm.reachable_states"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynusmv.fsm.BddFsm.reachable_states" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a the set of reachable states of this FSM, represented as a BDD.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference internal" href="#pynusmv.dd.BDD" title="pynusmv.dd.BDD"><tt class="xref py py-class docutils literal"><span class="pre">BDD</span></tt></a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
 <dl class="method">
 <dt id="pynusmv.fsm.BddFsm.pre">
 <tt class="descname">pre</tt><big>(</big><em>states</em>, <em>inputs=None</em><big>)</big><a class="reference internal" href="_modules/pynusmv/fsm.html#BddFsm.pre"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynusmv.fsm.BddFsm.pre" title="Permalink to this definition">¶</a></dt>
@@ -2700,6 +2714,23 @@ if <cite>bdd</cite> is false or an error occurs while picking one state</td>
 </dd></dl>
 
 <dl class="method">
+<dt id="pynusmv.fsm.BddFsm.pick_one_state_random">
+<tt class="descname">pick_one_state_random</tt><big>(</big><em>bdd</em><big>)</big><a class="reference internal" href="_modules/pynusmv/fsm.html#BddFsm.pick_one_state_random"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynusmv.fsm.BddFsm.pick_one_state_random" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a BDD representing a state of <cite>bdd</cite>, picked at random.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference internal" href="#pynusmv.dd.State" title="pynusmv.dd.State"><tt class="xref py py-class docutils literal"><span class="pre">State</span></tt></a></td>
+</tr>
+<tr class="field-even field"><th class="field-name">Raise:</th><td class="field-body">a <a class="reference internal" href="#pynusmv.exception.NuSMVBddPickingError" title="pynusmv.exception.NuSMVBddPickingError"><tt class="xref py py-exc docutils literal"><span class="pre">NuSMVBddPickingError</span></tt></a>
+if <cite>bdd</cite> is false or an error occurs while picking one state</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
 <dt id="pynusmv.fsm.BddFsm.pick_one_inputs">
 <tt class="descname">pick_one_inputs</tt><big>(</big><em>bdd</em><big>)</big><a class="reference internal" href="_modules/pynusmv/fsm.html#BddFsm.pick_one_inputs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynusmv.fsm.BddFsm.pick_one_inputs" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return a BDD representing an inputs of <cite>bdd</cite>.</p>
@@ -2717,9 +2748,44 @@ if <cite>bdd</cite> is false or an error occurs while picking one inputs</td>
 </dd></dl>
 
 <dl class="method">
+<dt id="pynusmv.fsm.BddFsm.pick_one_inputs_random">
+<tt class="descname">pick_one_inputs_random</tt><big>(</big><em>bdd</em><big>)</big><a class="reference internal" href="_modules/pynusmv/fsm.html#BddFsm.pick_one_inputs_random"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynusmv.fsm.BddFsm.pick_one_inputs_random" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a BDD representing an inputs of <cite>bdd</cite>, picked at random.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference internal" href="#pynusmv.dd.Inputs" title="pynusmv.dd.Inputs"><tt class="xref py py-class docutils literal"><span class="pre">Inputs</span></tt></a></td>
+</tr>
+<tr class="field-even field"><th class="field-name">Raise:</th><td class="field-body">a <a class="reference internal" href="#pynusmv.exception.NuSMVBddPickingError" title="pynusmv.exception.NuSMVBddPickingError"><tt class="xref py py-exc docutils literal"><span class="pre">NuSMVBddPickingError</span></tt></a>
+if <cite>bdd</cite> is false or an error occurs while picking one inputs</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
 <dt id="pynusmv.fsm.BddFsm.pick_one_state_inputs">
 <tt class="descname">pick_one_state_inputs</tt><big>(</big><em>bdd</em><big>)</big><a class="reference internal" href="_modules/pynusmv/fsm.html#BddFsm.pick_one_state_inputs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynusmv.fsm.BddFsm.pick_one_state_inputs" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return a BDD representing a state/inputs pair of <cite>bdd</cite>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference internal" href="#pynusmv.dd.StateInputs" title="pynusmv.dd.StateInputs"><tt class="xref py py-class docutils literal"><span class="pre">StateInputs</span></tt></a></td>
+</tr>
+<tr class="field-even field"><th class="field-name">Raise:</th><td class="field-body">a <a class="reference internal" href="#pynusmv.exception.NuSMVBddPickingError" title="pynusmv.exception.NuSMVBddPickingError"><tt class="xref py py-exc docutils literal"><span class="pre">NuSMVBddPickingError</span></tt></a>
+if <cite>bdd</cite> is false or an error occurs while picking one pair</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pynusmv.fsm.BddFsm.pick_one_state_inputs_random">
+<tt class="descname">pick_one_state_inputs_random</tt><big>(</big><em>bdd</em><big>)</big><a class="reference internal" href="_modules/pynusmv/fsm.html#BddFsm.pick_one_state_inputs_random"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynusmv.fsm.BddFsm.pick_one_state_inputs_random" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a BDD representing a state/inputs pair of <cite>bdd</cite>, picked at
+random.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -2849,20 +2915,6 @@ if something is wrong</td>
 </tr>
 <tr class="field-odd field"><th class="field-name">Raise:</th><td class="field-body">a <a class="reference internal" href="#pynusmv.exception.NuSMVBddPickingError" title="pynusmv.exception.NuSMVBddPickingError"><tt class="xref py py-exc docutils literal"><span class="pre">NuSMVBddPickingError</span></tt></a>
 if something is wrong</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="pynusmv.fsm.BddFsm.reachable_states">
-<tt class="descname">reachable_states</tt><a class="reference internal" href="_modules/pynusmv/fsm.html#BddFsm.reachable_states"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynusmv.fsm.BddFsm.reachable_states" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return a the set of reachable states of this FSM, represented as a BDD.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference internal" href="#pynusmv.dd.BDD" title="pynusmv.dd.BDD"><tt class="xref py py-class docutils literal"><span class="pre">BDD</span></tt></a></td>
 </tr>
 </tbody>
 </table>
@@ -3171,10 +3223,24 @@ used to manage BDDs, the symbols table or the state and inputs masks.</p>
 </table>
 </dd></dl>
 
-<dl class="method">
-<dt id="pynusmv.fsm.BddEnc.get_inputs_vars">
-<tt class="descname">get_inputs_vars</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/pynusmv/fsm.html#BddEnc.get_inputs_vars"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynusmv.fsm.BddEnc.get_inputs_vars" title="Permalink to this definition">¶</a></dt>
+<dl class="attribute">
+<dt id="pynusmv.fsm.BddEnc.inputsVars">
+<tt class="descname">inputsVars</tt><a class="reference internal" href="_modules/pynusmv/fsm.html#BddEnc.inputsVars"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynusmv.fsm.BddEnc.inputsVars" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the set of inputs variables names.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">frozenset(str)</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pynusmv.fsm.BddEnc.stateVars">
+<tt class="descname">stateVars</tt><a class="reference internal" href="_modules/pynusmv/fsm.html#BddEnc.stateVars"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynusmv.fsm.BddEnc.stateVars" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the set of state variables names.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -3194,7 +3260,22 @@ used to manage BDDs, the symbols table or the state and inputs masks.</p>
 <p>Python class for symbols table.</p>
 <dl class="attribute">
 <dt id="pynusmv.fsm.SymbTable.ins_policies">
-<tt class="descname">ins_policies</tt><em class="property"> = {'SYMB_LAYER_POS_DEFAULT': 0, 'SYMB_LAYER_POS_FORCE_TOP': 1, 'SYMB_LAYER_POS_BOTTOM': 3, 'SYMB_LAYER_POS_FORCE_BOTTOM': 4, 'SYMB_LAYER_POS_TOP': 2}</em><a class="headerlink" href="#pynusmv.fsm.SymbTable.ins_policies" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">ins_policies</tt><em class="property"> = {'SYMB_LAYER_POS_TOP': 2, 'SYMB_LAYER_POS_FORCE_BOTTOM': 4, 'SYMB_LAYER_POS_BOTTOM': 3, 'SYMB_LAYER_POS_FORCE_TOP': 1, 'SYMB_LAYER_POS_DEFAULT': 0}</em><a class="headerlink" href="#pynusmv.fsm.SymbTable.ins_policies" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pynusmv.fsm.SymbTable.SYMBOL_STATE_VAR">
+<tt class="descname">SYMBOL_STATE_VAR</tt><em class="property"> = 3</em><a class="headerlink" href="#pynusmv.fsm.SymbTable.SYMBOL_STATE_VAR" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pynusmv.fsm.SymbTable.SYMBOL_FROZEN_VAR">
+<tt class="descname">SYMBOL_FROZEN_VAR</tt><em class="property"> = 2</em><a class="headerlink" href="#pynusmv.fsm.SymbTable.SYMBOL_FROZEN_VAR" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pynusmv.fsm.SymbTable.SYMBOL_INPUT_VAR">
+<tt class="descname">SYMBOL_INPUT_VAR</tt><em class="property"> = 4</em><a class="headerlink" href="#pynusmv.fsm.SymbTable.SYMBOL_INPUT_VAR" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
@@ -3347,6 +3428,35 @@ of <cite>type_</cite> must be leaf values.</p>
 </dd></dl>
 
 <dl class="method">
+<dt id="pynusmv.fsm.SymbTable.declare_var">
+<tt class="descname">declare_var</tt><big>(</big><em>layer</em>, <em>name</em>, <em>type_</em>, <em>kind</em><big>)</big><a class="reference internal" href="_modules/pynusmv/fsm.html#SymbTable.declare_var"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynusmv.fsm.SymbTable.declare_var" title="Permalink to this definition">¶</a></dt>
+<dd><p>Declare a new variable in this symbol table.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>layer</strong> (<tt class="xref py py-class docutils literal"><span class="pre">str</span></tt>) &#8211; the name of the layer in which insert the variable</li>
+<li><strong>name</strong> (<a class="reference internal" href="#pynusmv.node.Node" title="pynusmv.node.Node"><tt class="xref py py-class docutils literal"><span class="pre">Node</span></tt></a>) &#8211; the name of the variable</li>
+<li><strong>type</strong> (<a class="reference internal" href="#pynusmv.node.Node" title="pynusmv.node.Node"><tt class="xref py py-class docutils literal"><span class="pre">Node</span></tt></a>) &#8211; the type of the declared variable</li>
+<li><strong>kind</strong> &#8211; the kind of the declared variable</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Raise:</th><td class="field-body"><p class="first last">a <tt class="xref py py-exc docutils literal"><span class="pre">NuSMVSymbTableError</span></tt> if the variable is already
+defined in the given layer</p>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last"><cite>type_</cite> must be already resolved, that is, the body
+of <cite>type_</cite> must be leaf values.</p>
+</div>
+</dd></dl>
+
+<dl class="method">
 <dt id="pynusmv.fsm.SymbTable.is_input_var">
 <tt class="descname">is_input_var</tt><big>(</big><em>ivar</em><big>)</big><a class="reference internal" href="_modules/pynusmv/fsm.html#SymbTable.is_input_var"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynusmv.fsm.SymbTable.is_input_var" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return whether the given <cite>var</cite> name is a declared input variable.</p>
@@ -3406,7 +3516,7 @@ defined in this symbol table</td>
 properties and specifications of models.</p>
 <dl class="data">
 <dt id="pynusmv.prop.propTypes">
-<tt class="descclassname">pynusmv.prop.</tt><tt class="descname">propTypes</tt><em class="property"> = {'CTL': 102, 'Invariant': 105, 'Comparison': 107, 'PSL': 104, 'Compute': 106, 'LTL': 103, 'NoType': 101}</em><a class="headerlink" href="#pynusmv.prop.propTypes" title="Permalink to this definition">¶</a></dt>
+<tt class="descclassname">pynusmv.prop.</tt><tt class="descname">propTypes</tt><em class="property"> = {'Compute': 106, 'PSL': 104, 'Invariant': 105, 'CTL': 102, 'Comparison': 107, 'NoType': 101, 'LTL': 103}</em><a class="headerlink" href="#pynusmv.prop.propTypes" title="Permalink to this definition">¶</a></dt>
 <dd><p>The possible types of properties. This gives access to NuSMV internal types
 without dealing with <cite>pynusmv.nusmv</cite> modules.</p>
 </dd></dl>
@@ -4053,13 +4163,15 @@ and <cite>other</cite> is not empty.</p>
 
 <dl class="staticmethod">
 <dt id="pynusmv.dd.BDD.true">
-<em class="property">static </em><tt class="descname">true</tt><big>(</big><em>manager</em><big>)</big><a class="reference internal" href="_modules/pynusmv/dd.html#BDD.true"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynusmv.dd.BDD.true" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><tt class="descname">true</tt><big>(</big><em>manager_or_fsm=None</em><big>)</big><a class="reference internal" href="_modules/pynusmv/dd.html#BDD.true"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynusmv.dd.BDD.true" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the TRUE BDD.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>manager</strong> (<a class="reference internal" href="#pynusmv.dd.DDManager" title="pynusmv.dd.DDManager"><tt class="xref py py-class docutils literal"><span class="pre">DDManager</span></tt></a>) &#8211; the manager of the returned BDD</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>manager_or_fsm</strong> (<a class="reference internal" href="#pynusmv.dd.DDManager" title="pynusmv.dd.DDManager"><tt class="xref py py-class docutils literal"><span class="pre">DDManager</span></tt></a> or
+<a class="reference internal" href="#pynusmv.fsm.BddFsm" title="pynusmv.fsm.BddFsm"><tt class="xref py py-class docutils literal"><span class="pre">BddFsm</span></tt></a>) &#8211; if not <cite>None</cite>, the manager of the returned BDD
+or the FSM; otherwise, the global FSM is used.</td>
 </tr>
 </tbody>
 </table>
@@ -4067,13 +4179,15 @@ and <cite>other</cite> is not empty.</p>
 
 <dl class="staticmethod">
 <dt id="pynusmv.dd.BDD.false">
-<em class="property">static </em><tt class="descname">false</tt><big>(</big><em>manager</em><big>)</big><a class="reference internal" href="_modules/pynusmv/dd.html#BDD.false"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynusmv.dd.BDD.false" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><tt class="descname">false</tt><big>(</big><em>manager_or_fsm=None</em><big>)</big><a class="reference internal" href="_modules/pynusmv/dd.html#BDD.false"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynusmv.dd.BDD.false" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the FALSE BDD.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>manager</strong> (<a class="reference internal" href="#pynusmv.dd.DDManager" title="pynusmv.dd.DDManager"><tt class="xref py py-class docutils literal"><span class="pre">DDManager</span></tt></a>) &#8211; the manager of the returned BDD</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>manager_or_fsm</strong> (<a class="reference internal" href="#pynusmv.dd.DDManager" title="pynusmv.dd.DDManager"><tt class="xref py py-class docutils literal"><span class="pre">DDManager</span></tt></a> or
+<a class="reference internal" href="#pynusmv.fsm.BddFsm" title="pynusmv.fsm.BddFsm"><tt class="xref py py-class docutils literal"><span class="pre">BddFsm</span></tt></a>) &#8211; if not <cite>None</cite>, the manager of the returned BDD
+or the FSM; otherwise, the global FSM is used.</td>
 </tr>
 </tbody>
 </table>

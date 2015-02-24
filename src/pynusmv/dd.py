@@ -390,9 +390,9 @@ class BDD(PointerWrapper):
     def __invert__(self):
         return self.not_()
 
-    # ==========================================================================
+    # =========================================================================
     # ===== Static methods ===================================================
-    # ==========================================================================
+    # =========================================================================
 
     @staticmethod
     def true(manager_or_fsm=None):
@@ -401,7 +401,8 @@ class BDD(PointerWrapper):
 
         :param manager_or_fsm: if not `None`, the manager of the returned BDD
                                or the FSM; otherwise, the global FSM is used.
-        :type manager_or_fsm: :class:`DDManager` or :class:`BddFsm`
+        :type manager_or_fsm: :class:`DDManager` or
+                              :class:`BddFsm <pynusmv.fsm.BddFsm>`
 
         """
         # Call to bdd_ptr bdd_true (DdManager *);
@@ -424,7 +425,8 @@ class BDD(PointerWrapper):
 
         :param manager_or_fsm: if not `None`, the manager of the returned BDD
                                or the FSM; otherwise, the global FSM is used.
-        :type manager_or_fsm: :class:`DDManager` or :class:`BddFsm`
+        :type manager_or_fsm: :class:`DDManager` or
+                              :class:`BddFsm <pynusmv.fsm.BddFsm>`
 
         """
         # Call to bdd_ptr bdd_false (DdManager *);
