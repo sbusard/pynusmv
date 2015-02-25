@@ -3,13 +3,14 @@ The :mod:`pynusmv.mc` module provides some functions of NuSMV dealing with
 model checking, like CTL model checking.
 """
 
-__all__ = ['eval_simple_expression', 'eval_ctl_spec', 'explainEX', 'explainEU',
-           'explainEG']
+__all__ = ['eval_simple_expression', 'eval_ctl_spec',
+           'ef', 'eg', 'ex', 'eu', 'au',
+           'explainEX', 'explainEU', 'explainEG']
 
 
 from .nusmv.node import node as nsnode
 from .nusmv.dd import dd as nsdd
-from .nusmv.mc import mc
+from .nusmv.mc import mc as nsmc
 
 from .dd import BDD, State, Inputs, BDDList
 from .prop import atom
@@ -43,12 +44,80 @@ def eval_ctl_spec(fsm, spec, context=None):
 
     """
     enc = fsm.bddEnc
-    specbdd = BDD(mc.eval_ctl_spec(fsm._ptr, enc._ptr,
-                                   spec._ptr,
-                                   context and context._ptr or None),
+    specbdd = BDD(nsmc.eval_ctl_spec(fsm._ptr, enc._ptr,
+                                     spec._ptr,
+                                     context and context._ptr or None),
                   enc.DDmanager, freeit=True)
     return specbdd
 
+def ef(fsm, states):
+    """
+    Return the set of states of `fsm` satisfying `EF states`, as a BDD.
+    
+    :param fsm: the concerned FSM
+    :type fsm: :class:`BddFsm <pynusmv.fsm.BddFsm>`
+    :param states: a set of states of `fsm`
+    :type states: :class:`BDD <pynusmv.dd.BDD>`
+    :rtype: :class:`BDD <pynusmv.dd.BDD>`
+    """
+    return BDD(nsmc.ef(fsm._ptr, states._ptr),
+               fsm.bddEnc.DDmanager, freeit=True)
+
+def eg(fsm, states):
+    """
+    Return the set of states of `fsm` satisfying `EG states`, as a BDD.
+    
+    :param fsm: the concerned FSM
+    :type fsm: :class:`BddFsm <pynusmv.fsm.BddFsm>`
+    :param states: a set of states of `fsm`
+    :type states: :class:`BDD <pynusmv.dd.BDD>`
+    :rtype: :class:`BDD <pynusmv.dd.BDD>`
+    """
+    return BDD(nsmc.eg(fsm._ptr, states._ptr),
+               fsm.bddEnc.DDmanager, freeit=True)
+
+def ex(fsm, states):
+    """
+    Return the set of states of `fsm` satisfying `EX states`, as a BDD.
+    
+    :param fsm: the concerned FSM
+    :type fsm: :class:`BddFsm <pynusmv.fsm.BddFsm>`
+    :param states: a set of states of `fsm`
+    :type states: :class:`BDD <pynusmv.dd.BDD>`
+    :rtype: :class:`BDD <pynusmv.dd.BDD>`
+    """
+    return BDD(nsmc.ex(fsm._ptr, states._ptr),
+               fsm.bddEnc.DDmanager, freeit=True)
+
+def eu(fsm, s1, s2):
+    """
+    Return the set of states of `fsm` satisfying `E[s1 U s2]`, as a BDD.
+    
+    :param fsm: the concerned FSM
+    :type fsm: :class:`BddFsm <pynusmv.fsm.BddFsm>`
+    :param s1: a set of states of `fsm`
+    :type s1: :class:`BDD <pynusmv.dd.BDD>`
+    :param s2: a set of states of `fsm`
+    :type s2: :class:`BDD <pynusmv.dd.BDD>`
+    :rtype: :class:`BDD <pynusmv.dd.BDD>`
+    """
+    return BDD(nsmc.eu(fsm._ptr, s1._ptr, s1._ptr),
+               fsm.bddEnc.DDmanager, freeit=True)
+
+def au(fsm, s1, s2):
+    """
+    Return the set of states of `fsm` satisfying `A[s1 U s2]`, as a BDD.
+    
+    :param fsm: the concerned FSM
+    :type fsm: :class:`BddFsm <pynusmv.fsm.BddFsm>`
+    :param s1: a set of states of `fsm`
+    :type s1: :class:`BDD <pynusmv.dd.BDD>`
+    :param s2: a set of states of `fsm`
+    :type s2: :class:`BDD <pynusmv.dd.BDD>`
+    :rtype: :class:`BDD <pynusmv.dd.BDD>`
+    """
+    return BDD(nsmc.au(fsm._ptr, s1._ptr, s1._ptr),
+               fsm.bddEnc.DDmanager, freeit=True)
 
 def explainEX(fsm, state, a):
     """
@@ -71,7 +140,7 @@ def explainEX(fsm, state, a):
     enc = fsm.bddEnc
     manager = enc.DDmanager
     path = nsnode.cons(nsnode.bdd2node(nsdd.bdd_dup(state._ptr)), None)
-    bddlist = BDDList(mc.ex_explain(fsm._ptr, enc._ptr, path, a._ptr),
+    bddlist = BDDList(nsmc.ex_explain(fsm._ptr, enc._ptr, path, a._ptr),
                       manager)
 
     # bddlist is reversed!
@@ -109,8 +178,8 @@ def explainEU(fsm, state, a, b):
     enc = fsm.bddEnc
     manager = enc.DDmanager
     path = nsnode.cons(nsnode.bdd2node(nsdd.bdd_dup(state._ptr)), None)
-    bddlist = BDDList(mc.eu_explain(fsm._ptr, enc._ptr,
-                                    path, a._ptr, b._ptr), manager)
+    bddlist = BDDList(nsmc.eu_explain(fsm._ptr, enc._ptr,
+                                      path, a._ptr, b._ptr), manager)
     bddlist = bddlist.to_tuple()
 
     path = []
@@ -151,7 +220,7 @@ def explainEG(fsm, state, a):
     enc = fsm.bddEnc
     manager = enc.DDmanager
     path = nsnode.cons(nsnode.bdd2node(nsdd.bdd_dup(state._ptr)), None)
-    bddlist = BDDList(mc.eg_explain(fsm._ptr, enc._ptr, path, a._ptr),
+    bddlist = BDDList(nsmc.eg_explain(fsm._ptr, enc._ptr, path, a._ptr),
                       manager)
     bddlist = bddlist.to_tuple()
 
