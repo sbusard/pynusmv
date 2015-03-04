@@ -93,13 +93,11 @@ def eval_ctl(fsm, spec, context = None):
         
         
 def ex(fsm, phi):
-    phi = phi & fair_states(fsm) & fsm.reachable_states
+    phi = phi & fsm.reachable_states
     return fsm.pre(phi) & fsm.reachable_states
     
     
 def eg(fsm, phi):
-    if phi.is_true():
-        return fair_states(fsm)
     res = BDD.true(fsm.bddEnc.DDmanager)
     old = BDD.false(fsm.bddEnc.DDmanager)
     while res != old:
@@ -110,15 +108,11 @@ def eg(fsm, phi):
     
     
 def eu(fsm, phi, psi):
-    Y = psi & fair_states(fsm) & fsm.reachable_states
+    Y = psi & fsm.reachable_states
     old = Y
     new = Y
     while new.isnot_false():
         old = Y
         Y = Y | (ex(fsm, new) & phi)
-        new = Y & ~old  
+        new = Y & ~old
     return Y
-    
-    
-def fair_states(fsm):
-    return BDD(nsBddFsm.BddFsm_get_fair_states(fsm._ptr), fsm.bddEnc.DDmanager)
