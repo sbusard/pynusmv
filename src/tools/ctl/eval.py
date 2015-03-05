@@ -4,7 +4,7 @@ from pynusmv.mc import eval_ctl_spec
 
 from pynusmv.nusmv.fsm.bdd import bdd as nsBddFsm
 
-def eval_ctl(fsm, spec, context = None):
+def eval_ctl(fsm, spec, context=None):
     """
     Evaluate spec in fsm.
     
@@ -37,52 +37,52 @@ def eval_ctl(fsm, spec, context = None):
         left = eval_ctl(fsm, spec.car, context)
         right = eval_ctl(fsm, spec.cdr, context)
         return ~left | right
-                            
+        
     elif spec.type == parser.IFF:
         left = eval_ctl(fsm, spec.car, context)
         right = eval_ctl(fsm, spec.cdr, context)
         return (left & right) | (~left & ~right)
-                    
+        
     elif spec.type == parser.EX:
         return ex(fsm, eval_ctl(fsm, spec.car, context))
-                                 
+        
     elif spec.type == parser.EF:
         left = BDD.true(fsm.bddEnc.DDmanager)
         right = eval_ctl(fsm, spec.car, context)
         return eu(fsm, left, right)
-                                 
+        
     elif spec.type == parser.EG:
         return eg(fsm, eval_ctl(fsm, spec.car, context))
-                                 
+        
     elif spec.type == parser.EU:
         return eu(fsm,
                   eval_ctl(fsm, spec.car, context),
                   eval_ctl(fsm, spec.cdr, context))
-                    
+        
     elif spec.type == parser.EW:
         left = eval_ctl(fsm, spec.car, context)
         right = eval_ctl(fsm, spec.cdr, context)
         return eg(fsm, left) | eu(fsm, left, right)
-                    
+        
     elif spec.type == parser.AX:
         left = eval_ctl(fsm, spec.car, context)
-        return ~ex(fsm, ~left)        
+        return ~ex(fsm, ~left)
         
     elif spec.type == parser.AF:
         left = eval_ctl(fsm, spec.car, context)
         return ~eg(fsm, ~left)
-                                 
+        
     elif spec.type == parser.AG:
         left = eval_ctl(fsm, spec.car, context)
         true = BDD.true(fsm.bddEnc.DDmanager)
         return ~eu(fsm, true, ~left)
-                                 
+        
     elif spec.type == parser.AU:
         # A[p U q] = !E[!q W (!p & !q)] = !(E[!q U (!p & !q)] | EG !q)
         left = eval_ctl(fsm, spec.car, context)
         right = eval_ctl(fsm, spec.cdr, context)
         return ~(eu(fsm, ~right, ~left & ~right) | eg(fsm, ~right))
-                        
+        
     elif spec.type == parser.AW:
         left = eval_ctl(fsm, spec.car, context)
         right = eval_ctl(fsm, spec.cdr, context)
@@ -90,13 +90,11 @@ def eval_ctl(fsm, spec, context = None):
     
     else:
         return eval_ctl_spec(fsm, spec)
-        
-        
+
 def ex(fsm, phi):
     phi = phi & fsm.reachable_states
     return fsm.pre(phi) & fsm.reachable_states
-    
-    
+
 def eg(fsm, phi):
     res = BDD.true(fsm.bddEnc.DDmanager)
     old = BDD.false(fsm.bddEnc.DDmanager)
@@ -105,8 +103,7 @@ def eg(fsm, phi):
         new = ex(fsm, res)
         res = res & new & phi & fsm.reachable_states
     return res
-    
-    
+
 def eu(fsm, phi, psi):
     Y = psi & fsm.reachable_states
     old = Y
