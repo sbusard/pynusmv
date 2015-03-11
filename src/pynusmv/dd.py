@@ -884,4 +884,19 @@ class DDManager(PointerWrapper):
     Python class for NuSMV BDD managers.
 
     """
-    pass
+
+    @property
+    def size(self):
+        """
+        The number of variables handled by this manager.
+
+        """
+        return nsdd.dd_get_size(self._ptr)
+
+    @property
+    def reorderings(self):
+        """
+        Returns the number of times reordering has occurred in this manager.
+
+        """
+        return nsdd.dd_get_reorderings(self._ptr)
