@@ -66,6 +66,7 @@ class BddFsm(PointerWrapper):
         """
         super(BddFsm, self).__init__(ptr, freeit=freeit)
         self._reachable = None
+        self._fair = None
 
     @property
     def bddEnc(self):
@@ -152,9 +153,7 @@ class BddFsm(PointerWrapper):
     @property
     def reachable_states(self):
         """
-        Return a the set of reachable states of this FSM, represented as a BDD.
-
-        :rtype: :class:`BDD <pynusmv.dd.BDD>`
+        The set of reachable states of this FSM, represented as a BDD.
 
         """
         if self._reachable is None:
@@ -167,6 +166,17 @@ class BddFsm(PointerWrapper):
     def reachable_states(self, reachable_states):
         self._reachable = reachable_states
         bddFsm.BddFsm_set_reachable_states(self._ptr, reachable_states._ptr)
+    
+    @property
+    def fair_states(self):
+        """
+        The set of fair states of this FSM, represented as a BDD.
+
+        """
+        if self._fair is None:
+            self._fair = BDD(bddFsm.BddFsm_get_fair_states(self._ptr),
+                             self.bddEnc.DDmanager)
+        return self._fair
     
     def pre(self, states, inputs=None):
         """
