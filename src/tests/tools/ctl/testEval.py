@@ -22,7 +22,13 @@ class TestEval(unittest.TestCase):
         fsm = BddFsm.from_filename("tests/tools/ctl/admin.smv")
         self.assertIsNotNone(fsm)
         return fsm
-        
+    
+    
+    def nameche_model(self):
+        fsm = BddFsm.from_filename("tests/tools/ctl/nameche08R1.smv")
+        self.assertIsNotNone(fsm)
+        return fsm
+    
 
     def test_atom(self):
         fsm = self.init_model()
@@ -82,3 +88,19 @@ class TestEval(unittest.TestCase):
         # EG admin = none is False
         egan = prop.eg(prop.atom("admin = none"))
         self.assertFalse(fsm.init <= eval_ctl(fsm, egan))
+    
+    @unittest.skip("Takes too long")
+    def test_namecheR1(self):
+        fsm = self.nameche_model()
+        
+        # AG (T_04BM.st = o & TRP_CM.krc = s -> AX (!R1.L_CS))
+        to = prop.atom("T_04BM.st = o")
+        trps = prop.atom("TRP_CM.krc = s")
+        nr1lcs = prop.atom("!R1.L_CS")
+        p = prop.imply(to & trps, prop.ax(nr1lcs))
+        self.assertTrue(fsm.reachable_states <= eval_ctl(fsm, p))
+        
+        # AG (EF R1.L_CS)
+        r1lcs = prop.atom("R1.L_CS")
+        p = prop.ef(r1lcs)
+        self.assertTrue(fsm.reachable_states <= eval_ctl(fsm, p))
