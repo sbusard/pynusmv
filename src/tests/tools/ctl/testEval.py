@@ -5,6 +5,7 @@ from pynusmv.dd import BDD
 from pynusmv.init import init_nusmv, deinit_nusmv
 from pynusmv.parser import parse_simple_expression as parseSexp
 from pynusmv import prop
+from pynusmv.nusmv.opt import opt as nsopt
 
 from tools.ctl.eval import eval_ctl
 
@@ -89,8 +90,11 @@ class TestEval(unittest.TestCase):
         egan = prop.eg(prop.atom("admin = none"))
         self.assertFalse(fsm.init <= eval_ctl(fsm, egan))
     
-    @unittest.skip("Takes too long")
+#    @unittest.skip("Takes too long")
     def test_namecheR1(self):
+        # activate bdd dynamic reordering
+        nsopt.set_dynamic_reorder(nsopt.OptsHandler_get_instance())
+        
         fsm = self.nameche_model()
         
         # AG (T_04BM.st = o & TRP_CM.krc = s -> AX (!R1.L_CS))
