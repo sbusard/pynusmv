@@ -1,0 +1,1452 @@
+-- TFE -- Prove of concept - (NuSMV) of Namêche station - L125
+-- Tested with NuSMV version 2.5.4
+-- LVL - 2015 - http://lvl.info.ucl.ac.be
+-- Author : Limbree Ch. - INGI 2015 - ir at Infrabel
+-- Version : 2015-02-16
+-- History:
+--
+-- V20 2014-10-28
+--		- addition of the cf(n/r) define for the points
+-- V21 2014-10-31
+--		- This version integrates the TISP --> R XS --> U f --> IR f full sequence which is close to what interlocking does
+--		- The birth was quite difficult but the baby is alive and he is screaming !
+--		- I had to play with the next in the IR unlocking condition - don't know how it affects the rest of it.
+-- V22	2014-11-08
+--		- Change the name of Garbage module --> FrameAXioms
+--		- RCallowed is a flag ensuring that the route can be controlled when no other route execution is ongoing
+-- V1	2014-12-05
+--		- history will be kept but this file will hold the Nameche SSI parameters
+-- 		2014-12-29
+--		- TISP was renamed to TISP1SUB and the TISP module is now used with only one TRP
+--		2015-01-02
+--		- putting the first route of Namêche
+-- V2	2014-01-03 - Main event
+--		- I gave-up the TRANS for the U_ and IR because I had too many deadlock problems and moreover I was not sure of the behaviour.
+--		  So I made the lockManager Module to take care of the U_ and IR for me.
+--		  I will see what I will do with the points later.
+--		- I replaced status with st in order to make the name shorter
+--		2015-01-06
+--		- addition of the remaining routes
+--		- implementation of FOP.dat (U_ and IR)
+-- V3	2015-01-08
+--		- getting tired of those TRANS deadlock problems --> I moved the pints' commands in the FrameAxioms module
+--		- RonGo had to be tuned by changing the conjunction between the IR with a disjunction
+-- V4	2015-01-08
+--		- I have been carrying out some experimentations since Yesterday growing the number of routes with considerable among of time > 1 hour
+--		- I will start the implementation of the TRAIN2 module based on my DSL
+--		2015-01-11
+--		- addition of the remaining routes
+--		- preparation of the TRAIN2 module for the first four routes. The impact will be to reduce the (reachable) state space --> I suppose.
+-- V5	2015-01-13
+--		- addition of selection by FROZENVAR
+--		- NuSMV model pushed on Guentin's Git repo
+--		2015-01-17
+--		- I noticed that the tisp1 didn't work at all so I had to put in place the tail variable in order
+--			to keep the TC occupied longer and have two TC occupied at the same time
+-- V6	2015-01-23
+--		- Trying to disable 2 trains moving at the same time
+-- V7	2015-02-27
+--		- removing the next in proving variable in order for it to react faster
+--		-- addition of a next() conditio in SIGopen macro in order to withdraw authorisation faster
+-- V7_bis 2015-01-28
+--		- addition of the Tprogress flag in TRAIN2
+--		- proving variable is now a macro and is now named L_CS
+--		2015-02-01
+--		- The calculation of the reachable states didn't complete in 22 hours
+--		  I added a condition that allow the train to always move when it has started.
+--		2015-02-03
+--		- testing with pynusmv
+-- V8	2015-02-13 - It was the right time for a V8
+-- 		- I have cleaned and added many properties of which most are now INVARSPEC
+--		- I have added a willMove DEFINE to my point MODULE in order to turn some properties into INVARSPEC
+--		2015-02-15 correction of a small mistake in R4 revealed by the test
+--		2015-02-16 addition of Minit
+-------------------------------------------------------------------------------------------------------------------------
+MODULE main
+FROZENVAR
+rouCmdEN : array 1..14 of boolean; -- will be used to limit the number of active routes
+--rouProEN : array 1..14 of boolean; -- will be used to limit the number of proved routes
+VAR
+----------------------------------The generics---------------------------------------------------------------------------
+UIR_03M  : IR_;
+UIR_01AM : IR_;
+UIR_01BM : IR_; -- new IR added to build  real V
+UIR_02AM : IR_;
+UIR_02BM : IR_;
+UIR_04BM : IR_;
+UIR_09M  : IR_;
+-- Sub-routes moved to lockManager
+P_01AM : POINT(UIR_01AM); --          	/* ID=0 */
+P_01BM : POINT(UIR_01BM); --           	/* ID=3 */
+P_02AM : POINT(UIR_02AM); --          	/* ID=6 */
+P_02BM : POINT(UIR_02BM); --           	/* ID=9 */
+P_03M  : POINT(UIR_03M);  --           	/* ID=12 */
+P_04AM : POINT(UIR_02BM); --           	/* ID=13 */
+P_04BM : POINT(UIR_04BM); --           	/* ID=16 */
+----------------------------------There are tt track-circuits-------------------------------------------------------------
+T_04BM : TC;
+T_02AM : TC; 
+T_02BM : TC;
+T_01AM : TC; 
+T_CXM_1: TC;
+T_03M  : TC;
+T_01BM : TC;
+-- outside of the grills
+--T_B509_2: TC;
+--T_KXM: TC;
+----------------------------------There are passage recorders----------------------------------------------------------
+TRP_CM  : TRP(T_04BM, UIR_04BM); --               	/* ID=40 */ -- krc is activated separately in FrameAxioms
+TRP_CXM : TRP(T_CXM_1, UIR_09M); --               	/* ID=41 */
+TRP_KM  : TRP(T_01AM, UIR_01AM); --               	/* ID=42 */
+TRP_KXM : TRP(T_02AM, UIR_02AM); --               	/* ID=43 */
+TRP_FM  : TRP(T_03M, UIR_03M); --               	/* ID=45 */
+TRP_GM  : TRP(T_01BM, UIR_01BM); --               	/* ID=47 */
+TRP_GYM : TRP(T_03M, UIR_03M); --               	/* ID=49 */ 
+--------------------------------- All 8 routes shall be instantiated here------------------------------------------------
+R1 : R_CM_044(self);
+R2 : R_CM_043(self);
+R3 : R_CXM_044(self);
+R4 : R_CXM_043(self);
+R5 : R_FM_424(self);
+R6 : R_GM_424(self);
+R7 : R_GM_044(self);
+R8 : R_GYM_423(self);
+R9 : R_GYM_425(self);
+R10 : R_KM_045(self);
+R11 : R_KM_046(self);
+R12 : R_KM_423(self);
+R13 : R_KXM_045(self);
+R14 : R_KXM_046(self);
+----------------------------------The signalman and the train are the interfaces with the Interlocking-------------------
+t1 : TRAIN2(self, TRUE); -- The second version of the TRAIN module is based on the neighbours 
+t2 : TRAIN2(self, !t1.isStarting);
+s1 : CONTROLER(self); -- number 1 but I don't see the need for a number 2
+f1 : lockManager(self); -- Subroutes freeing performed in FOP.dat
+g1 : FrameAXioms(self);
+----------------------------------General assignment---------------------------------------------------------------------
+ASSIGN
+init(rouCmdEN[1]) := TRUE;  init(rouCmdEN[2]) := FALSE;  init(rouCmdEN[3]) := FALSE;  init(rouCmdEN[4]) := FALSE; init(rouCmdEN[5]) := FALSE; 
+init(rouCmdEN[6]) := FALSE;  init(rouCmdEN[7]) := FALSE;  init(rouCmdEN[8]) := FALSE;  init(rouCmdEN[9]) := FALSE; init(rouCmdEN[10]) := FALSE; 
+init(rouCmdEN[11]) := FALSE; init(rouCmdEN[12]) := FALSE; init(rouCmdEN[13]) := FALSE; init(rouCmdEN[14]) := FALSE;
+
+--init(rouProEN[1]) := TRUE;  init(rouProEN[2]) := TRUE;  init(rouProEN[3]) := TRUE;  init(rouProEN[4]) := TRUE; init(rouProEN[5]) := TRUE;
+--init(rouProEN[6]) := TRUE;  init(rouProEN[7]) := TRUE;  init(rouProEN[8]) := TRUE;  init(rouProEN[9]) := TRUE; init(rouProEN[10]) := TRUE;
+--init(rouProEN[11]) := TRUE; init(rouProEN[12]) := TRUE; init(rouProEN[13]) := TRUE; init(rouProEN[14]) := TRUE; 
+--INVAR !(t1.isMoving = 1 & t2.isMoving = 1)
+---------------------------------------------------------------------------------------------------
+DEFINE
+--I shall add a signal MODULE later or do I need it or is a define just fine?----------------------
+RCallowed := !(R1.RonGO | R2.RonGO | R3.RonGO | R4.RonGO | R5.RonGO | R6.RonGO | R7.RonGO |
+			   R8.RonGO | R9.RonGO | R10.RonGO | R11.RonGO | R12.RonGO | R13.RonGO | R14.RonGO); -- Route control allowed - LCh 2014-11-08
+Rinit := (R1.st = xs | R2.st = xs | R3.st = xs | R4.st = xs | R5.st = xs | R6.st = xs | R7.st = xs| 	
+	R8.st = xs | R9.st = xs | R10.st = xs | R11.st = xs | R12.st = xs | R13.st = xs | R14.st = xs);
+Tinit := (t1.front = beg & t1.tail = beg & t2.front = beg & t2.tail = beg);
+Minit := Rinit & Tinit; -- model init
+-----------------------------------VERIFICATION formulas -----------------------------------------
+-- 2.1 incompatible routes
+INVARSPEC ! (R1.st = s & R2.st = s)
+INVARSPEC ! (R1.st = s & R3.st = s)
+INVARSPEC ! (R1.st = s & R4.st = s)
+--INVARSPEC ! (R1.st = s & R5.st = s)
+--INVARSPEC ! (R1.st = s & R6.st = s)
+INVARSPEC ! (R1.st = s & R7.st = s)
+--INVARSPEC ! (R1.st = s & R8.st = s)
+--INVARSPEC ! (R1.st = s & R9.st = s)
+INVARSPEC ! (R1.st = s & R10.st = s)
+INVARSPEC ! (R1.st = s & R11.st = s)
+INVARSPEC ! (R1.st = s & R12.st = s)
+INVARSPEC ! (R1.st = s & R13.st = s)
+INVARSPEC ! (R1.st = s & R14.st = s)
+--INVARSPEC ! (R2.st = s & R3.st = s)
+INVARSPEC ! (R2.st = s & R4.st = s)
+--INVARSPEC ! (R2.st = s & R5.st = s)
+--INVARSPEC ! (R2.st = s & R6.st = s)
+--INVARSPEC ! (R2.st = s & R7.st = s)
+--INVARSPEC ! (R2.st = s & R8.st = s)
+--INVARSPEC ! (R2.st = s & R9.st = s)
+INVARSPEC ! (R3.st = s & R4.st = s)
+--INVARSPEC ! (R3.st = s & R5.st = s)
+--INVARSPEC ! (R3.st = s & R6.st = s)
+INVARSPEC ! (R3.st = s & R7.st = s)
+--INVARSPEC ! (R3.st = s & R8.st = s)
+--INVARSPEC ! (R3.st = s & R9.st = s)
+--INVARSPEC ! (R4.st = s & R5.st = s)
+--INVARSPEC ! (R4.st = s & R6.st = s)
+--INVARSPEC ! (R4.st = s & R7.st = s)
+--INVARSPEC ! (R4.st = s & R8.st = s)
+--INVARSPEC ! (R4.st = s & R9.st = s)
+INVARSPEC ! (R5.st = s & R6.st = s)
+--INVARSPEC ! (R5.st = s & R7.st = s)
+INVARSPEC ! (R5.st = s & R8.st = s)
+INVARSPEC ! (R5.st = s & R9.st = s)
+INVARSPEC ! (R6.st = s & R7.st = s)
+INVARSPEC ! (R6.st = s & R8.st = s)
+INVARSPEC ! (R6.st = s & R9.st = s)
+INVARSPEC ! (R7.st = s & R8.st = s)
+--INVARSPEC ! (R7.st = s & R9.st = s)
+INVARSPEC ! (R8.st = s & R9.st = s)
+INVARSPEC ! (R10.st = s & R2.st = s)
+INVARSPEC ! (R10.st = s & R3.st = s)
+INVARSPEC ! (R10.st = s & R4.st = s)
+--INVARSPEC ! (R10.st = s & R5.st = s)
+--INVARSPEC ! (R10.st = s & R6.st = s)
+INVARSPEC ! (R10.st = s & R7.st = s)
+--INVARSPEC ! (R10.st = s & R8.st = s)
+--INVARSPEC ! (R10.st = s & R9.st = s)
+INVARSPEC ! (R10.st = s & R11.st = s)
+INVARSPEC ! (R10.st = s & R12.st = s)
+INVARSPEC ! (R10.st = s & R13.st = s)
+INVARSPEC ! (R10.st = s & R14.st = s)
+--INVARSPEC ! (R11.st = s & R2.st = s)
+INVARSPEC ! (R11.st = s & R3.st = s)
+INVARSPEC ! (R11.st = s & R4.st = s)
+--INVARSPEC ! (R11.st = s & R5.st = s)
+--INVARSPEC ! (R11.st = s & R6.st = s)
+INVARSPEC ! (R11.st = s & R7.st = s)
+--INVARSPEC ! (R11.st = s & R8.st = s)
+--INVARSPEC ! (R11.st = s & R9.st = s)
+INVARSPEC ! (R11.st = s & R12.st = s)
+--INVARSPEC ! (R11.st = s & R13.st = s)
+INVARSPEC ! (R11.st = s & R14.st = s)
+--INVARSPEC ! (R12.st = s & R2.st = s)
+INVARSPEC ! (R12.st = s & R3.st = s)
+--INVARSPEC ! (R12.st = s & R4.st = s)
+--INVARSPEC ! (R12.st = s & R5.st = s)
+INVARSPEC ! (R12.st = s & R6.st = s)
+INVARSPEC ! (R12.st = s & R7.st = s)
+INVARSPEC ! (R12.st = s & R8.st = s)
+--INVARSPEC ! (R12.st = s & R9.st = s)
+--INVARSPEC ! (R12.st = s & R13.st = s)
+--INVARSPEC ! (R12.st = s & R14.st = s)
+INVARSPEC ! (R13.st = s & R2.st = s)
+--INVARSPEC ! (R13.st = s & R3.st = s)
+INVARSPEC ! (R13.st = s & R4.st = s)
+--INVARSPEC ! (R13.st = s & R5.st = s)
+--INVARSPEC ! (R13.st = s & R6.st = s)
+--INVARSPEC ! (R13.st = s & R7.st = s)
+--INVARSPEC ! (R13.st = s & R8.st = s)
+--INVARSPEC ! (R13.st = s & R9.st = s)
+INVARSPEC ! (R13.st = s & R14.st = s)
+INVARSPEC ! (R14.st = s & R2.st = s)
+INVARSPEC ! (R14.st = s & R3.st = s)
+INVARSPEC ! (R14.st = s & R4.st = s)
+--INVARSPEC ! (R14.st = s & R5.st = s)
+--INVARSPEC ! (R14.st = s & R6.st = s)
+--INVARSPEC ! (R14.st = s & R7.st = s)
+--INVARSPEC ! (R14.st = s & R8.st = s)
+--INVARSPEC ! (R14.st = s & R9.st = s)
+-- From Simon's script for the fun
+--INVARSPEC ! (R5.st = s & R14.st = s & R7.st = s)
+-- 2.2 L_CS conditions
+INVARSPEC (R1.L_CS -> (((P_04BM.posi = cdr & P_04AM.posi = cdr) & P_02BM.posi = cdr) & P_01AM.posi = cdr))
+INVARSPEC (R1.L_CS -> (UIR_04BM.st = l & UIR_02BM.st = l & UIR_01AM.st = l))	
+INVARSPEC (R1.L_CS -> (T_04BM.st = c & T_02BM.st = c & T_01AM.st = c))							
+INVARSPEC (R2.L_CS -> (P_04BM.posi = cdn & P_02AM.posi = cdr))
+INVARSPEC (R2.L_CS -> (UIR_04BM.st = l & UIR_02AM.st = l ))	
+INVARSPEC (R2.L_CS -> (T_04BM.st = c & T_02AM.st = c))							
+INVARSPEC (R3.L_CS -> (P_04AM.posi = cdn & P_02BM.posi = cdr & P_01AM.posi = cdr))
+INVARSPEC (R3.L_CS -> (UIR_02BM.st = l & UIR_01AM.st = l & UIR_09M.st = l))	
+INVARSPEC (R3.L_CS -> (T_CXM_1.st = c & T_02BM.st = c & T_01AM.st = c))							
+INVARSPEC (R4.L_CS -> (P_04AM.posi = cdn & P_02BM.posi = cdn & P_02AM.posi = cdn))
+INVARSPEC (R4.L_CS -> (UIR_02BM.st = l & UIR_02AM.st = l & UIR_09M.st = l))	
+INVARSPEC (R4.L_CS -> (T_CXM_1.st = c & T_02BM.st = c & T_02AM.st = c))							
+INVARSPEC (R5.L_CS -> (P_03M.posi = cdn))
+INVARSPEC (R5.L_CS -> (UIR_03M.st = l))	
+INVARSPEC (R5.L_CS -> (T_03M.st = c))							
+INVARSPEC (R6.L_CS -> (P_01BM.posi = cdr & P_03M.posi = cdr))
+INVARSPEC (R6.L_CS -> (UIR_03M.st = l & UIR_01BM.st = l))	
+INVARSPEC (R6.L_CS -> (T_01BM.st = c & T_03M.st = c))
+INVARSPEC (R7.L_CS -> (P_01BM.posi = cdn & P_01AM.posi = cdn))
+INVARSPEC (R7.L_CS -> (UIR_01BM.st = l & UIR_01AM.st = l))	
+INVARSPEC (R7.L_CS -> (T_01BM.st = c & T_01AM.st = c))							
+INVARSPEC (R8.L_CS -> (P_01BM.posi = cdr & P_03M.posi = cdr))
+INVARSPEC (R8.L_CS -> (UIR_03M.st = l & UIR_01BM.st = l))	
+INVARSPEC (R8.L_CS -> (T_01BM.st = c & T_03M.st = c))
+INVARSPEC (R9.L_CS -> (P_03M.posi = cdn))
+INVARSPEC (R9.L_CS -> (UIR_03M.st = l))	
+INVARSPEC (R9.L_CS -> (T_03M.st = c))							
+INVARSPEC (R10.L_CS -> (((P_04BM.posi = cdr & P_04AM.posi = cdr) & P_02BM.posi = cdr) & P_01AM.posi = cdr))
+INVARSPEC (R10.L_CS -> (UIR_04BM.st = l & UIR_02BM.st = l & UIR_01AM.st = l))	
+INVARSPEC (R10.L_CS -> (T_04BM.st = c & T_02BM.st = c & T_01AM.st = c))							
+INVARSPEC (R11.L_CS -> (P_04AM.posi = cdn & P_02BM.posi = cdr & P_01AM.posi = cdr))
+INVARSPEC (R11.L_CS -> (UIR_02BM.st = l & UIR_01AM.st = l & UIR_09M.st = l))	
+INVARSPEC (R11.L_CS -> (T_CXM_1.st = c & T_02BM.st = c & T_01AM.st = c))							
+INVARSPEC (R12.L_CS -> (P_01BM.posi = cdn & P_01AM.posi = cdn))
+INVARSPEC (R12.L_CS -> (UIR_01BM.st = l & UIR_01AM.st = l))	
+INVARSPEC (R12.L_CS -> (T_01BM.st = c & T_01AM.st = c))							
+INVARSPEC (R13.L_CS -> (P_04BM.posi = cdn & P_02AM.posi = cdr))
+INVARSPEC (R13.L_CS -> (UIR_04BM.st = l & UIR_02AM.st = l ))	
+INVARSPEC (R13.L_CS -> (T_04BM.st = c & T_02AM.st = c))							
+INVARSPEC (R14.L_CS -> (P_04AM.posi = cdn & P_02BM.posi = cdn & P_02AM.posi = cdn))
+INVARSPEC (R14.L_CS -> (UIR_02BM.st = l & UIR_02AM.st = l & UIR_09M.st = l))	
+INVARSPEC (R14.L_CS -> (T_CXM_1.st = c & T_02BM.st = c & T_02AM.st = c))													
+-- 2.3 points concordance
+INVARSPEC (P_01AM.cmd = P_01BM.cmd)
+INVARSPEC (P_02AM.cmd = P_02BM.cmd)
+INVARSPEC (P_04AM.cmd = P_04BM.cmd)
+-- 2.4 points locking by IR -- a willMove DEFINE will do the trick
+INVARSPEC !(UIR_03M.st = l & P_03M.willMove)
+INVARSPEC !(UIR_01AM.st = l & P_01AM.willMove)
+INVARSPEC !(UIR_01BM.st = l & P_01BM.willMove)
+INVARSPEC !(UIR_02AM.st = l & P_02AM.willMove)
+INVARSPEC !(UIR_02BM.st = l & P_02BM.willMove)
+INVARSPEC !(UIR_02BM.st = l & P_04AM.willMove)
+INVARSPEC !(UIR_04BM.st = l & P_04BM.willMove)
+-- 1.1 train never derails
+INVARSPEC ! (t1.front = derailed | t2.front = derailed)
+-- 1.2 No collision									
+INVARSPEC ! (t1.front != beg & t1.front != end & t2.front != beg & t2.front !=  end & t1.front = t2.front)
+-- 1.3 Liveness of L_CS
+CTLSPEC AG (R1.st = s -> AF R1.st = xs)
+CTLSPEC AG (R2.st = s -> AF R2.st = xs)
+CTLSPEC AG (R3.st = s -> AF R3.st = xs)
+CTLSPEC AG (R4.st = s -> AF R4.st = xs)
+CTLSPEC AG (R5.st = s -> AF R5.st = xs)
+CTLSPEC AG (R6.st = s -> AF R6.st = xs)
+CTLSPEC AG (R7.st = s -> AF R7.st = xs)
+CTLSPEC AG (R8.st = s -> AF R8.st = xs)
+CTLSPEC AG (R9.st = s -> AF R9.st = xs)
+CTLSPEC AG (R10.st = s -> AF R10.st = xs)
+CTLSPEC AG (R11.st = s -> AF R11.st = xs)
+CTLSPEC AG (R12.st = s -> AF R12.st = xs)
+CTLSPEC AG (R13.st = s -> AF R13.st = xs)
+CTLSPEC AG (R14.st = s -> AF R14.st = xs)
+-- 1.4 Subroutes in opposite direction are never locked at the same time
+INVARSPEC !(f1.U_CM_04M.st = l & f1.U_04M_CM.st = l)
+INVARSPEC !(f1.U_CM_08M.st = l & f1.U_08M_CM.st = l)
+INVARSPEC !(f1.U_CXM_09M.st = l & f1.U_09M_CXM.st = l)
+INVARSPEC !(f1.U_KXM_08M.st = l & f1.U_08M_KXM.st = l)
+INVARSPEC !(f1.U_KXM_02M.st = l & f1.U_02M_KXM.st = l)
+INVARSPEC !(f1.U_07M_09M.st = l & f1.U_09M_07M.st = l)
+INVARSPEC !(f1.U_02M_09M.st = l & f1.U_09M_02M.st = l)
+INVARSPEC !(f1.U_07M_04M.st = l & f1.U_04M_07M.st = l)
+INVARSPEC !(f1.U_KM_07M.st = l & f1.U_07M_KM.st = l)
+INVARSPEC !(f1.U_KM_01M.st = l & f1.U_01M_KM.st = l)
+INVARSPEC !(f1.U_GM_01M.st = l & f1.U_01M_GM.st = l)
+INVARSPEC !(f1.U_GM_GYM.st = l & f1.U_GYM_GM.st = l)
+INVARSPEC !(f1.U_GYM_FM.st = l & f1.U_FM_GYM.st = l)
+-- 1.5 Subroutes must be freed in the correct order
+-- R1
+INVARSPEC ! (R1.st = s & f1.U_CM_04M.st = l  & f1.U_04M_07M.st = f)
+INVARSPEC ! (f1.U_04M_07M.st = l  & f1.U_07M_KM.st = f)
+-- R2
+INVARSPEC ! (f1.U_CM_08M.st = l  & f1.U_08M_KXM.st = f)
+-- R3
+INVARSPEC ! (R3.st = s & f1.U_CXM_09M.st = l  & f1.U_09M_07M.st = f)
+INVARSPEC ! (f1.U_09M_07M.st = l  & f1.U_07M_KM.st = f)
+-- R4
+INVARSPEC ! (R4.st =  s & f1.U_CXM_09M.st = l  & f1.U_09M_02M.st = f)
+INVARSPEC ! (f1.U_09M_02M.st = l  & f1.U_02M_KXM.st = f)
+-- R7
+INVARSPEC ! (f1.U_GM_01M.st = l  & f1.U_01M_KM.st = f)
+-- R10
+INVARSPEC ! (R10.st = s & f1.U_KM_07M.st = l  & f1.U_07M_04M.st = f)
+INVARSPEC ! (f1.U_07M_04M.st = l  & f1.U_04M_CM.st = f)
+-- R11
+INVARSPEC ! (R1.st = s & f1.U_KM_07M.st = l  & f1.U_07M_09M.st = f)
+INVARSPEC ! (f1.U_07M_09M.st = l  & f1.U_09M_CXM.st = f)
+-- R12
+INVARSPEC ! (f1.U_KM_01M.st = l  & f1.U_01M_GM.st = f)
+-- R13
+INVARSPEC ! (f1.U_KXM_08M.st = l  & f1.U_08M_CM.st = f)
+-- R14
+INVARSPEC ! (f1.U_KXM_02M.st = l  & f1.U_02M_09M.st = f)
+INVARSPEC ! (f1.U_02M_09M.st = l  & f1.U_09M_CXM.st = f)
+-- 1.6 Route L_CS replacement or later signal replacement
+-- Only 2 formulas enabled now -- LCh 2015-03-16
+CTLSPEC AG (T_04BM.st = o & TRP_CM.krc = s -> AX (!R1.L_CS & !R2.L_CS))
+CTLSPEC AG (T_CXM_1.st = o & TRP_CXM.krc = s -> AX (!R3.L_CS & !R4.L_CS))
+CTLSPEC AG (T_03M.st = o & TRP_FM.krc = s -> AX (!R5.L_CS))
+CTLSPEC AG (T_03M.st = o & TRP_GYM.krc = s -> AX (!R8.L_CS & !R9.L_CS))
+CTLSPEC AG (T_01BM.st = o & TRP_GM.krc = s -> AX (!R6.L_CS & !R7.L_CS))
+CTLSPEC AG (T_01AM.st = o & TRP_KM.krc = s -> AX (!R10.L_CS & !R11.L_CS & !R12.L_CS))
+CTLSPEC AG (T_02AM.st = o & TRP_KXM.krc = s -> AX (!R13.L_CS & !R14.L_CS))
+-- 1.7 point locked under the Train
+INVARSPEC !((t1.T_03M | t2.T_03M) & P_03M.willMove)
+INVARSPEC !((t1.T_01AM | t2.T_01AM) & P_01AM.willMove)
+INVARSPEC !((t1.T_01BM | t2.T_01BM) & P_01BM.willMove)
+INVARSPEC !((t1.T_02AM | t2.T_02AM) & P_02AM.willMove)
+INVARSPEC !((t1.T_02BM | t2.T_02BM) & P_02BM.willMove)
+INVARSPEC !((t1.T_02BM | t2.T_02BM) & P_04AM.willMove)
+INVARSPEC !((t1.T_04BM | t2.T_04BM) & P_04BM.willMove)
+---------------------------------------------------------------------------------------------------
+MODULE lockManager(mainP) -- and IR
+VAR
+U_CXM_09M : U_(self); --             	/* ID=18 */
+U_09M_07M : U_(self); --             	/* ID=19 */
+U_07M_KM  : U_(self); --             	/* ID=20 */
+U_CM_08M  : U_(self); --             	/* ID=21 */
+U_08M_KXM : U_(self); --             	/* ID=22 */
+U_CM_04M  : U_(self); --             	/* ID=23 */
+U_04M_07M : U_(self); --             	/* ID=24 */
+U_09M_02M : U_(self); --             	/* ID=25 */
+U_02M_KXM : U_(self); --             	/* ID=26 */
+U_GM_01M  : U_(self); --             	/* ID=27 */
+U_01M_KM  : U_(self); --             	/* ID=28 */
+U_GM_GYM  : U_(self); --             	/* ID=29 */
+U_GYM_GM  : U_(self); --             	/* ID=30 */
+U_FM_GYM  : U_(self); --             	/* ID=31 */
+U_GYM_FM  : U_(self); --             	/* ID=32 */
+U_KM_01M  : U_(self); --             	/* ID=33 */
+U_01M_GM  : U_(self); --             	/* ID=34 */
+U_KM_07M  : U_(self); --             	/* ID=35 */
+U_07M_09M : U_(self); --             	/* ID=36 */
+U_KXM_08M : U_(self); --             	/* ID=37 */
+U_08M_CM  : U_(self); --             	/* ID=38 */
+U_KXM_02M : U_(self); --             	/* ID=39 */
+U_02M_09M : U_(self); --             	/* ID=40 */
+U_09M_CXM : U_(self); --             	/* ID=41 */
+U_07M_04M : U_(self); --             	/* ID=42 */
+U_04M_CM  : U_(self); --             	/* ID=43 */-- Sub-routes
+
+ASSIGN
+-- It's really a copy and paste of the FOP.dat file except from the -> l transition
+next(U_GYM_GM.st) := 
+	case 
+		(mainP.R8.rtF ) : l; --
+		!mainP.R8.rtF & mainP.T_01BM.st = c & mainP.T_03M.st = c : f;
+		TRUE : U_GYM_GM.st;
+	esac;
+	
+next(U_KM_01M.st) := 
+	case 
+		(mainP.R12.rtF ) : l; --
+		!mainP.R12.rtF & mainP.T_01AM.st = c : f;
+		TRUE : U_KM_01M.st;
+	esac;
+	
+next(U_KM_07M.st) := 
+	case 
+		(mainP.R10.rtF | mainP.R11.rtF) : l; --
+		!mainP.R10.rtF & !mainP.R11.rtF & mainP.T_01AM.st = c : f;
+		TRUE : U_KM_07M.st;
+	esac;
+	
+next(U_KXM_02M.st) := 
+	case 
+		(mainP.R14.rtF) : l; --
+		!mainP.R14.rtF & mainP.T_02AM.st = c : f;
+		TRUE : U_KXM_02M.st;
+	esac;
+	
+next(U_KXM_08M.st) := 
+	case 
+		(mainP.R13.rtF) : l; --
+		!mainP.R13.rtF & mainP.T_02AM.st = c : f;
+		TRUE : U_KXM_08M.st;
+	esac;
+	
+next(U_01M_GM.st) := 
+	case 
+		mainP.R12.rtF : l; --
+		U_KM_01M.st = f & mainP.T_01BM.st = c & mainP.TRP_GM.st = o & mainP.TRP_GM.krc = xs : f;
+		TRUE : U_01M_GM.st;
+	esac;
+	
+next(U_02M_09M.st) :=
+	case 
+		mainP.R14.rtF : l; --
+		U_KXM_02M.st = f & mainP.T_02BM.st = c & mainP.T_CXM_1.st = o : f;
+		TRUE : U_02M_09M.st;
+	esac;
+
+next(U_GYM_FM.st) := 
+	case 
+		(mainP.R9.rtF) : l; --
+		!mainP.R9.rtF & mainP.T_03M.st = c : f;
+		TRUE : U_GYM_FM.st;
+	esac;
+	
+next(U_04M_CM.st) := 
+	case 
+		mainP.R10.rtF : l; --
+		U_07M_04M.st = f & mainP.T_04BM.st = c & mainP.TRP_CM.st = o & mainP.TRP_CM.krc = xs : f;
+		TRUE : U_04M_CM.st;
+	esac;
+	
+next(U_07M_04M.st) :=
+	case 
+		mainP.R10.rtF : l; --
+		U_KM_07M.st = f & mainP.T_02BM.st = c & mainP.T_04BM.st = o : f;
+		TRUE : U_07M_04M.st;
+	esac;
+
+next(U_07M_09M.st) :=
+	case 
+		mainP.R11.rtF : l; --
+		U_KM_07M.st = f & mainP.T_02BM.st = c & mainP.T_CXM_1.st = o : f;
+		TRUE : U_07M_09M.st;
+	esac;
+
+next(U_08M_CM.st) := 
+	case 
+		mainP.R13.rtF : l; --
+		U_KXM_08M.st = f & mainP.T_04BM.st = c & mainP.TRP_CM.st = o & mainP.TRP_CM.krc = xs : f;
+		TRUE : U_08M_CM.st;
+	esac;
+	
+next(U_09M_CXM.st) := 
+	case 
+		(mainP.R11.rtF | mainP.R14.rtF): l; --
+		U_02M_09M.st = f & U_07M_09M.st = f & mainP.T_CXM_1.st = c & mainP.TRP_CXM.st = o & mainP.TRP_CXM.krc = xs : f;
+		TRUE : U_09M_CXM.st;
+	esac;
+	
+next(U_CM_04M.st) := 
+	case 
+		mainP.R1.rtF : l; --
+		!mainP.R1.rtF & mainP.T_04BM.st = c : f;
+		TRUE : U_CM_04M.st;
+	esac;
+	
+next(U_CM_08M.st) := 
+	case 
+		mainP.R2.rtF : l; --
+		!mainP.R2.rtF & mainP.T_04BM.st = c : f;
+		TRUE : U_CM_08M.st;
+	esac;
+		
+next(U_CXM_09M.st) := 
+	case 
+		(mainP.R3.rtF | mainP.R4.rtF): l; --
+		!mainP.R3.rtF & !mainP.R4.rtF & mainP.T_CXM_1.st = c : f;
+		TRUE : U_CXM_09M.st;
+	esac;
+	
+next(U_FM_GYM.st) := 
+	case 
+		mainP.R5.rtF : l; --
+		!mainP.R5.rtF & mainP.T_03M.st = c : f;
+		TRUE : U_FM_GYM.st;
+	esac;
+	
+next(U_GM_GYM.st) := 
+	case 
+		mainP.R6.rtF : l; --
+		!mainP.R6.rtF & mainP.T_01BM.st = c & mainP.T_03M.st = c : f;
+		TRUE : U_GM_GYM.st;
+	esac;
+	
+next(U_GM_01M.st) := 
+	case 
+		mainP.R7.rtF : l; --
+		!mainP.R7.rtF & mainP.T_01BM.st = c : f;
+		TRUE : U_GM_01M.st;
+	esac;
+	
+next(U_01M_KM.st) := 
+	case 
+		mainP.R7.rtF : l; --
+		U_GM_01M.st = f & mainP.T_01AM.st = c & mainP.TRP_KM.st = o & mainP.TRP_KM.krc = xs : f;
+		TRUE : U_01M_KM.st;
+	esac;
+	
+next(U_02M_KXM.st) := 
+	case 
+		mainP.R4.rtF : l; --
+		U_09M_02M.st = f & mainP.T_02AM.st = c & mainP.TRP_KXM.st = o & mainP.TRP_KXM.krc = xs : f;
+		TRUE : U_02M_KXM.st;
+	esac;
+	
+next(U_04M_07M.st) :=
+	case 
+		mainP.R1.rtF : l; --
+		U_CM_04M.st = f & mainP.T_02BM.st = c & mainP.T_01AM.st = o : f;
+		TRUE : U_04M_07M.st;
+	esac;
+
+next(U_07M_KM.st) :=
+	case 
+		(mainP.R1.rtF | mainP.R3.rtF): l; --
+		U_04M_07M.st = f & U_09M_07M.st = f & mainP.T_01AM.st = c & mainP.TRP_KM.st = o & mainP.TRP_KM.krc = xs : f;
+		TRUE : U_07M_KM.st;
+	esac;
+
+next(U_08M_KXM.st) := 
+	case 
+		mainP.R2.rtF : l; --
+		U_CM_08M.st = f & mainP.T_02AM.st = c & mainP.TRP_KXM.st = o & mainP.TRP_KXM.krc = xs : f;
+		TRUE : U_08M_KXM.st;
+	esac;
+	
+next(U_09M_02M.st) :=
+	case 
+		mainP.R4.rtF : l; --
+		U_CXM_09M.st = f & mainP.T_02BM.st = c & mainP.T_02AM.st = o : f;
+		TRUE : U_09M_02M.st;
+	esac;
+
+next(U_09M_07M.st) :=
+	case 
+		mainP.R3.rtF : l; --
+		U_CXM_09M.st = f & mainP.T_02BM.st = c & mainP.T_01AM.st = o : f;
+		TRUE : U_09M_07M.st;
+	esac;
+
+-- IR 
+next(mainP.UIR_01AM.st) := 
+	case
+		(mainP.R1.rtF | mainP.R3.rtF | mainP.R7.rtF | mainP.R10.rtF | mainP.R11.rtF | mainP.R12.rtF) & !mainP.P_01AM.hasToMove : l;
+		U_KM_07M.st = f & U_KM_01M.st = f & U_01M_KM.st = f & U_07M_KM.st = f : f;
+		TRUE : mainP.UIR_01AM.st;
+	esac; --V
+
+next(mainP.UIR_02AM.st) := 
+	case
+		(mainP.R2.rtF  | mainP.R4.rtF | mainP.R13.rtF | mainP.R14.rtF) & !mainP.P_02AM.hasToMove : l;
+		U_08M_KXM.st = f & U_02M_KXM.st = f & U_KXM_02M.st = f & U_KXM_08M.st = f: f;
+		TRUE : mainP.UIR_02AM.st;
+	esac;
+
+next(mainP.UIR_02BM.st) := 
+	case
+		(mainP.R1.rtF | mainP.R3.rtF | mainP.R4.rtF | mainP.R10.rtF | mainP.R11.rtF | mainP.R14.rtF) & !mainP.P_02BM.hasToMove & !mainP.P_04AM.hasToMove : l;
+		U_07M_09M.st = f & U_02M_09M.st = f & U_04M_07M.st = f & U_09M_07M.st = f & U_09M_02M.st = f & U_07M_04M.st = f : f;
+		TRUE : mainP.UIR_02BM.st;
+	esac;
+
+next(mainP.UIR_09M.st) := 
+	case
+		(mainP.R3.rtF | mainP.R4.rtF | mainP.R11.rtF | mainP.R14.rtF) : l;
+		U_CXM_09M.st = f & U_09M_CXM.st = f : f;
+		TRUE : mainP.UIR_09M.st;
+	esac; --V
+
+next(mainP.UIR_04BM.st) := 
+	case
+		(mainP.R1.rtF | mainP.R2.rtF | mainP.R10.rtF | mainP.R13.rtF) & !mainP.P_04BM.hasToMove : l;
+		U_CM_08M.st = f & U_CM_04M.st = f & U_08M_CM.st = f & U_04M_CM.st = f : f;
+		TRUE : mainP.UIR_04BM.st;
+	esac; --V
+
+next(mainP.UIR_03M.st) := 
+	case
+		(mainP.R5.rtF | mainP.R6.rtF | mainP.R8.rtF | mainP.R9.rtF) & !mainP.P_03M.hasToMove : l;
+		U_GYM_FM.st = f & U_GYM_GM.st = f & U_FM_GYM.st = f & U_GM_GYM.st = f : f;
+		TRUE : mainP.UIR_03M.st;
+	esac; --V
+
+next(mainP.UIR_01BM.st) := 
+	case
+		(mainP.R6.rtF | mainP.R7.rtF | mainP.R8.rtF | mainP.R12.rtF) & !mainP.P_01BM.hasToMove : l;
+		U_GM_01M.st = f & U_GM_GYM.st = f & U_01M_GM.st = f & U_GYM_GM.st = f : f;
+		TRUE : mainP.UIR_01BM.st;
+	esac; --V
+
+---------------------------------------------------------------------------------------------------
+MODULE FrameAXioms(mainP) -- keeps things steady + additional garbage tasks
+ASSIGN
+---------------Update the point position command --------------------------------------------------
+next(mainP.P_01AM.cmd) :=
+	case
+		(mainP.R1.st = s | mainP.R3.st = s | mainP.R6.st = s | mainP.R8.st = s | mainP.R10.st = s | mainP.R11.st = s ) : cr;
+		(mainP.R7.st = s | mainP.R12.st = s ) : cn;
+		TRUE :  mainP.P_01AM.cmd;
+	esac;
+
+next(mainP.P_01BM.cmd) := next(mainP.P_01AM.cmd);
+ 
+next(mainP.P_02AM.cmd) :=
+	case
+  		(mainP.R1.st = s | mainP.R2.st = s | mainP.R3.st = s | mainP.R10.st = s | mainP.R11.st = s | mainP.R13.st = s ) : cr;
+		(mainP.R4.st = s | mainP.R14.st = s ) : cn;
+		TRUE :  mainP.P_02AM.cmd;
+	esac;
+
+next(mainP.P_02BM.cmd) := next(mainP.P_02AM.cmd);
+ 
+next(mainP.P_04AM.cmd) :=
+	case
+		(mainP.R2.st = s | mainP.R3.st = s | mainP.R4.st = s | mainP.R11.st = s | mainP.R13.st = s | mainP.R14.st = s ) : cn;
+		(mainP.R1.st = s | mainP.R10.st = s ) : cr;
+		TRUE :  mainP.P_04AM.cmd;
+	esac;
+
+next(mainP.P_04BM.cmd) := next(mainP.P_04AM.cmd);
+ 
+next(mainP.P_03M.cmd) :=
+	case
+		(mainP.R5.st = s | mainP.R7.st = s | mainP.R9.st = s | mainP.R12.st = s) : cn;
+		(mainP.R6.st = s | mainP.R8.st = s ) : cr;
+		TRUE :  mainP.P_03M.cmd;
+	esac;
+
+---------------Update TC st based on the train position--------------------------------------------
+next(mainP.T_01AM.st) := (mainP.t1.T_01AM | mainP.t2.T_01AM) ? o : c;
+next(mainP.T_01BM.st) := (mainP.t1.T_01BM | mainP.t2.T_01BM) ? o : c;
+next(mainP.T_03M.st) := (mainP.t1.T_03M | mainP.t2.T_03M) ? o : c;
+next(mainP.T_02AM.st) := (mainP.t1.T_02AM | mainP.t2.T_02AM) ? o : c;
+next(mainP.T_02BM.st) := (mainP.t1.T_02BM | mainP.t2.T_02BM) ? o : c;
+next(mainP.T_CXM_1.st) := (mainP.t1.T_CXM_1 | mainP.t2.T_CXM_1) ? o : c;
+next(mainP.T_04BM.st) := (mainP.t1.T_04BM | mainP.t2.T_04BM) ? o : c;
+---------------Update KRC as soon as TC is o ------------------------------------------------------
+next(mainP.TRP_CM.krc) :=
+	case
+		mainP.T_04BM.st = o & mainP.TRP_CM.st = c  : s; -- Just give a pulse
+		TRUE : xs; -- A bit violent but could pay off
+	esac;
+next(mainP.TRP_CXM.krc) :=
+	case
+		mainP.T_CXM_1.st = o & mainP.TRP_CXM.st = c  : s; -- Just give a pulse
+		TRUE : xs; -- A bit violent but could pay off
+	esac;
+next(mainP.TRP_KM.krc) :=
+	case
+		mainP.T_01AM.st = o & mainP.TRP_KM.st = c  : s; -- Just give a pulse
+		TRUE : xs; -- A bit violent but could pay off
+	esac;
+next(mainP.TRP_KXM.krc) :=
+	case
+		mainP.T_02AM.st = o & mainP.TRP_KXM.st = c  : s; -- Just give a pulse
+		TRUE : xs; -- A bit violent but could pay off
+	esac;
+next(mainP.TRP_GYM.krc) :=
+	case
+		(mainP.R5.st = xs | mainP.TRP_FM.st = o) & mainP.T_03M.st = o & mainP.TRP_GYM.st = c  : s; -- Maybe a problem here as GYM and FM will be triggered at the same time
+		TRUE : xs; -- A bit violent but could pay off
+	esac;
+next(mainP.TRP_FM.krc) :=
+	case
+		(mainP.R9.st = xs | mainP.TRP_GYM.st = o) & mainP.T_03M.st = o & mainP.TRP_FM.st = c  : s; -- Just give a pulse
+		TRUE : xs; -- A bit violent but could pay off
+	esac;
+next(mainP.TRP_GM.krc) :=
+	case
+		mainP.T_01BM.st = o & mainP.TRP_GM.st = c  : s; -- Just give a pulse
+		TRUE : xs; -- A bit violent but could pay off
+	esac;
+---------------------------------------------------------------------------------------------------
+MODULE R_CM_044(mainP) -- R1 : now it really looks like a route in SSI language
+VAR
+cmd : boolean; 
+st : {xs, s};
+--L_CS: boolean;
+tisp : TISP(st, mainP.T_04BM, mainP.T_02BM,  mainP.TRP_CM); -- only one TRP (TC1, TC2, TRP1)
+ASSIGN
+init(cmd) := FALSE;
+init(st) := xs; -- default st - route is xs waiting for a request
+--init(L_CS) := FALSE; -- route not proved by default
+next(st) := 
+	case
+		st = xs & cmd & mainP.UIR_04BM.st = f & mainP.UIR_02BM.st = f & mainP.UIR_01AM.st = f &
+		mainP.P_01AM.cfr & mainP.P_02BM.cfr & mainP.P_04AM.cfr & mainP.P_04BM.cfr & 
+		mainP.P_01BM.cfr & mainP.P_02AM.cfr : s; -- route is set
+		tisp.passing = tisp3 : xs;
+		TRUE : st;
+	esac;
+DEFINE
+L_CS := -- this is more like the CS variable -- LCh 2015-01-02
+	(st = s & tisp.passing = notON & 
+	mainP.T_04BM.st = c & mainP.T_02BM.st = c & mainP.T_01AM.st = c & -- TCs
+	mainP.TRP_CM.st = c & mainP.TRP_KM.st = c & mainP.TRP_CM.krc = xs & mainP.TRP_KM.krc = xs & -- TRPs
+	mainP.P_04BM.posi = cdr & mainP.P_04AM.posi = cdr & mainP.P_02BM.posi = cdr & mainP.P_01AM.posi = cdr & -- points
+	mainP.UIR_04BM.st = l & mainP.UIR_02BM.st = l & mainP.UIR_01AM.st = l
+	);
+rtF := (st = s);
+RonGO := cmd | (st = s & (mainP.UIR_01AM.st = f | mainP.UIR_02BM.st = f | mainP.UIR_04BM.st = f));
+--stick := tisp.passing = notON & st = s;
+---------------------------------------------------------------------------------------------------
+MODULE R_CM_043(mainP) -- R2 : now it really looks like a route in SSI language
+VAR
+cmd : boolean; 
+st : {xs, s};
+--L_CS: boolean;
+tisp : TISP(st, mainP.T_04BM, mainP.T_02AM,  mainP.TRP_CM); -- only one TRP (TC1, TC2, TRP1)
+ASSIGN
+init(cmd) := FALSE;
+init(st) := xs; -- default st - route is xs waiting for a request
+--init(L_CS) := FALSE; -- route not proved by default
+next(st) := 
+	case
+		st = xs & cmd & mainP.UIR_02AM.st = f & mainP.UIR_04BM.st = f &
+		mainP.P_02AM.cfr & mainP.P_04BM.cfn & mainP.P_02BM.cfr & mainP.P_04AM.cfn : s; -- route is set
+		tisp.passing = tisp3 : xs;
+		TRUE : st;
+	esac;
+DEFINE
+L_CS := -- this is more like the CS variable -- LCh 2015-01-02
+	(st = s & tisp.passing = notON & 
+	mainP.T_04BM.st = c & mainP.T_02AM.st = c & -- TCs
+	mainP.TRP_CM.st = c & mainP.TRP_KXM.st = c & mainP.TRP_CM.krc = xs & mainP.TRP_KXM.krc = xs & -- TRPs
+	mainP.P_04BM.posi = cdn & mainP.P_02AM.posi = cdr & -- points
+	mainP.UIR_04BM.st = l & mainP.UIR_02AM.st = l
+	);
+rtF := (st = s);
+RonGO := cmd | (st = s & (mainP.UIR_02AM.st = f | mainP.UIR_04BM.st = f));
+--stick := tisp.passing = notON & st = s;
+---------------------------------------------------------------------------------------------------
+MODULE R_CXM_044(mainP) -- R3 : now it really looks like a route in SSI language
+VAR
+cmd : boolean; 
+st : {xs, s};
+--L_CS: boolean;
+tisp : TISP(st, mainP.T_CXM_1, mainP.T_02BM,  mainP.TRP_CXM); -- only one TRP (TC1, TC2, TRP1)
+ASSIGN
+init(cmd) := FALSE;
+init(st) := xs; -- default st - route is xs waiting for a request
+--init(L_CS) := FALSE; -- route not proved by default
+next(st) := 
+	case
+		st = xs & cmd & mainP.UIR_01AM.st = f & mainP.UIR_02BM.st = f & mainP.UIR_09M.st = f & -- IR
+		mainP.P_01AM.cfr & mainP.P_02BM.cfr & mainP.P_04AM.cfn & mainP.P_01BM.cfr & -- Points
+		mainP.P_02AM.cfr & mainP.P_04BM.cfn : s; -- route is set
+		tisp.passing = tisp3 : xs; 
+		TRUE : st;
+	esac;
+DEFINE
+L_CS := -- this is more like the CS variable -- LCh 2015-01-02
+	(st = s & tisp.passing = notON & 
+	mainP.T_CXM_1.st = c & mainP.T_02BM.st = c & mainP.T_01AM.st = c & -- TCs
+	mainP.TRP_CXM.st = c & mainP.TRP_KM.st = c & mainP.TRP_CXM.krc = xs & mainP.TRP_KM.krc = xs & -- TRPs
+	mainP.P_04AM.posi = cdn & mainP.P_02BM.posi = cdr & mainP.P_01AM.posi = cdr & mainP.P_01BM.posi = cdr & -- points
+	mainP.UIR_09M.st = l & mainP.UIR_02BM.st = l & mainP.UIR_01AM.st = l
+	);
+rtF := (st = s);
+RonGO := cmd | (st = s & (mainP.UIR_01AM.st = f | mainP.UIR_02BM.st = f | mainP.UIR_09M.st = f));
+---------------------------------------------------------------------------------------------------
+MODULE R_CXM_043(mainP) -- R4 : now it really looks like a route in SSI language
+VAR
+cmd : boolean; 
+st : {xs, s};
+--L_CS: boolean;
+tisp : TISP(st, mainP.T_CXM_1, mainP.T_02BM,  mainP.TRP_CXM); -- only one TRP (TC1, TC2, TRP1)
+ASSIGN
+init(cmd) := FALSE;
+init(st) := xs; -- default st - route is xs waiting for a request
+--init(L_CS) := FALSE; -- route not proved by default
+next(st) := 
+	case
+		st = xs & cmd & mainP.UIR_02AM.st = f & mainP.UIR_02BM.st = f & mainP.UIR_09M.st = f & -- IR
+		mainP.P_02AM.cfn & mainP.P_02BM.cfn & mainP.P_04AM.cfn & mainP.P_04BM.cfn : s; -- route is set
+		tisp.passing = tisp3 : xs; 
+		TRUE : st;
+	esac;
+DEFINE
+L_CS := -- this is more like the CS variable -- LCh 2015-01-02
+	(st = s & tisp.passing = notON & 
+	mainP.T_CXM_1.st = c & mainP.T_02BM.st = c & mainP.T_02AM.st = c & -- TCs
+	mainP.TRP_CXM.st = c & mainP.TRP_KXM.st = c & mainP.TRP_CXM.krc = xs & mainP.TRP_KXM.krc = xs & -- TRPs
+	mainP.P_04AM.posi = cdn & mainP.P_02BM.posi = cdn & mainP.P_02AM.posi = cdn & -- points
+	mainP.UIR_09M.st = l & mainP.UIR_02BM.st = l & mainP.UIR_02AM.st = l
+	);
+rtF := (st = s);
+RonGO := cmd | (st = s & (mainP.UIR_02AM.st = f | mainP.UIR_02BM.st = f | mainP.UIR_09M.st = f));
+---------------------------------------------------------------------------------------------------
+MODULE R_FM_424(mainP) -- R5 : now it really looks like a route in SSI language
+VAR
+cmd : boolean; 
+st : {xs, s};
+--L_CS: boolean;
+tisp : TISP3(st, mainP.T_03M, mainP.TRP_FM,  mainP.TRP_GYM); -- only one TC
+ASSIGN
+init(cmd) := FALSE;
+init(st) := xs; -- default st - route is xs waiting for a request
+--init(L_CS) := FALSE; -- route not proved by default
+next(st) := 
+	case
+		st = xs & cmd & mainP.UIR_03M.st = f & -- IR
+		mainP.P_03M.cfn : s; -- route is set
+		tisp.passing = tisp3 : xs; 
+		TRUE : st;
+	esac;
+DEFINE
+L_CS := -- this is more like the CS variable -- LCh 2015-01-02
+	(st = s & tisp.passing = notON & 
+	mainP.T_03M.st = c & -- TCs
+	mainP.TRP_FM.st = c & mainP.TRP_GYM.st = c & mainP.TRP_FM.krc = xs & mainP.TRP_GYM.krc = xs & -- TRPs
+	mainP.P_03M.posi = cdn & -- points
+	mainP.UIR_03M.st = l
+	) ? TRUE : FALSE;
+rtF := (st = s);
+RonGO := cmd | (st = s & (mainP.UIR_03M.st = f));
+---------------------------------------------------------------------------------------------------
+MODULE R_GM_424(mainP) -- R6 : now it really looks like a route in SSI language
+VAR
+cmd : boolean; 
+st : {xs, s};
+--L_CS: boolean;
+tisp : TISP2(st, mainP.T_01BM, mainP.T_03M, mainP.TRP_GM, mainP.TRP_GYM);
+ASSIGN
+init(cmd) := FALSE;
+init(st) := xs; -- default st - route is xs waiting for a request
+--init(L_CS) := FALSE; -- route not proved by default
+next(st) := 
+	case
+		st = xs & cmd & mainP.UIR_01BM.st = f & mainP.UIR_03M.st = f & -- IR
+		mainP.P_01BM.cfr & mainP.P_03M.cfr & mainP.P_01AM.cfn : s; -- route is set
+		tisp.passing = tisp3 : xs; 
+		TRUE : st;
+	esac;
+DEFINE
+L_CS := -- this is more like the CS variable -- LCh 2015-01-02
+	(st = s & tisp.passing = notON & 
+	mainP.T_01BM.st = c & mainP.T_03M.st = c & -- TCs
+	mainP.TRP_GM.st = c & mainP.TRP_GYM.st = c & mainP.TRP_GM.krc = xs & mainP.TRP_GYM.krc = xs & -- TRPs
+	mainP.P_01BM.posi = cdr & mainP.P_03M.posi = cdr & -- points
+	mainP.UIR_01BM.st = l & mainP.UIR_03M.st = l
+	);
+rtF := (st = s);
+RonGO := cmd | (st = s & (mainP.UIR_01BM.st = f | mainP.UIR_03M.st = f));
+---------------------------------------------------------------------------------------------------
+MODULE R_GM_044(mainP) -- R7 : now it really looks like a route in SSI language
+VAR
+cmd : boolean; 
+st : {xs, s};
+--L_CS: boolean;
+tisp : TISP(st, mainP.T_01BM, mainP.T_01AM,  mainP.TRP_GM); -- only one TRP (TC1, TC2, TRP1)
+ASSIGN
+init(cmd) := FALSE;
+init(st) := xs; -- default st - route is xs waiting for a request
+--init(L_CS) := FALSE; -- route not proved by default
+next(st) := 
+	case
+		st = xs & cmd & mainP.UIR_01AM.st = f & mainP.UIR_01BM.st = f & -- IR
+		mainP.P_01AM.cfn & mainP.P_01BM.cfn & mainP.P_03M.cfn : s; -- route is set
+		tisp.passing = tisp3 : xs; 
+		TRUE : st;
+	esac;
+DEFINE
+L_CS := -- this is more like the CS variable -- LCh 2015-01-02
+	(st = s & tisp.passing = notON & 
+	mainP.T_01AM.st = c & mainP.T_01BM.st = c & -- TCs
+	mainP.TRP_GM.st = c & mainP.TRP_KM.st = c & mainP.TRP_GM.krc = xs & mainP.TRP_KM.krc = xs & -- TRPs
+	mainP.P_01AM.posi = cdn & mainP.P_01BM.posi = cdn & -- points
+	mainP.UIR_01AM.st = l & mainP.UIR_01BM.st = l 
+	);
+rtF := (st = s);
+RonGO := cmd | (st = s & (mainP.UIR_01AM.st = f | mainP.UIR_01BM.st = f));
+---------------------------------------------------------------------------------------------------
+MODULE R_GYM_423(mainP) -- R8 : now it really looks like a route in SSI language
+VAR
+cmd : boolean; 
+st : {xs, s};
+--L_CS: boolean;
+tisp : TISP2(st, mainP.T_03M, mainP.T_01BM, mainP.TRP_GYM,  mainP.TRP_GM);
+ASSIGN
+init(cmd) := FALSE;
+init(st) := xs; -- default st - route is xs waiting for a request
+--init(L_CS) := FALSE; -- route not proved by default
+next(st) := 
+	case
+		st = xs & cmd & mainP.UIR_01BM.st = f & mainP.UIR_03M.st = f & -- IR
+		mainP.P_01BM.cfr & mainP.P_03M.cfr & mainP.P_01AM.cfr : s; -- route is set
+		tisp.passing = tisp3 : xs; 
+		TRUE : st;
+	esac;
+DEFINE
+L_CS := -- this is more like the CS variable -- LCh 2015-01-02
+	(st = s & tisp.passing = notON & 
+	mainP.T_03M.st = c & mainP.T_01BM.st = c & -- TCs
+	mainP.TRP_GYM.st = c & mainP.TRP_GM.st = c & mainP.TRP_GYM.krc = xs & mainP.TRP_GM.krc = xs & -- TRPs
+	mainP.P_03M.posi = cdr & mainP.P_01BM.posi = cdr & -- points
+	mainP.UIR_01BM.st = l & mainP.UIR_03M.st = l 
+	);
+rtF := (st = s);
+RonGO := cmd | (st = s & (mainP.UIR_01BM.st = f | mainP.UIR_03M.st = f));
+---------------------------------------------------------------------------------------------------
+MODULE R_GYM_425(mainP) -- R9 : now it really looks like a route in SSI language
+VAR
+cmd : boolean; 
+st : {xs, s};
+--L_CS: boolean;
+tisp : TISP3(st, mainP.T_03M, mainP.TRP_GYM,  mainP.TRP_FM); -- only one TC
+ASSIGN
+init(cmd) := FALSE;
+init(st) := xs; -- default st - route is xs waiting for a request
+--init(L_CS) := FALSE; -- route not proved by default
+next(st) := 
+	case
+		st = xs & cmd & mainP.UIR_03M.st = f & -- IR
+		mainP.P_03M.cfr : s; -- route is set
+		tisp.passing = tisp3 : xs; 
+		TRUE : st;
+	esac;
+DEFINE
+L_CS := -- this is more like the CS variable -- LCh 2015-01-02
+	(st = s & tisp.passing = notON & 
+	mainP.T_03M.st = c & -- TCs
+	mainP.TRP_GYM.st = c & mainP.TRP_FM.st = c & mainP.TRP_GM.krc = xs & mainP.TRP_FM.krc = xs & -- TRPs
+	mainP.P_03M.posi = cdn & -- points
+	mainP.UIR_03M.st = l 
+	);
+rtF := (st = s);
+RonGO := cmd | (st = s & (mainP.UIR_03M.st = f));
+---------------------------------------------------------------------------------------------------
+MODULE R_KM_045(mainP) -- R10 : now it really looks like a route in SSI language
+VAR
+cmd : boolean; 
+st : {xs, s};
+--L_CS: boolean;
+tisp : TISP(st, mainP.T_01AM, mainP.T_02BM,  mainP.TRP_KM); -- only one TRP (TC1, TC2, TRP1)
+ASSIGN
+init(cmd) := FALSE;
+init(st) := xs; -- default st - route is xs waiting for a request
+--init(L_CS) := FALSE; -- route not proved by default
+next(st) := 
+	case
+		st = xs & cmd & mainP.UIR_01AM.st = f & mainP.UIR_02BM.st = f & mainP.UIR_04BM.st = f & -- IR
+		mainP.P_01AM.cfr & mainP.P_02BM.cfr & mainP.P_04AM.cfr & mainP.P_01BM.cfr & -- Points
+		mainP.P_01BM.cfr & mainP.P_02AM.cfr : s; -- route is set
+		tisp.passing = tisp3 : xs; 
+		TRUE : st;
+	esac;
+DEFINE
+L_CS := -- this is more like the CS variable -- LCh 2015-01-02
+	(st = s & tisp.passing = notON & 
+	mainP.T_01AM.st = c & mainP.T_02BM.st = c & mainP.T_04BM.st = c & -- TCs
+	mainP.TRP_KM.st = c & mainP.TRP_CM.st = c & mainP.TRP_KM.krc = xs & mainP.TRP_CM.krc = xs & -- TRPs
+	mainP.P_01AM.posi = cdr & mainP.P_02BM.posi = cdr & mainP.P_04AM.posi = cdr & mainP.P_04BM.posi = cdr & -- points
+	mainP.UIR_01AM.st = l & mainP.UIR_02BM.st = l & mainP.UIR_04BM.st = l
+	);
+rtF := (st = s);
+RonGO := cmd | (st = s & (mainP.UIR_01AM.st = f | mainP.UIR_02BM.st = f | mainP.UIR_04BM.st = f));
+---------------------------------------------------------------------------------------------------
+MODULE R_KM_046(mainP) -- R11 : now it really looks like a route in SSI language
+VAR
+cmd : boolean; 
+st : {xs, s};
+--L_CS: boolean;
+tisp : TISP(st, mainP.T_01AM, mainP.T_02BM,  mainP.TRP_KM); -- only one TRP (TC1, TC2, TRP1)
+ASSIGN
+init(cmd) := FALSE;
+init(st) := xs; -- default st - route is xs waiting for a request
+--init(L_CS) := FALSE; -- route not proved by default
+next(st) := 
+	case
+		st = xs & cmd & mainP.UIR_01AM.st = f & mainP.UIR_02BM.st = f & mainP.UIR_09M.st = f & -- IR
+		mainP.P_01AM.cfr & mainP.P_02BM.cfr & mainP.P_04AM.cfn & mainP.P_01BM.cfr & -- Points
+		mainP.P_02AM.cfr & mainP.P_04BM.cfn : s; -- route is set
+		tisp.passing = tisp3 : xs; 
+		TRUE : st;
+	esac;
+DEFINE
+L_CS := -- this is more like the CS variable -- LCh 2015-01-16
+	(st = s & tisp.passing = notON & 
+	mainP.T_01AM.st = c & mainP.T_02BM.st = c & mainP.T_CXM_1.st = c & -- TCs
+	mainP.TRP_CXM.st = c & mainP.TRP_KM.st = c & mainP.TRP_CXM.krc = xs & mainP.TRP_KM.krc = xs & -- TRPs
+	mainP.P_01AM.posi = cdr & mainP.P_02BM.posi = cdr & mainP.P_04AM.posi = cdn & -- points
+	mainP.UIR_09M.st = l & mainP.UIR_02BM.st = l & mainP.UIR_01AM.st = l
+	);
+rtF := (st = s);
+RonGO := cmd | (st = s & (mainP.UIR_01AM.st = f | mainP.UIR_02BM.st = f | mainP.UIR_09M.st = f));
+---------------------------------------------------------------------------------------------------
+MODULE R_KM_423(mainP) -- R12 : now it really looks like a route in SSI language
+VAR
+cmd : boolean; 
+st : {xs, s};
+--L_CS: boolean;
+tisp : TISP(st, mainP.T_01AM, mainP.T_01BM,  mainP.TRP_KM); -- only one TRP (TC1, TC2, TRP1)
+ASSIGN
+init(cmd) := FALSE;
+init(st) := xs; -- default st - route is xs waiting for a request
+--init(L_CS) := FALSE; -- route not proved by default
+next(st) := 
+	case
+		st = xs & cmd & mainP.UIR_01AM.st = f & mainP.UIR_01BM.st = f & -- IR
+		mainP.P_01AM.cfn & mainP.P_01BM.cfn & mainP.P_03M.cfn : s; -- route is set
+		tisp.passing = tisp3 : xs; 
+		TRUE : st;
+	esac;
+DEFINE
+L_CS := -- this is more like the CS variable -- LCh 2015-01-02
+	(st = s & tisp.passing = notON & 
+	mainP.T_01AM.st = c & mainP.T_01BM.st = c & -- TCs
+	mainP.TRP_KM.st = c & mainP.TRP_GM.st = c & mainP.TRP_KM.krc = xs & mainP.TRP_GM.krc = xs & -- TRPs
+	mainP.P_01AM.posi = cdn & mainP.P_01BM.posi = cdn & -- points
+	mainP.UIR_01AM.st = l & mainP.UIR_01BM.st = l
+	);
+rtF := (st = s);
+RonGO := cmd | (st = s & (mainP.UIR_01AM.st = f | mainP.UIR_01BM.st = f));
+---------------------------------------------------------------------------------------------------
+MODULE R_KXM_045(mainP) -- R13 : now it really looks like a route in SSI language
+VAR
+cmd : boolean; 
+st : {xs, s};
+--L_CS: boolean;
+tisp : TISP(st, mainP.T_02AM, mainP.T_04BM,  mainP.TRP_KXM); -- only one TRP (TC1, TC2, TRP1)
+ASSIGN
+init(cmd) := FALSE;
+init(st) := xs; -- default st - route is xs waiting for a request
+--init(L_CS) := FALSE; -- route not proved by default
+next(st) := 
+	case
+		st = xs & cmd & mainP.UIR_02AM.st = f & mainP.UIR_04BM.st = f & -- IR
+		mainP.P_02AM.cfr & mainP.P_04BM.cfn & mainP.P_02BM.cfr & mainP.P_04AM.cfn : s; -- route is set
+		tisp.passing = tisp3 : xs; 
+		TRUE : st;
+	esac;
+DEFINE
+L_CS := -- this is more like the CS variable -- LCh 2015-01-16
+	(st = s & tisp.passing = notON & 
+	mainP.T_04BM.st = c & mainP.T_02AM.st = c & -- TCs
+	mainP.TRP_CM.st = c & mainP.TRP_KXM.st = c & mainP.TRP_CM.krc = xs & mainP.TRP_KXM.krc = xs & -- TRPs
+	mainP.P_04BM.posi = cdn & mainP.P_02AM.posi = cdr & -- points
+	mainP.UIR_04BM.st = l & mainP.UIR_02AM.st = l
+	);
+rtF := (st = s);
+RonGO := cmd | (st = s & (mainP.UIR_02AM.st = f | mainP.UIR_04BM.st = f));
+---------------------------------------------------------------------------------------------------
+MODULE R_KXM_046(mainP) -- R14 : now it really looks like a route in SSI language
+VAR
+cmd : boolean; 
+st : {xs, s};
+--L_CS: boolean;
+tisp : TISP(st, mainP.T_02AM, mainP.T_02BM,  mainP.TRP_KXM); -- only one TRP (TC1, TC2, TRP1)
+ASSIGN
+init(cmd) := FALSE;
+init(st) := xs; -- default st - route is xs waiting for a request
+--init(L_CS) := FALSE; -- route not proved by default
+next(st) := 
+	case
+		st = xs & cmd & mainP.UIR_02AM.st = f & mainP.UIR_02BM.st = f & mainP.UIR_09M.st = f & -- IR
+		mainP.P_02AM.cfn & mainP.P_02BM.cfn & mainP.P_04AM.cfn & mainP.P_04BM.cfn : s; -- route is set
+		tisp.passing = tisp3 : xs; 
+		TRUE : st;
+	esac;
+DEFINE
+L_CS := -- this is more like the CS variable -- LCh 2015-01-16
+	(st = s & tisp.passing = notON & 
+	mainP.T_02AM.st = c & mainP.T_02BM.st = c & mainP.T_CXM_1.st = c & -- TCs
+	mainP.TRP_CXM.st = c & mainP.TRP_KXM.st = c & mainP.TRP_CXM.krc = xs & mainP.TRP_KXM.krc = xs & -- TRPs
+	mainP.P_04AM.posi = cdn & mainP.P_02BM.posi = cdn & mainP.P_02AM.posi = cdn & -- points
+	mainP.UIR_09M.st = l & mainP.UIR_02BM.st = l & mainP.UIR_02AM.st = l
+	);
+rtF := (st = s);
+RonGO := cmd | (st = s & (mainP.UIR_02AM.st = f | mainP.UIR_02BM.st = f | mainP.UIR_09M.st = f));
+---------------------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------------------
+MODULE TRAIN2(mainP, canMove) -- 2 stands for 2nd version of my TRAIN module
+FROZENVAR
+Tstop : boolean; -- Train can stop in the middle of a route
+VAR -- The list gets extracted from the DSL written in Scala - LCh 2015-01-11
+front : {beg, end, derailed, S_CXM, S_GM, S_FM, S_CM, S_KXM, S_GYM, S_KM, 
+			T_01AM_KM, T_01AM_01M, T_01AM_07M,
+			T_01BM_GM, T_01BM_01M, T_01BM_03M, 
+			T_CXM_1_09M, T_CXM_1_CXM, 
+			T_02AM_KXM, T_02AM_02M, T_02AM_08M,
+			T_02BM_02M, T_02BM_07M, T_02BM_M, T_02BM_04M, T_02BM_09M, 
+			T_04BM_04M, T_04BM_08M, T_04BM_CM,
+			T_03M_GYM, T_03M_03M,  T_03M_FM};
+tail : {beg, end, derailed, S_CXM, S_GM, S_FM, S_CM, S_KXM, S_GYM, S_KM, 
+			T_01AM_KM, T_01AM_01M, T_01AM_07M,
+			T_01BM_GM, T_01BM_01M, T_01BM_03M, 
+			T_CXM_1_09M, T_CXM_1_CXM, 
+			T_02AM_KXM, T_02AM_02M, T_02AM_08M,
+			T_02BM_02M, T_02BM_07M, T_02BM_M, T_02BM_04M, T_02BM_09M, 
+			T_04BM_04M, T_04BM_08M, T_04BM_CM,
+			T_03M_GYM, T_03M_03M,  T_03M_FM};
+ltail : {beg, end, derailed, S_CXM, S_GM, S_FM, S_CM, S_KXM, S_GYM, S_KM, 
+			T_01AM_KM, T_01AM_01M, T_01AM_07M,
+			T_01BM_GM, T_01BM_01M, T_01BM_03M, 
+			T_CXM_1_09M, T_CXM_1_CXM, 
+			T_02AM_KXM, T_02AM_02M, T_02AM_08M,
+			T_02BM_02M, T_02BM_07M, T_02BM_M, T_02BM_04M, T_02BM_09M, 
+			T_04BM_04M, T_04BM_08M, T_04BM_CM,
+			T_03M_GYM, T_03M_03M,  T_03M_FM};
+
+moving : {standStill, mUP, mDN}; -- moving direction
+Tprogress : boolean;
+ASSIGN
+init(Tstop) := FALSE;
+init(front) := beg;
+init(tail) := beg;
+init(ltail) := beg;
+init(moving) := standStill;
+init(Tprogress) := FALSE;
+next(ltail) := front;
+next(tail) := {ltail,front}; -- Keeps track of the rear position of the train
+next(moving) :=  -- I hope that the order of variables will not interfere - 17 oct !!
+	case
+		(CMopen | CXMopen | FMopen | GMopen) & moving = standStill & canMove & Tprogress : mDN; --{still, down};		
+		(GYMopen | KMopen | KXMopen) & moving = standStill & canMove & Tprogress : mUP; --{still, down};		
+		(front = beg | front = end) : standStill;
+		TRUE : moving;
+	esac;
+next(front):=
+	case
+		CMopen = TRUE & next(moving) = mDN & front = beg : T_04BM_CM; --
+		CXMopen = TRUE & next(moving) = mDN & front = beg : T_CXM_1_CXM; --
+		FMopen = TRUE & next(moving) = mDN & front = beg : T_03M_FM; --
+		GMopen = TRUE & next(moving) = mDN & front = beg : T_01BM_GM; --
+		
+		KMopen = TRUE & next(moving) = mUP & front = beg : T_01AM_KM; --
+		KXMopen = TRUE & next(moving) = mUP & front = beg : T_02AM_KXM; --
+		GYMopen = TRUE & next(moving) = mUP & front = beg : T_03M_GYM; --
+		
+		front = T_04BM_CM & moving = mDN & mainP.P_04BM.posi = cdn : T_04BM_08M; 
+		front = T_04BM_CM & moving = mDN & mainP.P_04BM.posi = cdr : T_04BM_04M;
+		front = T_04BM_08M & moving = mDN : T_02AM_08M; 
+		front = T_02AM_08M & moving = mDN & mainP.P_02AM.posi = cdn : derailed; 
+		front = T_02AM_08M & moving = mDN & mainP.P_02AM.posi = cdr : T_02AM_KXM; 
+		front = T_02AM_KXM & moving = mDN : end; -- DN end 1
+		front = T_04BM_04M & moving = mDN : T_02BM_04M; 
+		front = T_02BM_04M & moving = mDN & mainP.P_04AM.posi = cdn : derailed; 
+		front = T_02BM_04M & moving = mDN & mainP.P_04AM.posi = cdr : T_02BM_M; 
+ 		front = T_02BM_M & moving = mDN & mainP.P_02BM.posi = cdn : T_02BM_02M; 
+ 		front = T_02BM_M & moving = mDN & mainP.P_02BM.posi = cdr : T_02BM_07M; 
+ 		front = T_02BM_02M & moving = mDN : T_02AM_02M; 
+ 		front = T_02AM_02M & moving = mDN & mainP.P_02AM.posi = cdr : derailed; 
+ 		front = T_02AM_02M & moving = mDN & mainP.P_02AM.posi = cdn : T_02AM_KXM; -- joining existing branch 
+ 		front = T_02BM_07M & moving = mDN : T_01AM_07M; 
+ 		front = T_01AM_07M & moving = mDN & mainP.P_01AM.posi = cdn : derailed; 
+ 		front = T_01AM_07M & moving = mDN & mainP.P_01AM.posi = cdr : T_01AM_KM; 
+		front = T_01AM_KM & moving = mDN : end; -- DN end 1
+		front = T_CXM_1_CXM & moving = mDN : T_CXM_1_09M; -- DN end 1
+		front = T_CXM_1_09M & moving = mDN : T_02BM_09M; -- DN end 1
+ 		front = T_02BM_09M & moving = mDN & mainP.P_04AM.posi = cdr : derailed; 
+ 		front = T_02BM_09M & moving = mDN & mainP.P_04AM.posi = cdn : T_02BM_M; -- joining existing branch  
+
+ 		front = T_03M_FM & moving = mDN & mainP.P_03M.posi = cdr : derailed;  
+ 		front = T_03M_FM & moving = mDN & mainP.P_03M.posi = cdn : T_03M_GYM; 
+ 		front = T_03M_GYM & moving = mDN : end; -- End of R5 
+
+ 		front = T_01BM_GM & moving = mDN & mainP.P_01BM.posi = cdr : T_01BM_03M;
+ 		front = T_01BM_03M & moving = mDN : T_03M_03M;
+ 		front = T_03M_03M & moving = mDN & mainP.P_03M.posi = cdn : derailed;
+ 		front = T_03M_03M & moving = mDN & mainP.P_03M.posi = cdr : T_03M_GYM; -- joining existing branch
+ 		front = T_01BM_GM & moving = mDN & mainP.P_01BM.posi = cdn : T_01BM_01M;
+ 		front = T_01BM_01M & moving = mDN : T_01AM_01M;
+ 		front = T_01AM_01M & moving = mDN & mainP.P_01AM.posi = cdr : derailed;
+ 		front = T_01AM_01M & moving = mDN & mainP.P_01AM.posi = cdn : T_01AM_KM; -- joining existing branch
+
+ 		front = T_03M_GYM & moving = mUP & mainP.P_03M.posi = cdn : T_03M_FM; 
+ 		front = T_03M_GYM & moving = mUP & mainP.P_03M.posi = cdr : T_03M_03M; 
+ 		front = T_03M_03M & moving = mUP : T_01BM_03M; 
+ 		front = T_01BM_03M & moving = mUP & mainP.P_01BM.posi = cdn : derailed; 
+ 		front = T_01BM_03M & moving = mUP & mainP.P_01BM.posi = cdr : T_01BM_GM;
+		front = T_03M_FM & moving = mUP : end; -- DN end 1
+		front = T_01BM_GM & moving = mUP : end; -- DN end 1
+ 		  		
+ 		front = T_01AM_KM & moving = mUP & mainP.P_01AM.posi = cdn : T_01AM_01M; 
+ 		front = T_01AM_KM & moving = mUP & mainP.P_01AM.posi = cdr : T_01AM_07M; 
+ 		front = T_01AM_01M & moving = mUP : T_01BM_01M; 
+ 		front = T_01BM_01M & moving = mUP & mainP.P_01BM.posi = cdr : derailed;
+ 		front = T_01BM_01M & moving = mUP & mainP.P_01BM.posi = cdn : T_01BM_GM; -- joining existing branch
+
+ 		front = T_01AM_07M & moving = mUP : T_02BM_07M;
+ 		front = T_02BM_07M & moving = mUP & mainP.P_02BM.posi = cdn : derailed;
+ 		front = T_02BM_07M & moving = mUP & mainP.P_02BM.posi = cdr : T_02BM_M;
+ 		front = T_02BM_M & moving = mUP & mainP.P_04AM.posi = cdn : T_02BM_09M;
+ 		front = T_02BM_09M & moving = mUP : T_CXM_1_09M;
+ 		front = T_CXM_1_09M & moving = mUP : T_CXM_1_CXM;
+ 		front = T_CXM_1_CXM & moving = mUP : end;
+ 		front = T_02BM_M & moving = mUP & mainP.P_04AM.posi = cdr : T_02BM_04M;
+ 		front = T_02BM_04M & moving = mUP : T_04BM_04M;
+ 		front = T_04BM_04M & moving = mUP & mainP.P_04BM.posi = cdn : derailed;
+ 		front = T_04BM_04M & moving = mUP & mainP.P_04BM.posi = cdr : T_04BM_CM;
+ 		front = T_04BM_CM & moving = mUP : end;
+ 		
+ 		front = T_02AM_KXM & moving = mUP & mainP.P_02AM.posi = cdr : T_02AM_08M;
+ 		front = T_02AM_KXM & moving = mUP & mainP.P_02AM.posi = cdn : T_02AM_02M;
+ 		front = T_02AM_02M & moving = mUP : T_02BM_02M;
+ 		front = T_02BM_02M & moving = mUP & mainP.P_02BM.posi = cdr : derailed;
+ 		front = T_02BM_02M & moving = mUP & mainP.P_02BM.posi = cdn : T_02BM_M; -- joining existing branch
+ 		front = T_02AM_08M & moving = mUP : T_04BM_08M;
+ 		front = T_04BM_08M & moving = mUP & mainP.P_04BM.posi = cdr : derailed;
+ 		front = T_04BM_08M & moving = mUP & mainP.P_04BM.posi = cdn : T_04BM_CM; -- joining existing branch
+ 		
+		front = end : beg; -- makes the train ready for the next move
+		TRUE : {front};
+	esac;
+DEFINE
+-- The following macros are booleans which are TRUE when the train is occupying the TC
+--T_04BM := (next(front) = T_04BM_CM |front = T_04BM_CM |tail = T_04BM_CM| front = T_04BM_04M | front = T_04BM_08M);
+T_04BM := (front = T_04BM_CM |  front = T_04BM_04M | front = T_04BM_08M |
+			tail = T_04BM_CM | tail = T_04BM_04M | tail = T_04BM_08M);
+T_02AM := (front = T_02AM_KXM |  front = T_02AM_08M | front = T_02AM_02M |
+			tail = T_02AM_KXM | tail = T_02AM_08M |  tail = T_02AM_02M); 
+T_02BM := (front = T_02BM_09M | front = T_02BM_07M | front = T_02BM_02M | front = T_02BM_04M  | front = T_02BM_M |
+			tail = T_02BM_09M | tail = T_02BM_07M | tail = T_02BM_02M | tail = T_02BM_04M  | tail = T_02BM_M);
+T_01AM := (front = T_01AM_KM | front = T_01AM_01M | front = T_01AM_07M |
+			tail = T_01AM_KM | tail = T_01AM_01M | tail = T_01AM_07M ); 
+T_CXM_1 := (front = T_CXM_1_CXM | front = T_CXM_1_09M |
+			tail = T_CXM_1_CXM | tail = T_CXM_1_09M);
+T_03M := (front = T_03M_FM | front = T_03M_GYM | front = T_03M_03M |
+			tail = T_03M_FM | tail = T_03M_GYM | tail = T_03M_03M);
+T_01BM := (front = T_01BM_GM | front = T_01BM_01M | front = T_01BM_03M |
+			tail = T_01BM_GM | tail = T_01BM_01M | tail = T_01BM_03M);
+-- I don't know about this one
+isMoving := (front != beg & next(front) != beg) ? TRUE : FALSE;
+isStarting := (front = beg & next(front) != beg) ? TRUE : FALSE;
+-- Authorisation for the train to move
+CMopen := ((mainP.R1.L_CS & next(mainP.R1.L_CS)) | (mainP.R2.L_CS & next(mainP.R2.L_CS))); -- Open signals = proceed aspect
+CXMopen := ((mainP.R3.L_CS & next(mainP.R3.L_CS)) | (mainP.R4.L_CS & next(mainP.R4.L_CS))); -- LCh 2015-01-27 - addition of next in order to prevent 2nd train to follow
+FMopen := ((mainP.R5.L_CS & next(mainP.R5.L_CS)));
+GMopen := ((mainP.R6.L_CS & next(mainP.R6.L_CS)) | (mainP.R7.L_CS & next(mainP.R7.L_CS)));
+GYMopen := ((mainP.R8.L_CS & next(mainP.R8.L_CS)) | (mainP.R9.L_CS & next(mainP.R9.L_CS)));
+KMopen := ((mainP.R10.L_CS & next(mainP.R10.L_CS)) | (mainP.R11.L_CS & next(mainP.R11.L_CS)) | (mainP.R12.L_CS & next(mainP.R12.L_CS)));
+KXMopen := ((mainP.R13.L_CS & next(mainP.R13.L_CS)) | (mainP.R14.L_CS & next(mainP.R14.L_CS)));
+--FAIRNESS Tprogress; -- makes sure that the train runs through the end of the route
+---------------------------------------------------------------------------------------------------
+MODULE CONTROLER(mainP)
+IVAR cmdR : {R1, R2, R3, R4, R5, R6, R7, R8, R9, R10, R11, R12, R13, R14, noCmd};
+ASSIGN
+next(mainP.R1.cmd) := 
+	case 
+		cmdR = R1 & mainP.rouCmdEN[1] & mainP.RCallowed : TRUE;
+		TRUE : FALSE;
+	esac;
+next(mainP.R2.cmd) := 
+	case 
+		cmdR = R2 & mainP.rouCmdEN[2] & mainP.RCallowed : TRUE;
+		TRUE : FALSE;
+	esac;
+next(mainP.R3.cmd) := 
+	case 
+		cmdR = R3 & mainP.rouCmdEN[3] & mainP.RCallowed : TRUE;
+		TRUE : FALSE;
+	esac;
+next(mainP.R4.cmd) := 
+	case 
+		cmdR = R4 & mainP.rouCmdEN[4] & mainP.RCallowed : TRUE;
+		TRUE : FALSE;
+	esac;
+next(mainP.R5.cmd) := 
+	case 
+		cmdR = R5 & mainP.rouCmdEN[5] & mainP.RCallowed : TRUE;
+		TRUE : FALSE;
+	esac;
+next(mainP.R6.cmd) := 
+	case 
+		cmdR = R6 & mainP.rouCmdEN[6] & mainP.RCallowed : TRUE;
+		TRUE : FALSE;
+	esac;
+next(mainP.R7.cmd) := 
+	case 
+		cmdR = R7 & mainP.rouCmdEN[7] & mainP.RCallowed : TRUE;
+		TRUE : FALSE;
+	esac;
+next(mainP.R8.cmd) := 
+	case 
+		cmdR = R8 & mainP.rouCmdEN[8] & mainP.RCallowed : TRUE;
+		TRUE : FALSE;
+	esac;
+next(mainP.R9.cmd) := 
+	case 
+		cmdR = R9 & mainP.rouCmdEN[9] & mainP.RCallowed : TRUE;
+		TRUE : FALSE;
+	esac;
+next(mainP.R10.cmd) := 
+	case 
+		cmdR = R10 & mainP.rouCmdEN[10] & mainP.RCallowed : TRUE;
+		TRUE : FALSE;
+	esac;
+next(mainP.R11.cmd) := 
+	case 
+		cmdR = R11 & mainP.rouCmdEN[11] & mainP.RCallowed : TRUE;
+		TRUE : FALSE;
+	esac;
+next(mainP.R12.cmd) := 
+	case 
+		cmdR = R12 & mainP.rouCmdEN[12] & mainP.RCallowed : TRUE;
+		TRUE : FALSE;
+	esac;
+next(mainP.R13.cmd) := 
+	case 
+		cmdR = R13 & mainP.rouCmdEN[13] & mainP.RCallowed : TRUE;
+		TRUE : FALSE;
+	esac;
+next(mainP.R14.cmd) := 
+	case 
+		cmdR = R14 & mainP.rouCmdEN[14] & mainP.RCallowed : TRUE;
+		TRUE : FALSE;
+	esac;
+---------------------------------------------------------------------------------------------------
+MODULE POINT(ir) 
+VAR
+cmd : {cn, cr}; -- the commands found in PRR.dat and FOP.dat
+oldcmd: {cn, cr};
+posi : {cdn, cdr}; -- the position of the point
+ASSIGN
+init(cmd) := cn;
+init(oldcmd) := cn;
+init(posi) := cdn; -- point can be in any position
+next(posi) := 
+	case
+		posi = cdn & ir.st = f & cmd = cr: cdr; -- Point can move
+		posi = cdr & ir.st = f & cmd = cn: cdn; -- Point can move
+		TRUE : posi;
+	esac;
+next(oldcmd) := cmd;
+DEFINE
+cfn := (ir.st = f | cmd = cn); -- LCh 2014-10-28
+cfr := (ir.st = f | cmd = cr);
+hasToMove := (cmd != next(cmd) & ir.st = f);
+willMove := (cmd != oldcmd);
+---------------------------------------------------------------------------------------------------
+MODULE TC
+VAR
+st : {o, c};
+ASSIGN
+init(st) := c;
+---------------------------------------------------------------------------------------------------
+MODULE TISP(Rst, tc1, tc2, trp1) -- Only uses one TRP - added 2014-12-29
+VAR
+passing : {notON, tisp1, tisp2, tisp3};
+ASSIGN
+init(passing) := notON; 
+next(passing) :=
+	case
+		Rst = s & passing = notON & trp1.st = o & tc1.st = o & tc2.st = c : tisp1;
+		Rst = s & passing = tisp1 & trp1.st = o & tc1.st = o & tc2.st = o   : tisp2;
+		Rst = s & passing = tisp2 & trp1.st = o & tc1.st = c & tc2.st = o & trp1.krc = xs : tisp3; -- KFS condition is missing - 2014-12-29 
+		Rst = xs & tc1.st = c & tc2.st = c : notON;
+		TRUE : passing;
+	esac;
+---------------------------------------------------------------------------------------------------
+MODULE TISP2(Rst, tc1, tc2, trp1, trp2) -- Only one sub-route
+VAR
+passing : {notON, tisp1, tisp2, tisp3};
+ASSIGN
+init(passing) := notON; 
+next(passing) :=
+	case
+		Rst = s & passing = notON & trp1.st = o & tc1.st = o & tc2.st = c & trp2.st = c : tisp1;
+		Rst = s & passing = tisp1 & trp1.st = o & tc2.st = o & trp2.st = o  : tisp2;
+		Rst = s & passing = tisp2 & trp1.st = o & tc1.st = c & tc2.st = c & trp2.st = o &
+			trp1.krc = xs & trp2.krc = xs : tisp3;
+		Rst = xs & tc1.st = c & tc2.st = c : notON; -- krc added 2014-04-01
+		TRUE : passing;
+	esac;
+---------------------------------------------------------------------------------------------------
+MODULE TISP3(Rst, tc, trp1, trp2) -- Special TISP for 1 TC case - 2014-03-31
+VAR
+passing : {notON, tisp1, tisp2, tisp3};
+ASSIGN
+init(passing) := notON; 
+next(passing) :=
+	case
+		Rst = s & passing = notON & trp1.st = o & tc.st = o & trp2.st = c : tisp1;
+		Rst = s & passing = tisp1 & trp1.st = o & tc.st = o & trp2.st = o  : tisp2;
+		Rst = s & passing = tisp2 & trp1.st = o & tc.st = c & trp2.st = o &
+			trp1.krc = xs & trp2.krc = xs : tisp3;
+		Rst = xs & tc.st = c : notON;
+		TRUE : passing;
+	esac;
+---------------------------------------------------------------------------------------------------
+MODULE TRP(tc, ir) -- Takes a TC and an ir
+VAR
+st : {o, c};
+krc : {xs, s};
+ASSIGN
+init(krc) := xs;
+init(st) := c;
+next(st) :=
+	case 
+		next(krc) = s & tc.st = o : o; -- next(krc) gives o one cycle earlier - LCh 2015-01-16
+		tc.st = c & ir.st = f: c;
+		TRUE : st;
+	esac;
+------------Subroute module-2014-10-14-------------------------------------------------------------
+MODULE U_(mainP)
+VAR
+st : {l, f};
+ASSIGN
+init(st) := f; -- I am not sure than I need to init the st !!
+---------------------------------------------------------------------------------------------------
+MODULE IR_ -- Records the st of IR subroute
+VAR
+	st : {l, f}; -- the UIR locks the point
+ASSIGN
+	init(st) := f;
+--------End of file--------------------------------------------------------------------------------
