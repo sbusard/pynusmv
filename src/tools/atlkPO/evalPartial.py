@@ -1023,7 +1023,12 @@ def eval_strat(fsm, spec, states, semantics="group"):
         print("Evaluating partial strategies for ", spec)
     
     # Extend with equivalent states
-    states = get_equiv_class(fsm, agents, states, semantics=semantics)
+    if semantics == "individual":
+        for agent in agents:
+            states = states | get_equiv_class(fsm, {agent}, states,
+                                              semantics="group")
+    else:
+        states = get_equiv_class(fsm, agents, states, semantics=semantics)
     
     # Pre-filtering out losing states and actions
     if config.partial.filtering:
@@ -1090,8 +1095,14 @@ def eval_strat(fsm, spec, states, semantics="group"):
     
         while remaining.isnot_false():
             # Extend states with equivalent ones
-            states = get_equiv_class(fsm, agents, remaining,
-                                     semantics=semantics)
+            states = remaining
+            if semantics == "individual":
+                for agent in agents:
+                    states = states | get_equiv_class(fsm, {agent}, states,
+                                                      semantics="group")
+            else:
+                states = get_equiv_class(fsm, agents, states,
+                                         semantics="group")
         
             remaining_size = fsm.count_states(remaining)
             
