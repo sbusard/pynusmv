@@ -9,6 +9,8 @@ from .evalOpt import evalATLK as evalATLK_opt
 from .evalMem import evalATLK as evalATLK_mem
 from .evalSymb import evalATLK as evalATLK_symb
 from .evalPartial import evalATLK as evalATLK_partial
+from .evalGenSI import evalATLK as evalATLK_genSI
+from .evalPartialSI import evalATLK as evalATLK_partialSI
 from pyparsing import ParseException
 from pynusmv.exception import PyNuSMVError
 
@@ -19,7 +21,9 @@ __implementations = {"naive" : evalATLK_naive,
                      "optimized" : evalATLK_opt,
                      "memory" : evalATLK_mem,
                      "partial" : evalATLK_partial,
-                     "symbolic" : evalATLK_symb}
+                     "symbolic" : evalATLK_symb,
+                     "generatorSI" : evalATLK_genSI,
+                     "partialSI" : evalATLK_partialSI}
 
 def check(mas, spec, variant="SF", semantics="group", implem="generator"):
     """
