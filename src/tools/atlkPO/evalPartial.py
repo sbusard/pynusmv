@@ -1450,7 +1450,12 @@ def eval_strat_improved(fsm, spec, states, semantics="group"):
     
     sat = BDD.false(fsm.bddEnc.DDmanager)
     
-    states = get_equiv_class(fsm, gamma, states, semantics=semantics)
+    if semantics == "individual":
+        for agent in gamma:
+            states = states | get_equiv_class(fsm, {agent}, states,
+                                              semantics="group")
+    else:
+        states = get_equiv_class(fsm, gamma, states, semantics=semantics)
     remaining = states
     
     for pstrat in split(fsm, states & fsm.protocol(gamma), gamma,
