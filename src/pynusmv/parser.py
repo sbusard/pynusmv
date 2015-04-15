@@ -155,6 +155,31 @@ def parse_identifier(expression):
             return node
 
 
+def parse_ctl_spec(spec):
+    """
+    Parse a CTL specification
+
+    :param string spec: the specification to parse
+    :raise: a :exc:`NuSMVParsingError <pynusmv.exception.NuSMVParsingError>`
+            if a parsing error occurs
+
+    .. warning:: Returned value is a SWIG wrapper for the NuSMV node_ptr.
+       It is the responsibility of the caller to manage it.
+
+    """
+    node, err = nsparser.ReadCmdFromString("CTLWFF " + spec)
+    if err:
+        errors = nsparser.Parser_get_syntax_errors_list()
+        raise NuSMVParsingError.from_nusmv_errors_list(errors)
+    else:
+        node = nsnode.car(node)  # Get rid of the top CTLWFF node
+        if node.type is nsparser.CONTEXT and nsnode.car(node) is None:
+            # Get rid of the top empty context if any
+            return nsnode.cdr(node)
+        else:
+            return node
+
+
 def parseAllString(parser, string):
     """
     Parse `string` completely with `parser` and set source of the result

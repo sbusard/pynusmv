@@ -112,6 +112,32 @@ node_ptr ReadIdentifierExprFromString(const char* str_expr, int* error) {
 }
 
 
+// error is set to 0 if everything is fine
+//                 1 if a syntax error occured
+//                 2 if a long jump occured (CATCH/FAIL) meaning a lexer error
+node_ptr ReadCmdFromString(const char* str_expr, int* error) {
+    node_ptr ptr;
+    const int argc = 2;
+    const char* argv[2];
+    
+    argv[0] = (char*) NULL;
+    argv[1] = (char*) str_expr;
+    
+    // yylineno seems not to be set at 1 when parsing a simple expression.
+    yylineno = 1;
+    
+    CATCH {
+        *error = Parser_ReadCmdFromString(argc, argv, "", "", &ptr);
+    }
+    FAIL {
+        // As there is an exception occuring, error is not set. Set it so
+        *error = 2;
+    }
+    
+    return ptr;
+}
+
+
 // returned value is 0 if everything is fine
 //                   1 if Parser_ReadSMVFromFile(filename) return 1
 //                   2 if a long jump occured

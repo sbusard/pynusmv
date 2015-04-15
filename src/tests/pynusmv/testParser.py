@@ -11,8 +11,10 @@ from pynusmv.prop import PropDb
 
 from pynusmv.init import init_nusmv, deinit_nusmv
 from pynusmv import glob
-from pynusmv.parser import parse_next_expression
+from pynusmv.parser import parse_next_expression, parse_ctl_spec
 from pynusmv.node import find_hierarchy
+
+from pynusmv.exception import NuSMVParsingError
 
 class TestParser(unittest.TestCase):
     
@@ -104,3 +106,10 @@ class TestParser(unittest.TestCase):
         print("UNION:", nsparser.UNION)
         print("ATOM:", nsparser.ATOM)
         self.show_types(test)
+    
+    def test_ctl(self):
+        spec = parse_ctl_spec("AG EF x")
+        self.assertIsNotNone(spec)
+        
+        with self.assertRaises(NuSMVParsingError):
+            spec = parse_ctl_spec("A A")
