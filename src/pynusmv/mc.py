@@ -16,6 +16,26 @@ from .dd import BDD, State, Inputs, BDDList
 from .prop import atom
 
 
+def check_ctl_spec(fsm, spec, context=None):
+    """
+    Return whether the given `fsm` satisfies or not the given `spec` in
+    `context`, if specified. That is, return whether all initial states of 
+    `fsm` satisfies `spec` in context or not.
+
+    :param fsm: the concerned FSM
+    :type fsm: :class:`BddFsm <pynusmv.fsm.BddFsm>`
+    :param spec: a specification about `fsm`
+    :type spec: :class:`Spec <pynusmv.prop.Spec>`
+    :param context: the context in which evaluate `spec`
+    :type context: :class:`Spec <pynusmv.prop.Spec>`
+    :rtype: bool
+
+    """
+    sat = eval_ctl_spec(fsm, spec, context)
+    unsatinit = fsm.init & fsm.state_constraints & fsm.fair_states & ~sat
+    return unsatinit.is_false()
+
+
 def eval_simple_expression(fsm, sexp):
     """
     Return the set of states of `fsm` satisfying `sexp`, as a BDD.
