@@ -139,6 +139,52 @@ def au(fsm, s1, s2):
     return BDD(nsmc.au(fsm._ptr, s1._ptr, s1._ptr),
                fsm.bddEnc.DDmanager, freeit=True)
 
+def explain(fsm, state, spec, context=None):
+    """
+    Explain why `state` of `fsm` satisfies `spec` in `context`.
+
+    :param fsm: the system
+    :type fsm: :class:`BddFsm <pynusmv.fsm.BddFsm>`
+    :param state: a state of `fsm`
+    :type state: :class:`State <pynusmv.dd.State>`
+    :param spec: a specification about `fsm`
+    :type spec: :class:`Spec <pynusmv.prop.Spec>`
+    :param context: the context in which evaluate `spec`
+    :type context: :class:`Spec <pynusmv.prop.Spec>`
+
+    Return a tuple `t` composed of states (:class:`State <pynusmv.dd.State>`)
+    and inputs (:class:`Inputs <pynusmv.dd.Inputs>`),
+    such that `t[0]` is `state` and `t` represents a path in `fsm` explaining
+    why `state` satisfies `spec` in `context`.
+
+    """
+    if context is not None:
+        context_ptr = context._ptr
+    else:
+        context_ptr = None
+    
+    enc = fsm.bddEnc
+    manager = enc.DDmanager
+    path = nsnode.cons(nsnode.bdd2node(nsdd.bdd_dup(state._ptr)), None)
+
+    expl = nsmc.explain(fsm._ptr, enc._ptr, path, spec._ptr, context_ptr)
+    if expl is None:
+        expl = nsnode.cons(nsnode.bdd2node(nsdd.bdd_dup(state._ptr)), None)
+
+    bddlist = BDDList(expl, manager)
+    bddlist = bddlist.to_tuple()
+
+    path = []
+    path.insert(0, State.from_bdd(bddlist[0], fsm))
+    for i in range(1, len(bddlist), 2):
+        inputs = Inputs.from_bdd(bddlist[i], fsm)
+        state = State.from_bdd(bddlist[i + 1], fsm)
+
+        path.insert(0, inputs)
+        path.insert(0, state)
+
+    return tuple(path)
+
 def explainEX(fsm, state, a):
     """
     Explain why `state` of `fsm` satisfies `EX phi`, where `a` is
