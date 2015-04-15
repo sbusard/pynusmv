@@ -61,7 +61,8 @@
 
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;load&#39;</span><span class="p">,</span> <span class="s">&#39;symb_table&#39;</span><span class="p">,</span> <span class="s">&#39;bdd_encoding&#39;</span><span class="p">,</span> <span class="s">&#39;prop_database&#39;</span><span class="p">,</span>
            <span class="s">&#39;flatten_hierarchy&#39;</span><span class="p">,</span> <span class="s">&#39;encode_variables&#39;</span><span class="p">,</span> <span class="s">&#39;build_flat_model&#39;</span><span class="p">,</span>
-           <span class="s">&#39;build_model&#39;</span><span class="p">,</span> <span class="s">&#39;compute_model&#39;</span><span class="p">,</span> <span class="s">&#39;encode_variables_for_layers&#39;</span><span class="p">]</span>
+           <span class="s">&#39;build_model&#39;</span><span class="p">,</span> <span class="s">&#39;compute_model&#39;</span><span class="p">,</span> <span class="s">&#39;encode_variables_for_layers&#39;</span><span class="p">,</span>
+           <span class="s">&#39;flat_hierarchy&#39;</span><span class="p">]</span>
 
 <span class="kn">import</span> <span class="nn">tempfile</span>
 <span class="kn">import</span> <span class="nn">os</span>
@@ -441,7 +442,7 @@
     <span class="n">nscompile</span><span class="o">.</span><span class="n">cmp_struct_set_build_model</span><span class="p">(</span><span class="n">nscompile</span><span class="o">.</span><span class="n">cvar</span><span class="o">.</span><span class="n">cmps</span><span class="p">)</span>
 
 </div>
-<span class="k">def</span> <span class="nf">flat_hierarchy</span><span class="p">():</span>
+<div class="viewcode-block" id="flat_hierarchy"><a class="viewcode-back" href="../../pynusmv.html#pynusmv.glob.flat_hierarchy">[docs]</a><span class="k">def</span> <span class="nf">flat_hierarchy</span><span class="p">():</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Return the global flat hierarchy.</span>
 
@@ -455,7 +456,7 @@
         <span class="n">__flat_hierarchy</span> <span class="o">=</span> <span class="n">FlatHierarchy</span><span class="p">(</span><span class="n">nscompile</span><span class="o">.</span><span class="n">cvar</span><span class="o">.</span><span class="n">mainFlatHierarchy</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">__flat_hierarchy</span>
 
-
+</div>
 <div class="viewcode-block" id="prop_database"><a class="viewcode-back" href="../../pynusmv.html#pynusmv.glob.prop_database">[docs]</a><span class="k">def</span> <span class="nf">prop_database</span><span class="p">():</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Return the global properties database.</span>

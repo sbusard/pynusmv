@@ -12,7 +12,8 @@ and the propositions database.
 
 __all__ = ['load', 'symb_table', 'bdd_encoding', 'prop_database',
            'flatten_hierarchy', 'encode_variables', 'build_flat_model',
-           'build_model', 'compute_model', 'encode_variables_for_layers']
+           'build_model', 'compute_model', 'encode_variables_for_layers',
+           'flat_hierarchy']
 
 import tempfile
 import os

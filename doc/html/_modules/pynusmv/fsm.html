@@ -115,6 +115,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">BddFsm</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">ptr</span><span class="p">,</span> <span class="n">freeit</span><span class="o">=</span><span class="n">freeit</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_reachable</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_fair</span> <span class="o">=</span> <span class="bp">None</span>
 
     <span class="nd">@property</span>
 <div class="viewcode-block" id="BddFsm.bddEnc"><a class="viewcode-back" href="../../pynusmv.html#pynusmv.fsm.BddFsm.bddEnc">[docs]</a>    <span class="k">def</span> <span class="nf">bddEnc</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -201,9 +202,7 @@
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">reachable_states</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Return a the set of reachable states of this FSM, represented as a BDD.</span>
-
-<span class="sd">        :rtype: :class:`BDD &lt;pynusmv.dd.BDD&gt;`</span>
+<span class="sd">        The set of reachable states of this FSM, represented as a BDD.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_reachable</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
@@ -216,6 +215,17 @@
 <div class="viewcode-block" id="BddFsm.reachable_states"><a class="viewcode-back" href="../../pynusmv.html#pynusmv.fsm.BddFsm.reachable_states">[docs]</a>    <span class="k">def</span> <span class="nf">reachable_states</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">reachable_states</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_reachable</span> <span class="o">=</span> <span class="n">reachable_states</span>
         <span class="n">bddFsm</span><span class="o">.</span><span class="n">BddFsm_set_reachable_states</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_ptr</span><span class="p">,</span> <span class="n">reachable_states</span><span class="o">.</span><span class="n">_ptr</span><span class="p">)</span>
+    </div>
+    <span class="nd">@property</span>
+<div class="viewcode-block" id="BddFsm.fair_states"><a class="viewcode-back" href="../../pynusmv.html#pynusmv.fsm.BddFsm.fair_states">[docs]</a>    <span class="k">def</span> <span class="nf">fair_states</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        The set of fair states of this FSM, represented as a BDD.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fair</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_fair</span> <span class="o">=</span> <span class="n">BDD</span><span class="p">(</span><span class="n">bddFsm</span><span class="o">.</span><span class="n">BddFsm_get_fair_states</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_ptr</span><span class="p">),</span>
+                             <span class="bp">self</span><span class="o">.</span><span class="n">bddEnc</span><span class="o">.</span><span class="n">DDmanager</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fair</span>
     </div>
 <div class="viewcode-block" id="BddFsm.pre"><a class="viewcode-back" href="../../pynusmv.html#pynusmv.fsm.BddFsm.pre">[docs]</a>    <span class="k">def</span> <span class="nf">pre</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">states</span><span class="p">,</span> <span class="n">inputs</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>

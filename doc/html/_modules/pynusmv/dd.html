@@ -439,9 +439,9 @@
     <span class="k">def</span> <span class="nf">__invert__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">not_</span><span class="p">()</span>
 
-    <span class="c"># ==========================================================================</span>
+    <span class="c"># =========================================================================</span>
     <span class="c"># ===== Static methods ===================================================</span>
-    <span class="c"># ==========================================================================</span>
+    <span class="c"># =========================================================================</span>
 
     <span class="nd">@staticmethod</span>
 <div class="viewcode-block" id="BDD.true"><a class="viewcode-back" href="../../pynusmv.html#pynusmv.dd.BDD.true">[docs]</a>    <span class="k">def</span> <span class="nf">true</span><span class="p">(</span><span class="n">manager_or_fsm</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
@@ -933,7 +933,22 @@
 <span class="sd">    Python class for NuSMV BDD managers.</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">pass</span></div>
+
+    <span class="nd">@property</span>
+<div class="viewcode-block" id="DDManager.size"><a class="viewcode-back" href="../../pynusmv.html#pynusmv.dd.DDManager.size">[docs]</a>    <span class="k">def</span> <span class="nf">size</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        The number of variables handled by this manager.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">nsdd</span><span class="o">.</span><span class="n">dd_get_size</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_ptr</span><span class="p">)</span>
+</div>
+    <span class="nd">@property</span>
+<div class="viewcode-block" id="DDManager.reorderings"><a class="viewcode-back" href="../../pynusmv.html#pynusmv.dd.DDManager.reorderings">[docs]</a>    <span class="k">def</span> <span class="nf">reorderings</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns the number of times reordering has occurred in this manager.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">nsdd</span><span class="o">.</span><span class="n">dd_get_reorderings</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_ptr</span><span class="p">)</span></div></div>
 </pre></div>
 
           </div>

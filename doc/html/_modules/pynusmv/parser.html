@@ -52,9 +52,10 @@
 <span class="sd">and return corresponding ASTs. This module includes three types of</span>
 <span class="sd">functionalities:</span>
 
-<span class="sd">* :func:`parse_simple_expression`, :func:`parse_next_expression` and</span>
-<span class="sd">  :func:`parse_identifier` are direct access to NuSMV parser, returning</span>
-<span class="sd">  wrappers to NuSMV internal data structures representing the language AST.</span>
+<span class="sd">* :func:`parse_simple_expression`, :func:`parse_next_expression`,</span>
+<span class="sd">  :func:`parse_identifier` and :func:`parse_ctl_spec` are direct access to</span>
+<span class="sd">  NuSMV parser, returning wrappers to NuSMV internal data structures</span>
+<span class="sd">  representing the language AST.</span>
 <span class="sd">* :data:`identifier`, :data:`simple_expression`, :data:`constant`,</span>
 <span class="sd">  :data:`next_expression`, :data:`type_identifier`, :data:`var_section`,</span>
 <span class="sd">  :data:`ivar_section`, :data:`frozenvar_section`, :data:`define_section`,</span>
@@ -74,6 +75,7 @@
     <span class="s">&#39;parse_simple_expression&#39;</span><span class="p">,</span>
     <span class="s">&#39;parse_next_expression&#39;</span><span class="p">,</span>
     <span class="s">&#39;parse_identifier&#39;</span><span class="p">,</span>
+    <span class="s">&#39;parse_ctl_spec&#39;</span><span class="p">,</span>
     <span class="s">&#39;identifier&#39;</span><span class="p">,</span>
     <span class="s">&#39;complex_identifier&#39;</span><span class="p">,</span>
     <span class="s">&#39;simple_expression&#39;</span><span class="p">,</span>
@@ -197,6 +199,31 @@
         <span class="k">raise</span> <span class="n">NuSMVParsingError</span><span class="o">.</span><span class="n">from_nusmv_errors_list</span><span class="p">(</span><span class="n">errors</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="n">node</span> <span class="o">=</span> <span class="n">nsnode</span><span class="o">.</span><span class="n">car</span><span class="p">(</span><span class="n">node</span><span class="p">)</span>  <span class="c"># Get rid of the top COMPID node</span>
+        <span class="k">if</span> <span class="n">node</span><span class="o">.</span><span class="n">type</span> <span class="ow">is</span> <span class="n">nsparser</span><span class="o">.</span><span class="n">CONTEXT</span> <span class="ow">and</span> <span class="n">nsnode</span><span class="o">.</span><span class="n">car</span><span class="p">(</span><span class="n">node</span><span class="p">)</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="c"># Get rid of the top empty context if any</span>
+            <span class="k">return</span> <span class="n">nsnode</span><span class="o">.</span><span class="n">cdr</span><span class="p">(</span><span class="n">node</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">node</span>
+
+</div>
+<div class="viewcode-block" id="parse_ctl_spec"><a class="viewcode-back" href="../../pynusmv.html#pynusmv.parser.parse_ctl_spec">[docs]</a><span class="k">def</span> <span class="nf">parse_ctl_spec</span><span class="p">(</span><span class="n">spec</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Parse a CTL specification</span>
+
+<span class="sd">    :param string spec: the specification to parse</span>
+<span class="sd">    :raise: a :exc:`NuSMVParsingError &lt;pynusmv.exception.NuSMVParsingError&gt;`</span>
+<span class="sd">            if a parsing error occurs</span>
+
+<span class="sd">    .. warning:: Returned value is a SWIG wrapper for the NuSMV node_ptr.</span>
+<span class="sd">       It is the responsibility of the caller to manage it.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">node</span><span class="p">,</span> <span class="n">err</span> <span class="o">=</span> <span class="n">nsparser</span><span class="o">.</span><span class="n">ReadCmdFromString</span><span class="p">(</span><span class="s">&quot;CTLWFF &quot;</span> <span class="o">+</span> <span class="n">spec</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">err</span><span class="p">:</span>
+        <span class="n">errors</span> <span class="o">=</span> <span class="n">nsparser</span><span class="o">.</span><span class="n">Parser_get_syntax_errors_list</span><span class="p">()</span>
+        <span class="k">raise</span> <span class="n">NuSMVParsingError</span><span class="o">.</span><span class="n">from_nusmv_errors_list</span><span class="p">(</span><span class="n">errors</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">node</span> <span class="o">=</span> <span class="n">nsnode</span><span class="o">.</span><span class="n">car</span><span class="p">(</span><span class="n">node</span><span class="p">)</span>  <span class="c"># Get rid of the top CTLWFF node</span>
         <span class="k">if</span> <span class="n">node</span><span class="o">.</span><span class="n">type</span> <span class="ow">is</span> <span class="n">nsparser</span><span class="o">.</span><span class="n">CONTEXT</span> <span class="ow">and</span> <span class="n">nsnode</span><span class="o">.</span><span class="n">car</span><span class="p">(</span><span class="n">node</span><span class="p">)</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
             <span class="c"># Get rid of the top empty context if any</span>
             <span class="k">return</span> <span class="n">nsnode</span><span class="o">.</span><span class="n">cdr</span><span class="p">(</span><span class="n">node</span><span class="p">)</span>

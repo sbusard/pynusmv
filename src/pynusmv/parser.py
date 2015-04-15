@@ -3,9 +3,10 @@ The :mod:`pynusmv.parser` module provides functions to parse strings
 and return corresponding ASTs. This module includes three types of
 functionalities:
 
-* :func:`parse_simple_expression`, :func:`parse_next_expression` and
-  :func:`parse_identifier` are direct access to NuSMV parser, returning
-  wrappers to NuSMV internal data structures representing the language AST.
+* :func:`parse_simple_expression`, :func:`parse_next_expression`,
+  :func:`parse_identifier` and :func:`parse_ctl_spec` are direct access to
+  NuSMV parser, returning wrappers to NuSMV internal data structures
+  representing the language AST.
 * :data:`identifier`, :data:`simple_expression`, :data:`constant`,
   :data:`next_expression`, :data:`type_identifier`, :data:`var_section`,
   :data:`ivar_section`, :data:`frozenvar_section`, :data:`define_section`,
@@ -25,6 +26,7 @@ __all__ = [
     'parse_simple_expression',
     'parse_next_expression',
     'parse_identifier',
+    'parse_ctl_spec',
     'identifier',
     'complex_identifier',
     'simple_expression',

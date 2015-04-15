@@ -3,9 +3,9 @@ The :mod:`pynusmv.mc` module provides some functions of NuSMV dealing with
 model checking, like CTL model checking.
 """
 
-__all__ = ['eval_simple_expression', 'eval_ctl_spec',
+__all__ = ['check_ctl_spec', 'eval_simple_expression', 'eval_ctl_spec',
            'ef', 'eg', 'ex', 'eu', 'au',
-           'explainEX', 'explainEU', 'explainEG']
+           'explain', 'explainEX', 'explainEU', 'explainEG']
 
 
 from .nusmv.node import node as nsnode
@@ -156,6 +156,8 @@ def explain(fsm, state, spec, context=None):
     and inputs (:class:`Inputs <pynusmv.dd.Inputs>`),
     such that `t[0]` is `state` and `t` represents a path in `fsm` explaining
     why `state` satisfies `spec` in `context`.
+    The returned path is looping if the last state of path is equal to a
+    previous state along the path.
 
     """
     if context is not None:

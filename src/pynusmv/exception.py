@@ -16,7 +16,7 @@ __all__ = ['PyNuSMVError', 'MissingManagerError', 'NuSMVLexerError',
            'NuSMVModelAlreadyBuiltError', 'NuSMVNeedVariablesEncodedError',
            'NuSMVInitError', 'NuSMVParserError', 'NuSMVTypeCheckingError',
            'NuSMVFlatteningError', 'NuSMVBddPickingError',
-           'NuSMVParsingError']
+           'NuSMVParsingError', 'NuSMVModuleError', 'NuSMVSymbTableError']
 
 
 from collections import namedtuple
