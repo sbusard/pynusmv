@@ -2,7 +2,8 @@ import unittest
 import pyparsing
 
 from pynusmv import parser
-from pynusmv.model import Expression, Identifier, Self, Dot, ArrayAccess
+from pynusmv.model import (Expression, Identifier, Self, Dot, ArrayAccess,
+                           ArrayExpr)
 
 class TestParsing(unittest.TestCase):
     
@@ -191,6 +192,12 @@ class TestParsing(unittest.TestCase):
         for notype in notypes:
             with self.assertRaises(pyparsing.ParseException):
                 parser.parseAllString(parser.type_identifier, notype)
+    
+    def test_define(self):
+        code = "DEFINE b := [[a], [b], [c, d]];"
+        b = Identifier("b")
+        define = parser.parseAllString(parser.define_section, code)
+        self.assertEqual(type(define.body[b]), ArrayExpr)
     
     def test_var_section(self):
         code = "VAR c1 : 0..2; c2 : counter(t);"

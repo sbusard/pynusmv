@@ -62,6 +62,7 @@ __all__ = [
     "Ite",
     "Iff",
     "Implies",
+    "ArrayExpr",
     "Boolean",
     "Word",
     "Scalar",
@@ -1743,6 +1744,25 @@ class Implies(Operator):
     def __deepcopy__(self, memo):
         return Implies(deepcopy(self.left, memo),
                        deepcopy(self.right, memo))
+
+
+class ArrayExpr(Element):
+
+    """An array define expression."""
+
+    def __init__(self, array):
+        self.array = array
+
+    def __str__(self):
+        if self.source:
+            return self.source
+        return str(self.array)
+    
+    def __hash__(self):
+        return 17 + 23 * hash("ArrayExpr") + 23 ** 2 * hash(self.array)
+    
+    def __deepcopy__(sef, memo):
+        return ArrayExpr(deepcopy(self.array, memo))
 
 
 # -----------------------------------------------------------------------------

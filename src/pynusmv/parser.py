@@ -59,10 +59,12 @@ from .model import (Identifier, Self, Dot, ArrayAccess, Trueexp, Falseexp,
                     Subscript, BitSelection, Set, Not, Concat,
                     Minus, Mult, Div, Mod, Add, Sub, LShift, RShift, Union, In,
                     Equal, NotEqual, Lt, Gt, Le, Ge, And, Or, Xor, Xnor, Ite,
-                    Iff, Implies, Boolean, Word, Scalar, Range, Array, Modtype,
+                    Iff, Implies, ArrayExpr,
+                    Boolean, Word, Scalar, Range, Array, Modtype,
                     Variables, InputVariables, FrozenVariables, Defines,
                     Assigns, Constants, Trans, Init, Invar, Fairness, Justice,
-                    Compassion)
+                    Compassion,
+                    Expression)
 
 from .nusmv.parser import parser as nsparser
 from .nusmv.node import node as nsnode
@@ -479,11 +481,23 @@ frozenvar_section = Suppress("FROZENVAR") + _frozenvar_section_body
 frozenvar_section.setParseAction(lambda s, l, t: FrozenVariables(t[0]))
 
 # DEFINE and CONSTANTS
-_define_declaration = (identifier + Suppress(":=") + simple_expression
-                       + Suppress(";"))
+_array_expression = Forward()
+_array_expression <<= ( Suppress("[") + Group(delimitedList(next_expression))
+                        + Suppress("]")
+                      | Suppress("[") + Group(delimitedList(_array_expression))
+                        + Suppress("]"))
+_define = _array_expression | next_expression
+_define_declaration = (identifier + Suppress(":=") + _define + Suppress(";"))
+
+def _handle_define_body(s, l, t):
+    b = OrderedDict()
+    for identifier, body in zip(t[::2], t[1::2]):
+        if not isinstance(body, Expression):
+            body = ArrayExpr(body)
+        b[identifier] = body
+    return b
 _define_section_body = OneOrMore(_define_declaration)
-_define_section_body.setParseAction(lambda s, l, t:
-                                    OrderedDict(zip(t[::2], t[1::2])))
+_define_section_body.setParseAction(_handle_define_body)
 define_section = Suppress("DEFINE") + _define_section_body
 define_section.setParseAction(lambda s, l, t: Defines(t[0]))
 
