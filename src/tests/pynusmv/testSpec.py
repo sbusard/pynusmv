@@ -5,10 +5,12 @@ from pynusmv.nusmv.cmd import cmd
 from pynusmv.nusmv.parser import parser
 
 from pynusmv.prop import Spec
+from pynusmv.node import Node, find_hierarchy
 from pynusmv.prop import (true as sptrue, false as spfalse, imply, iff,
                                ex, eg, ef, eu, ew, ax, ag, af, au, aw, atom)
 
 from pynusmv.init import init_nusmv, deinit_nusmv
+from pynusmv.parser import parse_ctl_spec
 
 class TestSpec(unittest.TestCase):
     
@@ -155,3 +157,25 @@ class TestSpec(unittest.TestCase):
         self.assertEqual(awspec.type, parser.AW)
         self.assertIsNotNone(awspec.car)
         self.assertIsNotNone(awspec.cdr)
+    
+    def test_car_cdr(self):
+        spec = au(atom("s", type_checking=False),
+                  atom("t", type_checking=False))
+        self.assertEqual(spec.car, spec.car)
+        self.assertNotEqual(spec.car, spec.cdr)
+        
+        parsed_spec = parse_ctl_spec("A [s U s]")
+        spec = Spec(parsed_spec)
+        self.assertNotEqual(spec.car, spec.cdr)
+        self.assertEqual(spec.car, spec.car)
+        
+        newspec = au(spec.car, spec.cdr)
+        self.assertEqual(spec.car, newspec.car)
+        self.assertEqual(spec.cdr, newspec.cdr)
+        self.assertNotEqual(spec, newspec)
+        
+        newspec2 = au(spec.car, spec.cdr)
+        self.assertNotEqual(newspec, newspec2)
+        
+        s = {spec.car, spec.car, spec.cdr}
+        self.assertEqual(len(s), 2)

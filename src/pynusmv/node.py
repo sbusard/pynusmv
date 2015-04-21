@@ -134,7 +134,7 @@ class Node(PointerWrapper):
             return False
 
     def __hash__(self):
-        return id(self._ptr)
+        return nsnode.node2int(self._ptr)
 
     def __deepcopy__(self, memo):
         # Does not need to deep copy since these are immutable

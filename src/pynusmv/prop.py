@@ -182,6 +182,13 @@ class Spec(PointerWrapper):
 
         """
         super(Spec, self).__init__(ptr, freeit=freeit)
+        self._car = "undefined"
+        self._cdr = "undefined"
+    
+    def _free(self):
+        if self._freeit and self._ptr is not None:
+            nsnode.free_node(self._ptr)
+            self._freeit = False
 
     @property
     def type(self):
@@ -199,11 +206,13 @@ class Spec(PointerWrapper):
         :rtype: :class:`Spec`
 
         """
-        left = nsnode.car(self._ptr)
-        if left:
-            return Spec(left, freeit=self._freeit)
-        else:
-            return None
+        if self._car  == "undefined":
+            left = nsnode.car(self._ptr)
+            if left:
+                self._car = Spec(left, freeit=self._freeit)
+            else:
+                self._car = None
+        return self._car
 
     @property
     def cdr(self):
@@ -213,11 +222,13 @@ class Spec(PointerWrapper):
         :rtype: :class:`Spec`
 
         """
-        right = nsnode.cdr(self._ptr)
-        if right:
-            return Spec(right, freeit=self._freeit)
-        else:
-            return None
+        if self._cdr == "undefined":
+            right = nsnode.cdr(self._ptr)
+            if right:
+                self._cdr = Spec(right, freeit=self._freeit)
+            else:
+                self._cdr = None
+        return self._cdr
 
     def __str__(self):
         """
@@ -225,6 +236,19 @@ class Spec(PointerWrapper):
 
         """
         return nsnode.sprint_node(self._ptr)
+
+    def __eq__(self, other):
+        """
+        Return whether self is equal to other.
+
+        """
+        if isinstance(self, type(other)):
+            return nsnode.node_equal(self._ptr, other._ptr) != 0
+        else:
+            return False
+    
+    def __hash__(self):
+        return nsnode.node2int(self._ptr)
 
     def __or__(self, other):
         """
@@ -235,7 +259,11 @@ class Spec(PointerWrapper):
         """
         if other is None:
             raise ValueError()
-        return Spec(nsnode.find_node(nsparser.OR, self._ptr, other._ptr))
+        s = Spec(nsnode.create_node(nsparser.OR, self._ptr, other._ptr), 
+                 freeit=True)
+        s._car = self
+        s._cdr = other
+        return s
 
     def __and__(self, other):
         """
@@ -246,7 +274,11 @@ class Spec(PointerWrapper):
         """
         if other is None:
             raise ValueError()
-        return Spec(nsnode.find_node(nsparser.AND, self._ptr, other._ptr))
+        s = Spec(nsnode.create_node(nsparser.AND, self._ptr, other._ptr),
+                 freeit=True)
+        s._car = self
+        s._cdr = other
+        return s
 
     def __invert__(self):
         """
@@ -255,7 +287,10 @@ class Spec(PointerWrapper):
         :rtype: :class:`Spec`
 
         """
-        return Spec(nsnode.find_node(nsparser.NOT, self._ptr, None))
+        s = Spec(nsnode.create_node(nsparser.NOT, self._ptr, None),
+                 freeit=True)
+        s._car = self
+        return s
 
 
 def true():
@@ -265,7 +300,7 @@ def true():
     :rtype: :class:`Spec`
 
     """
-    return Spec(nsnode.find_node(nsparser.TRUEEXP, None, None))
+    return Spec(nsnode.create_node(nsparser.TRUEEXP, None, None), freeit=True)
 
 
 def false():
@@ -275,7 +310,7 @@ def false():
     :rtype: :class:`Spec`
 
     """
-    return Spec(nsnode.find_node(nsparser.FALSEEXP, None, None))
+    return Spec(nsnode.create_node(nsparser.FALSEEXP, None, None), freeit=True)
 
 
 def not_(spec):
@@ -286,7 +321,9 @@ def not_(spec):
     """
     if spec is None:
         raise ValueError()
-    return Spec(nsnode.find_node(nsparser.NOT, spec._ptr, None))
+    s = Spec(nsnode.create_node(nsparser.NOT, spec._ptr, None), freeit=True)
+    s._car = spec
+    return s
 
 
 def and_(left, right):
@@ -298,7 +335,10 @@ def and_(left, right):
     """
     if left is None or right is None:
         raise ValueError()
-    return Spec(nsnode.find_node(nsparser.AND, left._ptr, right._ptr))
+    s = Spec(nsnode.create_node(nsparser.AND, left._ptr, right._ptr), freeit=True)
+    s._car = left
+    s._cdr = right
+    return s
 
 
 def or_(left, right):
@@ -310,7 +350,10 @@ def or_(left, right):
     """
     if left is None or right is None:
         raise ValueError()
-    return Spec(nsnode.find_node(nsparser.OR, left._ptr, right._ptr))
+    s = Spec(nsnode.create_node(nsparser.OR, left._ptr, right._ptr), freeit=True)
+    s._car = left
+    s._cdr = right
+    return s
 
 
 def imply(left, right):
@@ -322,7 +365,11 @@ def imply(left, right):
     """
     if left is None or right is None:
         raise ValueError()
-    return Spec(nsnode.find_node(nsparser.IMPLIES, left._ptr, right._ptr))
+    s = Spec(nsnode.create_node(nsparser.IMPLIES, left._ptr, right._ptr),
+             freeit=True)
+    s._car = left
+    s._cdr = right
+    return s
 
 
 def iff(left, right):
@@ -334,7 +381,10 @@ def iff(left, right):
     """
     if left is None or right is None:
         raise ValueError()
-    return Spec(nsnode.find_node(nsparser.IFF, left._ptr, right._ptr))
+    s = Spec(nsnode.create_node(nsparser.IFF, left._ptr, right._ptr), freeit=True)
+    s._car = left
+    s._cdr = right
+    return s
 
 
 def ex(spec):
@@ -346,7 +396,9 @@ def ex(spec):
     """
     if spec is None:
         raise ValueError()
-    return Spec(nsnode.find_node(nsparser.EX, spec._ptr, None))
+    s = Spec(nsnode.create_node(nsparser.EX, spec._ptr, None), freeit=True)
+    s._car = spec
+    return s
 
 
 def eg(spec):
@@ -358,7 +410,9 @@ def eg(spec):
     """
     if spec is None:
         raise ValueError()
-    return Spec(nsnode.find_node(nsparser.EG, spec._ptr, None))
+    s = Spec(nsnode.create_node(nsparser.EG, spec._ptr, None), freeit=True)
+    s._car = spec
+    return s
 
 
 def ef(spec):
@@ -370,7 +424,9 @@ def ef(spec):
     """
     if spec is None:
         raise ValueError()
-    return Spec(nsnode.find_node(nsparser.EF, spec._ptr, None))
+    s = Spec(nsnode.create_node(nsparser.EF, spec._ptr, None), freeit=True)
+    s._car = spec
+    return s
 
 
 def eu(left, right):
@@ -382,7 +438,10 @@ def eu(left, right):
     """
     if left is None or right is None:
         raise ValueError()
-    return Spec(nsnode.find_node(nsparser.EU, left._ptr, right._ptr))
+    s = Spec(nsnode.create_node(nsparser.EU, left._ptr, right._ptr), freeit=True)
+    s._car = left
+    s._cdr = right
+    return s
 
 
 def ew(left, right):
@@ -394,7 +453,10 @@ def ew(left, right):
     """
     if left is None or right is None:
         raise ValueError()
-    return Spec(nsnode.find_node(nsparser.EW, left._ptr, right._ptr))
+    s = Spec(nsnode.create_node(nsparser.EW, left._ptr, right._ptr), freeit=True)
+    s._car = left
+    s._cdr = right
+    return s
 
 
 def ax(spec):
@@ -406,7 +468,9 @@ def ax(spec):
     """
     if spec is None:
         raise ValueError()
-    return Spec(nsnode.find_node(nsparser.AX, spec._ptr, None))
+    s = Spec(nsnode.create_node(nsparser.AX, spec._ptr, None), freeit=True)
+    s._car = spec
+    return s
 
 
 def ag(spec):
@@ -418,7 +482,9 @@ def ag(spec):
     """
     if spec is None:
         raise ValueError()
-    return Spec(nsnode.find_node(nsparser.AG, spec._ptr, None))
+    s = Spec(nsnode.create_node(nsparser.AG, spec._ptr, None), freeit=True)
+    s._car = spec
+    return s
 
 
 def af(spec):
@@ -430,7 +496,9 @@ def af(spec):
     """
     if spec is None:
         raise ValueError()
-    return Spec(nsnode.find_node(nsparser.AF, spec._ptr, None))
+    s = Spec(nsnode.create_node(nsparser.AF, spec._ptr, None), freeit=True)
+    s._car = spec
+    return s
 
 
 def au(left, right):
@@ -442,7 +510,10 @@ def au(left, right):
     """
     if left is None or right is None:
         raise ValueError()
-    return Spec(nsnode.find_node(nsparser.AU, left._ptr, right._ptr))
+    s = Spec(nsnode.create_node(nsparser.AU, left._ptr, right._ptr), freeit=True)
+    s._car = left
+    s._cdr = right
+    return s
 
 
 def aw(left, right):
@@ -454,16 +525,25 @@ def aw(left, right):
     """
     if left is None or right is None:
         raise ValueError()
-    return Spec(nsnode.find_node(nsparser.AW, left._ptr, right._ptr))
+    s = Spec(nsnode.create_node(nsparser.AW, left._ptr, right._ptr), freeit=True)
+    s._car = left
+    s._cdr = right
+    return s
 
 
-def atom(strrep):
+def atom(strrep, type_checking=True):
     """
     Return a new specification corresponding to the given atom.
-    `strrep` is parsed type checked on the current model. A model needs to be
-    read and with variables encoded to be able to type check the atomic
-    proposition.
+    `strrep` is parsed and type checked on the current model. A model needs to
+    be read and with variables encoded to be able to type check the atomic
+    proposition. If type_checking is `False`, type checking is not performed
+    and a model is not needed anymore.
 
+    :param strrep: the string representation of the atom
+    :type sttrep: str
+    :param type_checking: whether or not type check the parsed string
+                          (default: True)
+    :type type_checking: bool
     :rtype: :class:`Spec`
 
     """
@@ -474,13 +554,14 @@ def atom(strrep):
     node = parser.parse_simple_expression(strrep)
 
     # Type checking
-    # TODO Prevent printing a message on stderr
-    symb_table = glob.bdd_encoding().symbTable
-    # TODO Type check only if symb_table is not None? With a Warning?
-    type_checker = nssymb_table.SymbTable_get_type_checker(symb_table._ptr)
-    expr_type = nstype_checking.TypeChecker_get_expression_type(
-        type_checker, node, None)
-    if not nssymb_table.SymbType_is_boolean(expr_type):
-        raise NuSMVTypeCheckingError(strrep + " is wrongly typed.")
-
+    if type_checking:
+        # TODO Prevent printing a message on stderr
+        symb_table = glob.bdd_encoding().symbTable
+        # TODO Type check only if symb_table is not None? With a Warning?
+        type_checker = nssymb_table.SymbTable_get_type_checker(symb_table._ptr)
+        expr_type = nstype_checking.TypeChecker_get_expression_type(
+            type_checker, node, None)
+        if not nssymb_table.SymbType_is_boolean(expr_type):
+            raise NuSMVTypeCheckingError(strrep + " is wrongly typed.")
+        
     return Spec(node)
