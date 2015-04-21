@@ -231,6 +231,13 @@
 
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">Spec</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">ptr</span><span class="p">,</span> <span class="n">freeit</span><span class="o">=</span><span class="n">freeit</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_car</span> <span class="o">=</span> <span class="s">&quot;undefined&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_cdr</span> <span class="o">=</span> <span class="s">&quot;undefined&quot;</span>
+    
+    <span class="k">def</span> <span class="nf">_free</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_freeit</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ptr</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">nsnode</span><span class="o">.</span><span class="n">free_node</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_ptr</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_freeit</span> <span class="o">=</span> <span class="bp">False</span>
 
     <span class="nd">@property</span>
 <div class="viewcode-block" id="Spec.type"><a class="viewcode-back" href="../../pynusmv.html#pynusmv.prop.Spec.type">[docs]</a>    <span class="k">def</span> <span class="nf">type</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -248,11 +255,13 @@
 <span class="sd">        :rtype: :class:`Spec`</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">left</span> <span class="o">=</span> <span class="n">nsnode</span><span class="o">.</span><span class="n">car</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_ptr</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">left</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">Spec</span><span class="p">(</span><span class="n">left</span><span class="p">,</span> <span class="n">freeit</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_freeit</span><span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="k">return</span> <span class="bp">None</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_car</span>  <span class="o">==</span> <span class="s">&quot;undefined&quot;</span><span class="p">:</span>
+            <span class="n">left</span> <span class="o">=</span> <span class="n">nsnode</span><span class="o">.</span><span class="n">car</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_ptr</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">left</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_car</span> <span class="o">=</span> <span class="n">Spec</span><span class="p">(</span><span class="n">left</span><span class="p">,</span> <span class="n">freeit</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_freeit</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_car</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_car</span>
 </div>
     <span class="nd">@property</span>
 <div class="viewcode-block" id="Spec.cdr"><a class="viewcode-back" href="../../pynusmv.html#pynusmv.prop.Spec.cdr">[docs]</a>    <span class="k">def</span> <span class="nf">cdr</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -262,11 +271,13 @@
 <span class="sd">        :rtype: :class:`Spec`</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">right</span> <span class="o">=</span> <span class="n">nsnode</span><span class="o">.</span><span class="n">cdr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_ptr</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">right</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">Spec</span><span class="p">(</span><span class="n">right</span><span class="p">,</span> <span class="n">freeit</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_freeit</span><span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="k">return</span> <span class="bp">None</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cdr</span> <span class="o">==</span> <span class="s">&quot;undefined&quot;</span><span class="p">:</span>
+            <span class="n">right</span> <span class="o">=</span> <span class="n">nsnode</span><span class="o">.</span><span class="n">cdr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_ptr</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">right</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_cdr</span> <span class="o">=</span> <span class="n">Spec</span><span class="p">(</span><span class="n">right</span><span class="p">,</span> <span class="n">freeit</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_freeit</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_cdr</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cdr</span>
 </div>
     <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -274,6 +285,19 @@
 
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">nsnode</span><span class="o">.</span><span class="n">sprint_node</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_ptr</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return whether self is equal to other.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">type</span><span class="p">(</span><span class="n">other</span><span class="p">)):</span>
+            <span class="k">return</span> <span class="n">nsnode</span><span class="o">.</span><span class="n">node_equal</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_ptr</span><span class="p">,</span> <span class="n">other</span><span class="o">.</span><span class="n">_ptr</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">0</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">False</span>
+    
+    <span class="k">def</span> <span class="nf">__hash__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">nsnode</span><span class="o">.</span><span class="n">node2int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_ptr</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">__or__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -284,7 +308,11 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">other</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">()</span>
-        <span class="k">return</span> <span class="n">Spec</span><span class="p">(</span><span class="n">nsnode</span><span class="o">.</span><span class="n">find_node</span><span class="p">(</span><span class="n">nsparser</span><span class="o">.</span><span class="n">OR</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ptr</span><span class="p">,</span> <span class="n">other</span><span class="o">.</span><span class="n">_ptr</span><span class="p">))</span>
+        <span class="n">s</span> <span class="o">=</span> <span class="n">Spec</span><span class="p">(</span><span class="n">nsnode</span><span class="o">.</span><span class="n">create_node</span><span class="p">(</span><span class="n">nsparser</span><span class="o">.</span><span class="n">OR</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ptr</span><span class="p">,</span> <span class="n">other</span><span class="o">.</span><span class="n">_ptr</span><span class="p">),</span> 
+                 <span class="n">freeit</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+        <span class="n">s</span><span class="o">.</span><span class="n">_car</span> <span class="o">=</span> <span class="bp">self</span>
+        <span class="n">s</span><span class="o">.</span><span class="n">_cdr</span> <span class="o">=</span> <span class="n">other</span>
+        <span class="k">return</span> <span class="n">s</span>
 
     <span class="k">def</span> <span class="nf">__and__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -295,7 +323,11 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">other</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">()</span>
-        <span class="k">return</span> <span class="n">Spec</span><span class="p">(</span><span class="n">nsnode</span><span class="o">.</span><span class="n">find_node</span><span class="p">(</span><span class="n">nsparser</span><span class="o">.</span><span class="n">AND</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ptr</span><span class="p">,</span> <span class="n">other</span><span class="o">.</span><span class="n">_ptr</span><span class="p">))</span>
+        <span class="n">s</span> <span class="o">=</span> <span class="n">Spec</span><span class="p">(</span><span class="n">nsnode</span><span class="o">.</span><span class="n">create_node</span><span class="p">(</span><span class="n">nsparser</span><span class="o">.</span><span class="n">AND</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ptr</span><span class="p">,</span> <span class="n">other</span><span class="o">.</span><span class="n">_ptr</span><span class="p">),</span>
+                 <span class="n">freeit</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+        <span class="n">s</span><span class="o">.</span><span class="n">_car</span> <span class="o">=</span> <span class="bp">self</span>
+        <span class="n">s</span><span class="o">.</span><span class="n">_cdr</span> <span class="o">=</span> <span class="n">other</span>
+        <span class="k">return</span> <span class="n">s</span>
 
     <span class="k">def</span> <span class="nf">__invert__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -304,7 +336,10 @@
 <span class="sd">        :rtype: :class:`Spec`</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="n">Spec</span><span class="p">(</span><span class="n">nsnode</span><span class="o">.</span><span class="n">find_node</span><span class="p">(</span><span class="n">nsparser</span><span class="o">.</span><span class="n">NOT</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ptr</span><span class="p">,</span> <span class="bp">None</span><span class="p">))</span>
+        <span class="n">s</span> <span class="o">=</span> <span class="n">Spec</span><span class="p">(</span><span class="n">nsnode</span><span class="o">.</span><span class="n">create_node</span><span class="p">(</span><span class="n">nsparser</span><span class="o">.</span><span class="n">NOT</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ptr</span><span class="p">,</span> <span class="bp">None</span><span class="p">),</span>
+                 <span class="n">freeit</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+        <span class="n">s</span><span class="o">.</span><span class="n">_car</span> <span class="o">=</span> <span class="bp">self</span>
+        <span class="k">return</span> <span class="n">s</span>
 
 </div>
 <div class="viewcode-block" id="true"><a class="viewcode-back" href="../../pynusmv.html#pynusmv.prop.true">[docs]</a><span class="k">def</span> <span class="nf">true</span><span class="p">():</span>
@@ -314,7 +349,7 @@
 <span class="sd">    :rtype: :class:`Spec`</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="n">Spec</span><span class="p">(</span><span class="n">nsnode</span><span class="o">.</span><span class="n">find_node</span><span class="p">(</span><span class="n">nsparser</span><span class="o">.</span><span class="n">TRUEEXP</span><span class="p">,</span> <span class="bp">None</span><span class="p">,</span> <span class="bp">None</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">Spec</span><span class="p">(</span><span class="n">nsnode</span><span class="o">.</span><span class="n">create_node</span><span class="p">(</span><span class="n">nsparser</span><span class="o">.</span><span class="n">TRUEEXP</span><span class="p">,</span> <span class="bp">None</span><span class="p">,</span> <span class="bp">None</span><span class="p">),</span> <span class="n">freeit</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
 
 </div>
 <div class="viewcode-block" id="false"><a class="viewcode-back" href="../../pynusmv.html#pynusmv.prop.false">[docs]</a><span class="k">def</span> <span class="nf">false</span><span class="p">():</span>
@@ -324,7 +359,7 @@
 <span class="sd">    :rtype: :class:`Spec`</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="n">Spec</span><span class="p">(</span><span class="n">nsnode</span><span class="o">.</span><span class="n">find_node</span><span class="p">(</span><span class="n">nsparser</span><span class="o">.</span><span class="n">FALSEEXP</span><span class="p">,</span> <span class="bp">None</span><span class="p">,</span> <span class="bp">None</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">Spec</span><span class="p">(</span><span class="n">nsnode</span><span class="o">.</span><span class="n">create_node</span><span class="p">(</span><span class="n">nsparser</span><span class="o">.</span><span class="n">FALSEEXP</span><span class="p">,</span> <span class="bp">None</span><span class="p">,</span> <span class="bp">None</span><span class="p">),</span> <span class="n">freeit</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
 
 </div>
 <div class="viewcode-block" id="not_"><a class="viewcode-back" href="../../pynusmv.html#pynusmv.prop.not_">[docs]</a><span class="k">def</span> <span class="nf">not_</span><span class="p">(</span><span class="n">spec</span><span class="p">):</span>
@@ -335,7 +370,9 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="n">spec</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">()</span>
-    <span class="k">return</span> <span class="n">Spec</span><span class="p">(</span><span class="n">nsnode</span><span class="o">.</span><span class="n">find_node</span><span class="p">(</span><span class="n">nsparser</span><span class="o">.</span><span class="n">NOT</span><span class="p">,</span> <span class="n">spec</span><span class="o">.</span><span class="n">_ptr</span><span class="p">,</span> <span class="bp">None</span><span class="p">))</span>
+    <span class="n">s</span> <span class="o">=</span> <span class="n">Spec</span><span class="p">(</span><span class="n">nsnode</span><span class="o">.</span><span class="n">create_node</span><span class="p">(</span><span class="n">nsparser</span><span class="o">.</span><span class="n">NOT</span><span class="p">,</span> <span class="n">spec</span><span class="o">.</span><span class="n">_ptr</span><span class="p">,</span> <span class="bp">None</span><span class="p">),</span> <span class="n">freeit</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+    <span class="n">s</span><span class="o">.</span><span class="n">_car</span> <span class="o">=</span> <span class="n">spec</span>
+    <span class="k">return</span> <span class="n">s</span>
 
 </div>
 <div class="viewcode-block" id="and_"><a class="viewcode-back" href="../../pynusmv.html#pynusmv.prop.and_">[docs]</a><span class="k">def</span> <span class="nf">and_</span><span class="p">(</span><span class="n">left</span><span class="p">,</span> <span class="n">right</span><span class="p">):</span>
@@ -347,7 +384,10 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="n">left</span> <span class="ow">is</span> <span class="bp">None</span> <span class="ow">or</span> <span class="n">right</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">()</span>
-    <span class="k">return</span> <span class="n">Spec</span><span class="p">(</span><span class="n">nsnode</span><span class="o">.</span><span class="n">find_node</span><span class="p">(</span><span class="n">nsparser</span><span class="o">.</span><span class="n">AND</span><span class="p">,</span> <span class="n">left</span><span class="o">.</span><span class="n">_ptr</span><span class="p">,</span> <span class="n">right</span><span class="o">.</span><span class="n">_ptr</span><span class="p">))</span>
+    <span class="n">s</span> <span class="o">=</span> <span class="n">Spec</span><span class="p">(</span><span class="n">nsnode</span><span class="o">.</span><span class="n">create_node</span><span class="p">(</span><span class="n">nsparser</span><span class="o">.</span><span class="n">AND</span><span class="p">,</span> <span class="n">left</span><span class="o">.</span><span class="n">_ptr</span><span class="p">,</span> <span class="n">right</span><span class="o">.</span><span class="n">_ptr</span><span class="p">),</span> <span class="n">freeit</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+    <span class="n">s</span><span class="o">.</span><span class="n">_car</span> <span class="o">=</span> <span class="n">left</span>
+    <span class="n">s</span><span class="o">.</span><span class="n">_cdr</span> <span class="o">=</span> <span class="n">right</span>
+    <span class="k">return</span> <span class="n">s</span>
 
 </div>
 <div class="viewcode-block" id="or_"><a class="viewcode-back" href="../../pynusmv.html#pynusmv.prop.or_">[docs]</a><span class="k">def</span> <span class="nf">or_</span><span class="p">(</span><span class="n">left</span><span class="p">,</span> <span class="n">right</span><span class="p">):</span>
@@ -359,7 +399,10 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="n">left</span> <span class="ow">is</span> <span class="bp">None</span> <span class="ow">or</span> <span class="n">right</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">()</span>
-    <span class="k">return</span> <span class="n">Spec</span><span class="p">(</span><span class="n">nsnode</span><span class="o">.</span><span class="n">find_node</span><span class="p">(</span><span class="n">nsparser</span><span class="o">.</span><span class="n">OR</span><span class="p">,</span> <span class="n">left</span><span class="o">.</span><span class="n">_ptr</span><span class="p">,</span> <span class="n">right</span><span class="o">.</span><span class="n">_ptr</span><span class="p">))</span>
+    <span class="n">s</span> <span class="o">=</span> <span class="n">Spec</span><span class="p">(</span><span class="n">nsnode</span><span class="o">.</span><span class="n">create_node</span><span class="p">(</span><span class="n">nsparser</span><span class="o">.</span><span class="n">OR</span><span class="p">,</span> <span class="n">left</span><span class="o">.</span><span class="n">_ptr</span><span class="p">,</span> <span class="n">right</span><span class="o">.</span><span class="n">_ptr</span><span class="p">),</span> <span class="n">freeit</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+    <span class="n">s</span><span class="o">.</span><span class="n">_car</span> <span class="o">=</span> <span class="n">left</span>
+    <span class="n">s</span><span class="o">.</span><span class="n">_cdr</span> <span class="o">=</span> <span class="n">right</span>
+    <span class="k">return</span> <span class="n">s</span>
 
 </div>
 <div class="viewcode-block" id="imply"><a class="viewcode-back" href="../../pynusmv.html#pynusmv.prop.imply">[docs]</a><span class="k">def</span> <span class="nf">imply</span><span class="p">(</span><span class="n">left</span><span class="p">,</span> <span class="n">right</span><span class="p">):</span>
@@ -371,7 +414,11 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="n">left</span> <span class="ow">is</span> <span class="bp">None</span> <span class="ow">or</span> <span class="n">right</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">()</span>
-    <span class="k">return</span> <span class="n">Spec</span><span class="p">(</span><span class="n">nsnode</span><span class="o">.</span><span class="n">find_node</span><span class="p">(</span><span class="n">nsparser</span><span class="o">.</span><span class="n">IMPLIES</span><span class="p">,</span> <span class="n">left</span><span class="o">.</span><span class="n">_ptr</span><span class="p">,</span> <span class="n">right</span><span class="o">.</span><span class="n">_ptr</span><span class="p">))</span>
+    <span class="n">s</span> <span class="o">=</span> <span class="n">Spec</span><span class="p">(</span><span class="n">nsnode</span><span class="o">.</span><span class="n">create_node</span><span class="p">(</span><span class="n">nsparser</span><span class="o">.</span><span class="n">IMPLIES</span><span class="p">,</span> <span class="n">left</span><span class="o">.</span><span class="n">_ptr</span><span class="p">,</span> <span class="n">right</span><span class="o">.</span><span class="n">_ptr</span><span class="p">),</span>
+             <span class="n">freeit</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+    <span class="n">s</span><span class="o">.</span><span class="n">_car</span> <span class="o">=</span> <span class="n">left</span>
+    <span class="n">s</span><span class="o">.</span><span class="n">_cdr</span> <span class="o">=</span> <span class="n">right</span>
+    <span class="k">return</span> <span class="n">s</span>
 
 </div>
 <div class="viewcode-block" id="iff"><a class="viewcode-back" href="../../pynusmv.html#pynusmv.prop.iff">[docs]</a><span class="k">def</span> <span class="nf">iff</span><span class="p">(</span><span class="n">left</span><span class="p">,</span> <span class="n">right</span><span class="p">):</span>
@@ -383,7 +430,10 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="n">left</span> <span class="ow">is</span> <span class="bp">None</span> <span class="ow">or</span> <span class="n">right</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">()</span>
-    <span class="k">return</span> <span class="n">Spec</span><span class="p">(</span><span class="n">nsnode</span><span class="o">.</span><span class="n">find_node</span><span class="p">(</span><span class="n">nsparser</span><span class="o">.</span><span class="n">IFF</span><span class="p">,</span> <span class="n">left</span><span class="o">.</span><span class="n">_ptr</span><span class="p">,</span> <span class="n">right</span><span class="o">.</span><span class="n">_ptr</span><span class="p">))</span>
+    <span class="n">s</span> <span class="o">=</span> <span class="n">Spec</span><span class="p">(</span><span class="n">nsnode</span><span class="o">.</span><span class="n">create_node</span><span class="p">(</span><span class="n">nsparser</span><span class="o">.</span><span class="n">IFF</span><span class="p">,</span> <span class="n">left</span><span class="o">.</span><span class="n">_ptr</span><span class="p">,</span> <span class="n">right</span><span class="o">.</span><span class="n">_ptr</span><span class="p">),</span> <span class="n">freeit</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+    <span class="n">s</span><span class="o">.</span><span class="n">_car</span> <span class="o">=</span> <span class="n">left</span>
+    <span class="n">s</span><span class="o">.</span><span class="n">_cdr</span> <span class="o">=</span> <span class="n">right</span>
+    <span class="k">return</span> <span class="n">s</span>
 
 </div>
 <div class="viewcode-block" id="ex"><a class="viewcode-back" href="../../pynusmv.html#pynusmv.prop.ex">[docs]</a><span class="k">def</span> <span class="nf">ex</span><span class="p">(</span><span class="n">spec</span><span class="p">):</span>
@@ -395,7 +445,9 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="n">spec</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">()</span>
-    <span class="k">return</span> <span class="n">Spec</span><span class="p">(</span><span class="n">nsnode</span><span class="o">.</span><span class="n">find_node</span><span class="p">(</span><span class="n">nsparser</span><span class="o">.</span><span class="n">EX</span><span class="p">,</span> <span class="n">spec</span><span class="o">.</span><span class="n">_ptr</span><span class="p">,</span> <span class="bp">None</span><span class="p">))</span>
+    <span class="n">s</span> <span class="o">=</span> <span class="n">Spec</span><span class="p">(</span><span class="n">nsnode</span><span class="o">.</span><span class="n">create_node</span><span class="p">(</span><span class="n">nsparser</span><span class="o">.</span><span class="n">EX</span><span class="p">,</span> <span class="n">spec</span><span class="o">.</span><span class="n">_ptr</span><span class="p">,</span> <span class="bp">None</span><span class="p">),</span> <span class="n">freeit</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+    <span class="n">s</span><span class="o">.</span><span class="n">_car</span> <span class="o">=</span> <span class="n">spec</span>
+    <span class="k">return</span> <span class="n">s</span>
 
 </div>
 <div class="viewcode-block" id="eg"><a class="viewcode-back" href="../../pynusmv.html#pynusmv.prop.eg">[docs]</a><span class="k">def</span> <span class="nf">eg</span><span class="p">(</span><span class="n">spec</span><span class="p">):</span>
@@ -407,7 +459,9 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="n">spec</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">()</span>
-    <span class="k">return</span> <span class="n">Spec</span><span class="p">(</span><span class="n">nsnode</span><span class="o">.</span><span class="n">find_node</span><span class="p">(</span><span class="n">nsparser</span><span class="o">.</span><span class="n">EG</span><span class="p">,</span> <span class="n">spec</span><span class="o">.</span><span class="n">_ptr</span><span class="p">,</span> <span class="bp">None</span><span class="p">))</span>
+    <span class="n">s</span> <span class="o">=</span> <span class="n">Spec</span><span class="p">(</span><span class="n">nsnode</span><span class="o">.</span><span class="n">create_node</span><span class="p">(</span><span class="n">nsparser</span><span class="o">.</span><span class="n">EG</span><span class="p">,</span> <span class="n">spec</span><span class="o">.</span><span class="n">_ptr</span><span class="p">,</span> <span class="bp">None</span><span class="p">),</span> <span class="n">freeit</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+    <span class="n">s</span><span class="o">.</span><span class="n">_car</span> <span class="o">=</span> <span class="n">spec</span>
+    <span class="k">return</span> <span class="n">s</span>
 
 </div>
 <div class="viewcode-block" id="ef"><a class="viewcode-back" href="../../pynusmv.html#pynusmv.prop.ef">[docs]</a><span class="k">def</span> <span class="nf">ef</span><span class="p">(</span><span class="n">spec</span><span class="p">):</span>
@@ -419,7 +473,9 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="n">spec</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">()</span>
-    <span class="k">return</span> <span class="n">Spec</span><span class="p">(</span><span class="n">nsnode</span><span class="o">.</span><span class="n">find_node</span><span class="p">(</span><span class="n">nsparser</span><span class="o">.</span><span class="n">EF</span><span class="p">,</span> <span class="n">spec</span><span class="o">.</span><span class="n">_ptr</span><span class="p">,</span> <span class="bp">None</span><span class="p">))</span>
+    <span class="n">s</span> <span class="o">=</span> <span class="n">Spec</span><span class="p">(</span><span class="n">nsnode</span><span class="o">.</span><span class="n">create_node</span><span class="p">(</span><span class="n">nsparser</span><span class="o">.</span><span class="n">EF</span><span class="p">,</span> <span class="n">spec</span><span class="o">.</span><span class="n">_ptr</span><span class="p">,</span> <span class="bp">None</span><span class="p">),</span> <span class="n">freeit</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+    <span class="n">s</span><span class="o">.</span><span class="n">_car</span> <span class="o">=</span> <span class="n">spec</span>
+    <span class="k">return</span> <span class="n">s</span>
 
 </div>
 <div class="viewcode-block" id="eu"><a class="viewcode-back" href="../../pynusmv.html#pynusmv.prop.eu">[docs]</a><span class="k">def</span> <span class="nf">eu</span><span class="p">(</span><span class="n">left</span><span class="p">,</span> <span class="n">right</span><span class="p">):</span>
@@ -431,7 +487,10 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="n">left</span> <span class="ow">is</span> <span class="bp">None</span> <span class="ow">or</span> <span class="n">right</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">()</span>
-    <span class="k">return</span> <span class="n">Spec</span><span class="p">(</span><span class="n">nsnode</span><span class="o">.</span><span class="n">find_node</span><span class="p">(</span><span class="n">nsparser</span><span class="o">.</span><span class="n">EU</span><span class="p">,</span> <span class="n">left</span><span class="o">.</span><span class="n">_ptr</span><span class="p">,</span> <span class="n">right</span><span class="o">.</span><span class="n">_ptr</span><span class="p">))</span>
+    <span class="n">s</span> <span class="o">=</span> <span class="n">Spec</span><span class="p">(</span><span class="n">nsnode</span><span class="o">.</span><span class="n">create_node</span><span class="p">(</span><span class="n">nsparser</span><span class="o">.</span><span class="n">EU</span><span class="p">,</span> <span class="n">left</span><span class="o">.</span><span class="n">_ptr</span><span class="p">,</span> <span class="n">right</span><span class="o">.</span><span class="n">_ptr</span><span class="p">),</span> <span class="n">freeit</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+    <span class="n">s</span><span class="o">.</span><span class="n">_car</span> <span class="o">=</span> <span class="n">left</span>
+    <span class="n">s</span><span class="o">.</span><span class="n">_cdr</span> <span class="o">=</span> <span class="n">right</span>
+    <span class="k">return</span> <span class="n">s</span>
 
 </div>
 <div class="viewcode-block" id="ew"><a class="viewcode-back" href="../../pynusmv.html#pynusmv.prop.ew">[docs]</a><span class="k">def</span> <span class="nf">ew</span><span class="p">(</span><span class="n">left</span><span class="p">,</span> <span class="n">right</span><span class="p">):</span>
@@ -443,7 +502,10 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="n">left</span> <span class="ow">is</span> <span class="bp">None</span> <span class="ow">or</span> <span class="n">right</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">()</span>
-    <span class="k">return</span> <span class="n">Spec</span><span class="p">(</span><span class="n">nsnode</span><span class="o">.</span><span class="n">find_node</span><span class="p">(</span><span class="n">nsparser</span><span class="o">.</span><span class="n">EW</span><span class="p">,</span> <span class="n">left</span><span class="o">.</span><span class="n">_ptr</span><span class="p">,</span> <span class="n">right</span><span class="o">.</span><span class="n">_ptr</span><span class="p">))</span>
+    <span class="n">s</span> <span class="o">=</span> <span class="n">Spec</span><span class="p">(</span><span class="n">nsnode</span><span class="o">.</span><span class="n">create_node</span><span class="p">(</span><span class="n">nsparser</span><span class="o">.</span><span class="n">EW</span><span class="p">,</span> <span class="n">left</span><span class="o">.</span><span class="n">_ptr</span><span class="p">,</span> <span class="n">right</span><span class="o">.</span><span class="n">_ptr</span><span class="p">),</span> <span class="n">freeit</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+    <span class="n">s</span><span class="o">.</span><span class="n">_car</span> <span class="o">=</span> <span class="n">left</span>
+    <span class="n">s</span><span class="o">.</span><span class="n">_cdr</span> <span class="o">=</span> <span class="n">right</span>
+    <span class="k">return</span> <span class="n">s</span>
 
 </div>
 <div class="viewcode-block" id="ax"><a class="viewcode-back" href="../../pynusmv.html#pynusmv.prop.ax">[docs]</a><span class="k">def</span> <span class="nf">ax</span><span class="p">(</span><span class="n">spec</span><span class="p">):</span>
@@ -455,7 +517,9 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="n">spec</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">()</span>
-    <span class="k">return</span> <span class="n">Spec</span><span class="p">(</span><span class="n">nsnode</span><span class="o">.</span><span class="n">find_node</span><span class="p">(</span><span class="n">nsparser</span><span class="o">.</span><span class="n">AX</span><span class="p">,</span> <span class="n">spec</span><span class="o">.</span><span class="n">_ptr</span><span class="p">,</span> <span class="bp">None</span><span class="p">))</span>
+    <span class="n">s</span> <span class="o">=</span> <span class="n">Spec</span><span class="p">(</span><span class="n">nsnode</span><span class="o">.</span><span class="n">create_node</span><span class="p">(</span><span class="n">nsparser</span><span class="o">.</span><span class="n">AX</span><span class="p">,</span> <span class="n">spec</span><span class="o">.</span><span class="n">_ptr</span><span class="p">,</span> <span class="bp">None</span><span class="p">),</span> <span class="n">freeit</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+    <span class="n">s</span><span class="o">.</span><span class="n">_car</span> <span class="o">=</span> <span class="n">spec</span>
+    <span class="k">return</span> <span class="n">s</span>
 
 </div>
 <div class="viewcode-block" id="ag"><a class="viewcode-back" href="../../pynusmv.html#pynusmv.prop.ag">[docs]</a><span class="k">def</span> <span class="nf">ag</span><span class="p">(</span><span class="n">spec</span><span class="p">):</span>
@@ -467,7 +531,9 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="n">spec</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">()</span>
-    <span class="k">return</span> <span class="n">Spec</span><span class="p">(</span><span class="n">nsnode</span><span class="o">.</span><span class="n">find_node</span><span class="p">(</span><span class="n">nsparser</span><span class="o">.</span><span class="n">AG</span><span class="p">,</span> <span class="n">spec</span><span class="o">.</span><span class="n">_ptr</span><span class="p">,</span> <span class="bp">None</span><span class="p">))</span>
+    <span class="n">s</span> <span class="o">=</span> <span class="n">Spec</span><span class="p">(</span><span class="n">nsnode</span><span class="o">.</span><span class="n">create_node</span><span class="p">(</span><span class="n">nsparser</span><span class="o">.</span><span class="n">AG</span><span class="p">,</span> <span class="n">spec</span><span class="o">.</span><span class="n">_ptr</span><span class="p">,</span> <span class="bp">None</span><span class="p">),</span> <span class="n">freeit</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+    <span class="n">s</span><span class="o">.</span><span class="n">_car</span> <span class="o">=</span> <span class="n">spec</span>
+    <span class="k">return</span> <span class="n">s</span>
 
 </div>
 <div class="viewcode-block" id="af"><a class="viewcode-back" href="../../pynusmv.html#pynusmv.prop.af">[docs]</a><span class="k">def</span> <span class="nf">af</span><span class="p">(</span><span class="n">spec</span><span class="p">):</span>
@@ -479,7 +545,9 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="n">spec</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">()</span>
-    <span class="k">return</span> <span class="n">Spec</span><span class="p">(</span><span class="n">nsnode</span><span class="o">.</span><span class="n">find_node</span><span class="p">(</span><span class="n">nsparser</span><span class="o">.</span><span class="n">AF</span><span class="p">,</span> <span class="n">spec</span><span class="o">.</span><span class="n">_ptr</span><span class="p">,</span> <span class="bp">None</span><span class="p">))</span>
+    <span class="n">s</span> <span class="o">=</span> <span class="n">Spec</span><span class="p">(</span><span class="n">nsnode</span><span class="o">.</span><span class="n">create_node</span><span class="p">(</span><span class="n">nsparser</span><span class="o">.</span><span class="n">AF</span><span class="p">,</span> <span class="n">spec</span><span class="o">.</span><span class="n">_ptr</span><span class="p">,</span> <span class="bp">None</span><span class="p">),</span> <span class="n">freeit</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+    <span class="n">s</span><span class="o">.</span><span class="n">_car</span> <span class="o">=</span> <span class="n">spec</span>
+    <span class="k">return</span> <span class="n">s</span>
 
 </div>
 <div class="viewcode-block" id="au"><a class="viewcode-back" href="../../pynusmv.html#pynusmv.prop.au">[docs]</a><span class="k">def</span> <span class="nf">au</span><span class="p">(</span><span class="n">left</span><span class="p">,</span> <span class="n">right</span><span class="p">):</span>
@@ -491,7 +559,10 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="n">left</span> <span class="ow">is</span> <span class="bp">None</span> <span class="ow">or</span> <span class="n">right</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">()</span>
-    <span class="k">return</span> <span class="n">Spec</span><span class="p">(</span><span class="n">nsnode</span><span class="o">.</span><span class="n">find_node</span><span class="p">(</span><span class="n">nsparser</span><span class="o">.</span><span class="n">AU</span><span class="p">,</span> <span class="n">left</span><span class="o">.</span><span class="n">_ptr</span><span class="p">,</span> <span class="n">right</span><span class="o">.</span><span class="n">_ptr</span><span class="p">))</span>
+    <span class="n">s</span> <span class="o">=</span> <span class="n">Spec</span><span class="p">(</span><span class="n">nsnode</span><span class="o">.</span><span class="n">create_node</span><span class="p">(</span><span class="n">nsparser</span><span class="o">.</span><span class="n">AU</span><span class="p">,</span> <span class="n">left</span><span class="o">.</span><span class="n">_ptr</span><span class="p">,</span> <span class="n">right</span><span class="o">.</span><span class="n">_ptr</span><span class="p">),</span> <span class="n">freeit</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+    <span class="n">s</span><span class="o">.</span><span class="n">_car</span> <span class="o">=</span> <span class="n">left</span>
+    <span class="n">s</span><span class="o">.</span><span class="n">_cdr</span> <span class="o">=</span> <span class="n">right</span>
+    <span class="k">return</span> <span class="n">s</span>
 
 </div>
 <div class="viewcode-block" id="aw"><a class="viewcode-back" href="../../pynusmv.html#pynusmv.prop.aw">[docs]</a><span class="k">def</span> <span class="nf">aw</span><span class="p">(</span><span class="n">left</span><span class="p">,</span> <span class="n">right</span><span class="p">):</span>
@@ -503,16 +574,25 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="n">left</span> <span class="ow">is</span> <span class="bp">None</span> <span class="ow">or</span> <span class="n">right</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">()</span>
-    <span class="k">return</span> <span class="n">Spec</span><span class="p">(</span><span class="n">nsnode</span><span class="o">.</span><span class="n">find_node</span><span class="p">(</span><span class="n">nsparser</span><span class="o">.</span><span class="n">AW</span><span class="p">,</span> <span class="n">left</span><span class="o">.</span><span class="n">_ptr</span><span class="p">,</span> <span class="n">right</span><span class="o">.</span><span class="n">_ptr</span><span class="p">))</span>
+    <span class="n">s</span> <span class="o">=</span> <span class="n">Spec</span><span class="p">(</span><span class="n">nsnode</span><span class="o">.</span><span class="n">create_node</span><span class="p">(</span><span class="n">nsparser</span><span class="o">.</span><span class="n">AW</span><span class="p">,</span> <span class="n">left</span><span class="o">.</span><span class="n">_ptr</span><span class="p">,</span> <span class="n">right</span><span class="o">.</span><span class="n">_ptr</span><span class="p">),</span> <span class="n">freeit</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+    <span class="n">s</span><span class="o">.</span><span class="n">_car</span> <span class="o">=</span> <span class="n">left</span>
+    <span class="n">s</span><span class="o">.</span><span class="n">_cdr</span> <span class="o">=</span> <span class="n">right</span>
+    <span class="k">return</span> <span class="n">s</span>
 
 </div>
-<div class="viewcode-block" id="atom"><a class="viewcode-back" href="../../pynusmv.html#pynusmv.prop.atom">[docs]</a><span class="k">def</span> <span class="nf">atom</span><span class="p">(</span><span class="n">strrep</span><span class="p">):</span>
+<div class="viewcode-block" id="atom"><a class="viewcode-back" href="../../pynusmv.html#pynusmv.prop.atom">[docs]</a><span class="k">def</span> <span class="nf">atom</span><span class="p">(</span><span class="n">strrep</span><span class="p">,</span> <span class="n">type_checking</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Return a new specification corresponding to the given atom.</span>
-<span class="sd">    `strrep` is parsed type checked on the current model. A model needs to be</span>
-<span class="sd">    read and with variables encoded to be able to type check the atomic</span>
-<span class="sd">    proposition.</span>
+<span class="sd">    `strrep` is parsed and type checked on the current model. A model needs to</span>
+<span class="sd">    be read and with variables encoded to be able to type check the atomic</span>
+<span class="sd">    proposition. If type_checking is `False`, type checking is not performed</span>
+<span class="sd">    and a model is not needed anymore.</span>
 
+<span class="sd">    :param strrep: the string representation of the atom</span>
+<span class="sd">    :type sttrep: str</span>
+<span class="sd">    :param type_checking: whether or not type check the parsed string</span>
+<span class="sd">                          (default: True)</span>
+<span class="sd">    :type type_checking: bool</span>
 <span class="sd">    :rtype: :class:`Spec`</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -523,15 +603,16 @@
     <span class="n">node</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_simple_expression</span><span class="p">(</span><span class="n">strrep</span><span class="p">)</span>
 
     <span class="c"># Type checking</span>
-    <span class="c"># TODO Prevent printing a message on stderr</span>
-    <span class="n">symb_table</span> <span class="o">=</span> <span class="n">glob</span><span class="o">.</span><span class="n">bdd_encoding</span><span class="p">()</span><span class="o">.</span><span class="n">symbTable</span>
-    <span class="c"># TODO Type check only if symb_table is not None? With a Warning?</span>
-    <span class="n">type_checker</span> <span class="o">=</span> <span class="n">nssymb_table</span><span class="o">.</span><span class="n">SymbTable_get_type_checker</span><span class="p">(</span><span class="n">symb_table</span><span class="o">.</span><span class="n">_ptr</span><span class="p">)</span>
-    <span class="n">expr_type</span> <span class="o">=</span> <span class="n">nstype_checking</span><span class="o">.</span><span class="n">TypeChecker_get_expression_type</span><span class="p">(</span>
-        <span class="n">type_checker</span><span class="p">,</span> <span class="n">node</span><span class="p">,</span> <span class="bp">None</span><span class="p">)</span>
-    <span class="k">if</span> <span class="ow">not</span> <span class="n">nssymb_table</span><span class="o">.</span><span class="n">SymbType_is_boolean</span><span class="p">(</span><span class="n">expr_type</span><span class="p">):</span>
-        <span class="k">raise</span> <span class="n">NuSMVTypeCheckingError</span><span class="p">(</span><span class="n">strrep</span> <span class="o">+</span> <span class="s">&quot; is wrongly typed.&quot;</span><span class="p">)</span>
-
+    <span class="k">if</span> <span class="n">type_checking</span><span class="p">:</span>
+        <span class="c"># TODO Prevent printing a message on stderr</span>
+        <span class="n">symb_table</span> <span class="o">=</span> <span class="n">glob</span><span class="o">.</span><span class="n">bdd_encoding</span><span class="p">()</span><span class="o">.</span><span class="n">symbTable</span>
+        <span class="c"># TODO Type check only if symb_table is not None? With a Warning?</span>
+        <span class="n">type_checker</span> <span class="o">=</span> <span class="n">nssymb_table</span><span class="o">.</span><span class="n">SymbTable_get_type_checker</span><span class="p">(</span><span class="n">symb_table</span><span class="o">.</span><span class="n">_ptr</span><span class="p">)</span>
+        <span class="n">expr_type</span> <span class="o">=</span> <span class="n">nstype_checking</span><span class="o">.</span><span class="n">TypeChecker_get_expression_type</span><span class="p">(</span>
+            <span class="n">type_checker</span><span class="p">,</span> <span class="n">node</span><span class="p">,</span> <span class="bp">None</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">nssymb_table</span><span class="o">.</span><span class="n">SymbType_is_boolean</span><span class="p">(</span><span class="n">expr_type</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="n">NuSMVTypeCheckingError</span><span class="p">(</span><span class="n">strrep</span> <span class="o">+</span> <span class="s">&quot; is wrongly typed.&quot;</span><span class="p">)</span>
+        
     <span class="k">return</span> <span class="n">Spec</span><span class="p">(</span><span class="n">node</span><span class="p">)</span></div>
 </pre></div>
 

@@ -656,6 +656,13 @@ to declare a NuSMV module with this class.</li>
 </dd></dl>
 
 <dl class="class">
+<dt id="pynusmv.model.ArrayExpr">
+<em class="property">class </em><tt class="descclassname">pynusmv.model.</tt><tt class="descname">ArrayExpr</tt><big>(</big><em>array</em><big>)</big><a class="reference internal" href="_modules/pynusmv/model.html#ArrayExpr"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynusmv.model.ArrayExpr" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">pynusmv.model.Element</span></tt></p>
+<p>An array define expression.</p>
+</dd></dl>
+
+<dl class="class">
 <dt id="pynusmv.model.Boolean">
 <em class="property">class </em><tt class="descclassname">pynusmv.model.</tt><tt class="descname">Boolean</tt><a class="reference internal" href="_modules/pynusmv/model.html#Boolean"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynusmv.model.Boolean" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">pynusmv.model.SimpleType</span></tt></p>
@@ -3272,7 +3279,7 @@ used to manage BDDs, the symbols table or the state and inputs masks.</p>
 <p>Python class for symbols table.</p>
 <dl class="attribute">
 <dt id="pynusmv.fsm.SymbTable.ins_policies">
-<tt class="descname">ins_policies</tt><em class="property"> = {'SYMB_LAYER_POS_BOTTOM': 3, 'SYMB_LAYER_POS_FORCE_BOTTOM': 4, 'SYMB_LAYER_POS_FORCE_TOP': 1, 'SYMB_LAYER_POS_DEFAULT': 0, 'SYMB_LAYER_POS_TOP': 2}</em><a class="headerlink" href="#pynusmv.fsm.SymbTable.ins_policies" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">ins_policies</tt><em class="property"> = {'SYMB_LAYER_POS_FORCE_BOTTOM': 4, 'SYMB_LAYER_POS_DEFAULT': 0, 'SYMB_LAYER_POS_FORCE_TOP': 1, 'SYMB_LAYER_POS_BOTTOM': 3, 'SYMB_LAYER_POS_TOP': 2}</em><a class="headerlink" href="#pynusmv.fsm.SymbTable.ins_policies" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
@@ -3528,7 +3535,7 @@ defined in this symbol table</td>
 properties and specifications of models.</p>
 <dl class="data">
 <dt id="pynusmv.prop.propTypes">
-<tt class="descclassname">pynusmv.prop.</tt><tt class="descname">propTypes</tt><em class="property"> = {'CTL': 102, 'Compute': 106, 'PSL': 104, 'NoType': 101, 'LTL': 103, 'Invariant': 105, 'Comparison': 107}</em><a class="headerlink" href="#pynusmv.prop.propTypes" title="Permalink to this definition">¶</a></dt>
+<tt class="descclassname">pynusmv.prop.</tt><tt class="descname">propTypes</tt><em class="property"> = {'CTL': 102, 'Comparison': 107, 'Compute': 106, 'PSL': 104, 'LTL': 103, 'NoType': 101, 'Invariant': 105}</em><a class="headerlink" href="#pynusmv.prop.propTypes" title="Permalink to this definition">¶</a></dt>
 <dd><p>The possible types of properties. This gives access to NuSMV internal types
 without dealing with <cite>pynusmv.nusmv</cite> modules.</p>
 </dd></dl>
@@ -3923,16 +3930,25 @@ i.e. the stored pointer is not checked against spec types.</p>
 
 <dl class="function">
 <dt id="pynusmv.prop.atom">
-<tt class="descclassname">pynusmv.prop.</tt><tt class="descname">atom</tt><big>(</big><em>strrep</em><big>)</big><a class="reference internal" href="_modules/pynusmv/prop.html#atom"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynusmv.prop.atom" title="Permalink to this definition">¶</a></dt>
+<tt class="descclassname">pynusmv.prop.</tt><tt class="descname">atom</tt><big>(</big><em>strrep</em>, <em>type_checking=True</em><big>)</big><a class="reference internal" href="_modules/pynusmv/prop.html#atom"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynusmv.prop.atom" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return a new specification corresponding to the given atom.
-<cite>strrep</cite> is parsed type checked on the current model. A model needs to be
-read and with variables encoded to be able to type check the atomic
-proposition.</p>
+<cite>strrep</cite> is parsed and type checked on the current model. A model needs to
+be read and with variables encoded to be able to type check the atomic
+proposition. If type_checking is <cite>False</cite>, type checking is not performed
+and a model is not needed anymore.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference internal" href="#pynusmv.prop.Spec" title="pynusmv.prop.Spec"><tt class="xref py py-class docutils literal"><span class="pre">Spec</span></tt></a></td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>strrep</strong> &#8211; the string representation of the atom</li>
+<li><strong>type_checking</strong> (<em>bool</em>) &#8211; whether or not type check the parsed string
+(default: True)</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><a class="reference internal" href="#pynusmv.prop.Spec" title="pynusmv.prop.Spec"><tt class="xref py py-class docutils literal"><span class="pre">Spec</span></tt></a></p>
+</td>
 </tr>
 </tbody>
 </table>
@@ -3952,6 +3968,62 @@ i.e. a particular action of the model.</li>
 <li><a class="reference internal" href="#pynusmv.dd.Cube" title="pynusmv.dd.Cube"><tt class="xref py py-class docutils literal"><span class="pre">Cube</span></tt></a> represents a particular cube of variables the model.</li>
 <li><a class="reference internal" href="#pynusmv.dd.DDManager" title="pynusmv.dd.DDManager"><tt class="xref py py-class docutils literal"><span class="pre">DDManager</span></tt></a> represents a NuSMV DD manager.</li>
 </ul>
+<dl class="function">
+<dt id="pynusmv.dd.enable_dynamic_reordering">
+<tt class="descclassname">pynusmv.dd.</tt><tt class="descname">enable_dynamic_reordering</tt><big>(</big><em>DDmanager=None</em><big>)</big><a class="reference internal" href="_modules/pynusmv/dd.html#enable_dynamic_reordering"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynusmv.dd.enable_dynamic_reordering" title="Permalink to this definition">¶</a></dt>
+<dd><p>Enable dynamic reordering of BDD variables under control of <cite>DDmanager</cite>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>DDmanager</strong> (<cite>DDManager</cite>) &#8211; the conserned DD manager; if None, the global DD manager
+is used instead.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Raise:</th><td class="field-body">a <a class="reference internal" href="#pynusmv.exception.MissingManagerError" title="pynusmv.exception.MissingManagerError"><tt class="xref py py-exc docutils literal"><span class="pre">MissingManagerError</span></tt></a> if the manager is missing</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">The default Sift reordering method is used.</p>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="pynusmv.dd.disable_dynamic_reordering">
+<tt class="descclassname">pynusmv.dd.</tt><tt class="descname">disable_dynamic_reordering</tt><big>(</big><em>DDmanager=None</em><big>)</big><a class="reference internal" href="_modules/pynusmv/dd.html#disable_dynamic_reordering"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynusmv.dd.disable_dynamic_reordering" title="Permalink to this definition">¶</a></dt>
+<dd><p>Disable dynamic reordering of BDD variables under control of <cite>DDmanager</cite>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>DDmanager</strong> (<cite>DDManager</cite>) &#8211; the conserned DD manager; if None, the global DD manager
+is used instead.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Raise:</th><td class="field-body">a <a class="reference internal" href="#pynusmv.exception.MissingManagerError" title="pynusmv.exception.MissingManagerError"><tt class="xref py py-exc docutils literal"><span class="pre">MissingManagerError</span></tt></a> if the manager is missing</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="pynusmv.dd.dynamic_reordering_enabled">
+<tt class="descclassname">pynusmv.dd.</tt><tt class="descname">dynamic_reordering_enabled</tt><big>(</big><em>DDmanager=None</em><big>)</big><a class="reference internal" href="_modules/pynusmv/dd.html#dynamic_reordering_enabled"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynusmv.dd.dynamic_reordering_enabled" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return whether dynamic reordering is enabled or not for BDD under control
+of <cite>DDmanager</cite>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>DDmanager</strong> (<cite>DDManager</cite>) &#8211; the conserned DD manager; if None, the global DD manager
+is used instead.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Raise:</th><td class="field-body">a <a class="reference internal" href="#pynusmv.exception.MissingManagerError" title="pynusmv.exception.MissingManagerError"><tt class="xref py py-exc docutils literal"><span class="pre">MissingManagerError</span></tt></a> if the manager is missing</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
 <dl class="class">
 <dt id="pynusmv.dd.BDD">
 <em class="property">class </em><tt class="descclassname">pynusmv.dd.</tt><tt class="descname">BDD</tt><big>(</big><em>ptr</em>, <em>dd_manager=None</em>, <em>freeit=True</em><big>)</big><a class="reference internal" href="_modules/pynusmv/dd.html#BDD"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynusmv.dd.BDD" title="Permalink to this definition">¶</a></dt>

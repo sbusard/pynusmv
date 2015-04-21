@@ -111,6 +111,7 @@
     <span class="s">&quot;Ite&quot;</span><span class="p">,</span>
     <span class="s">&quot;Iff&quot;</span><span class="p">,</span>
     <span class="s">&quot;Implies&quot;</span><span class="p">,</span>
+    <span class="s">&quot;ArrayExpr&quot;</span><span class="p">,</span>
     <span class="s">&quot;Boolean&quot;</span><span class="p">,</span>
     <span class="s">&quot;Word&quot;</span><span class="p">,</span>
     <span class="s">&quot;Scalar&quot;</span><span class="p">,</span>
@@ -1792,6 +1793,25 @@
     <span class="k">def</span> <span class="nf">__deepcopy__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">memo</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">Implies</span><span class="p">(</span><span class="n">deepcopy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">left</span><span class="p">,</span> <span class="n">memo</span><span class="p">),</span>
                        <span class="n">deepcopy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">right</span><span class="p">,</span> <span class="n">memo</span><span class="p">))</span>
+
+</div>
+<div class="viewcode-block" id="ArrayExpr"><a class="viewcode-back" href="../../pynusmv.html#pynusmv.model.ArrayExpr">[docs]</a><span class="k">class</span> <span class="nc">ArrayExpr</span><span class="p">(</span><span class="n">Element</span><span class="p">):</span>
+
+    <span class="sd">&quot;&quot;&quot;An array define expression.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">array</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">array</span> <span class="o">=</span> <span class="n">array</span>
+
+    <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">source</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">source</span>
+        <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">array</span><span class="p">)</span>
+    
+    <span class="k">def</span> <span class="nf">__hash__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="mi">17</span> <span class="o">+</span> <span class="mi">23</span> <span class="o">*</span> <span class="nb">hash</span><span class="p">(</span><span class="s">&quot;ArrayExpr&quot;</span><span class="p">)</span> <span class="o">+</span> <span class="mi">23</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">*</span> <span class="nb">hash</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">array</span><span class="p">)</span>
+    
+    <span class="k">def</span> <span class="nf">__deepcopy__</span><span class="p">(</span><span class="n">sef</span><span class="p">,</span> <span class="n">memo</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">ArrayExpr</span><span class="p">(</span><span class="n">deepcopy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">array</span><span class="p">,</span> <span class="n">memo</span><span class="p">))</span>
 
 
 <span class="c"># -----------------------------------------------------------------------------</span>
