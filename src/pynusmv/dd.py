@@ -13,7 +13,9 @@ The :mod:`pynusmv.dd` module provides some BDD-related structures:
 """
 
 
-__all__ = ['BDD', 'BDDList', 'State', 'Inputs', 'StateInputs', 'Cube',
+__all__ = ['enable_dynamic_reordering', 'disable_dynamic_reordering',
+           'dynamic_reordering_enabled',
+           'BDD', 'BDDList', 'State', 'Inputs', 'StateInputs', 'Cube',
            'DDManager']
 
 
@@ -22,9 +24,80 @@ from .nusmv.node import node as nsnode
 from .nusmv.compile.symb_table import symb_table as nssymb_table
 from .nusmv.enc.bdd import bdd as nsbddEnc
 from .nusmv.utils import utils as nsutils
+from .nusmv.cinit import cinit as nscinit
+from .nusmv.opt import opt as nsopt
 
 from .utils import PointerWrapper
 from .exception import MissingManagerError
+
+
+def enable_dynamic_reordering(DDmanager=None):
+    """
+    Enable dynamic reordering of BDD variables under control of `DDmanager`.
+
+    :param DDmanager: the conserned DD manager; if None, the global DD manager
+                      is used instead.
+    :type DDmanager: `DDManager`
+
+    :raise: a :exc:`MissingManagerError
+            <pynusmv.exception.MissingManagerError>` if the manager is missing
+
+    .. note:: The default Sift reordering method is used.
+    """
+    if DDmanager is None:
+        DDmanager_ptr = nscinit.cvar.dd_manager
+    else:
+        DDmanager_ptr = DDmanager._ptr
+    if DDmanager_ptr is None:
+        raise MissingManagerError("Missing manager")
+    
+    # CUDD_REORDER_SIFT is the default reordering method
+    # see nusmv/src/dd/dd.h:94-112
+    nsopt.set_dynamic_reorder(nsopt.OptsHandler_get_instance())
+    nsdd.dd_autodyn_enable(DDmanager_ptr, nsdd.CUDD_REORDER_SIFT)
+
+def disable_dynamic_reordering(DDmanager=None):
+    """
+    Disable dynamic reordering of BDD variables under control of `DDmanager`.
+
+    :param DDmanager: the conserned DD manager; if None, the global DD manager
+                      is used instead.
+    :type DDmanager: `DDManager`
+
+    :raise: a :exc:`MissingManagerError
+            <pynusmv.exception.MissingManagerError>` if the manager is missing
+
+    """
+    if DDmanager is None:
+        DDmanager_ptr = nscinit.cvar.dd_manager
+    else:
+        DDmanager_ptr = DDmanager._ptr
+    if DDmanager_ptr is None:
+        raise MissingManagerError("Missing manager")
+    nsopt.unset_dynamic_reorder(nsopt.OptsHandler_get_instance())
+    nsdd.dd_autodyn_disable(DDmanager_ptr)
+
+def dynamic_reordering_enabled(DDmanager=None):
+    """
+    Return whether dynamic reordering is enabled or not for BDD under control
+    of `DDmanager`.
+
+    :param DDmanager: the conserned DD manager; if None, the global DD manager
+                      is used instead.
+    :type DDmanager: `DDManager`
+
+    :raise: a :exc:`MissingManagerError
+            <pynusmv.exception.MissingManagerError>` if the manager is missing
+
+    """
+    if DDmanager is None:
+        DDmanager_ptr = nscinit.cvar.dd_manager
+    else:
+        DDmanager_ptr = DDmanager._ptr
+    if DDmanager_ptr is None:
+        raise MissingManagerError("Missing manager")
+    enabled, method = nsdd.reordering_status(DDmanager_ptr)
+    return bool(enabled)
 
 
 class BDD(PointerWrapper):

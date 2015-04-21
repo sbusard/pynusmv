@@ -4,9 +4,11 @@ import sys
 from pynusmv.nusmv.cmd import cmd
 
 from pynusmv.prop import PropDb
-from pynusmv.dd import BDD
+from pynusmv.dd import (BDD, enable_dynamic_reordering,
+                        disable_dynamic_reordering, dynamic_reordering_enabled)
 from pynusmv.fsm import BddFsm
 from pynusmv.mc import eval_simple_expression
+from pynusmv.exception import MissingManagerError
 
 from pynusmv.init import init_nusmv, deinit_nusmv
 
@@ -21,6 +23,16 @@ class TestBDD(unittest.TestCase):
     def init_model(self):
         fsm = BddFsm.from_filename("tests/pynusmv/models/admin.smv")
         return (fsm, fsm.bddEnc, fsm.bddEnc.DDmanager)
+    
+    
+    def test_reordering(self):
+        fsm, enc, manager = self.init_model()
+        
+        self.assertFalse(dynamic_reordering_enabled())
+        enable_dynamic_reordering()
+        self.assertTrue(dynamic_reordering_enabled())
+        disable_dynamic_reordering()
+        self.assertFalse(dynamic_reordering_enabled())
     
     
     def test_get_true(self):
