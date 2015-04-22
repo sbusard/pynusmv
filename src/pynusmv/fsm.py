@@ -964,6 +964,30 @@ class BddEnc(PointerWrapper):
 
         return frozenset(varnames)
 
+    def get_variables_ordering(self, var_type="scalar"):
+        """
+        Return the order of variables.
+
+        :param var_type: the type of variables needed; `"scalar"` for only
+                         scalar variables (one variable per model variable),
+                         `"bits"` for bits for each scalar variables
+                         (default: "scalar")
+
+        :rtype: tuple(str)
+
+        """
+        ord_type = (bddEnc.DUMP_BITS
+                    if var_type == "bits"
+                    else bddEnc.DUMP_DEFAULT)
+        var_list = bddEnc.BddEnc_get_var_ordering(self._ptr, ord_type)
+        variables = []
+        it = nsutils.NodeList_get_first_iter(var_list)
+        while not nsutils.ListIter_is_end(it):
+            node = nsutils.NodeList_get_elem_at(var_list, it)
+            variables.append(nsnode.sprint_node(node))
+            it = nsutils.ListIter_get_next(it)
+        nsutils.NodeList_destroy(var_list)
+        return tuple(variables)
 
 class SymbTable(PointerWrapper):
 
