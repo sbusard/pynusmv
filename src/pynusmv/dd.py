@@ -14,7 +14,7 @@ The :mod:`pynusmv.dd` module provides some BDD-related structures:
 
 
 __all__ = ['enable_dynamic_reordering', 'disable_dynamic_reordering',
-           'dynamic_reordering_enabled',
+           'dynamic_reordering_enabled', 'reorder',
            'BDD', 'BDDList', 'State', 'Inputs', 'StateInputs', 'Cube',
            'DDManager']
 
@@ -98,6 +98,27 @@ def dynamic_reordering_enabled(DDmanager=None):
         raise MissingManagerError("Missing manager")
     enabled, method = nsdd.reordering_status(DDmanager_ptr)
     return bool(enabled)
+
+def reorder(DDmanager=None):
+    """
+    Force a reordering of BDD variables under control of `DDmanager`.
+
+    :param DDmanager: the conserned DD manager; if None, the global DD manager
+                      is used instead.
+    :type DDmanager: `DDManager`
+
+    :raise: a :exc:`MissingManagerError
+            <pynusmv.exception.MissingManagerError>` if the manager is missing
+
+    """
+    if DDmanager is None:
+        DDmanager_ptr = nscinit.cvar.dd_manager
+    else:
+        DDmanager_ptr = DDmanager._ptr
+    if DDmanager_ptr is None:
+        raise MissingManagerError("Missing manager")
+    nsdd.dd_reorder(DDmanager_ptr, nsdd.CUDD_REORDER_SIFT,
+                    nsdd.DEFAULT_MINSIZE)
 
 
 class BDD(PointerWrapper):
@@ -415,6 +436,21 @@ class BDD(PointerWrapper):
         if self._manager is None:
             raise MissingManagerError()
         return BDD(nsdd.bdd_forall(self._manager._ptr, self._ptr, cube._ptr),
+                   self._manager, freeit=True)
+
+    def minimize(self, c):
+        """
+        Restrict this BDD with c, as described in Coudert et al. ICCAD90.
+
+        :param c: the BDD used to restrict this BDD
+        :type c: :class:`BDD`
+
+        .. note:: Always returns a BDD not larger than the this BDD.
+
+        """
+        if self._manager is None:
+            raise MissingManagerError()
+        return BDD(nsdd.bdd_minimize(self._manager._ptr, self._ptr, c._ptr),
                    self._manager, freeit=True)
 
     # =========================================================================

@@ -5,10 +5,12 @@ from pynusmv.nusmv.cmd import cmd
 
 from pynusmv.prop import PropDb
 from pynusmv.dd import (BDD, enable_dynamic_reordering,
-                        disable_dynamic_reordering, dynamic_reordering_enabled)
+                        disable_dynamic_reordering, dynamic_reordering_enabled,
+                        reorder)
 from pynusmv.fsm import BddFsm
 from pynusmv.mc import eval_simple_expression
 from pynusmv.exception import MissingManagerError
+from pynusmv import glob
 
 from pynusmv.init import init_nusmv, deinit_nusmv
 
@@ -33,6 +35,17 @@ class TestBDD(unittest.TestCase):
         self.assertTrue(dynamic_reordering_enabled())
         disable_dynamic_reordering()
         self.assertFalse(dynamic_reordering_enabled())
+    
+    def test_force_reordering(self):
+        glob.load("tests/pynusmv/models/admin.smv")
+        glob.compute_model(variables_ordering="tests/pynusmv/models/admin.ord")
+        fsm = glob.prop_database().master.bddFsm
+        
+        self.assertTupleEqual(("admin", "state"),
+                              fsm.bddEnc.get_variables_ordering())
+        reorder(fsm.bddEnc.DDmanager)
+        self.assertTupleEqual(("state", "admin"),
+                              fsm.bddEnc.get_variables_ordering())
     
     
     def test_get_true(self):
@@ -275,3 +288,12 @@ class TestBDD(unittest.TestCase):
         
         bdddict = {true, false, init, noadmin, alice, processing}
         self.assertEqual(len(bdddict), 6)
+    
+    def test_minimize(self):
+        (fsm, enc, manager) = self.init_model()
+        
+        noadmin = eval_simple_expression(fsm, "admin = none")
+        processing = eval_simple_expression(fsm, "state = processing")
+        
+        self.assertIsNotNone(processing.minimize(noadmin))
+        self.assertTrue(processing.minimize(noadmin).isnot_false())
