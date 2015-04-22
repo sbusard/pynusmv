@@ -12,7 +12,7 @@ from pynusmv.exception import (NuSMVNoReadModelError,
                                NuSMVNeedFlatHierarchyError)
 from pynusmv.parser import parse_simple_expression
 
-class Testglob(unittest.TestCase):
+class TestGlobals(unittest.TestCase):
     
     def setUp(self):
         init_nusmv()
@@ -148,3 +148,27 @@ class Testglob(unittest.TestCase):
                             "tests/pynusmv/models/counter-semantics-error.smv")
         with self.assertRaises(NuSMVCannotFlattenError):
             glob.flatten_hierarchy()
+    
+    def test_variables_ordering(self):
+        glob.load_from_file("tests/pynusmv/models/constraints.smv")
+        glob.flatten_hierarchy()
+        glob.encode_variables(variables_ordering=
+                              "tests/pynusmv/models/constraints.ord")
+        glob.compute_model()
+        fsm = glob.prop_database().master.bddFsm
+        
+        with open("tests/pynusmv/models/constraints.ord", "r") as f:
+            order = f.read().split("\n")
+            self.assertListEqual(order,
+                                 list(fsm.bddEnc.get_variables_ordering()))
+    
+    def test_variables_ordering_compute(self):
+        glob.load_from_file("tests/pynusmv/models/constraints.smv")
+        glob.compute_model(variables_ordering=
+                           "tests/pynusmv/models/constraints.ord")
+        fsm = glob.prop_database().master.bddFsm
+        
+        with open("tests/pynusmv/models/constraints.ord", "r") as f:
+            order = f.read().split("\n")
+            self.assertListEqual(order,
+                                 list(fsm.bddEnc.get_variables_ordering()))

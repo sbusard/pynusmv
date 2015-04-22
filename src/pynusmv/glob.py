@@ -215,13 +215,17 @@ def symb_table():
     return __symb_table
 
 
-def encode_variables(layers={"model"}):
+def encode_variables(layers={"model"}, variables_ordering=None):
     """
     Encode the BDD variables of the current model and store it in global data
     structures.
+    If variables_ordering is provided, use this ordering to encode the
+    variables; otherwise, the default ordering method is used.
 
     :param layers: the set of layers variables to encode
     :type layers: :class:`set`
+    :param variables_ordering: the file containing a custom ordering
+    :type variables_ordering: path to file
 
     :raise: a :exc:`NuSMVNeedFlatHierarchyError
             <pynusmv.exception.NuSMVNeedFlatHierarchyError>` if the model is
@@ -237,6 +241,10 @@ def encode_variables(layers={"model"}):
     if nscompile.cmp_struct_get_encode_variables(nscompile.cvar.cmps):
         raise NuSMVModelAlreadyEncodedError(
             "The variables are already encoded.")
+
+    if variables_ordering is not None:
+        nsopt.set_input_order_file(nsopt.OptsHandler_get_instance(),
+                                   variables_ordering)
 
     encode_variables_for_layers(layers, init=True)
 
@@ -424,11 +432,17 @@ def prop_database():
     return __prop_database
 
 
-def compute_model():
+def compute_model(variables_ordering=None):
     """
     Compute the read model and store its parts in global data structures.
     This function is a shortcut for calling all the steps of the model building
     that are not yet performed.
+    If variables_ordering is not None, it is used as a file containing the
+    order of variables used for encoding the model into BDDs.
+
+    
+    :param variables_ordering: the file containing a custom ordering
+    :type variables_ordering: path to file
 
     """
     if not nscompile.cmp_struct_get_read_model(nscompile.cvar.cmps):
@@ -438,7 +452,7 @@ def compute_model():
     if not nscompile.cmp_struct_get_flatten_hrc(nscompile.cvar.cmps):
         flatten_hierarchy()
     if not nscompile.cmp_struct_get_encode_variables(nscompile.cvar.cmps):
-        encode_variables()
+        encode_variables(variables_ordering=variables_ordering)
     if not nscompile.cmp_struct_get_build_flat_model(nscompile.cvar.cmps):
         build_flat_model()
     if not nscompile.cmp_struct_get_build_model(nscompile.cvar.cmps):
