@@ -31,18 +31,37 @@ from .utils import PointerWrapper
 from .exception import MissingManagerError
 
 
-def enable_dynamic_reordering(DDmanager=None):
+def enable_dynamic_reordering(DDmanager=None, method="sift"):
     """
-    Enable dynamic reordering of BDD variables under control of `DDmanager`.
+    Enable dynamic reordering of BDD variables under control of `DDmanager`
+    with the given `method`.
 
     :param DDmanager: the conserned DD manager; if None, the global DD manager
                       is used instead.
     :type DDmanager: `DDManager`
+    :param method: the method to use for reordering:
+                   * sift (default method)
+                   * random
+                   * random_pivot
+                   * sift_converge
+                   * symmetry_sift
+                   * symmetry_sift_converge
+                   * window{2, 3, 4}
+                   * window{2, 3, 4}_converge
+                   * group_sift
+                   * group_sift_converge
+                   * annealing
+                   * genetic
+                   * exact
+                   * linear
+                   * linear_converge
+                   * same (the previously chosen method)
+    :type method: :class:`str`
 
     :raise: a :exc:`MissingManagerError
             <pynusmv.exception.MissingManagerError>` if the manager is missing
 
-    .. note:: The default Sift reordering method is used.
+    .. note:: For more information on reordering methods, see NuSMV manual.
     """
     if DDmanager is None:
         DDmanager_ptr = nscinit.cvar.dd_manager
@@ -50,11 +69,12 @@ def enable_dynamic_reordering(DDmanager=None):
         DDmanager_ptr = DDmanager._ptr
     if DDmanager_ptr is None:
         raise MissingManagerError("Missing manager")
-    
-    # CUDD_REORDER_SIFT is the default reordering method
-    # see nusmv/src/dd/dd.h:94-112
+
+    method = nsdd.StringConvertToDynOrderType(method)
+    if method == nsdd.CUDD_REORDER_NONE:
+        method = nsdd.CUDD_REORDER_SIFT
     nsopt.set_dynamic_reorder(nsopt.OptsHandler_get_instance())
-    nsdd.dd_autodyn_enable(DDmanager_ptr, nsdd.CUDD_REORDER_SIFT)
+    nsdd.dd_autodyn_enable(DDmanager_ptr, method)
 
 def disable_dynamic_reordering(DDmanager=None):
     """
@@ -79,12 +99,13 @@ def disable_dynamic_reordering(DDmanager=None):
 
 def dynamic_reordering_enabled(DDmanager=None):
     """
-    Return whether dynamic reordering is enabled or not for BDD under control
-    of `DDmanager`.
+    Return the dynamic reordering method used if reordering is enabled for BDD
+    under control of `DDmanager`, None otherwise.
 
     :param DDmanager: the conserned DD manager; if None, the global DD manager
                       is used instead.
     :type DDmanager: `DDManager`
+    :rtype: None, or a the name of the method used
 
     :raise: a :exc:`MissingManagerError
             <pynusmv.exception.MissingManagerError>` if the manager is missing
@@ -97,15 +118,33 @@ def dynamic_reordering_enabled(DDmanager=None):
     if DDmanager_ptr is None:
         raise MissingManagerError("Missing manager")
     enabled, method = nsdd.reordering_status(DDmanager_ptr)
-    return bool(enabled)
+    return nsdd.DynOrderTypeConvertToString(method) if bool(enabled) else None
 
-def reorder(DDmanager=None):
+def reorder(DDmanager=None, method="sift"):
     """
     Force a reordering of BDD variables under control of `DDmanager`.
 
     :param DDmanager: the conserned DD manager; if None, the global DD manager
                       is used instead.
     :type DDmanager: `DDManager`
+    :param method: the method to use for reordering:
+                   * sift (default method)
+                   * random
+                   * random_pivot
+                   * sift_converge
+                   * symmetry_sift
+                   * symmetry_sift_converge
+                   * window{2, 3, 4}
+                   * window{2, 3, 4}_converge
+                   * group_sift
+                   * group_sift_converge
+                   * annealing
+                   * genetic
+                   * exact
+                   * linear
+                   * linear_converge
+                   * same (the previously chosen method)
+    :type method: :class:`str`
 
     :raise: a :exc:`MissingManagerError
             <pynusmv.exception.MissingManagerError>` if the manager is missing
@@ -117,8 +156,10 @@ def reorder(DDmanager=None):
         DDmanager_ptr = DDmanager._ptr
     if DDmanager_ptr is None:
         raise MissingManagerError("Missing manager")
-    nsdd.dd_reorder(DDmanager_ptr, nsdd.CUDD_REORDER_SIFT,
-                    nsdd.DEFAULT_MINSIZE)
+    method = nsdd.StringConvertToDynOrderType(method)
+    if method == nsdd.CUDD_REORDER_NONE:
+        method = nsdd.CUDD_REORDER_SIFT
+    nsdd.dd_reorder(DDmanager_ptr, method, nsdd.DEFAULT_MINSIZE)
 
 
 class BDD(PointerWrapper):
