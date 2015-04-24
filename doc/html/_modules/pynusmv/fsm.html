@@ -1012,7 +1012,31 @@
             <span class="n">ite</span> <span class="o">=</span> <span class="n">nsutils</span><span class="o">.</span><span class="n">ListIter_get_next</span><span class="p">(</span><span class="n">ite</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="nb">frozenset</span><span class="p">(</span><span class="n">varnames</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="BddEnc.get_variables_ordering"><a class="viewcode-back" href="../../pynusmv.html#pynusmv.fsm.BddEnc.get_variables_ordering">[docs]</a>    <span class="k">def</span> <span class="nf">get_variables_ordering</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">var_type</span><span class="o">=</span><span class="s">&quot;scalar&quot;</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return the order of variables.</span>
 
+<span class="sd">        :param var_type: the type of variables needed; `&quot;scalar&quot;` for only</span>
+<span class="sd">                         scalar variables (one variable per model variable),</span>
+<span class="sd">                         `&quot;bits&quot;` for bits for each scalar variables</span>
+<span class="sd">                         (default: &quot;scalar&quot;)</span>
+
+<span class="sd">        :rtype: tuple(str)</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">ord_type</span> <span class="o">=</span> <span class="p">(</span><span class="n">bddEnc</span><span class="o">.</span><span class="n">DUMP_BITS</span>
+                    <span class="k">if</span> <span class="n">var_type</span> <span class="o">==</span> <span class="s">&quot;bits&quot;</span>
+                    <span class="k">else</span> <span class="n">bddEnc</span><span class="o">.</span><span class="n">DUMP_DEFAULT</span><span class="p">)</span>
+        <span class="n">var_list</span> <span class="o">=</span> <span class="n">bddEnc</span><span class="o">.</span><span class="n">BddEnc_get_var_ordering</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_ptr</span><span class="p">,</span> <span class="n">ord_type</span><span class="p">)</span>
+        <span class="n">variables</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">it</span> <span class="o">=</span> <span class="n">nsutils</span><span class="o">.</span><span class="n">NodeList_get_first_iter</span><span class="p">(</span><span class="n">var_list</span><span class="p">)</span>
+        <span class="k">while</span> <span class="ow">not</span> <span class="n">nsutils</span><span class="o">.</span><span class="n">ListIter_is_end</span><span class="p">(</span><span class="n">it</span><span class="p">):</span>
+            <span class="n">node</span> <span class="o">=</span> <span class="n">nsutils</span><span class="o">.</span><span class="n">NodeList_get_elem_at</span><span class="p">(</span><span class="n">var_list</span><span class="p">,</span> <span class="n">it</span><span class="p">)</span>
+            <span class="n">variables</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">nsnode</span><span class="o">.</span><span class="n">sprint_node</span><span class="p">(</span><span class="n">node</span><span class="p">))</span>
+            <span class="n">it</span> <span class="o">=</span> <span class="n">nsutils</span><span class="o">.</span><span class="n">ListIter_get_next</span><span class="p">(</span><span class="n">it</span><span class="p">)</span>
+        <span class="n">nsutils</span><span class="o">.</span><span class="n">NodeList_destroy</span><span class="p">(</span><span class="n">var_list</span><span class="p">)</span>
+        <span class="k">return</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">variables</span><span class="p">)</span>
 </div></div>
 <div class="viewcode-block" id="SymbTable"><a class="viewcode-back" href="../../pynusmv.html#pynusmv.fsm.SymbTable">[docs]</a><span class="k">class</span> <span class="nc">SymbTable</span><span class="p">(</span><span class="n">PointerWrapper</span><span class="p">):</span>
 

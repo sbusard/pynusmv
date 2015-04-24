@@ -264,13 +264,17 @@
     <span class="k">return</span> <span class="n">__symb_table</span>
 
 </div>
-<div class="viewcode-block" id="encode_variables"><a class="viewcode-back" href="../../pynusmv.html#pynusmv.glob.encode_variables">[docs]</a><span class="k">def</span> <span class="nf">encode_variables</span><span class="p">(</span><span class="n">layers</span><span class="o">=</span><span class="p">{</span><span class="s">&quot;model&quot;</span><span class="p">}):</span>
+<div class="viewcode-block" id="encode_variables"><a class="viewcode-back" href="../../pynusmv.html#pynusmv.glob.encode_variables">[docs]</a><span class="k">def</span> <span class="nf">encode_variables</span><span class="p">(</span><span class="n">layers</span><span class="o">=</span><span class="p">{</span><span class="s">&quot;model&quot;</span><span class="p">},</span> <span class="n">variables_ordering</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Encode the BDD variables of the current model and store it in global data</span>
 <span class="sd">    structures.</span>
+<span class="sd">    If variables_ordering is provided, use this ordering to encode the</span>
+<span class="sd">    variables; otherwise, the default ordering method is used.</span>
 
 <span class="sd">    :param layers: the set of layers variables to encode</span>
 <span class="sd">    :type layers: :class:`set`</span>
+<span class="sd">    :param variables_ordering: the file containing a custom ordering</span>
+<span class="sd">    :type variables_ordering: path to file</span>
 
 <span class="sd">    :raise: a :exc:`NuSMVNeedFlatHierarchyError</span>
 <span class="sd">            &lt;pynusmv.exception.NuSMVNeedFlatHierarchyError&gt;` if the model is</span>
@@ -286,6 +290,10 @@
     <span class="k">if</span> <span class="n">nscompile</span><span class="o">.</span><span class="n">cmp_struct_get_encode_variables</span><span class="p">(</span><span class="n">nscompile</span><span class="o">.</span><span class="n">cvar</span><span class="o">.</span><span class="n">cmps</span><span class="p">):</span>
         <span class="k">raise</span> <span class="n">NuSMVModelAlreadyEncodedError</span><span class="p">(</span>
             <span class="s">&quot;The variables are already encoded.&quot;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">variables_ordering</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="n">nsopt</span><span class="o">.</span><span class="n">set_input_order_file</span><span class="p">(</span><span class="n">nsopt</span><span class="o">.</span><span class="n">OptsHandler_get_instance</span><span class="p">(),</span>
+                                   <span class="n">variables_ordering</span><span class="p">)</span>
 
     <span class="n">encode_variables_for_layers</span><span class="p">(</span><span class="n">layers</span><span class="p">,</span> <span class="n">init</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
 
@@ -473,11 +481,17 @@
     <span class="k">return</span> <span class="n">__prop_database</span>
 
 </div>
-<div class="viewcode-block" id="compute_model"><a class="viewcode-back" href="../../pynusmv.html#pynusmv.glob.compute_model">[docs]</a><span class="k">def</span> <span class="nf">compute_model</span><span class="p">():</span>
+<div class="viewcode-block" id="compute_model"><a class="viewcode-back" href="../../pynusmv.html#pynusmv.glob.compute_model">[docs]</a><span class="k">def</span> <span class="nf">compute_model</span><span class="p">(</span><span class="n">variables_ordering</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Compute the read model and store its parts in global data structures.</span>
 <span class="sd">    This function is a shortcut for calling all the steps of the model building</span>
 <span class="sd">    that are not yet performed.</span>
+<span class="sd">    If variables_ordering is not None, it is used as a file containing the</span>
+<span class="sd">    order of variables used for encoding the model into BDDs.</span>
+
+<span class="sd">    </span>
+<span class="sd">    :param variables_ordering: the file containing a custom ordering</span>
+<span class="sd">    :type variables_ordering: path to file</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">nscompile</span><span class="o">.</span><span class="n">cmp_struct_get_read_model</span><span class="p">(</span><span class="n">nscompile</span><span class="o">.</span><span class="n">cvar</span><span class="o">.</span><span class="n">cmps</span><span class="p">):</span>
@@ -487,7 +501,7 @@
     <span class="k">if</span> <span class="ow">not</span> <span class="n">nscompile</span><span class="o">.</span><span class="n">cmp_struct_get_flatten_hrc</span><span class="p">(</span><span class="n">nscompile</span><span class="o">.</span><span class="n">cvar</span><span class="o">.</span><span class="n">cmps</span><span class="p">):</span>
         <span class="n">flatten_hierarchy</span><span class="p">()</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">nscompile</span><span class="o">.</span><span class="n">cmp_struct_get_encode_variables</span><span class="p">(</span><span class="n">nscompile</span><span class="o">.</span><span class="n">cvar</span><span class="o">.</span><span class="n">cmps</span><span class="p">):</span>
-        <span class="n">encode_variables</span><span class="p">()</span>
+        <span class="n">encode_variables</span><span class="p">(</span><span class="n">variables_ordering</span><span class="o">=</span><span class="n">variables_ordering</span><span class="p">)</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">nscompile</span><span class="o">.</span><span class="n">cmp_struct_get_build_flat_model</span><span class="p">(</span><span class="n">nscompile</span><span class="o">.</span><span class="n">cvar</span><span class="o">.</span><span class="n">cmps</span><span class="p">):</span>
         <span class="n">build_flat_model</span><span class="p">()</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">nscompile</span><span class="o">.</span><span class="n">cmp_struct_get_build_model</span><span class="p">(</span><span class="n">nscompile</span><span class="o">.</span><span class="n">cvar</span><span class="o">.</span><span class="n">cmps</span><span class="p">):</span>

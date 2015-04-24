@@ -10,6 +10,9 @@ The :mod:`pynusmv.dd` module provides some BDD-related structures:
 * :class:`Cube` represents a particular cube of variables the model.
 * :class:`DDManager` represents a NuSMV DD manager.
 
+It also provides global methods to work on BDD variables reordering: :func:`enable_dynamic_reordering`, :func:`disable_dynamic_reordering`,
+:func:`dynamic_reordering_enabled`, :func:`reorder`.
+
 """
 
 
@@ -38,30 +41,31 @@ def enable_dynamic_reordering(DDmanager=None, method="sift"):
 
     :param DDmanager: the conserned DD manager; if None, the global DD manager
                       is used instead.
-    :type DDmanager: `DDManager`
+    :type DDmanager: :class:`DDManager`
     :param method: the method to use for reordering:
-                   * sift (default method)
-                   * random
-                   * random_pivot
-                   * sift_converge
-                   * symmetry_sift
-                   * symmetry_sift_converge
-                   * window{2, 3, 4}
-                   * window{2, 3, 4}_converge
-                   * group_sift
-                   * group_sift_converge
-                   * annealing
-                   * genetic
-                   * exact
-                   * linear
-                   * linear_converge
-                   * same (the previously chosen method)
+                   `sift (default method)`,
+                   `random`,
+                   `random_pivot`,
+                   `sift_converge`,
+                   `symmetry_sift`,
+                   `symmetry_sift_converge`,
+                   `window{2, 3, 4}`,
+                   `window{2, 3, 4}_converge`,
+                   `group_sift`,
+                   `group_sift_converge`,
+                   `annealing`,
+                   `genetic`,
+                   `exact`,
+                   `linear`,
+                   `linear_converge`,
+                   `same` (the previously chosen method)
     :type method: :class:`str`
 
     :raise: a :exc:`MissingManagerError
             <pynusmv.exception.MissingManagerError>` if the manager is missing
 
     .. note:: For more information on reordering methods, see NuSMV manual.
+
     """
     if DDmanager is None:
         DDmanager_ptr = nscinit.cvar.dd_manager
@@ -82,7 +86,7 @@ def disable_dynamic_reordering(DDmanager=None):
 
     :param DDmanager: the conserned DD manager; if None, the global DD manager
                       is used instead.
-    :type DDmanager: `DDManager`
+    :type DDmanager: :class:`DDManager`
 
     :raise: a :exc:`MissingManagerError
             <pynusmv.exception.MissingManagerError>` if the manager is missing
@@ -104,7 +108,7 @@ def dynamic_reordering_enabled(DDmanager=None):
 
     :param DDmanager: the conserned DD manager; if None, the global DD manager
                       is used instead.
-    :type DDmanager: `DDManager`
+    :type DDmanager: :class:`DDManager`
     :rtype: None, or a the name of the method used
 
     :raise: a :exc:`MissingManagerError
@@ -126,28 +130,30 @@ def reorder(DDmanager=None, method="sift"):
 
     :param DDmanager: the conserned DD manager; if None, the global DD manager
                       is used instead.
-    :type DDmanager: `DDManager`
+    :type DDmanager: :class:`DDManager`
     :param method: the method to use for reordering:
-                   * sift (default method)
-                   * random
-                   * random_pivot
-                   * sift_converge
-                   * symmetry_sift
-                   * symmetry_sift_converge
-                   * window{2, 3, 4}
-                   * window{2, 3, 4}_converge
-                   * group_sift
-                   * group_sift_converge
-                   * annealing
-                   * genetic
-                   * exact
-                   * linear
-                   * linear_converge
-                   * same (the previously chosen method)
+                   `sift (default method)`,
+                   `random`,
+                   `random_pivot`,
+                   `sift_converge`,
+                   `symmetry_sift`,
+                   `symmetry_sift_converge`,
+                   `window{2, 3, 4}`,
+                   `window{2, 3, 4}_converge`,
+                   `group_sift`,
+                   `group_sift_converge`,
+                   `annealing`,
+                   `genetic`,
+                   `exact`,
+                   `linear`,
+                   `linear_converge`,
+                   `same` (the previously chosen method)
     :type method: :class:`str`
 
     :raise: a :exc:`MissingManagerError
             <pynusmv.exception.MissingManagerError>` if the manager is missing
+
+    .. note:: For more information on reordering methods, see NuSMV manual.
 
     """
     if DDmanager is None:

@@ -206,20 +206,28 @@ stderr and a <a class="reference internal" href="#pynusmv.exception.NuSMVCannotF
 
 <dl class="function">
 <dt id="pynusmv.glob.encode_variables">
-<tt class="descclassname">pynusmv.glob.</tt><tt class="descname">encode_variables</tt><big>(</big><em>layers={'model'}</em><big>)</big><a class="reference internal" href="_modules/pynusmv/glob.html#encode_variables"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynusmv.glob.encode_variables" title="Permalink to this definition">¶</a></dt>
+<tt class="descclassname">pynusmv.glob.</tt><tt class="descname">encode_variables</tt><big>(</big><em>layers={'model'}</em>, <em>variables_ordering=None</em><big>)</big><a class="reference internal" href="_modules/pynusmv/glob.html#encode_variables"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynusmv.glob.encode_variables" title="Permalink to this definition">¶</a></dt>
 <dd><p>Encode the BDD variables of the current model and store it in global data
-structures.</p>
+structures.
+If variables_ordering is provided, use this ordering to encode the
+variables; otherwise, the default ordering method is used.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>layers</strong> (<tt class="xref py py-class docutils literal"><span class="pre">set</span></tt>) &#8211; the set of layers variables to encode</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>layers</strong> (<tt class="xref py py-class docutils literal"><span class="pre">set</span></tt>) &#8211; the set of layers variables to encode</li>
+<li><strong>variables_ordering</strong> (<em>path to file</em>) &#8211; the file containing a custom ordering</li>
+</ul>
+</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Raise:</th><td class="field-body">a <a class="reference internal" href="#pynusmv.exception.NuSMVNeedFlatHierarchyError" title="pynusmv.exception.NuSMVNeedFlatHierarchyError"><tt class="xref py py-exc docutils literal"><span class="pre">NuSMVNeedFlatHierarchyError</span></tt></a> if the model is
-not flattened</td>
+<tr class="field-even field"><th class="field-name">Raise:</th><td class="field-body"><p class="first">a <a class="reference internal" href="#pynusmv.exception.NuSMVNeedFlatHierarchyError" title="pynusmv.exception.NuSMVNeedFlatHierarchyError"><tt class="xref py py-exc docutils literal"><span class="pre">NuSMVNeedFlatHierarchyError</span></tt></a> if the model is
+not flattened</p>
+</td>
 </tr>
-<tr class="field-odd field"><th class="field-name">Raise:</th><td class="field-body">a <a class="reference internal" href="#pynusmv.exception.NuSMVModelAlreadyEncodedError" title="pynusmv.exception.NuSMVModelAlreadyEncodedError"><tt class="xref py py-exc docutils literal"><span class="pre">NuSMVModelAlreadyEncodedError</span></tt></a>
-if the variables are already encoded</td>
+<tr class="field-odd field"><th class="field-name">Raise:</th><td class="field-body"><p class="first last">a <a class="reference internal" href="#pynusmv.exception.NuSMVModelAlreadyEncodedError" title="pynusmv.exception.NuSMVModelAlreadyEncodedError"><tt class="xref py py-exc docutils literal"><span class="pre">NuSMVModelAlreadyEncodedError</span></tt></a>
+if the variables are already encoded</p>
+</td>
 </tr>
 </tbody>
 </table>
@@ -329,10 +337,20 @@ of the model is already built</td>
 
 <dl class="function">
 <dt id="pynusmv.glob.compute_model">
-<tt class="descclassname">pynusmv.glob.</tt><tt class="descname">compute_model</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/pynusmv/glob.html#compute_model"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynusmv.glob.compute_model" title="Permalink to this definition">¶</a></dt>
+<tt class="descclassname">pynusmv.glob.</tt><tt class="descname">compute_model</tt><big>(</big><em>variables_ordering=None</em><big>)</big><a class="reference internal" href="_modules/pynusmv/glob.html#compute_model"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynusmv.glob.compute_model" title="Permalink to this definition">¶</a></dt>
 <dd><p>Compute the read model and store its parts in global data structures.
 This function is a shortcut for calling all the steps of the model building
-that are not yet performed.</p>
+that are not yet performed.
+If variables_ordering is not None, it is used as a file containing the
+order of variables used for encoding the model into BDDs.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>variables_ordering</strong> (<em>path to file</em>) &#8211; the file containing a custom ordering</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 </div>
@@ -3270,6 +3288,25 @@ used to manage BDDs, the symbols table or the state and inputs masks.</p>
 </table>
 </dd></dl>
 
+<dl class="method">
+<dt id="pynusmv.fsm.BddEnc.get_variables_ordering">
+<tt class="descname">get_variables_ordering</tt><big>(</big><em>var_type='scalar'</em><big>)</big><a class="reference internal" href="_modules/pynusmv/fsm.html#BddEnc.get_variables_ordering"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynusmv.fsm.BddEnc.get_variables_ordering" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the order of variables.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>var_type</strong> &#8211; the type of variables needed; <cite>&#8220;scalar&#8221;</cite> for only
+scalar variables (one variable per model variable),
+<cite>&#8220;bits&#8221;</cite> for bits for each scalar variables
+(default: &#8220;scalar&#8221;)</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">tuple(str)</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
 </dd></dl>
 
 <dl class="class">
@@ -3279,7 +3316,7 @@ used to manage BDDs, the symbols table or the state and inputs masks.</p>
 <p>Python class for symbols table.</p>
 <dl class="attribute">
 <dt id="pynusmv.fsm.SymbTable.ins_policies">
-<tt class="descname">ins_policies</tt><em class="property"> = {'SYMB_LAYER_POS_FORCE_BOTTOM': 4, 'SYMB_LAYER_POS_DEFAULT': 0, 'SYMB_LAYER_POS_FORCE_TOP': 1, 'SYMB_LAYER_POS_BOTTOM': 3, 'SYMB_LAYER_POS_TOP': 2}</em><a class="headerlink" href="#pynusmv.fsm.SymbTable.ins_policies" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">ins_policies</tt><em class="property"> = {'SYMB_LAYER_POS_BOTTOM': 3, 'SYMB_LAYER_POS_TOP': 2, 'SYMB_LAYER_POS_DEFAULT': 0, 'SYMB_LAYER_POS_FORCE_TOP': 1, 'SYMB_LAYER_POS_FORCE_BOTTOM': 4}</em><a class="headerlink" href="#pynusmv.fsm.SymbTable.ins_policies" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
@@ -3535,7 +3572,7 @@ defined in this symbol table</td>
 properties and specifications of models.</p>
 <dl class="data">
 <dt id="pynusmv.prop.propTypes">
-<tt class="descclassname">pynusmv.prop.</tt><tt class="descname">propTypes</tt><em class="property"> = {'CTL': 102, 'Comparison': 107, 'Compute': 106, 'PSL': 104, 'LTL': 103, 'NoType': 101, 'Invariant': 105}</em><a class="headerlink" href="#pynusmv.prop.propTypes" title="Permalink to this definition">¶</a></dt>
+<tt class="descclassname">pynusmv.prop.</tt><tt class="descname">propTypes</tt><em class="property"> = {'CTL': 102, 'Compute': 106, 'Comparison': 107, 'NoType': 101, 'PSL': 104, 'LTL': 103, 'Invariant': 105}</em><a class="headerlink" href="#pynusmv.prop.propTypes" title="Permalink to this definition">¶</a></dt>
 <dd><p>The possible types of properties. This gives access to NuSMV internal types
 without dealing with <cite>pynusmv.nusmv</cite> modules.</p>
 </dd></dl>
@@ -3968,24 +4005,48 @@ i.e. a particular action of the model.</li>
 <li><a class="reference internal" href="#pynusmv.dd.Cube" title="pynusmv.dd.Cube"><tt class="xref py py-class docutils literal"><span class="pre">Cube</span></tt></a> represents a particular cube of variables the model.</li>
 <li><a class="reference internal" href="#pynusmv.dd.DDManager" title="pynusmv.dd.DDManager"><tt class="xref py py-class docutils literal"><span class="pre">DDManager</span></tt></a> represents a NuSMV DD manager.</li>
 </ul>
+<p>It also provides global methods to work on BDD variables reordering: <a class="reference internal" href="#pynusmv.dd.enable_dynamic_reordering" title="pynusmv.dd.enable_dynamic_reordering"><tt class="xref py py-func docutils literal"><span class="pre">enable_dynamic_reordering()</span></tt></a>, <a class="reference internal" href="#pynusmv.dd.disable_dynamic_reordering" title="pynusmv.dd.disable_dynamic_reordering"><tt class="xref py py-func docutils literal"><span class="pre">disable_dynamic_reordering()</span></tt></a>,
+<a class="reference internal" href="#pynusmv.dd.dynamic_reordering_enabled" title="pynusmv.dd.dynamic_reordering_enabled"><tt class="xref py py-func docutils literal"><span class="pre">dynamic_reordering_enabled()</span></tt></a>, <a class="reference internal" href="#pynusmv.dd.reorder" title="pynusmv.dd.reorder"><tt class="xref py py-func docutils literal"><span class="pre">reorder()</span></tt></a>.</p>
 <dl class="function">
 <dt id="pynusmv.dd.enable_dynamic_reordering">
-<tt class="descclassname">pynusmv.dd.</tt><tt class="descname">enable_dynamic_reordering</tt><big>(</big><em>DDmanager=None</em><big>)</big><a class="reference internal" href="_modules/pynusmv/dd.html#enable_dynamic_reordering"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynusmv.dd.enable_dynamic_reordering" title="Permalink to this definition">¶</a></dt>
-<dd><p>Enable dynamic reordering of BDD variables under control of <cite>DDmanager</cite>.</p>
+<tt class="descclassname">pynusmv.dd.</tt><tt class="descname">enable_dynamic_reordering</tt><big>(</big><em>DDmanager=None</em>, <em>method='sift'</em><big>)</big><a class="reference internal" href="_modules/pynusmv/dd.html#enable_dynamic_reordering"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynusmv.dd.enable_dynamic_reordering" title="Permalink to this definition">¶</a></dt>
+<dd><p>Enable dynamic reordering of BDD variables under control of <cite>DDmanager</cite>
+with the given <cite>method</cite>.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>DDmanager</strong> (<cite>DDManager</cite>) &#8211; the conserned DD manager; if None, the global DD manager
-is used instead.</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>DDmanager</strong> (<a class="reference internal" href="#pynusmv.dd.DDManager" title="pynusmv.dd.DDManager"><tt class="xref py py-class docutils literal"><span class="pre">DDManager</span></tt></a>) &#8211; the conserned DD manager; if None, the global DD manager
+is used instead.</li>
+<li><strong>method</strong> (<tt class="xref py py-class docutils literal"><span class="pre">str</span></tt>) &#8211; the method to use for reordering:
+<cite>sift (default method)</cite>,
+<cite>random</cite>,
+<cite>random_pivot</cite>,
+<cite>sift_converge</cite>,
+<cite>symmetry_sift</cite>,
+<cite>symmetry_sift_converge</cite>,
+<cite>window{2, 3, 4}</cite>,
+<cite>window{2, 3, 4}_converge</cite>,
+<cite>group_sift</cite>,
+<cite>group_sift_converge</cite>,
+<cite>annealing</cite>,
+<cite>genetic</cite>,
+<cite>exact</cite>,
+<cite>linear</cite>,
+<cite>linear_converge</cite>,
+<cite>same</cite> (the previously chosen method)</li>
+</ul>
+</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Raise:</th><td class="field-body">a <a class="reference internal" href="#pynusmv.exception.MissingManagerError" title="pynusmv.exception.MissingManagerError"><tt class="xref py py-exc docutils literal"><span class="pre">MissingManagerError</span></tt></a> if the manager is missing</td>
+<tr class="field-even field"><th class="field-name">Raise:</th><td class="field-body"><p class="first last">a <a class="reference internal" href="#pynusmv.exception.MissingManagerError" title="pynusmv.exception.MissingManagerError"><tt class="xref py py-exc docutils literal"><span class="pre">MissingManagerError</span></tt></a> if the manager is missing</p>
+</td>
 </tr>
 </tbody>
 </table>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
-<p class="last">The default Sift reordering method is used.</p>
+<p class="last">For more information on reordering methods, see NuSMV manual.</p>
 </div>
 </dd></dl>
 
@@ -3997,7 +4058,7 @@ is used instead.</td>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>DDmanager</strong> (<cite>DDManager</cite>) &#8211; the conserned DD manager; if None, the global DD manager
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>DDmanager</strong> (<a class="reference internal" href="#pynusmv.dd.DDManager" title="pynusmv.dd.DDManager"><tt class="xref py py-class docutils literal"><span class="pre">DDManager</span></tt></a>) &#8211; the conserned DD manager; if None, the global DD manager
 is used instead.</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Raise:</th><td class="field-body">a <a class="reference internal" href="#pynusmv.exception.MissingManagerError" title="pynusmv.exception.MissingManagerError"><tt class="xref py py-exc docutils literal"><span class="pre">MissingManagerError</span></tt></a> if the manager is missing</td>
@@ -4009,19 +4070,63 @@ is used instead.</td>
 <dl class="function">
 <dt id="pynusmv.dd.dynamic_reordering_enabled">
 <tt class="descclassname">pynusmv.dd.</tt><tt class="descname">dynamic_reordering_enabled</tt><big>(</big><em>DDmanager=None</em><big>)</big><a class="reference internal" href="_modules/pynusmv/dd.html#dynamic_reordering_enabled"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynusmv.dd.dynamic_reordering_enabled" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return whether dynamic reordering is enabled or not for BDD under control
-of <cite>DDmanager</cite>.</p>
+<dd><p>Return the dynamic reordering method used if reordering is enabled for BDD
+under control of <cite>DDmanager</cite>, None otherwise.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>DDmanager</strong> (<cite>DDManager</cite>) &#8211; the conserned DD manager; if None, the global DD manager
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>DDmanager</strong> (<a class="reference internal" href="#pynusmv.dd.DDManager" title="pynusmv.dd.DDManager"><tt class="xref py py-class docutils literal"><span class="pre">DDManager</span></tt></a>) &#8211; the conserned DD manager; if None, the global DD manager
 is used instead.</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Raise:</th><td class="field-body">a <a class="reference internal" href="#pynusmv.exception.MissingManagerError" title="pynusmv.exception.MissingManagerError"><tt class="xref py py-exc docutils literal"><span class="pre">MissingManagerError</span></tt></a> if the manager is missing</td>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">None, or a the name of the method used</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Raise:</th><td class="field-body">a <a class="reference internal" href="#pynusmv.exception.MissingManagerError" title="pynusmv.exception.MissingManagerError"><tt class="xref py py-exc docutils literal"><span class="pre">MissingManagerError</span></tt></a> if the manager is missing</td>
 </tr>
 </tbody>
 </table>
+</dd></dl>
+
+<dl class="function">
+<dt id="pynusmv.dd.reorder">
+<tt class="descclassname">pynusmv.dd.</tt><tt class="descname">reorder</tt><big>(</big><em>DDmanager=None</em>, <em>method='sift'</em><big>)</big><a class="reference internal" href="_modules/pynusmv/dd.html#reorder"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynusmv.dd.reorder" title="Permalink to this definition">¶</a></dt>
+<dd><p>Force a reordering of BDD variables under control of <cite>DDmanager</cite>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>DDmanager</strong> (<a class="reference internal" href="#pynusmv.dd.DDManager" title="pynusmv.dd.DDManager"><tt class="xref py py-class docutils literal"><span class="pre">DDManager</span></tt></a>) &#8211; the conserned DD manager; if None, the global DD manager
+is used instead.</li>
+<li><strong>method</strong> (<tt class="xref py py-class docutils literal"><span class="pre">str</span></tt>) &#8211; the method to use for reordering:
+<cite>sift (default method)</cite>,
+<cite>random</cite>,
+<cite>random_pivot</cite>,
+<cite>sift_converge</cite>,
+<cite>symmetry_sift</cite>,
+<cite>symmetry_sift_converge</cite>,
+<cite>window{2, 3, 4}</cite>,
+<cite>window{2, 3, 4}_converge</cite>,
+<cite>group_sift</cite>,
+<cite>group_sift_converge</cite>,
+<cite>annealing</cite>,
+<cite>genetic</cite>,
+<cite>exact</cite>,
+<cite>linear</cite>,
+<cite>linear_converge</cite>,
+<cite>same</cite> (the previously chosen method)</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Raise:</th><td class="field-body"><p class="first last">a <a class="reference internal" href="#pynusmv.exception.MissingManagerError" title="pynusmv.exception.MissingManagerError"><tt class="xref py py-exc docutils literal"><span class="pre">MissingManagerError</span></tt></a> if the manager is missing</p>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">For more information on reordering methods, see NuSMV manual.</p>
+</div>
 </dd></dl>
 
 <dl class="class">
@@ -4243,6 +4348,24 @@ and <cite>other</cite> is not empty.</p>
 </tr>
 </tbody>
 </table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pynusmv.dd.BDD.minimize">
+<tt class="descname">minimize</tt><big>(</big><em>c</em><big>)</big><a class="reference internal" href="_modules/pynusmv/dd.html#BDD.minimize"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynusmv.dd.BDD.minimize" title="Permalink to this definition">¶</a></dt>
+<dd><p>Restrict this BDD with c, as described in Coudert et al. ICCAD90.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>c</strong> (<a class="reference internal" href="#pynusmv.dd.BDD" title="pynusmv.dd.BDD"><tt class="xref py py-class docutils literal"><span class="pre">BDD</span></tt></a>) &#8211; the BDD used to restrict this BDD</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Always returns a BDD not larger than the this BDD.</p>
+</div>
 </dd></dl>
 
 <dl class="staticmethod">

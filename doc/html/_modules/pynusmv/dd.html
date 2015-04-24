@@ -59,11 +59,14 @@
 <span class="sd">* :class:`Cube` represents a particular cube of variables the model.</span>
 <span class="sd">* :class:`DDManager` represents a NuSMV DD manager.</span>
 
+<span class="sd">It also provides global methods to work on BDD variables reordering: :func:`enable_dynamic_reordering`, :func:`disable_dynamic_reordering`,</span>
+<span class="sd">:func:`dynamic_reordering_enabled`, :func:`reorder`.</span>
+
 <span class="sd">&quot;&quot;&quot;</span>
 
 
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;enable_dynamic_reordering&#39;</span><span class="p">,</span> <span class="s">&#39;disable_dynamic_reordering&#39;</span><span class="p">,</span>
-           <span class="s">&#39;dynamic_reordering_enabled&#39;</span><span class="p">,</span>
+           <span class="s">&#39;dynamic_reordering_enabled&#39;</span><span class="p">,</span> <span class="s">&#39;reorder&#39;</span><span class="p">,</span>
            <span class="s">&#39;BDD&#39;</span><span class="p">,</span> <span class="s">&#39;BDDList&#39;</span><span class="p">,</span> <span class="s">&#39;State&#39;</span><span class="p">,</span> <span class="s">&#39;Inputs&#39;</span><span class="p">,</span> <span class="s">&#39;StateInputs&#39;</span><span class="p">,</span> <span class="s">&#39;Cube&#39;</span><span class="p">,</span>
            <span class="s">&#39;DDManager&#39;</span><span class="p">]</span>
 
@@ -80,18 +83,38 @@
 <span class="kn">from</span> <span class="nn">.exception</span> <span class="kn">import</span> <span class="n">MissingManagerError</span>
 
 
-<div class="viewcode-block" id="enable_dynamic_reordering"><a class="viewcode-back" href="../../pynusmv.html#pynusmv.dd.enable_dynamic_reordering">[docs]</a><span class="k">def</span> <span class="nf">enable_dynamic_reordering</span><span class="p">(</span><span class="n">DDmanager</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+<div class="viewcode-block" id="enable_dynamic_reordering"><a class="viewcode-back" href="../../pynusmv.html#pynusmv.dd.enable_dynamic_reordering">[docs]</a><span class="k">def</span> <span class="nf">enable_dynamic_reordering</span><span class="p">(</span><span class="n">DDmanager</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s">&quot;sift&quot;</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Enable dynamic reordering of BDD variables under control of `DDmanager`.</span>
+<span class="sd">    Enable dynamic reordering of BDD variables under control of `DDmanager`</span>
+<span class="sd">    with the given `method`.</span>
 
 <span class="sd">    :param DDmanager: the conserned DD manager; if None, the global DD manager</span>
 <span class="sd">                      is used instead.</span>
-<span class="sd">    :type DDmanager: `DDManager`</span>
+<span class="sd">    :type DDmanager: :class:`DDManager`</span>
+<span class="sd">    :param method: the method to use for reordering:</span>
+<span class="sd">                   `sift (default method)`,</span>
+<span class="sd">                   `random`,</span>
+<span class="sd">                   `random_pivot`,</span>
+<span class="sd">                   `sift_converge`,</span>
+<span class="sd">                   `symmetry_sift`,</span>
+<span class="sd">                   `symmetry_sift_converge`,</span>
+<span class="sd">                   `window{2, 3, 4}`,</span>
+<span class="sd">                   `window{2, 3, 4}_converge`,</span>
+<span class="sd">                   `group_sift`,</span>
+<span class="sd">                   `group_sift_converge`,</span>
+<span class="sd">                   `annealing`,</span>
+<span class="sd">                   `genetic`,</span>
+<span class="sd">                   `exact`,</span>
+<span class="sd">                   `linear`,</span>
+<span class="sd">                   `linear_converge`,</span>
+<span class="sd">                   `same` (the previously chosen method)</span>
+<span class="sd">    :type method: :class:`str`</span>
 
 <span class="sd">    :raise: a :exc:`MissingManagerError</span>
 <span class="sd">            &lt;pynusmv.exception.MissingManagerError&gt;` if the manager is missing</span>
 
-<span class="sd">    .. note:: The default Sift reordering method is used.</span>
+<span class="sd">    .. note:: For more information on reordering methods, see NuSMV manual.</span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="n">DDmanager</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
         <span class="n">DDmanager_ptr</span> <span class="o">=</span> <span class="n">nscinit</span><span class="o">.</span><span class="n">cvar</span><span class="o">.</span><span class="n">dd_manager</span>
@@ -99,11 +122,12 @@
         <span class="n">DDmanager_ptr</span> <span class="o">=</span> <span class="n">DDmanager</span><span class="o">.</span><span class="n">_ptr</span>
     <span class="k">if</span> <span class="n">DDmanager_ptr</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
         <span class="k">raise</span> <span class="n">MissingManagerError</span><span class="p">(</span><span class="s">&quot;Missing manager&quot;</span><span class="p">)</span>
-    
-    <span class="c"># CUDD_REORDER_SIFT is the default reordering method</span>
-    <span class="c"># see nusmv/src/dd/dd.h:94-112</span>
+
+    <span class="n">method</span> <span class="o">=</span> <span class="n">nsdd</span><span class="o">.</span><span class="n">StringConvertToDynOrderType</span><span class="p">(</span><span class="n">method</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">method</span> <span class="o">==</span> <span class="n">nsdd</span><span class="o">.</span><span class="n">CUDD_REORDER_NONE</span><span class="p">:</span>
+        <span class="n">method</span> <span class="o">=</span> <span class="n">nsdd</span><span class="o">.</span><span class="n">CUDD_REORDER_SIFT</span>
     <span class="n">nsopt</span><span class="o">.</span><span class="n">set_dynamic_reorder</span><span class="p">(</span><span class="n">nsopt</span><span class="o">.</span><span class="n">OptsHandler_get_instance</span><span class="p">())</span>
-    <span class="n">nsdd</span><span class="o">.</span><span class="n">dd_autodyn_enable</span><span class="p">(</span><span class="n">DDmanager_ptr</span><span class="p">,</span> <span class="n">nsdd</span><span class="o">.</span><span class="n">CUDD_REORDER_SIFT</span><span class="p">)</span>
+    <span class="n">nsdd</span><span class="o">.</span><span class="n">dd_autodyn_enable</span><span class="p">(</span><span class="n">DDmanager_ptr</span><span class="p">,</span> <span class="n">method</span><span class="p">)</span>
 </div>
 <div class="viewcode-block" id="disable_dynamic_reordering"><a class="viewcode-back" href="../../pynusmv.html#pynusmv.dd.disable_dynamic_reordering">[docs]</a><span class="k">def</span> <span class="nf">disable_dynamic_reordering</span><span class="p">(</span><span class="n">DDmanager</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
@@ -111,7 +135,7 @@
 
 <span class="sd">    :param DDmanager: the conserned DD manager; if None, the global DD manager</span>
 <span class="sd">                      is used instead.</span>
-<span class="sd">    :type DDmanager: `DDManager`</span>
+<span class="sd">    :type DDmanager: :class:`DDManager`</span>
 
 <span class="sd">    :raise: a :exc:`MissingManagerError</span>
 <span class="sd">            &lt;pynusmv.exception.MissingManagerError&gt;` if the manager is missing</span>
@@ -128,12 +152,13 @@
 </div>
 <div class="viewcode-block" id="dynamic_reordering_enabled"><a class="viewcode-back" href="../../pynusmv.html#pynusmv.dd.dynamic_reordering_enabled">[docs]</a><span class="k">def</span> <span class="nf">dynamic_reordering_enabled</span><span class="p">(</span><span class="n">DDmanager</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Return whether dynamic reordering is enabled or not for BDD under control</span>
-<span class="sd">    of `DDmanager`.</span>
+<span class="sd">    Return the dynamic reordering method used if reordering is enabled for BDD</span>
+<span class="sd">    under control of `DDmanager`, None otherwise.</span>
 
 <span class="sd">    :param DDmanager: the conserned DD manager; if None, the global DD manager</span>
 <span class="sd">                      is used instead.</span>
-<span class="sd">    :type DDmanager: `DDManager`</span>
+<span class="sd">    :type DDmanager: :class:`DDManager`</span>
+<span class="sd">    :rtype: None, or a the name of the method used</span>
 
 <span class="sd">    :raise: a :exc:`MissingManagerError</span>
 <span class="sd">            &lt;pynusmv.exception.MissingManagerError&gt;` if the manager is missing</span>
@@ -146,7 +171,50 @@
     <span class="k">if</span> <span class="n">DDmanager_ptr</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
         <span class="k">raise</span> <span class="n">MissingManagerError</span><span class="p">(</span><span class="s">&quot;Missing manager&quot;</span><span class="p">)</span>
     <span class="n">enabled</span><span class="p">,</span> <span class="n">method</span> <span class="o">=</span> <span class="n">nsdd</span><span class="o">.</span><span class="n">reordering_status</span><span class="p">(</span><span class="n">DDmanager_ptr</span><span class="p">)</span>
-    <span class="k">return</span> <span class="nb">bool</span><span class="p">(</span><span class="n">enabled</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">nsdd</span><span class="o">.</span><span class="n">DynOrderTypeConvertToString</span><span class="p">(</span><span class="n">method</span><span class="p">)</span> <span class="k">if</span> <span class="nb">bool</span><span class="p">(</span><span class="n">enabled</span><span class="p">)</span> <span class="k">else</span> <span class="bp">None</span>
+</div>
+<div class="viewcode-block" id="reorder"><a class="viewcode-back" href="../../pynusmv.html#pynusmv.dd.reorder">[docs]</a><span class="k">def</span> <span class="nf">reorder</span><span class="p">(</span><span class="n">DDmanager</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s">&quot;sift&quot;</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Force a reordering of BDD variables under control of `DDmanager`.</span>
+
+<span class="sd">    :param DDmanager: the conserned DD manager; if None, the global DD manager</span>
+<span class="sd">                      is used instead.</span>
+<span class="sd">    :type DDmanager: :class:`DDManager`</span>
+<span class="sd">    :param method: the method to use for reordering:</span>
+<span class="sd">                   `sift (default method)`,</span>
+<span class="sd">                   `random`,</span>
+<span class="sd">                   `random_pivot`,</span>
+<span class="sd">                   `sift_converge`,</span>
+<span class="sd">                   `symmetry_sift`,</span>
+<span class="sd">                   `symmetry_sift_converge`,</span>
+<span class="sd">                   `window{2, 3, 4}`,</span>
+<span class="sd">                   `window{2, 3, 4}_converge`,</span>
+<span class="sd">                   `group_sift`,</span>
+<span class="sd">                   `group_sift_converge`,</span>
+<span class="sd">                   `annealing`,</span>
+<span class="sd">                   `genetic`,</span>
+<span class="sd">                   `exact`,</span>
+<span class="sd">                   `linear`,</span>
+<span class="sd">                   `linear_converge`,</span>
+<span class="sd">                   `same` (the previously chosen method)</span>
+<span class="sd">    :type method: :class:`str`</span>
+
+<span class="sd">    :raise: a :exc:`MissingManagerError</span>
+<span class="sd">            &lt;pynusmv.exception.MissingManagerError&gt;` if the manager is missing</span>
+
+<span class="sd">    .. note:: For more information on reordering methods, see NuSMV manual.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">DDmanager</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="n">DDmanager_ptr</span> <span class="o">=</span> <span class="n">nscinit</span><span class="o">.</span><span class="n">cvar</span><span class="o">.</span><span class="n">dd_manager</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">DDmanager_ptr</span> <span class="o">=</span> <span class="n">DDmanager</span><span class="o">.</span><span class="n">_ptr</span>
+    <span class="k">if</span> <span class="n">DDmanager_ptr</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">MissingManagerError</span><span class="p">(</span><span class="s">&quot;Missing manager&quot;</span><span class="p">)</span>
+    <span class="n">method</span> <span class="o">=</span> <span class="n">nsdd</span><span class="o">.</span><span class="n">StringConvertToDynOrderType</span><span class="p">(</span><span class="n">method</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">method</span> <span class="o">==</span> <span class="n">nsdd</span><span class="o">.</span><span class="n">CUDD_REORDER_NONE</span><span class="p">:</span>
+        <span class="n">method</span> <span class="o">=</span> <span class="n">nsdd</span><span class="o">.</span><span class="n">CUDD_REORDER_SIFT</span>
+    <span class="n">nsdd</span><span class="o">.</span><span class="n">dd_reorder</span><span class="p">(</span><span class="n">DDmanager_ptr</span><span class="p">,</span> <span class="n">method</span><span class="p">,</span> <span class="n">nsdd</span><span class="o">.</span><span class="n">DEFAULT_MINSIZE</span><span class="p">)</span>
 
 </div>
 <div class="viewcode-block" id="BDD"><a class="viewcode-back" href="../../pynusmv.html#pynusmv.dd.BDD">[docs]</a><span class="k">class</span> <span class="nc">BDD</span><span class="p">(</span><span class="n">PointerWrapper</span><span class="p">):</span>
@@ -464,6 +532,21 @@
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_manager</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">MissingManagerError</span><span class="p">()</span>
         <span class="k">return</span> <span class="n">BDD</span><span class="p">(</span><span class="n">nsdd</span><span class="o">.</span><span class="n">bdd_forall</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_manager</span><span class="o">.</span><span class="n">_ptr</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ptr</span><span class="p">,</span> <span class="n">cube</span><span class="o">.</span><span class="n">_ptr</span><span class="p">),</span>
+                   <span class="bp">self</span><span class="o">.</span><span class="n">_manager</span><span class="p">,</span> <span class="n">freeit</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="BDD.minimize"><a class="viewcode-back" href="../../pynusmv.html#pynusmv.dd.BDD.minimize">[docs]</a>    <span class="k">def</span> <span class="nf">minimize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">c</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Restrict this BDD with c, as described in Coudert et al. ICCAD90.</span>
+
+<span class="sd">        :param c: the BDD used to restrict this BDD</span>
+<span class="sd">        :type c: :class:`BDD`</span>
+
+<span class="sd">        .. note:: Always returns a BDD not larger than the this BDD.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_manager</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">MissingManagerError</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">BDD</span><span class="p">(</span><span class="n">nsdd</span><span class="o">.</span><span class="n">bdd_minimize</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_manager</span><span class="o">.</span><span class="n">_ptr</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ptr</span><span class="p">,</span> <span class="n">c</span><span class="o">.</span><span class="n">_ptr</span><span class="p">),</span>
                    <span class="bp">self</span><span class="o">.</span><span class="n">_manager</span><span class="p">,</span> <span class="n">freeit</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
 
     <span class="c"># =========================================================================</span>
