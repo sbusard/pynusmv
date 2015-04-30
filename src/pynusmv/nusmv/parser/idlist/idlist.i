@@ -1,5 +1,7 @@
 %module(package="pynusmv.nusmv.parser.idlist") idlist
 
+%include ../../global.i
+
 %{
 #include "../../../../nusmv/nusmv-config.h"
 #include "../../../../nusmv/src/node/node.h"

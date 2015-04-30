@@ -1,5 +1,7 @@
 %module(package="pynusmv.nusmv.wff.w2w") w2w
 
+%include ../../global.i
+
 %{
 #include "../../../../nusmv/nusmv-config.h"
 #include "../../../../nusmv/src/utils/defs.h"
