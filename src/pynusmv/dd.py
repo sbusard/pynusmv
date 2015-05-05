@@ -205,6 +205,7 @@ class BDD(PointerWrapper):
         :param freeit: whether the pointer must be freed with the BDD, or not.
 
         """
+        assert(ptr is not None)
         super(BDD, self).__init__(ptr, freeit)
         self._manager = dd_manager
 

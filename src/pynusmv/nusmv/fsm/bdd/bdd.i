@@ -2,8 +2,6 @@
 
 %include ../../global.i
 
-%include ../../signals.i
-
 %{
 #include "../../../../nusmv/nusmv-config.h"
 #include "../../../../nusmv/src/utils/defs.h"
