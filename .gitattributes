@@ -24,3 +24,6 @@
 
 /src/tools/mucalculus export-ignore
 /src/tests/tools/mucalculus export-ignore
+
+/src/tools/fullmucalculus export-ignore
+/src/tests/tools/fullmucalculus export-ignore
