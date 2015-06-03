@@ -49,7 +49,10 @@ def node(fsm, state, ids):
     attr = set()
     
     # Label
-    attr.add("label=\"" + '\\n'.join(var+"="+val for var, val in state.get_str_values().items()) + "\"")
+    attr.add("label=\"" + '\\n'.join(var+"="+val for var, val
+                                     in sorted(state.
+                                               get_str_values().items()))
+                        + "\"")
     
     # Initial state
     if state <= fsm.init:
@@ -89,7 +92,9 @@ def edge(fsm, source, inputs, target, ids):
     # Label
     if inputs is not None:
         attr.add("label=\"" + "\\n".join(var+"="+val for var, val
-                                     in inputs.get_str_values().items()) + "\"")
+                                        in sorted(inputs.
+                                                  get_str_values().items()))
+                            + "\"")
     
     # Fairness
     fair_styles = set()
