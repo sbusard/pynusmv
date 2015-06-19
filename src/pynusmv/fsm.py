@@ -67,6 +67,10 @@ class BddFsm(PointerWrapper):
         super(BddFsm, self).__init__(ptr, freeit=freeit)
         self._reachable = None
         self._fair = None
+    
+    def __deepcopy__(self, memo):
+        # No need to copy this FSM
+        return self
 
     @property
     def bddEnc(self):

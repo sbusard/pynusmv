@@ -213,6 +213,9 @@ class BDD(PointerWrapper):
         if self._freeit and self._ptr is not None:
             nsdd.bdd_free(self._manager._ptr, self._ptr)
             self._freeit = False
+    
+    def __deepcopy__(self, memo):
+        return self.dup()
 
     def equal(self, other):
         """
