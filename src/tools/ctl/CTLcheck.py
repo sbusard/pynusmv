@@ -23,10 +23,11 @@ def check(modelPath, evalSpecs=True):
                 spec = prop.exprcore
 
                 # Get violating states
-                violating = fsm.init & ~eval_ctl(fsm, spec)
+                violating = (fsm.init & ~eval_ctl(fsm, spec) &
+                             fsm.state_constraints)
                 print('Specification',str(spec), 'is',
                       str(violating.is_false()))
-                # We could generate counter-examples here      
+                # We could generate counter-examples here
     deinit_nusmv()
 
 
