@@ -195,14 +195,12 @@ class BddFsm(PointerWrapper):
         :rtype: :class:`BDD <pynusmv.dd.BDD>`
 
         """
-        states = states
         if inputs is None:
             return BDD(bddFsm.BddFsm_get_backward_image(
                        self._ptr,states._ptr),
                        self.bddEnc.DDmanager,
                        freeit=True)
         else:
-            inputs = inputs
             return BDD(bddFsm.BddFsm_get_constrained_backward_image
                        (self._ptr, states._ptr, inputs._ptr),
                        self.bddEnc.DDmanager, freeit=True)
@@ -235,13 +233,11 @@ class BddFsm(PointerWrapper):
         :rtype: :class:`BDD <pynusmv.dd.BDD>`
 
         """
-        states = states
         if inputs is None:
             return BDD(bddFsm.BddFsm_get_forward_image(self._ptr,
                                                        states._ptr),
                        self.bddEnc.DDmanager, freeit=True)
         else:
-            inputs = inputs
             return BDD(bddFsm.BddFsm_get_constrained_forward_image
                        (self._ptr, states._ptr, inputs._ptr),
                        self.bddEnc.DDmanager, freeit=True)
