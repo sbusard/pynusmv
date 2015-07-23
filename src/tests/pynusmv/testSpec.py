@@ -175,7 +175,7 @@ class TestSpec(unittest.TestCase):
         self.assertNotEqual(spec, newspec)
         
         newspec2 = au(spec.car, spec.cdr)
-        self.assertNotEqual(newspec, newspec2)
+        self.assertEqual(newspec, newspec2)
         
         s = {spec.car, spec.car, spec.cdr}
         self.assertEqual(len(s), 2)

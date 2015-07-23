@@ -260,7 +260,7 @@ class Spec(PointerWrapper):
         if other is None:
             raise ValueError()
         # freeit=True seems to be erroneous
-        s = Spec(nsnode.create_node(nsparser.OR, self._ptr, other._ptr),
+        s = Spec(nsnode.find_node(nsparser.OR, self._ptr, other._ptr),
                  freeit=False)
         s._car = self
         s._cdr = other
@@ -276,7 +276,7 @@ class Spec(PointerWrapper):
         if other is None:
             raise ValueError()
         # freeit=True seems to be erroneous
-        s = Spec(nsnode.create_node(nsparser.AND, self._ptr, other._ptr),
+        s = Spec(nsnode.find_node(nsparser.AND, self._ptr, other._ptr),
                  freeit=False)
         s._car = self
         s._cdr = other
@@ -290,7 +290,7 @@ class Spec(PointerWrapper):
 
         """
         # freeit=True seems to be erroneous
-        s = Spec(nsnode.create_node(nsparser.NOT, self._ptr, None),
+        s = Spec(nsnode.find_node(nsparser.NOT, self._ptr, None),
                  freeit=False)
         s._car = self
         return s
@@ -304,7 +304,7 @@ def true():
 
     """
     # freeit=True seems to be erroneous
-    return Spec(nsnode.create_node(nsparser.TRUEEXP, None, None), freeit=False)
+    return Spec(nsnode.find_node(nsparser.TRUEEXP, None, None), freeit=False)
 
 
 def false():
@@ -315,7 +315,7 @@ def false():
 
     """
     # freeit=True seems to be erroneous
-    return Spec(nsnode.create_node(nsparser.FALSEEXP, None, None),
+    return Spec(nsnode.find_node(nsparser.FALSEEXP, None, None),
                 freeit=False)
 
 
@@ -328,7 +328,7 @@ def not_(spec):
     if spec is None:
         raise ValueError()
     # freeit=True seems to be erroneous
-    s = Spec(nsnode.create_node(nsparser.NOT, spec._ptr, None), freeit=False)
+    s = Spec(nsnode.find_node(nsparser.NOT, spec._ptr, None), freeit=False)
     s._car = spec
     return s
 
@@ -343,7 +343,7 @@ def and_(left, right):
     if left is None or right is None:
         raise ValueError()
     # freeit=True seems to be erroneous
-    s = Spec(nsnode.create_node(nsparser.AND, left._ptr, right._ptr),
+    s = Spec(nsnode.find_node(nsparser.AND, left._ptr, right._ptr),
              freeit=False)
     s._car = left
     s._cdr = right
@@ -360,7 +360,7 @@ def or_(left, right):
     if left is None or right is None:
         raise ValueError()
     # freeit=True seems to be erroneous
-    s = Spec(nsnode.create_node(nsparser.OR, left._ptr, right._ptr),
+    s = Spec(nsnode.find_node(nsparser.OR, left._ptr, right._ptr),
              freeit=False)
     s._car = left
     s._cdr = right
@@ -377,7 +377,7 @@ def imply(left, right):
     if left is None or right is None:
         raise ValueError()
     # freeit=True seems to be erroneous
-    s = Spec(nsnode.create_node(nsparser.IMPLIES, left._ptr, right._ptr),
+    s = Spec(nsnode.find_node(nsparser.IMPLIES, left._ptr, right._ptr),
              freeit=False)
     s._car = left
     s._cdr = right
@@ -394,7 +394,7 @@ def iff(left, right):
     if left is None or right is None:
         raise ValueError()
     # freeit=True seems to be erroneous
-    s = Spec(nsnode.create_node(nsparser.IFF, left._ptr, right._ptr),
+    s = Spec(nsnode.find_node(nsparser.IFF, left._ptr, right._ptr),
              freeit=False)
     s._car = left
     s._cdr = right
@@ -411,7 +411,7 @@ def ex(spec):
     if spec is None:
         raise ValueError()
     # freeit=True seems to be erroneous
-    s = Spec(nsnode.create_node(nsparser.EX, spec._ptr, None), freeit=False)
+    s = Spec(nsnode.find_node(nsparser.EX, spec._ptr, None), freeit=False)
     s._car = spec
     return s
 
@@ -426,7 +426,7 @@ def eg(spec):
     if spec is None:
         raise ValueError()
     # freeit=True seems to be erroneous
-    s = Spec(nsnode.create_node(nsparser.EG, spec._ptr, None), freeit=False)
+    s = Spec(nsnode.find_node(nsparser.EG, spec._ptr, None), freeit=False)
     s._car = spec
     return s
 
@@ -441,7 +441,7 @@ def ef(spec):
     if spec is None:
         raise ValueError()
     # freeit=True seems to be erroneous
-    s = Spec(nsnode.create_node(nsparser.EF, spec._ptr, None), freeit=False)
+    s = Spec(nsnode.find_node(nsparser.EF, spec._ptr, None), freeit=False)
     s._car = spec
     return s
 
@@ -456,7 +456,7 @@ def eu(left, right):
     if left is None or right is None:
         raise ValueError()
     # freeit=True seems to be erroneous
-    s = Spec(nsnode.create_node(nsparser.EU, left._ptr, right._ptr),
+    s = Spec(nsnode.find_node(nsparser.EU, left._ptr, right._ptr),
              freeit=False)
     s._car = left
     s._cdr = right
@@ -473,7 +473,7 @@ def ew(left, right):
     if left is None or right is None:
         raise ValueError()
     # freeit=True seems to be erroneous
-    s = Spec(nsnode.create_node(nsparser.EW, left._ptr, right._ptr),
+    s = Spec(nsnode.find_node(nsparser.EW, left._ptr, right._ptr),
              freeit=False)
     s._car = left
     s._cdr = right
@@ -490,7 +490,7 @@ def ax(spec):
     if spec is None:
         raise ValueError()
     # freeit=True seems to be erroneous
-    s = Spec(nsnode.create_node(nsparser.AX, spec._ptr, None), freeit=False)
+    s = Spec(nsnode.find_node(nsparser.AX, spec._ptr, None), freeit=False)
     s._car = spec
     return s
 
@@ -505,7 +505,7 @@ def ag(spec):
     if spec is None:
         raise ValueError()
     # freeit=True seems to be erroneous
-    s = Spec(nsnode.create_node(nsparser.AG, spec._ptr, None), freeit=False)
+    s = Spec(nsnode.find_node(nsparser.AG, spec._ptr, None), freeit=False)
     s._car = spec
     return s
 
@@ -520,7 +520,7 @@ def af(spec):
     if spec is None:
         raise ValueError()
     # freeit=True seems to be erroneous
-    s = Spec(nsnode.create_node(nsparser.AF, spec._ptr, None), freeit=False)
+    s = Spec(nsnode.find_node(nsparser.AF, spec._ptr, None), freeit=False)
     s._car = spec
     return s
 
@@ -535,7 +535,7 @@ def au(left, right):
     if left is None or right is None:
         raise ValueError()
     # freeit=True seems to be erroneous
-    s = Spec(nsnode.create_node(nsparser.AU, left._ptr, right._ptr),
+    s = Spec(nsnode.find_node(nsparser.AU, left._ptr, right._ptr),
              freeit=False)
     s._car = left
     s._cdr = right
@@ -552,7 +552,7 @@ def aw(left, right):
     if left is None or right is None:
         raise ValueError()
     # freeit=True seems to be erroneous
-    s = Spec(nsnode.create_node(nsparser.AW, left._ptr, right._ptr),
+    s = Spec(nsnode.find_node(nsparser.AW, left._ptr, right._ptr),
              freeit=False)
     s._car = left
     s._cdr = right
