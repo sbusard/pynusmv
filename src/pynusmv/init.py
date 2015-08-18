@@ -14,7 +14,7 @@ Python statement::
 """
 
 
-__all__ = ['init_nusmv', 'deinit_nusmv', 'reset_nusmv']
+__all__ = ['init_nusmv', 'deinit_nusmv', 'reset_nusmv', 'is_nusmv_init']
 
 
 import weakref
@@ -113,7 +113,7 @@ def deinit_nusmv(ddinfo=False):
         gc.collect()
         # Then garbage collect with PyNuSMV
         for elem in __collector:
-                elem._free()
+            elem._free()
         __collector = None
         nscinit.NuSMVCore_quit()
 
@@ -126,6 +126,15 @@ def reset_nusmv():
     """
     deinit_nusmv()
     init_nusmv()
+
+
+def is_nusmv_init():
+    """
+    Return whether NuSMV is initialized.
+
+    """
+    global __collector
+    return __collector is not None
 
 
 class _WeakWrapper():
