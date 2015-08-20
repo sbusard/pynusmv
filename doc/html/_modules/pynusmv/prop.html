@@ -308,8 +308,9 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">other</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">()</span>
-        <span class="n">s</span> <span class="o">=</span> <span class="n">Spec</span><span class="p">(</span><span class="n">nsnode</span><span class="o">.</span><span class="n">create_node</span><span class="p">(</span><span class="n">nsparser</span><span class="o">.</span><span class="n">OR</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ptr</span><span class="p">,</span> <span class="n">other</span><span class="o">.</span><span class="n">_ptr</span><span class="p">),</span> 
-                 <span class="n">freeit</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+        <span class="c"># freeit=True seems to be erroneous</span>
+        <span class="n">s</span> <span class="o">=</span> <span class="n">Spec</span><span class="p">(</span><span class="n">nsnode</span><span class="o">.</span><span class="n">find_node</span><span class="p">(</span><span class="n">nsparser</span><span class="o">.</span><span class="n">OR</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ptr</span><span class="p">,</span> <span class="n">other</span><span class="o">.</span><span class="n">_ptr</span><span class="p">),</span>
+                 <span class="n">freeit</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
         <span class="n">s</span><span class="o">.</span><span class="n">_car</span> <span class="o">=</span> <span class="bp">self</span>
         <span class="n">s</span><span class="o">.</span><span class="n">_cdr</span> <span class="o">=</span> <span class="n">other</span>
         <span class="k">return</span> <span class="n">s</span>
@@ -323,8 +324,9 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">other</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">()</span>
-        <span class="n">s</span> <span class="o">=</span> <span class="n">Spec</span><span class="p">(</span><span class="n">nsnode</span><span class="o">.</span><span class="n">create_node</span><span class="p">(</span><span class="n">nsparser</span><span class="o">.</span><span class="n">AND</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ptr</span><span class="p">,</span> <span class="n">other</span><span class="o">.</span><span class="n">_ptr</span><span class="p">),</span>
-                 <span class="n">freeit</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+        <span class="c"># freeit=True seems to be erroneous</span>
+        <span class="n">s</span> <span class="o">=</span> <span class="n">Spec</span><span class="p">(</span><span class="n">nsnode</span><span class="o">.</span><span class="n">find_node</span><span class="p">(</span><span class="n">nsparser</span><span class="o">.</span><span class="n">AND</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ptr</span><span class="p">,</span> <span class="n">other</span><span class="o">.</span><span class="n">_ptr</span><span class="p">),</span>
+                 <span class="n">freeit</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
         <span class="n">s</span><span class="o">.</span><span class="n">_car</span> <span class="o">=</span> <span class="bp">self</span>
         <span class="n">s</span><span class="o">.</span><span class="n">_cdr</span> <span class="o">=</span> <span class="n">other</span>
         <span class="k">return</span> <span class="n">s</span>
@@ -336,8 +338,9 @@
 <span class="sd">        :rtype: :class:`Spec`</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">s</span> <span class="o">=</span> <span class="n">Spec</span><span class="p">(</span><span class="n">nsnode</span><span class="o">.</span><span class="n">create_node</span><span class="p">(</span><span class="n">nsparser</span><span class="o">.</span><span class="n">NOT</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ptr</span><span class="p">,</span> <span class="bp">None</span><span class="p">),</span>
-                 <span class="n">freeit</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+        <span class="c"># freeit=True seems to be erroneous</span>
+        <span class="n">s</span> <span class="o">=</span> <span class="n">Spec</span><span class="p">(</span><span class="n">nsnode</span><span class="o">.</span><span class="n">find_node</span><span class="p">(</span><span class="n">nsparser</span><span class="o">.</span><span class="n">NOT</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ptr</span><span class="p">,</span> <span class="bp">None</span><span class="p">),</span>
+                 <span class="n">freeit</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
         <span class="n">s</span><span class="o">.</span><span class="n">_car</span> <span class="o">=</span> <span class="bp">self</span>
         <span class="k">return</span> <span class="n">s</span>
 
@@ -349,7 +352,8 @@
 <span class="sd">    :rtype: :class:`Spec`</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="n">Spec</span><span class="p">(</span><span class="n">nsnode</span><span class="o">.</span><span class="n">create_node</span><span class="p">(</span><span class="n">nsparser</span><span class="o">.</span><span class="n">TRUEEXP</span><span class="p">,</span> <span class="bp">None</span><span class="p">,</span> <span class="bp">None</span><span class="p">),</span> <span class="n">freeit</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+    <span class="c"># freeit=True seems to be erroneous</span>
+    <span class="k">return</span> <span class="n">Spec</span><span class="p">(</span><span class="n">nsnode</span><span class="o">.</span><span class="n">find_node</span><span class="p">(</span><span class="n">nsparser</span><span class="o">.</span><span class="n">TRUEEXP</span><span class="p">,</span> <span class="bp">None</span><span class="p">,</span> <span class="bp">None</span><span class="p">),</span> <span class="n">freeit</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
 
 </div>
 <div class="viewcode-block" id="false"><a class="viewcode-back" href="../../pynusmv.html#pynusmv.prop.false">[docs]</a><span class="k">def</span> <span class="nf">false</span><span class="p">():</span>
@@ -359,7 +363,9 @@
 <span class="sd">    :rtype: :class:`Spec`</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="n">Spec</span><span class="p">(</span><span class="n">nsnode</span><span class="o">.</span><span class="n">create_node</span><span class="p">(</span><span class="n">nsparser</span><span class="o">.</span><span class="n">FALSEEXP</span><span class="p">,</span> <span class="bp">None</span><span class="p">,</span> <span class="bp">None</span><span class="p">),</span> <span class="n">freeit</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+    <span class="c"># freeit=True seems to be erroneous</span>
+    <span class="k">return</span> <span class="n">Spec</span><span class="p">(</span><span class="n">nsnode</span><span class="o">.</span><span class="n">find_node</span><span class="p">(</span><span class="n">nsparser</span><span class="o">.</span><span class="n">FALSEEXP</span><span class="p">,</span> <span class="bp">None</span><span class="p">,</span> <span class="bp">None</span><span class="p">),</span>
+                <span class="n">freeit</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
 
 </div>
 <div class="viewcode-block" id="not_"><a class="viewcode-back" href="../../pynusmv.html#pynusmv.prop.not_">[docs]</a><span class="k">def</span> <span class="nf">not_</span><span class="p">(</span><span class="n">spec</span><span class="p">):</span>
@@ -370,7 +376,8 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="n">spec</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">()</span>
-    <span class="n">s</span> <span class="o">=</span> <span class="n">Spec</span><span class="p">(</span><span class="n">nsnode</span><span class="o">.</span><span class="n">create_node</span><span class="p">(</span><span class="n">nsparser</span><span class="o">.</span><span class="n">NOT</span><span class="p">,</span> <span class="n">spec</span><span class="o">.</span><span class="n">_ptr</span><span class="p">,</span> <span class="bp">None</span><span class="p">),</span> <span class="n">freeit</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+    <span class="c"># freeit=True seems to be erroneous</span>
+    <span class="n">s</span> <span class="o">=</span> <span class="n">Spec</span><span class="p">(</span><span class="n">nsnode</span><span class="o">.</span><span class="n">find_node</span><span class="p">(</span><span class="n">nsparser</span><span class="o">.</span><span class="n">NOT</span><span class="p">,</span> <span class="n">spec</span><span class="o">.</span><span class="n">_ptr</span><span class="p">,</span> <span class="bp">None</span><span class="p">),</span> <span class="n">freeit</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
     <span class="n">s</span><span class="o">.</span><span class="n">_car</span> <span class="o">=</span> <span class="n">spec</span>
     <span class="k">return</span> <span class="n">s</span>
 
@@ -384,7 +391,9 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="n">left</span> <span class="ow">is</span> <span class="bp">None</span> <span class="ow">or</span> <span class="n">right</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">()</span>
-    <span class="n">s</span> <span class="o">=</span> <span class="n">Spec</span><span class="p">(</span><span class="n">nsnode</span><span class="o">.</span><span class="n">create_node</span><span class="p">(</span><span class="n">nsparser</span><span class="o">.</span><span class="n">AND</span><span class="p">,</span> <span class="n">left</span><span class="o">.</span><span class="n">_ptr</span><span class="p">,</span> <span class="n">right</span><span class="o">.</span><span class="n">_ptr</span><span class="p">),</span> <span class="n">freeit</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+    <span class="c"># freeit=True seems to be erroneous</span>
+    <span class="n">s</span> <span class="o">=</span> <span class="n">Spec</span><span class="p">(</span><span class="n">nsnode</span><span class="o">.</span><span class="n">find_node</span><span class="p">(</span><span class="n">nsparser</span><span class="o">.</span><span class="n">AND</span><span class="p">,</span> <span class="n">left</span><span class="o">.</span><span class="n">_ptr</span><span class="p">,</span> <span class="n">right</span><span class="o">.</span><span class="n">_ptr</span><span class="p">),</span>
+             <span class="n">freeit</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
     <span class="n">s</span><span class="o">.</span><span class="n">_car</span> <span class="o">=</span> <span class="n">left</span>
     <span class="n">s</span><span class="o">.</span><span class="n">_cdr</span> <span class="o">=</span> <span class="n">right</span>
     <span class="k">return</span> <span class="n">s</span>
@@ -399,7 +408,9 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="n">left</span> <span class="ow">is</span> <span class="bp">None</span> <span class="ow">or</span> <span class="n">right</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">()</span>
-    <span class="n">s</span> <span class="o">=</span> <span class="n">Spec</span><span class="p">(</span><span class="n">nsnode</span><span class="o">.</span><span class="n">create_node</span><span class="p">(</span><span class="n">nsparser</span><span class="o">.</span><span class="n">OR</span><span class="p">,</span> <span class="n">left</span><span class="o">.</span><span class="n">_ptr</span><span class="p">,</span> <span class="n">right</span><span class="o">.</span><span class="n">_ptr</span><span class="p">),</span> <span class="n">freeit</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+    <span class="c"># freeit=True seems to be erroneous</span>
+    <span class="n">s</span> <span class="o">=</span> <span class="n">Spec</span><span class="p">(</span><span class="n">nsnode</span><span class="o">.</span><span class="n">find_node</span><span class="p">(</span><span class="n">nsparser</span><span class="o">.</span><span class="n">OR</span><span class="p">,</span> <span class="n">left</span><span class="o">.</span><span class="n">_ptr</span><span class="p">,</span> <span class="n">right</span><span class="o">.</span><span class="n">_ptr</span><span class="p">),</span>
+             <span class="n">freeit</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
     <span class="n">s</span><span class="o">.</span><span class="n">_car</span> <span class="o">=</span> <span class="n">left</span>
     <span class="n">s</span><span class="o">.</span><span class="n">_cdr</span> <span class="o">=</span> <span class="n">right</span>
     <span class="k">return</span> <span class="n">s</span>
@@ -414,8 +425,9 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="n">left</span> <span class="ow">is</span> <span class="bp">None</span> <span class="ow">or</span> <span class="n">right</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">()</span>
-    <span class="n">s</span> <span class="o">=</span> <span class="n">Spec</span><span class="p">(</span><span class="n">nsnode</span><span class="o">.</span><span class="n">create_node</span><span class="p">(</span><span class="n">nsparser</span><span class="o">.</span><span class="n">IMPLIES</span><span class="p">,</span> <span class="n">left</span><span class="o">.</span><span class="n">_ptr</span><span class="p">,</span> <span class="n">right</span><span class="o">.</span><span class="n">_ptr</span><span class="p">),</span>
-             <span class="n">freeit</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+    <span class="c"># freeit=True seems to be erroneous</span>
+    <span class="n">s</span> <span class="o">=</span> <span class="n">Spec</span><span class="p">(</span><span class="n">nsnode</span><span class="o">.</span><span class="n">find_node</span><span class="p">(</span><span class="n">nsparser</span><span class="o">.</span><span class="n">IMPLIES</span><span class="p">,</span> <span class="n">left</span><span class="o">.</span><span class="n">_ptr</span><span class="p">,</span> <span class="n">right</span><span class="o">.</span><span class="n">_ptr</span><span class="p">),</span>
+             <span class="n">freeit</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
     <span class="n">s</span><span class="o">.</span><span class="n">_car</span> <span class="o">=</span> <span class="n">left</span>
     <span class="n">s</span><span class="o">.</span><span class="n">_cdr</span> <span class="o">=</span> <span class="n">right</span>
     <span class="k">return</span> <span class="n">s</span>
@@ -430,7 +442,9 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="n">left</span> <span class="ow">is</span> <span class="bp">None</span> <span class="ow">or</span> <span class="n">right</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">()</span>
-    <span class="n">s</span> <span class="o">=</span> <span class="n">Spec</span><span class="p">(</span><span class="n">nsnode</span><span class="o">.</span><span class="n">create_node</span><span class="p">(</span><span class="n">nsparser</span><span class="o">.</span><span class="n">IFF</span><span class="p">,</span> <span class="n">left</span><span class="o">.</span><span class="n">_ptr</span><span class="p">,</span> <span class="n">right</span><span class="o">.</span><span class="n">_ptr</span><span class="p">),</span> <span class="n">freeit</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+    <span class="c"># freeit=True seems to be erroneous</span>
+    <span class="n">s</span> <span class="o">=</span> <span class="n">Spec</span><span class="p">(</span><span class="n">nsnode</span><span class="o">.</span><span class="n">find_node</span><span class="p">(</span><span class="n">nsparser</span><span class="o">.</span><span class="n">IFF</span><span class="p">,</span> <span class="n">left</span><span class="o">.</span><span class="n">_ptr</span><span class="p">,</span> <span class="n">right</span><span class="o">.</span><span class="n">_ptr</span><span class="p">),</span>
+             <span class="n">freeit</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
     <span class="n">s</span><span class="o">.</span><span class="n">_car</span> <span class="o">=</span> <span class="n">left</span>
     <span class="n">s</span><span class="o">.</span><span class="n">_cdr</span> <span class="o">=</span> <span class="n">right</span>
     <span class="k">return</span> <span class="n">s</span>
@@ -445,7 +459,8 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="n">spec</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">()</span>
-    <span class="n">s</span> <span class="o">=</span> <span class="n">Spec</span><span class="p">(</span><span class="n">nsnode</span><span class="o">.</span><span class="n">create_node</span><span class="p">(</span><span class="n">nsparser</span><span class="o">.</span><span class="n">EX</span><span class="p">,</span> <span class="n">spec</span><span class="o">.</span><span class="n">_ptr</span><span class="p">,</span> <span class="bp">None</span><span class="p">),</span> <span class="n">freeit</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+    <span class="c"># freeit=True seems to be erroneous</span>
+    <span class="n">s</span> <span class="o">=</span> <span class="n">Spec</span><span class="p">(</span><span class="n">nsnode</span><span class="o">.</span><span class="n">find_node</span><span class="p">(</span><span class="n">nsparser</span><span class="o">.</span><span class="n">EX</span><span class="p">,</span> <span class="n">spec</span><span class="o">.</span><span class="n">_ptr</span><span class="p">,</span> <span class="bp">None</span><span class="p">),</span> <span class="n">freeit</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
     <span class="n">s</span><span class="o">.</span><span class="n">_car</span> <span class="o">=</span> <span class="n">spec</span>
     <span class="k">return</span> <span class="n">s</span>
 
@@ -459,7 +474,8 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="n">spec</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">()</span>
-    <span class="n">s</span> <span class="o">=</span> <span class="n">Spec</span><span class="p">(</span><span class="n">nsnode</span><span class="o">.</span><span class="n">create_node</span><span class="p">(</span><span class="n">nsparser</span><span class="o">.</span><span class="n">EG</span><span class="p">,</span> <span class="n">spec</span><span class="o">.</span><span class="n">_ptr</span><span class="p">,</span> <span class="bp">None</span><span class="p">),</span> <span class="n">freeit</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+    <span class="c"># freeit=True seems to be erroneous</span>
+    <span class="n">s</span> <span class="o">=</span> <span class="n">Spec</span><span class="p">(</span><span class="n">nsnode</span><span class="o">.</span><span class="n">find_node</span><span class="p">(</span><span class="n">nsparser</span><span class="o">.</span><span class="n">EG</span><span class="p">,</span> <span class="n">spec</span><span class="o">.</span><span class="n">_ptr</span><span class="p">,</span> <span class="bp">None</span><span class="p">),</span> <span class="n">freeit</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
     <span class="n">s</span><span class="o">.</span><span class="n">_car</span> <span class="o">=</span> <span class="n">spec</span>
     <span class="k">return</span> <span class="n">s</span>
 
@@ -473,7 +489,8 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="n">spec</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">()</span>
-    <span class="n">s</span> <span class="o">=</span> <span class="n">Spec</span><span class="p">(</span><span class="n">nsnode</span><span class="o">.</span><span class="n">create_node</span><span class="p">(</span><span class="n">nsparser</span><span class="o">.</span><span class="n">EF</span><span class="p">,</span> <span class="n">spec</span><span class="o">.</span><span class="n">_ptr</span><span class="p">,</span> <span class="bp">None</span><span class="p">),</span> <span class="n">freeit</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+    <span class="c"># freeit=True seems to be erroneous</span>
+    <span class="n">s</span> <span class="o">=</span> <span class="n">Spec</span><span class="p">(</span><span class="n">nsnode</span><span class="o">.</span><span class="n">find_node</span><span class="p">(</span><span class="n">nsparser</span><span class="o">.</span><span class="n">EF</span><span class="p">,</span> <span class="n">spec</span><span class="o">.</span><span class="n">_ptr</span><span class="p">,</span> <span class="bp">None</span><span class="p">),</span> <span class="n">freeit</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
     <span class="n">s</span><span class="o">.</span><span class="n">_car</span> <span class="o">=</span> <span class="n">spec</span>
     <span class="k">return</span> <span class="n">s</span>
 
@@ -487,7 +504,9 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="n">left</span> <span class="ow">is</span> <span class="bp">None</span> <span class="ow">or</span> <span class="n">right</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">()</span>
-    <span class="n">s</span> <span class="o">=</span> <span class="n">Spec</span><span class="p">(</span><span class="n">nsnode</span><span class="o">.</span><span class="n">create_node</span><span class="p">(</span><span class="n">nsparser</span><span class="o">.</span><span class="n">EU</span><span class="p">,</span> <span class="n">left</span><span class="o">.</span><span class="n">_ptr</span><span class="p">,</span> <span class="n">right</span><span class="o">.</span><span class="n">_ptr</span><span class="p">),</span> <span class="n">freeit</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+    <span class="c"># freeit=True seems to be erroneous</span>
+    <span class="n">s</span> <span class="o">=</span> <span class="n">Spec</span><span class="p">(</span><span class="n">nsnode</span><span class="o">.</span><span class="n">find_node</span><span class="p">(</span><span class="n">nsparser</span><span class="o">.</span><span class="n">EU</span><span class="p">,</span> <span class="n">left</span><span class="o">.</span><span class="n">_ptr</span><span class="p">,</span> <span class="n">right</span><span class="o">.</span><span class="n">_ptr</span><span class="p">),</span>
+             <span class="n">freeit</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
     <span class="n">s</span><span class="o">.</span><span class="n">_car</span> <span class="o">=</span> <span class="n">left</span>
     <span class="n">s</span><span class="o">.</span><span class="n">_cdr</span> <span class="o">=</span> <span class="n">right</span>
     <span class="k">return</span> <span class="n">s</span>
@@ -502,7 +521,9 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="n">left</span> <span class="ow">is</span> <span class="bp">None</span> <span class="ow">or</span> <span class="n">right</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">()</span>
-    <span class="n">s</span> <span class="o">=</span> <span class="n">Spec</span><span class="p">(</span><span class="n">nsnode</span><span class="o">.</span><span class="n">create_node</span><span class="p">(</span><span class="n">nsparser</span><span class="o">.</span><span class="n">EW</span><span class="p">,</span> <span class="n">left</span><span class="o">.</span><span class="n">_ptr</span><span class="p">,</span> <span class="n">right</span><span class="o">.</span><span class="n">_ptr</span><span class="p">),</span> <span class="n">freeit</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+    <span class="c"># freeit=True seems to be erroneous</span>
+    <span class="n">s</span> <span class="o">=</span> <span class="n">Spec</span><span class="p">(</span><span class="n">nsnode</span><span class="o">.</span><span class="n">find_node</span><span class="p">(</span><span class="n">nsparser</span><span class="o">.</span><span class="n">EW</span><span class="p">,</span> <span class="n">left</span><span class="o">.</span><span class="n">_ptr</span><span class="p">,</span> <span class="n">right</span><span class="o">.</span><span class="n">_ptr</span><span class="p">),</span>
+             <span class="n">freeit</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
     <span class="n">s</span><span class="o">.</span><span class="n">_car</span> <span class="o">=</span> <span class="n">left</span>
     <span class="n">s</span><span class="o">.</span><span class="n">_cdr</span> <span class="o">=</span> <span class="n">right</span>
     <span class="k">return</span> <span class="n">s</span>
@@ -517,7 +538,8 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="n">spec</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">()</span>
-    <span class="n">s</span> <span class="o">=</span> <span class="n">Spec</span><span class="p">(</span><span class="n">nsnode</span><span class="o">.</span><span class="n">create_node</span><span class="p">(</span><span class="n">nsparser</span><span class="o">.</span><span class="n">AX</span><span class="p">,</span> <span class="n">spec</span><span class="o">.</span><span class="n">_ptr</span><span class="p">,</span> <span class="bp">None</span><span class="p">),</span> <span class="n">freeit</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+    <span class="c"># freeit=True seems to be erroneous</span>
+    <span class="n">s</span> <span class="o">=</span> <span class="n">Spec</span><span class="p">(</span><span class="n">nsnode</span><span class="o">.</span><span class="n">find_node</span><span class="p">(</span><span class="n">nsparser</span><span class="o">.</span><span class="n">AX</span><span class="p">,</span> <span class="n">spec</span><span class="o">.</span><span class="n">_ptr</span><span class="p">,</span> <span class="bp">None</span><span class="p">),</span> <span class="n">freeit</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
     <span class="n">s</span><span class="o">.</span><span class="n">_car</span> <span class="o">=</span> <span class="n">spec</span>
     <span class="k">return</span> <span class="n">s</span>
 
@@ -531,7 +553,8 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="n">spec</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">()</span>
-    <span class="n">s</span> <span class="o">=</span> <span class="n">Spec</span><span class="p">(</span><span class="n">nsnode</span><span class="o">.</span><span class="n">create_node</span><span class="p">(</span><span class="n">nsparser</span><span class="o">.</span><span class="n">AG</span><span class="p">,</span> <span class="n">spec</span><span class="o">.</span><span class="n">_ptr</span><span class="p">,</span> <span class="bp">None</span><span class="p">),</span> <span class="n">freeit</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+    <span class="c"># freeit=True seems to be erroneous</span>
+    <span class="n">s</span> <span class="o">=</span> <span class="n">Spec</span><span class="p">(</span><span class="n">nsnode</span><span class="o">.</span><span class="n">find_node</span><span class="p">(</span><span class="n">nsparser</span><span class="o">.</span><span class="n">AG</span><span class="p">,</span> <span class="n">spec</span><span class="o">.</span><span class="n">_ptr</span><span class="p">,</span> <span class="bp">None</span><span class="p">),</span> <span class="n">freeit</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
     <span class="n">s</span><span class="o">.</span><span class="n">_car</span> <span class="o">=</span> <span class="n">spec</span>
     <span class="k">return</span> <span class="n">s</span>
 
@@ -545,7 +568,8 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="n">spec</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">()</span>
-    <span class="n">s</span> <span class="o">=</span> <span class="n">Spec</span><span class="p">(</span><span class="n">nsnode</span><span class="o">.</span><span class="n">create_node</span><span class="p">(</span><span class="n">nsparser</span><span class="o">.</span><span class="n">AF</span><span class="p">,</span> <span class="n">spec</span><span class="o">.</span><span class="n">_ptr</span><span class="p">,</span> <span class="bp">None</span><span class="p">),</span> <span class="n">freeit</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+    <span class="c"># freeit=True seems to be erroneous</span>
+    <span class="n">s</span> <span class="o">=</span> <span class="n">Spec</span><span class="p">(</span><span class="n">nsnode</span><span class="o">.</span><span class="n">find_node</span><span class="p">(</span><span class="n">nsparser</span><span class="o">.</span><span class="n">AF</span><span class="p">,</span> <span class="n">spec</span><span class="o">.</span><span class="n">_ptr</span><span class="p">,</span> <span class="bp">None</span><span class="p">),</span> <span class="n">freeit</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
     <span class="n">s</span><span class="o">.</span><span class="n">_car</span> <span class="o">=</span> <span class="n">spec</span>
     <span class="k">return</span> <span class="n">s</span>
 
@@ -559,7 +583,9 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="n">left</span> <span class="ow">is</span> <span class="bp">None</span> <span class="ow">or</span> <span class="n">right</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">()</span>
-    <span class="n">s</span> <span class="o">=</span> <span class="n">Spec</span><span class="p">(</span><span class="n">nsnode</span><span class="o">.</span><span class="n">create_node</span><span class="p">(</span><span class="n">nsparser</span><span class="o">.</span><span class="n">AU</span><span class="p">,</span> <span class="n">left</span><span class="o">.</span><span class="n">_ptr</span><span class="p">,</span> <span class="n">right</span><span class="o">.</span><span class="n">_ptr</span><span class="p">),</span> <span class="n">freeit</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+    <span class="c"># freeit=True seems to be erroneous</span>
+    <span class="n">s</span> <span class="o">=</span> <span class="n">Spec</span><span class="p">(</span><span class="n">nsnode</span><span class="o">.</span><span class="n">find_node</span><span class="p">(</span><span class="n">nsparser</span><span class="o">.</span><span class="n">AU</span><span class="p">,</span> <span class="n">left</span><span class="o">.</span><span class="n">_ptr</span><span class="p">,</span> <span class="n">right</span><span class="o">.</span><span class="n">_ptr</span><span class="p">),</span>
+             <span class="n">freeit</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
     <span class="n">s</span><span class="o">.</span><span class="n">_car</span> <span class="o">=</span> <span class="n">left</span>
     <span class="n">s</span><span class="o">.</span><span class="n">_cdr</span> <span class="o">=</span> <span class="n">right</span>
     <span class="k">return</span> <span class="n">s</span>
@@ -574,7 +600,9 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="n">left</span> <span class="ow">is</span> <span class="bp">None</span> <span class="ow">or</span> <span class="n">right</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">()</span>
-    <span class="n">s</span> <span class="o">=</span> <span class="n">Spec</span><span class="p">(</span><span class="n">nsnode</span><span class="o">.</span><span class="n">create_node</span><span class="p">(</span><span class="n">nsparser</span><span class="o">.</span><span class="n">AW</span><span class="p">,</span> <span class="n">left</span><span class="o">.</span><span class="n">_ptr</span><span class="p">,</span> <span class="n">right</span><span class="o">.</span><span class="n">_ptr</span><span class="p">),</span> <span class="n">freeit</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+    <span class="c"># freeit=True seems to be erroneous</span>
+    <span class="n">s</span> <span class="o">=</span> <span class="n">Spec</span><span class="p">(</span><span class="n">nsnode</span><span class="o">.</span><span class="n">find_node</span><span class="p">(</span><span class="n">nsparser</span><span class="o">.</span><span class="n">AW</span><span class="p">,</span> <span class="n">left</span><span class="o">.</span><span class="n">_ptr</span><span class="p">,</span> <span class="n">right</span><span class="o">.</span><span class="n">_ptr</span><span class="p">),</span>
+             <span class="n">freeit</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
     <span class="n">s</span><span class="o">.</span><span class="n">_car</span> <span class="o">=</span> <span class="n">left</span>
     <span class="n">s</span><span class="o">.</span><span class="n">_cdr</span> <span class="o">=</span> <span class="n">right</span>
     <span class="k">return</span> <span class="n">s</span>

@@ -142,6 +142,12 @@ before deiniting nusmv.</td>
 <a class="reference internal" href="#pynusmv.init.init_nusmv" title="pynusmv.init.init_nusmv"><tt class="xref py py-func docutils literal"><span class="pre">init_nusmv()</span></tt></a>.</p>
 </dd></dl>
 
+<dl class="function">
+<dt id="pynusmv.init.is_nusmv_init">
+<tt class="descclassname">pynusmv.init.</tt><tt class="descname">is_nusmv_init</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/pynusmv/init.html#is_nusmv_init"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynusmv.init.is_nusmv_init" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return whether NuSMV is initialized.</p>
+</dd></dl>
+
 </div>
 <div class="section" id="module-pynusmv.glob">
 <span id="glob-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">glob</span></tt> Module<a class="headerlink" href="#module-pynusmv.glob" title="Permalink to this headline">¶</a></h2>
@@ -3316,7 +3322,7 @@ scalar variables (one variable per model variable),
 <p>Python class for symbols table.</p>
 <dl class="attribute">
 <dt id="pynusmv.fsm.SymbTable.ins_policies">
-<tt class="descname">ins_policies</tt><em class="property"> = {'SYMB_LAYER_POS_BOTTOM': 3, 'SYMB_LAYER_POS_TOP': 2, 'SYMB_LAYER_POS_DEFAULT': 0, 'SYMB_LAYER_POS_FORCE_TOP': 1, 'SYMB_LAYER_POS_FORCE_BOTTOM': 4}</em><a class="headerlink" href="#pynusmv.fsm.SymbTable.ins_policies" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">ins_policies</tt><em class="property"> = {'SYMB_LAYER_POS_TOP': 2, 'SYMB_LAYER_POS_BOTTOM': 3, 'SYMB_LAYER_POS_FORCE_BOTTOM': 4, 'SYMB_LAYER_POS_DEFAULT': 0, 'SYMB_LAYER_POS_FORCE_TOP': 1}</em><a class="headerlink" href="#pynusmv.fsm.SymbTable.ins_policies" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
@@ -3572,7 +3578,7 @@ defined in this symbol table</td>
 properties and specifications of models.</p>
 <dl class="data">
 <dt id="pynusmv.prop.propTypes">
-<tt class="descclassname">pynusmv.prop.</tt><tt class="descname">propTypes</tt><em class="property"> = {'CTL': 102, 'Compute': 106, 'Comparison': 107, 'NoType': 101, 'PSL': 104, 'LTL': 103, 'Invariant': 105}</em><a class="headerlink" href="#pynusmv.prop.propTypes" title="Permalink to this definition">¶</a></dt>
+<tt class="descclassname">pynusmv.prop.</tt><tt class="descname">propTypes</tt><em class="property"> = {'PSL': 104, 'CTL': 102, 'Comparison': 107, 'Invariant': 105, 'LTL': 103, 'Compute': 106, 'NoType': 101}</em><a class="headerlink" href="#pynusmv.prop.propTypes" title="Permalink to this definition">¶</a></dt>
 <dd><p>The possible types of properties. This gives access to NuSMV internal types
 without dealing with <cite>pynusmv.nusmv</cite> modules.</p>
 </dd></dl>

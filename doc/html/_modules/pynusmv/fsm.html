@@ -116,6 +116,10 @@
         <span class="nb">super</span><span class="p">(</span><span class="n">BddFsm</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">ptr</span><span class="p">,</span> <span class="n">freeit</span><span class="o">=</span><span class="n">freeit</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_reachable</span> <span class="o">=</span> <span class="bp">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_fair</span> <span class="o">=</span> <span class="bp">None</span>
+    
+    <span class="k">def</span> <span class="nf">__deepcopy__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">memo</span><span class="p">):</span>
+        <span class="c"># No need to copy this FSM</span>
+        <span class="k">return</span> <span class="bp">self</span>
 
     <span class="nd">@property</span>
 <div class="viewcode-block" id="BddFsm.bddEnc"><a class="viewcode-back" href="../../pynusmv.html#pynusmv.fsm.BddFsm.bddEnc">[docs]</a>    <span class="k">def</span> <span class="nf">bddEnc</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -240,19 +244,15 @@
 <span class="sd">        :rtype: :class:`BDD &lt;pynusmv.dd.BDD&gt;`</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">states</span> <span class="o">=</span> <span class="n">states</span> <span class="o">&amp;</span> <span class="bp">self</span><span class="o">.</span><span class="n">bddEnc</span><span class="o">.</span><span class="n">statesMask</span>
         <span class="k">if</span> <span class="n">inputs</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
-            <span class="k">return</span> <span class="p">(</span><span class="n">BDD</span><span class="p">(</span><span class="n">bddFsm</span><span class="o">.</span><span class="n">BddFsm_get_backward_image</span><span class="p">(</span>
-                        <span class="bp">self</span><span class="o">.</span><span class="n">_ptr</span><span class="p">,</span><span class="n">states</span><span class="o">.</span><span class="n">_ptr</span><span class="p">),</span>
-                        <span class="bp">self</span><span class="o">.</span><span class="n">bddEnc</span><span class="o">.</span><span class="n">DDmanager</span><span class="p">,</span>
-                        <span class="n">freeit</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
-                    <span class="o">&amp;</span> <span class="bp">self</span><span class="o">.</span><span class="n">bddEnc</span><span class="o">.</span><span class="n">statesMask</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">BDD</span><span class="p">(</span><span class="n">bddFsm</span><span class="o">.</span><span class="n">BddFsm_get_backward_image</span><span class="p">(</span>
+                       <span class="bp">self</span><span class="o">.</span><span class="n">_ptr</span><span class="p">,</span><span class="n">states</span><span class="o">.</span><span class="n">_ptr</span><span class="p">),</span>
+                       <span class="bp">self</span><span class="o">.</span><span class="n">bddEnc</span><span class="o">.</span><span class="n">DDmanager</span><span class="p">,</span>
+                       <span class="n">freeit</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">inputs</span> <span class="o">=</span> <span class="n">inputs</span> <span class="o">&amp;</span> <span class="bp">self</span><span class="o">.</span><span class="n">bddEnc</span><span class="o">.</span><span class="n">statesInputsMask</span>
-            <span class="k">return</span> <span class="p">(</span><span class="n">BDD</span><span class="p">(</span><span class="n">bddFsm</span><span class="o">.</span><span class="n">BddFsm_get_constrained_backward_image</span>
-                        <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_ptr</span><span class="p">,</span> <span class="n">states</span><span class="o">.</span><span class="n">_ptr</span><span class="p">,</span> <span class="n">inputs</span><span class="o">.</span><span class="n">_ptr</span><span class="p">),</span>
-                        <span class="bp">self</span><span class="o">.</span><span class="n">bddEnc</span><span class="o">.</span><span class="n">DDmanager</span><span class="p">,</span> <span class="n">freeit</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
-                    <span class="o">&amp;</span> <span class="bp">self</span><span class="o">.</span><span class="n">bddEnc</span><span class="o">.</span><span class="n">statesMask</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">BDD</span><span class="p">(</span><span class="n">bddFsm</span><span class="o">.</span><span class="n">BddFsm_get_constrained_backward_image</span>
+                       <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_ptr</span><span class="p">,</span> <span class="n">states</span><span class="o">.</span><span class="n">_ptr</span><span class="p">,</span> <span class="n">inputs</span><span class="o">.</span><span class="n">_ptr</span><span class="p">),</span>
+                       <span class="bp">self</span><span class="o">.</span><span class="n">bddEnc</span><span class="o">.</span><span class="n">DDmanager</span><span class="p">,</span> <span class="n">freeit</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
 </div>
 <div class="viewcode-block" id="BddFsm.weak_pre"><a class="viewcode-back" href="../../pynusmv.html#pynusmv.fsm.BddFsm.weak_pre">[docs]</a>    <span class="k">def</span> <span class="nf">weak_pre</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">states</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -265,12 +265,9 @@
 <span class="sd">        :rtype: :class:`BDD &lt;pynusmv.dd.BDD&gt;`</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="c"># FIXME Seems to cause troubles</span>
-        <span class="c">#states = states &amp; self.bddEnc.statesMask</span>
-        <span class="k">return</span> <span class="p">(</span><span class="n">BDD</span><span class="p">(</span><span class="n">bddFsm</span><span class="o">.</span><span class="n">BddFsm_get_weak_backward_image</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_ptr</span><span class="p">,</span>
-                                                          <span class="n">states</span><span class="o">.</span><span class="n">_ptr</span><span class="p">),</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">bddEnc</span><span class="o">.</span><span class="n">DDmanager</span><span class="p">,</span> <span class="n">freeit</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
-                <span class="o">&amp;</span> <span class="bp">self</span><span class="o">.</span><span class="n">bddEnc</span><span class="o">.</span><span class="n">statesInputsMask</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">BDD</span><span class="p">(</span><span class="n">bddFsm</span><span class="o">.</span><span class="n">BddFsm_get_weak_backward_image</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_ptr</span><span class="p">,</span>
+                                                         <span class="n">states</span><span class="o">.</span><span class="n">_ptr</span><span class="p">),</span>
+                   <span class="bp">self</span><span class="o">.</span><span class="n">bddEnc</span><span class="o">.</span><span class="n">DDmanager</span><span class="p">,</span> <span class="n">freeit</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
 </div>
 <div class="viewcode-block" id="BddFsm.post"><a class="viewcode-back" href="../../pynusmv.html#pynusmv.fsm.BddFsm.post">[docs]</a>    <span class="k">def</span> <span class="nf">post</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">states</span><span class="p">,</span> <span class="n">inputs</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -285,18 +282,14 @@
 <span class="sd">        :rtype: :class:`BDD &lt;pynusmv.dd.BDD&gt;`</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">states</span> <span class="o">=</span> <span class="n">states</span> <span class="o">&amp;</span> <span class="bp">self</span><span class="o">.</span><span class="n">bddEnc</span><span class="o">.</span><span class="n">statesMask</span>
         <span class="k">if</span> <span class="n">inputs</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
-            <span class="k">return</span> <span class="p">(</span><span class="n">BDD</span><span class="p">(</span><span class="n">bddFsm</span><span class="o">.</span><span class="n">BddFsm_get_forward_image</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_ptr</span><span class="p">,</span>
-                                                        <span class="n">states</span><span class="o">.</span><span class="n">_ptr</span><span class="p">),</span>
-                        <span class="bp">self</span><span class="o">.</span><span class="n">bddEnc</span><span class="o">.</span><span class="n">DDmanager</span><span class="p">,</span> <span class="n">freeit</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
-                    <span class="o">&amp;</span> <span class="bp">self</span><span class="o">.</span><span class="n">bddEnc</span><span class="o">.</span><span class="n">statesMask</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">BDD</span><span class="p">(</span><span class="n">bddFsm</span><span class="o">.</span><span class="n">BddFsm_get_forward_image</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_ptr</span><span class="p">,</span>
+                                                       <span class="n">states</span><span class="o">.</span><span class="n">_ptr</span><span class="p">),</span>
+                       <span class="bp">self</span><span class="o">.</span><span class="n">bddEnc</span><span class="o">.</span><span class="n">DDmanager</span><span class="p">,</span> <span class="n">freeit</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">inputs</span> <span class="o">=</span> <span class="n">inputs</span> <span class="o">&amp;</span> <span class="bp">self</span><span class="o">.</span><span class="n">bddEnc</span><span class="o">.</span><span class="n">inputsMask</span>
-            <span class="k">return</span> <span class="p">(</span><span class="n">BDD</span><span class="p">(</span><span class="n">bddFsm</span><span class="o">.</span><span class="n">BddFsm_get_constrained_forward_image</span>
-                        <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_ptr</span><span class="p">,</span> <span class="n">states</span><span class="o">.</span><span class="n">_ptr</span><span class="p">,</span> <span class="n">inputs</span><span class="o">.</span><span class="n">_ptr</span><span class="p">),</span>
-                        <span class="bp">self</span><span class="o">.</span><span class="n">bddEnc</span><span class="o">.</span><span class="n">DDmanager</span><span class="p">,</span> <span class="n">freeit</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
-                    <span class="o">&amp;</span> <span class="bp">self</span><span class="o">.</span><span class="n">bddEnc</span><span class="o">.</span><span class="n">statesMask</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">BDD</span><span class="p">(</span><span class="n">bddFsm</span><span class="o">.</span><span class="n">BddFsm_get_constrained_forward_image</span>
+                       <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_ptr</span><span class="p">,</span> <span class="n">states</span><span class="o">.</span><span class="n">_ptr</span><span class="p">,</span> <span class="n">inputs</span><span class="o">.</span><span class="n">_ptr</span><span class="p">),</span>
+                       <span class="bp">self</span><span class="o">.</span><span class="n">bddEnc</span><span class="o">.</span><span class="n">DDmanager</span><span class="p">,</span> <span class="n">freeit</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
 </div>
 <div class="viewcode-block" id="BddFsm.pick_one_state"><a class="viewcode-back" href="../../pynusmv.html#pynusmv.fsm.BddFsm.pick_one_state">[docs]</a>    <span class="k">def</span> <span class="nf">pick_one_state</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bdd</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -310,6 +303,9 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c"># Abstract inputs</span>
         <span class="n">bdd</span> <span class="o">=</span> <span class="n">bdd</span><span class="o">.</span><span class="n">forsome</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">bddEnc</span><span class="o">.</span><span class="n">inputsCube</span><span class="p">)</span>
+        
+        <span class="c"># Apply states mask</span>
+        <span class="n">bdd</span> <span class="o">=</span> <span class="n">bdd</span> <span class="o">&amp;</span> <span class="bp">self</span><span class="o">.</span><span class="n">bddEnc</span><span class="o">.</span><span class="n">statesMask</span>
 
         <span class="c"># The BDD contains no states</span>
         <span class="k">if</span> <span class="n">bdd</span><span class="o">.</span><span class="n">is_false</span><span class="p">():</span>
@@ -332,6 +328,9 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c"># Abstract inputs</span>
         <span class="n">bdd</span> <span class="o">=</span> <span class="n">bdd</span><span class="o">.</span><span class="n">forsome</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">bddEnc</span><span class="o">.</span><span class="n">inputsCube</span><span class="p">)</span>
+        
+        <span class="c"># Apply states mask</span>
+        <span class="n">bdd</span> <span class="o">=</span> <span class="n">bdd</span> <span class="o">&amp;</span> <span class="bp">self</span><span class="o">.</span><span class="n">bddEnc</span><span class="o">.</span><span class="n">statesMask</span>
 
         <span class="c"># The BDD contains no states</span>
         <span class="k">if</span> <span class="n">bdd</span><span class="o">.</span><span class="n">is_false</span><span class="p">():</span>
@@ -354,6 +353,9 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c"># Abstract inputs</span>
         <span class="n">bdd</span> <span class="o">=</span> <span class="n">bdd</span><span class="o">.</span><span class="n">forsome</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">bddEnc</span><span class="o">.</span><span class="n">statesCube</span><span class="p">)</span>
+        
+        <span class="c"># Apply inputs mask</span>
+        <span class="n">bdd</span> <span class="o">=</span> <span class="n">bdd</span> <span class="o">&amp;</span> <span class="bp">self</span><span class="o">.</span><span class="n">bddEnc</span><span class="o">.</span><span class="n">inputsMask</span>
 
         <span class="c"># The BDD contains no states</span>
         <span class="k">if</span> <span class="n">bdd</span><span class="o">.</span><span class="n">is_false</span><span class="p">():</span>
@@ -375,6 +377,9 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c"># Abstract inputs</span>
         <span class="n">bdd</span> <span class="o">=</span> <span class="n">bdd</span><span class="o">.</span><span class="n">forsome</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">bddEnc</span><span class="o">.</span><span class="n">statesCube</span><span class="p">)</span>
+        
+        <span class="c"># Apply inputs mask</span>
+        <span class="n">bdd</span> <span class="o">=</span> <span class="n">bdd</span> <span class="o">&amp;</span> <span class="bp">self</span><span class="o">.</span><span class="n">bddEnc</span><span class="o">.</span><span class="n">inputsMask</span>
 
         <span class="c"># The BDD contains no states</span>
         <span class="k">if</span> <span class="n">bdd</span><span class="o">.</span><span class="n">is_false</span><span class="p">():</span>
@@ -394,6 +399,7 @@
 <span class="sd">                if `bdd` is false or an error occurs while picking one pair</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">bdd</span> <span class="o">=</span> <span class="n">bdd</span> <span class="o">&amp;</span> <span class="bp">self</span><span class="o">.</span><span class="n">bddEnc</span><span class="o">.</span><span class="n">statesInputsMask</span>
         <span class="c"># The BDD contains no pairs</span>
         <span class="k">if</span> <span class="n">bdd</span><span class="o">.</span><span class="n">is_false</span><span class="p">():</span>
             <span class="k">raise</span> <span class="n">NuSMVBddPickingError</span><span class="p">(</span><span class="s">&quot;Cannot pick state/inputs&quot;</span>
@@ -414,6 +420,7 @@
 <span class="sd">                if `bdd` is false or an error occurs while picking one pair</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">bdd</span> <span class="o">=</span> <span class="n">bdd</span> <span class="o">&amp;</span> <span class="bp">self</span><span class="o">.</span><span class="n">bddEnc</span><span class="o">.</span><span class="n">statesInputsMask</span>
         <span class="c"># The BDD contains no pairs</span>
         <span class="k">if</span> <span class="n">bdd</span><span class="o">.</span><span class="n">is_false</span><span class="p">():</span>
             <span class="k">raise</span> <span class="n">NuSMVBddPickingError</span><span class="p">(</span><span class="s">&quot;Cannot pick state/inputs&quot;</span>
@@ -547,10 +554,8 @@
         <span class="c"># FIXME Still get segmentation faults. Need investigation.</span>
         <span class="c"># tests/pynusmv/testFsm.py seems to raise segmentation faults</span>
 
-        <span class="c"># TODO check non-empty</span>
-
         <span class="c"># Apply mask</span>
-        <span class="n">bdd</span> <span class="o">=</span> <span class="n">bdd</span> <span class="o">&amp;</span> <span class="bp">self</span><span class="o">.</span><span class="n">bddEnc</span><span class="o">.</span><span class="n">inputsMask</span> <span class="o">&amp;</span> <span class="bp">self</span><span class="o">.</span><span class="n">bddEnc</span><span class="o">.</span><span class="n">statesMask</span>
+        <span class="n">bdd</span> <span class="o">=</span> <span class="n">bdd</span> <span class="o">&amp;</span> <span class="bp">self</span><span class="o">.</span><span class="n">bddEnc</span><span class="o">.</span><span class="n">statesInputsMask</span>
 
         <span class="k">if</span> <span class="n">bdd</span><span class="o">.</span><span class="n">is_false</span><span class="p">():</span>
             <span class="k">return</span> <span class="nb">frozenset</span><span class="p">()</span>

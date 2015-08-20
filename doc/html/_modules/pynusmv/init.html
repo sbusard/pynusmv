@@ -63,7 +63,7 @@
 <span class="sd">&quot;&quot;&quot;</span>
 
 
-<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;init_nusmv&#39;</span><span class="p">,</span> <span class="s">&#39;deinit_nusmv&#39;</span><span class="p">,</span> <span class="s">&#39;reset_nusmv&#39;</span><span class="p">]</span>
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;init_nusmv&#39;</span><span class="p">,</span> <span class="s">&#39;deinit_nusmv&#39;</span><span class="p">,</span> <span class="s">&#39;reset_nusmv&#39;</span><span class="p">,</span> <span class="s">&#39;is_nusmv_init&#39;</span><span class="p">]</span>
 
 
 <span class="kn">import</span> <span class="nn">weakref</span>
@@ -162,7 +162,7 @@
         <span class="n">gc</span><span class="o">.</span><span class="n">collect</span><span class="p">()</span>
         <span class="c"># Then garbage collect with PyNuSMV</span>
         <span class="k">for</span> <span class="n">elem</span> <span class="ow">in</span> <span class="n">__collector</span><span class="p">:</span>
-                <span class="n">elem</span><span class="o">.</span><span class="n">_free</span><span class="p">()</span>
+            <span class="n">elem</span><span class="o">.</span><span class="n">_free</span><span class="p">()</span>
         <span class="n">__collector</span> <span class="o">=</span> <span class="bp">None</span>
         <span class="n">nscinit</span><span class="o">.</span><span class="n">NuSMVCore_quit</span><span class="p">()</span>
 
@@ -175,6 +175,15 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">deinit_nusmv</span><span class="p">()</span>
     <span class="n">init_nusmv</span><span class="p">()</span>
+
+</div>
+<div class="viewcode-block" id="is_nusmv_init"><a class="viewcode-back" href="../../pynusmv.html#pynusmv.init.is_nusmv_init">[docs]</a><span class="k">def</span> <span class="nf">is_nusmv_init</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Return whether NuSMV is initialized.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">global</span> <span class="n">__collector</span>
+    <span class="k">return</span> <span class="n">__collector</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span>
 
 </div>
 <span class="k">class</span> <span class="nc">_WeakWrapper</span><span class="p">():</span>

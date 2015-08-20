@@ -254,6 +254,7 @@
 <span class="sd">        :param freeit: whether the pointer must be freed with the BDD, or not.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">assert</span><span class="p">(</span><span class="n">ptr</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">)</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">BDD</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">ptr</span><span class="p">,</span> <span class="n">freeit</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_manager</span> <span class="o">=</span> <span class="n">dd_manager</span>
 
@@ -261,6 +262,9 @@
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_freeit</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ptr</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
             <span class="n">nsdd</span><span class="o">.</span><span class="n">bdd_free</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_manager</span><span class="o">.</span><span class="n">_ptr</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ptr</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_freeit</span> <span class="o">=</span> <span class="bp">False</span>
+    
+    <span class="k">def</span> <span class="nf">__deepcopy__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">memo</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">dup</span><span class="p">()</span>
 
 <div class="viewcode-block" id="BDD.equal"><a class="viewcode-back" href="../../pynusmv.html#pynusmv.dd.BDD.equal">[docs]</a>    <span class="k">def</span> <span class="nf">equal</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
