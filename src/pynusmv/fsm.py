@@ -1260,7 +1260,12 @@ class SymbTable(PointerWrapper):
         Get the NuSMV pointer for the layer with `layer_name`.
 
         :param :class:`str` layer_name: the name of the layer to get
+        :raise: a :exc:`NuSMVSymbTableError
+            <pynusmv.exception.NuSMVSymbTableError>` if the given layer does
+            not exist
         """
+        if layer_name not in self.layer_names:
+            raise NuSMVSymbTableError("Unknown layer:" + layer_name)
         return nssymb_table.SymbTable_get_layer(self._ptr, layer_name)
 
     def _get_type_from_node(self, type_):
