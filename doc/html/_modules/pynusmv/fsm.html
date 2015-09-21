@@ -1309,7 +1309,12 @@
 <span class="sd">        Get the NuSMV pointer for the layer with `layer_name`.</span>
 
 <span class="sd">        :param :class:`str` layer_name: the name of the layer to get</span>
+<span class="sd">        :raise: a :exc:`NuSMVSymbTableError</span>
+<span class="sd">            &lt;pynusmv.exception.NuSMVSymbTableError&gt;` if the given layer does</span>
+<span class="sd">            not exist</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">layer_name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">layer_names</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">NuSMVSymbTableError</span><span class="p">(</span><span class="s">&quot;Unknown layer:&quot;</span> <span class="o">+</span> <span class="n">layer_name</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">nssymb_table</span><span class="o">.</span><span class="n">SymbTable_get_layer</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_ptr</span><span class="p">,</span> <span class="n">layer_name</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_get_type_from_node</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">type_</span><span class="p">):</span>
