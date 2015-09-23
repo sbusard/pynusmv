@@ -7,7 +7,7 @@ class TestModel(unittest.TestCase):
     
     def test_getattr_expr(self):
         mod = model.Identifier("mod")
-        self.assertEqual(type(mod.act), model.Context)
+        self.assertEqual(type(mod.act), model.Dot)
         self.assertEqual(type(mod.name), str)
     
     def test_simple_main_module(self):
@@ -186,8 +186,8 @@ MODULE main
         class main(model.Module):
             c1 = model.Identifier("c1")
             c2 = model.Identifier("c2")
-            VAR = collections.OrderedDict(((c1, model.TRange(0,2)),
-                                           (c2, model.TRange(0,2))))
+            VAR = collections.OrderedDict(((c1, model.Range(0,2)),
+                                           (c2, model.Range(0,2))))
             
             INIT = (c1 == 0) & (c2 == 0)
             TRANS = ((model.Next(c1) == (c1 + 1) % 2)
@@ -211,8 +211,8 @@ MODULE main
         class main(model.Module):
             c1 = model.Identifier("c1")
             c2 = model.Identifier("c2")
-            VAR = collections.OrderedDict(((c1, model.TRange(0,2)),
-                                           (c2, model.TRange(0,2))))
+            VAR = collections.OrderedDict(((c1, model.Range(0,2)),
+                                           (c2, model.Range(0,2))))
             
             INIT = [c1 == 0, c2 == 0]
             TRANS = [model.Next(c1) == (c1 + 1) % 2,
@@ -237,8 +237,8 @@ MODULE main
     
     def test_module_with_declared_variables(self):
         class main(model.Module):
-            c1 = model.Var(model.TRange(0, 2))
-            c2 = model.Var(model.TRange(0, 2))
+            c1 = model.Var(model.Range(0, 2))
+            c2 = model.Var(model.Range(0, 2))
             
             INIT = [c1 == 0, c2 == 0]
             TRANS = [model.Next(c1) == (c1 + 1) % 2,
@@ -263,7 +263,7 @@ MODULE main
     
     def test_module_with_mixed_declared_variables(self):
         class main(model.Module):
-            c1 = model.Var(model.TRange(0, 2))
+            c1 = model.Var(model.Range(0, 2))
             VAR = collections.OrderedDict((("c2", "0..2"),))
             
             INIT = [c1 == 0, model.Identifier("c2") == 0]
@@ -291,13 +291,13 @@ MODULE main
         class Counter(model.Module):
             run = model.Identifier("run")
             ARGS = [run]
-            c = model.Var(model.TRange(0, 2))
+            c = model.Var(model.Range(0, 2))
             INIT = c == 0
             TRANS = [run.implies(c.next() == (c + 1) % 2),
                      (~run).implies(c.next() == c)]
         
         class main(model.Module):
-            run = model.IVar(model.TBoolean())
+            run = model.IVar(model.Boolean())
             c1 = model.Var(Counter(run))
         
         counter_expected = """
@@ -326,7 +326,7 @@ MODULE main
 
     def test_copy_module(self):
         class main(model.Module):
-            c1 = model.Var(model.TRange(0, 2))
+            c1 = model.Var(model.Range(0, 2))
             VAR = collections.OrderedDict((("c2", "0..2"),))
             
             INIT = [c1 == 0, model.Identifier("c2") == 0]
@@ -349,6 +349,6 @@ MODULE main
                    """
         
         copy = main.copy()
-        copy.VAR[model.Identifier("c3")] = model.TRange(0, 2)
+        copy.VAR[model.Identifier("c3")] = model.Range(0, 2)
         self.assertEqual(str(main), expected.strip())
         self.assertNotEqual(str(copy), expected.strip())

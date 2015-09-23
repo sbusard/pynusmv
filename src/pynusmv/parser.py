@@ -51,14 +51,15 @@ __all__ = [
 from .exception import NuSMVParsingError, _Error
 
 from .utils import update
-from .model import (Identifier, Self, Context, Array, Boolean, Word, Range,
-                    Conversion, WordFunction, Count, Next, Init, Case,
+from .model import (Identifier, Self, Dot, ArrayAccess, Trueexp, Falseexp,
+                    NumberWord, RangeConst,
+                    Conversion, WordFunction, Count, Next, Smallinit, Case,
                     Subscript, BitSelection, Set, Not, Concat,
-                    Minus, Mult, Div, Mod, Add, Sub, ShiftL, ShiftR, Union, In,
-                    Eq, Neq, Lt, Gt, Le, Ge, And, Or, Xor, Xnor, Ite, Iff,
-                    Implies, TBoolean, TWord, TEnum, TRange, TArray, TModule,
+                    Minus, Mult, Div, Mod, Add, Sub, LShift, RShift, Union, In,
+                    Equal, NotEqual, Lt, Gt, Le, Ge, And, Or, Xor, Xnor, Ite, Iff,
+                    Implies, Boolean, Word, Scalar, Range, Array, Modtype,
                     Variables, InputVariables, FrozenVariables, Defines,
-                    Assigns, Constants, Trans, SInit, Invar, Fairness, Justice,
+                    Assigns, Constants, Trans, Init, Invar, Fairness, Justice,
                     Compassion)
 
 from .nusmv.parser import parser as nsparser
@@ -178,8 +179,8 @@ def _reduce_list_to_expr(list_):
     """
 
     _otc = {"*": Mult, "/": Div, "mod": Mod, "+": Add, "-": Sub,
-            "<<": ShiftL, ">>": ShiftR,
-            "=": Eq, "!=": Neq, "<": Lt, ">": Gt, "<=": Le, ">=": Ge,
+            "<<": LShift, ">>": RShift,
+            "=": Equal, "!=": NotEqual, "<": Lt, ">": Gt, "<=": Le, ">=": Ge,
             "|": Or, "xor": Xor, "xnor": Xnor}
 
     res = list_[0]
@@ -218,9 +219,9 @@ def _handle_ci(tokens):
     if len(tokens) <= 1:
         return _handle_id(tokens[0])
     elif tokens[1] == ".":
-        return Context(_handle_id(tokens[0]), _handle_ci(tokens[2:]))
+        return Dot(_handle_id(tokens[0]), _handle_ci(tokens[2:]))
     else:  # tokens[1] == "["
-        return _handle_ci([Array(_handle_id(tokens[0]), tokens[2])] +
+        return _handle_ci([ArrayAccess(_handle_id(tokens[0]), tokens[2])] +
                           tokens[4:])
 
 complex_identifier.setParseAction(lambda s, l, t: _handle_ci(t))
@@ -235,12 +236,13 @@ _integer_number.setParseAction(lambda s, l, t: int(t[0]))
 
 # Constants
 _boolean_constant = oneOf("TRUE FALSE")
-_boolean_constant.setParseAction(lambda s, l, t: Boolean(t[0]))
+_boolean_constant.setParseAction(lambda s, l, t:
+                                 Falseexp() if t[0] == "FALSE" else Trueexp())
 
 _integer_constant = _integer_number
 _symbolic_constant = identifier
 _range_constant = _integer_number + Suppress("..") + _integer_number
-_range_constant.setParseAction(lambda s, l, t: Range(t[0], t[1]))
+_range_constant.setParseAction(lambda s, l, t: RangeConst(t[0], t[1]))
 
 _word_sign_specifier = oneOf("u s")
 _word_base = oneOf("b B o O d D h H")
@@ -249,7 +251,7 @@ _word_value = PWord("0123456789abcdefABCDEF", "0123456789abcdefABCDEF_")
 _word_constant = Combine(Literal("0") + Optional(_word_sign_specifier)
                          + _word_base + Optional(_word_width) + "_"
                          + _word_value)
-_word_constant.setParseAction(lambda s, l, t: Word(t[0]))
+_word_constant.setParseAction(lambda s, l, t: NumberWord(t[0]))
 
 constant = (_word_constant
             # Range constant removed to follow the parser implemented by NuSMV
@@ -388,24 +390,24 @@ next_expression = _basic_expr
 _simple_type_specifier = Forward()
 
 _boolean_type = Literal("boolean")
-_boolean_type.setParseAction(lambda s, l, t: TBoolean())
+_boolean_type.setParseAction(lambda s, l, t: Boolean())
 
 _word_type = (Optional(Literal("unsigned") | Literal("signed"))
               + Literal("word") + Suppress("[") + _basic_expr + Suppress("]"))
-_word_type.setParseAction(lambda s, l, t: TWord(t[1]) if t[0] == "word"
-                          else TWord(t[2], sign=t[0]))
+_word_type.setParseAction(lambda s, l, t: Word(t[1]) if t[0] == "word"
+                          else Word(t[2], sign=t[0]))
 
 _enum_type = (Suppress("{")
               + delimitedList(_integer_number | _symbolic_constant)
               + Suppress("}"))
-_enum_type.setParseAction(lambda s, l, t: TEnum(t))
+_enum_type.setParseAction(lambda s, l, t: Scalar(t))
 
 _range_type = _shift + Suppress("..") + _shift
-_range_type.setParseAction(lambda s, l, t: TRange(t[0], t[1]))
+_range_type.setParseAction(lambda s, l, t: Range(t[0], t[1]))
 
 _array_type = (Suppress("array") + _shift + Suppress("..") + _shift
                + Suppress("of") + _simple_type_specifier)
-_array_type.setParseAction(lambda s, l, t: TArray(t[0], t[1], t[2]))
+_array_type.setParseAction(lambda s, l, t: Array(t[0], t[1], t[2]))
 
 _simple_type_specifier <<= (_boolean_type
                             | _word_type
@@ -419,9 +421,9 @@ _module_type_specifier = (Optional("process") + identifier
                                      Optional(delimitedList(simple_expression))
                                      + Suppress(")")))
 _module_type_specifier.setParseAction(
-    lambda s, l, t: TModule(t[1], t[2:], process=True)
+    lambda s, l, t: Modtype(t[1], t[2:], process=True)
     if t[0] == "process"
-    else TModule(t[0], t[1:]))
+    else Modtype(t[0], t[1:]))
 
 type_identifier = _simple_type_specifier | _module_type_specifier
 
@@ -470,7 +472,7 @@ _assign_identifier = (Literal("init") + Suppress("(") + complex_identifier
                       + Suppress(")")
                       | complex_identifier)
 _assign_identifier.setParseAction(lambda s, l, t:
-                                  Init(t[1]) if t[0] == "init"
+                                  Smallinit(t[1]) if t[0] == "init"
                                   else Next(t[1]) if t[0] == "next"
                                   else t[0])
 _assign = (_assign_identifier + Suppress(":=") + simple_expression
@@ -489,7 +491,7 @@ trans_constraint.setParseAction(lambda s, l, t: Trans(list(t)))
 _init_constraint_body = simple_expression + Optional(Suppress(";"))
 _init_constraint_body.setParseAction(lambda s, l, t: list(t))
 init_constraint = Suppress("INIT") + _init_constraint_body
-init_constraint.setParseAction(lambda s, l, t: SInit(list(t)))
+init_constraint.setParseAction(lambda s, l, t: Init(list(t)))
 
 _invar_constraint_body = simple_expression + Optional(Suppress(";"))
 _invar_constraint_body.setParseAction(lambda s, l, t: list(t))

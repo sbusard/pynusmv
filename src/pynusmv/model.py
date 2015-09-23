@@ -9,16 +9,17 @@ set of AST elements of the language.
 __all__ = [
     "Identifier",
     "Self",
-    "Context",
-    "Array",
-    "Boolean",
-    "Word",
-    "Range",
+    "Dot",
+    "ArrayAccess",
+    "Trueexp",
+    "Falseexp",
+    "NumberWord",
+    "RangeConst",
     "Conversion",
     "WordFunction",
     "Count",
     "Next",
-    "Init",
+    "Smallinit",
     "Case",
     "Subscript",
     "BitSelection",
@@ -31,12 +32,12 @@ __all__ = [
     "Mod",
     "Add",
     "Sub",
-    "ShiftL",
-    "ShiftR",
+    "LShift",
+    "RShift",
     "Union",
     "In",
-    "Eq",
-    "Neq",
+    "Equal",
+    "NotEqual",
     "Lt",
     "Gt",
     "Le",
@@ -48,12 +49,12 @@ __all__ = [
     "Ite",
     "Iff",
     "Implies",
-    "TBoolean",
-    "TWord",
-    "TEnum",
-    "TRange",
-    "TArray",
-    "TModule",
+    "Boolean",
+    "Word",
+    "Scalar",
+    "Range",
+    "Array",
+    "Modtype",
     "Variables",
     "InputVariables",
     "FrozenVariables",
@@ -61,7 +62,7 @@ __all__ = [
     "Assigns",
     "Constants",
     "Trans",
-    "SInit",
+    "Init",
     "Invar",
     "Fairness",
     "Justice",
@@ -76,6 +77,8 @@ import sys
 import collections
 from copy import deepcopy
 
+from .nusmv.node import node as nsnode
+
 from .utils import update
 from .exception import NuSMVModuleError
 
@@ -89,6 +92,12 @@ class Element(object):
     parser).
 
     """
+    
+    def to_node(self):
+        """
+        Translate the element into a Node instance.
+        """
+        raise NotImplementedError("Should be implemented by subclasses.")
 
 # -----------------------------------------------------------------------------
 # ----- EXPRESSIONS
@@ -126,7 +135,7 @@ class Expression(Element):
         from .parser import parseAllString, next_expression
         if isinstance(other, str):
             other = parseAllString(next_expression, other)
-        return Eq(self, other)
+        return Equal(self, other)
 
     def __ne__(self, other):
         return self.ne(other)
@@ -135,7 +144,7 @@ class Expression(Element):
         from .parser import parseAllString, next_expression
         if isinstance(other, str):
             other = parseAllString(next_expression, other)
-        return Neq(self, other)
+        return NotEqual(self, other)
 
     def __gt__(self, other):
         return self.gt(other)
@@ -207,7 +216,7 @@ class Expression(Element):
         from .parser import parseAllString, next_expression
         if isinstance(other, str):
             other = parseAllString(next_expression, other)
-        return ShiftL(self, other)
+        return LShift(self, other)
 
     def __rshift__(self, other):
         return self.rshift(other)
@@ -216,7 +225,7 @@ class Expression(Element):
         from .parser import parseAllString, next_expression
         if isinstance(other, str):
             other = parseAllString(next_expression, other)
-        return ShiftR(self, other)
+        return RShift(self, other)
 
     def __and__(self, other):
         return self.and_(other)
@@ -345,6 +354,17 @@ class Expression(Element):
 
     def __deepcopy__(self, memo):
         raise NotImplementedError("Should be implemented by subclasses.")
+    
+    def to_node(self):
+        """
+        Translate the element into a Node instance.
+        """
+        from . import node
+        from .parser import parse_next_expression
+        parsed = parse_next_expression(str(self))
+        res = node.Node.from_ptr(node.find_hierarchy(parsed))
+        nsnode.free_node(parsed)
+        return res
 
 
 class Identifier(Expression):
@@ -370,10 +390,17 @@ class Identifier(Expression):
         return 17 + 23 * hash("Identifier") + 23 ** 2 * hash(self.name)
 
     def __getattr__(self, name):
-        return Context(self, Identifier(name))
+        if name is not "name":
+            return Dot(self, Identifier(name))
+        else:
+            raise AttributeError("'{}' object ha no attribute '{}'"
+                                 .format(type(self).__name__, name))
 
     def __deepcopy__(self, memo):
         return Identifier(self.name)
+    
+    def to_node(self):
+        return 
 
 
 class Self(Identifier):
@@ -389,7 +416,7 @@ class ComplexIdentifier(Expression):
     """A complex identifier."""
 
 
-class Context(ComplexIdentifier):
+class Dot(ComplexIdentifier):
 
     """Access to a part of a module instance."""
 
@@ -412,15 +439,15 @@ class Context(ComplexIdentifier):
             return False
 
     def __hash__(self):
-        return (17 + 23 * hash("Context") + 23 ** 2 * hash(self.instance) +
+        return (17 + 23 * hash("Dot") + 23 ** 2 * hash(self.instance) +
                 23 ** 3 * hash(self.element))
 
     def __deepcopy__(self, memo):
-        return Context(deepcopy(self.instance, memo),
-                       deepcopy(self.element, memo))
+        return Dot(deepcopy(self.instance, memo),
+                   deepcopy(self.element, memo))
 
 
-class Array(ComplexIdentifier):
+class ArrayAccess(ComplexIdentifier):
 
     """Access to an index of an array."""
 
@@ -443,12 +470,12 @@ class Array(ComplexIdentifier):
             return False
 
     def __hash__(self):
-        return (17 + 23 * hash("Array") + 23 ** 2 * hash(self.array) +
+        return (17 + 23 * hash("ArrayAccess") + 23 ** 2 * hash(self.array) +
                 23 ** 3 * hash(self.index))
 
     def __deepcopy__(self, memo):
-        return Array(deepcopy(self.array, memo),
-                     deepcopy(self.index, memo))
+        return ArrayAccess(deepcopy(self.array, memo),
+                           deepcopy(self.index, memo))
 
 
 class Constant(Expression):
@@ -456,7 +483,7 @@ class Constant(Expression):
     """A generic constant."""
 
 
-class Boolean(Constant):
+class BooleanConst(Constant):
 
     """A boolean constant."""
 
@@ -476,13 +503,33 @@ class Boolean(Constant):
             return False
 
     def __hash__(self):
-        return 17 + 23 * hash("Boolean") + 23 ** 2 * hash(self.value)
+        return 17 + 23 * hash("BooleanConst") + 23 ** 2 * hash(self.value)
 
     def __deepcopy__(self, memo):
-        return Boolean(deepcopy(self.value, memo))
+        return BooleanConst(deepcopy(self.value, memo))
 
 
-class Word(Constant):
+class Trueexp(BooleanConst):
+    """The TRUE constant."""
+    
+    def __init__(self):
+        super().__init__("TRUE")
+    
+    def __deepcopy__(self, memo):
+        return Trueexp()
+
+
+class Falseexp(BooleanConst):
+    """The FALSE constant."""
+    
+    def __init__(self):
+        super().__init__("FALSE")
+    
+    def __deepcopy__(self, memo):
+        return Falseexp()
+
+
+class NumberWord(Constant):
 
     """A word constant."""
 
@@ -505,10 +552,10 @@ class Word(Constant):
         return 17 + 23 * hash("Word") + 23 ** 2 * hash(self.value)
 
     def __deepcopy__(self, memo):
-        return Word(deepcopy(self.value, memo))
+        return NumberWord(deepcopy(self.value, memo))
 
 
-class Range(Constant):
+class RangeConst(Constant):
 
     """A range of integers."""
 
@@ -519,7 +566,7 @@ class Range(Constant):
     def __str__(self):
         if self.source:
             return self.source
-        return str(self.start) + ".." + str(self.stop)
+        return str(self.start) + " .. " + str(self.stop)
 
     def _equals(self, other):
         """Return whether `self` is equals to `other`."""
@@ -529,12 +576,12 @@ class Range(Constant):
             return False
 
     def __hash__(self):
-        return (17 + 23 * hash("Range")
+        return (17 + 23 * hash("RangeConst")
                 + 23 ** 2 * hash(self.start) + 23 ** 3 * hash(self.stop))
 
     def __deepcopy__(self, memo):
-        return Range(deepcopy(self.start, memo),
-                     deepcopy(self.stop, memo))
+        return RangeConst(deepcopy(self.start, memo),
+                          deepcopy(self.stop, memo))
 
 
 class Function(Expression):
@@ -668,9 +715,9 @@ class Next(Expression):
         return Next(deepcopy(self.value, memo))
 
 
-class Init(Expression):
+class Smallinit(Expression):
 
-    """An init expression."""
+    """An init() expression."""
 
     def __init__(self, value):
         self.value = value
@@ -688,10 +735,10 @@ class Init(Expression):
             return False
 
     def __hash__(self):
-        return 17 + 23 * hash("Init") + 23 ** 2 * hash(self.value)
+        return 17 + 23 * hash("Smallinit") + 23 ** 2 * hash(self.value)
 
     def __deepcopy__(self, memo):
-        return Init(deepcopy(self.value, memo))
+        return Smallinit(deepcopy(self.value, memo))
 
 
 class Case(Expression):
@@ -1082,7 +1129,7 @@ class Sub(Operator):
                    deepcopy(self.right, memo))
 
 
-class ShiftL(Operator):
+class LShift(Operator):
 
     """A left shift (`<<`) of expressions."""
 
@@ -1106,15 +1153,15 @@ class ShiftL(Operator):
             return False
 
     def __hash__(self):
-        return (17 + 23 * hash("ShiftL") + 23 ** 2 * hash(self.left)
+        return (17 + 23 * hash("LShift") + 23 ** 2 * hash(self.left)
                 + 23 ** 3 * hash(self.right))
 
     def __deepcopy__(self, memo):
-        return ShiftL(deepcopy(self.left, memo),
+        return LShift(deepcopy(self.left, memo),
                       deepcopy(self.right, memo))
 
 
-class ShiftR(Operator):
+class RShift(Operator):
 
     """A right shift (`>>`) of expressions."""
 
@@ -1138,11 +1185,11 @@ class ShiftR(Operator):
             return False
 
     def __hash__(self):
-        return (17 + 23 * hash("ShiftR") + 23 ** 2 * hash(self.left)
+        return (17 + 23 * hash("RShift") + 23 ** 2 * hash(self.left)
                 + 23 ** 3 * hash(self.right))
 
     def __deepcopy__(self, memo):
-        return ShiftR(deepcopy(self.left, memo),
+        return RShift(deepcopy(self.left, memo),
                       deepcopy(self.right, memo))
 
 
@@ -1212,7 +1259,7 @@ class In(Operator):
                   deepcopy(self.right, memo))
 
 
-class Eq(Operator):
+class Equal(Operator):
 
     """The `=` expression."""
 
@@ -1238,7 +1285,7 @@ class Eq(Operator):
             return False
 
     def __hash__(self):
-        return (17 + 23 * hash("Eq") + 23 ** 2 * hash(self.left)
+        return (17 + 23 * hash("Equal") + 23 ** 2 * hash(self.left)
                 + 23 ** 2 * hash(self.right))
 
     def __bool__(self):
@@ -1249,11 +1296,11 @@ class Eq(Operator):
             return self.left == self.right
 
     def __deepcopy__(self, memo):
-        return Eq(deepcopy(self.left, memo),
-                  deepcopy(self.right, memo))
+        return Equal(deepcopy(self.left, memo),
+                     deepcopy(self.right, memo))
 
 
-class Neq(Operator):
+class NotEqual(Operator):
 
     """The `!=` expression."""
 
@@ -1279,7 +1326,7 @@ class Neq(Operator):
             return False
 
     def __hash__(self):
-        return (17 + 23 * hash("Add") + 23 ** 2 * hash(self.left)
+        return (17 + 23 * hash("NotEqual") + 23 ** 2 * hash(self.left)
                 + 23 ** 2 * hash(self.right))
 
     def __bool__(self):
@@ -1290,8 +1337,8 @@ class Neq(Operator):
             return self.left != self.right
 
     def __deepcopy__(self, memo):
-        return Neq(deepcopy(self.left, memo),
-                   deepcopy(self.right, memo))
+        return NotEqual(deepcopy(self.left, memo),
+                        deepcopy(self.right, memo))
 
 
 class Lt(Operator):
@@ -1678,7 +1725,7 @@ class SimpleType(Type):
     """A simple type: boolean, word, enum, range, array."""
 
 
-class TBoolean(SimpleType):
+class Boolean(SimpleType):
 
     """A boolean type."""
 
@@ -1688,10 +1735,10 @@ class TBoolean(SimpleType):
         return "boolean"
 
     def __deepcopy__(self, memo):
-        return TBoolean()
+        return Boolean()
 
 
-class TWord(SimpleType):
+class Word(SimpleType):
 
     """A word type."""
 
@@ -1706,11 +1753,11 @@ class TWord(SimpleType):
                 + "[" + str(self.size) + "]")
 
     def __deepcopy__(self, memo):
-        return TWord(deepcopy(self.size, memo),
-                     deepcopy(self.sign, memo))
+        return Word(deepcopy(self.size, memo),
+                    deepcopy(self.sign, memo))
 
 
-class TEnum(SimpleType):
+class Scalar(SimpleType):
 
     """An enumeration type."""
 
@@ -1723,10 +1770,10 @@ class TEnum(SimpleType):
         return "{" + ", ".join(str(value) for value in self.values) + "}"
 
     def __deepcopy__(self, memo):
-        return TEnum(deepcopy(self.values, memo))
+        return Scalar(deepcopy(self.values, memo))
 
 
-class TRange(SimpleType):
+class Range(SimpleType):
 
     """A range type."""
 
@@ -1740,11 +1787,11 @@ class TRange(SimpleType):
         return str(self.start) + ".." + str(self.stop)
 
     def __deepcopy__(self, memo):
-        return TRange(deepcopy(self.start, memo),
-                      deepcopy(self.stop, memo))
+        return Range(deepcopy(self.start, memo),
+                     deepcopy(self.stop, memo))
 
 
-class TArray(SimpleType):
+class Array(SimpleType):
 
     """An array type."""
 
@@ -1760,12 +1807,12 @@ class TArray(SimpleType):
                 + " of " + str(self.elementtype))
 
     def __deepcopy__(self, memo):
-        return TArray(deepcopy(self.start, memo),
-                      deepcopy(self.stop, memo),
-                      deepcopy(self.elementtype, memo))
+        return Array(deepcopy(self.start, memo),
+                     deepcopy(self.stop, memo),
+                     deepcopy(self.elementtype, memo))
 
 
-class TModule(Type):
+class Modtype(Type):
 
     """A module instantiation."""
 
@@ -1781,7 +1828,7 @@ class TModule(Type):
                 + "(" + ", ".join(str(arg) for arg in self.args) + ")")
 
     def __deepcopy__(self, memo):
-        return TModule(deepcopy(self.modulename, memo),
+        return Modtype(deepcopy(self.modulename, memo),
                        deepcopy(self.args, memo),
                        process=deepcopy(self.process, memo))
 
@@ -1929,7 +1976,7 @@ class Trans(ListingSection):
         super().__init__("TRANS", body, separator="\nTRANS\n")
 
 
-class SInit(ListingSection):
+class Init(ListingSection):
 
     """An INIT section."""
 
@@ -2446,7 +2493,7 @@ class ModuleMetaClass(type):
         return ModuleMetaClass(cls.NAME, cls.__bases__, newnamespace)
 
 
-class Module(TModule, metaclass=ModuleMetaClass):
+class Module(Modtype, metaclass=ModuleMetaClass):
 
     """
     A generic module.
