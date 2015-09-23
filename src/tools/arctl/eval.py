@@ -105,8 +105,8 @@ def _fp(funct, start):
     """
     Return the fixpoint of funct, as a BDD, starting with start BDD.
     
-    μZ.f(Z) least fixpoint is implemented with _fp(funct, false).
-    νZ.f(Z) greatest fixpoint is implemented with _fp(funct, true).
+    mu Z.f(Z) least fixpoint is implemented with _fp(funct, false).
+    nu Z.f(Z) greatest fixpoint is implemented with _fp(funct, true).
     """
     
     old = start

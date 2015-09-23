@@ -78,7 +78,7 @@ def eval_ctl(fsm, spec, context = None):
         return ~eu(fsm, true, ~left)
                                  
     elif spec.type == parser.AU:
-        # A[p U q] = ¬E[¬q W (¬p & ¬q)] = ¬(E[¬q U (¬p & ¬q)] | EG ¬q)
+        # A[p U q] = !E[!q W (!p & !q)] = !(E[!q U (!p & !q)] | EG !q)
         left = eval_ctl(fsm, spec.car, context)
         right = eval_ctl(fsm, spec.cdr, context)
         return ~(eu(fsm, ~right, ~left & ~right) | eg(fsm, ~right))
