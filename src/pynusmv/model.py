@@ -87,7 +87,11 @@ __all__ = [
     "Module"]
 
 import sys
-import collections
+from collections import OrderedDict
+try:
+    from collections.abc import Mapping
+except ImportError:
+    from collections import Mapping
 from copy import deepcopy
 
 from .nusmv.node import node as nsnode
@@ -432,7 +436,7 @@ class Self(Identifier):
     """The `self` identifier."""
 
     def __init__(self):
-        super().__init__("self")
+        super(Self, self).__init__("self")
 
 
 class ComplexIdentifier(Expression):
@@ -538,7 +542,7 @@ class Trueexp(BooleanConst):
     """The TRUE constant."""
 
     def __init__(self):
-        super().__init__("TRUE")
+        super(Trueexp, self).__init__("TRUE")
 
     def __deepcopy__(self, memo):
         return Trueexp()
@@ -549,7 +553,7 @@ class Falseexp(BooleanConst):
     """The FALSE constant."""
 
     def __init__(self):
-        super().__init__("FALSE")
+        super(Falseexp, self).__init__("FALSE")
 
     def __deepcopy__(self, memo):
         return Falseexp()
@@ -779,8 +783,7 @@ class Case(Expression):
             return self.source
         return ("case\n" + "\n".join(str(cond) + ": " + str(body) + ";"
                                      for cond, body in
-                                     collections.OrderedDict(
-                                     self.values).items())
+                                     OrderedDict(self.values).items())
                 + "\nesac")
 
     def _equals(self, other):
@@ -1898,7 +1901,7 @@ class MappingSection(Section):
                           for printing the section.
         :param indentation: the indentation for the printed expressions.
         """
-        super().__init__(name, mapping)
+        super(MappingSection, self).__init__(name, mapping)
         self.separator = separator
         self.indentation = indentation
 
@@ -1926,7 +1929,7 @@ class Variables(MappingSection):
     """Declaring variables."""
 
     def __init__(self, variables):
-        super().__init__("VAR", variables)
+        super(Variables, self).__init__("VAR", variables)
 
 
 class InputVariables(MappingSection):
@@ -1934,7 +1937,7 @@ class InputVariables(MappingSection):
     """Declaring input variables."""
 
     def __init__(self, ivariables):
-        super().__init__("IVAR", ivariables)
+        super(InputVariables, self).__init__("IVAR", ivariables)
 
 
 class FrozenVariables(MappingSection):
@@ -1942,7 +1945,7 @@ class FrozenVariables(MappingSection):
     """Declaring frozen variables."""
 
     def __init__(self, fvariables):
-        super().__init__("FROZENVAR", fvariables)
+        super(FrozenVariables, self).__init__("FROZENVAR", fvariables)
 
 
 class Defines(MappingSection):
@@ -1950,7 +1953,7 @@ class Defines(MappingSection):
     """Declaring defines."""
 
     def __init__(self, defines):
-        super().__init__("DEFINE", defines, separator=" := ")
+        super(Defines, self).__init__("DEFINE", defines, separator=" := ")
 
 
 class Assigns(MappingSection):
@@ -1958,7 +1961,7 @@ class Assigns(MappingSection):
     """Declaring assigns."""
 
     def __init__(self, assigns):
-        super().__init__("ASSIGN", assigns, separator=" := ")
+        super(Assigns, self).__init__("ASSIGN", assigns, separator=" := ")
 
 
 class ListingSection(Section):
@@ -1973,7 +1976,7 @@ class ListingSection(Section):
                           section.
         :param indentation: the indentation for the printed expressions.
         """
-        super().__init__(name, listing)
+        super(ListingSection, self).__init__(name, listing)
         self.separator = separator
         self.indentation = indentation
 
@@ -1999,7 +2002,7 @@ class Constants(ListingSection):
     """Declaring constants."""
 
     def __init__(self, constants):
-        super().__init__("CONSTANTS", constants, separator=", ")
+        super(Constants, self).__init__("CONSTANTS", constants, separator=", ")
 
 
 class Trans(ListingSection):
@@ -2007,7 +2010,7 @@ class Trans(ListingSection):
     """A TRANS section."""
 
     def __init__(self, body):
-        super().__init__("TRANS", body, separator="\nTRANS\n")
+        super(Trans, self).__init__("TRANS", body, separator="\nTRANS\n")
 
 
 class Init(ListingSection):
@@ -2015,7 +2018,7 @@ class Init(ListingSection):
     """An INIT section."""
 
     def __init__(self, body):
-        super().__init__("INIT", body, separator="\nINIT\n")
+        super(Init, self).__init__("INIT", body, separator="\nINIT\n")
 
 
 class Invar(ListingSection):
@@ -2023,7 +2026,7 @@ class Invar(ListingSection):
     """An INVAR section."""
 
     def __init__(self, body):
-        super().__init__("INVAR", body, separator="\nINVAR\n")
+        super(Invar, self).__init__("INVAR", body, separator="\nINVAR\n")
 
 
 class Fairness(ListingSection):
@@ -2031,7 +2034,8 @@ class Fairness(ListingSection):
     """A FAIRNESS section."""
 
     def __init__(self, body):
-        super().__init__("FAIRNESS", body, separator="\nFAIRNESS\n")
+        super(Fairness, self).__init__("FAIRNESS", body,
+                                       separator="\nFAIRNESS\n")
 
 
 class Justice(ListingSection):
@@ -2039,7 +2043,7 @@ class Justice(ListingSection):
     """A Justice section."""
 
     def __init__(self, body):
-        super().__init__("JUSTICE", body, separator="\nJUSTICE\n")
+        super(Justice, self).__init__("JUSTICE", body, separator="\nJUSTICE\n")
 
 
 class Compassion(ListingSection):
@@ -2047,7 +2051,8 @@ class Compassion(ListingSection):
     """A COMPASSION section."""
 
     def __init__(self, body):
-        super().__init__("COMPASSION", body, separator="\nCOMPASSION\n")
+        super(Compassion, self).__init__("COMPASSION", body,
+                                         separator="\nCOMPASSION\n")
 
 
 # -----------------------------------------------------------------------------
@@ -2092,7 +2097,7 @@ class Var(Declaration):
     """A declared VAR."""
 
     def __init__(self, type_, name=None):
-        super().__init__(type_, "VAR", name=name)
+        super(Var, self).__init__(type_, "VAR", name=name)
 
     def __deepcopy__(self, memo):
         return Var(deepcopy(self.type, memo), name=deepcopy(self.name, memo))
@@ -2103,7 +2108,7 @@ class IVar(Declaration):
     """A declared IVAR."""
 
     def __init__(self, type_, name=None):
-        super().__init__(type_, "IVAR", name=name)
+        super(IVar, self).__init__(type_, "IVAR", name=name)
 
     def __deepcopy__(self, memo):
         return IVar(deepcopy(self.type, memo), name=deepcopy(self.name, memo))
@@ -2114,7 +2119,7 @@ class FVar(Declaration):
     """A declared FROZENVAR."""
 
     def __init__(self, type_, name=None):
-        super().__init__(type_, "FROZENVAR", name=name)
+        super(FVar, self).__init__(type_, "FROZENVAR", name=name)
 
     def __deepcopy__(self, memo):
         return FVar(deepcopy(self.type, memo), name=deepcopy(self.name, memo))
@@ -2125,7 +2130,7 @@ class Def(Declaration):
     """A declared DEFINE."""
 
     def __init__(self, type_, name=None):
-        super().__init__(type_, "DEFINE", name=name)
+        super(Def, self).__init__(type_, "DEFINE", name=name)
 
     def __deepcopy__(self, memo):
         return Def(deepcopy(self.type, memo), name=deepcopy(self.name, memo))
@@ -2184,10 +2189,10 @@ class ModuleMetaClass(type):
 
     @classmethod
     def __prepare__(mcs, name, bases, **keywords):
-        return collections.OrderedDict()
+        return OrderedDict()
 
     def __new__(mcs, name, bases, namespace, **keywords):
-        newnamespace = collections.OrderedDict()
+        newnamespace = OrderedDict()
         for member in namespace:
             # Update sections of namespace
             if member in mcs._sections:
@@ -2202,7 +2207,7 @@ class ModuleMetaClass(type):
                 if not decl._name:
                     decl.name = member
                 if decl.section not in newnamespace:
-                    newnamespace[decl.section] = collections.OrderedDict()
+                    newnamespace[decl.section] = OrderedDict()
                 newnamespace[decl.section][decl] = decl.type
                 # Keep declarations in module
                 newnamespace[member] = namespace[member]
@@ -2228,7 +2233,7 @@ class ModuleMetaClass(type):
     def __getattr__(cls, name):
         if name in cls._sections:
             if cls._sections[name][0] == "mapping":
-                setattr(cls, name, collections.OrderedDict())
+                setattr(cls, name, OrderedDict())
             if cls._sections[name][0] in {"enumeration", "bodies"}:
                 setattr(cls, name, [])
             cls.members += (name,)
@@ -2356,8 +2361,8 @@ class ModuleMetaClass(type):
         if mcs._sections[section][0] == "mapping":
             section_parser, key_parser, value_parser = (_sections_parsers
                                                         [section][-3:])
-            if isinstance(body, collections.abc.Mapping):
-                res = collections.OrderedDict()
+            if isinstance(body, Mapping):
+                res = OrderedDict()
                 for key, value in body.items():
                     if isinstance(key, str):
                         key = parseAllString(key_parser, key)
@@ -2371,7 +2376,7 @@ class ModuleMetaClass(type):
                 if isinstance(body, str):
                     body = [body]
 
-                res = collections.OrderedDict()
+                res = OrderedDict()
                 for line in body:
                     if isinstance(line, str):
                         line = parseAllString(section_parser, line)
@@ -2520,7 +2525,7 @@ class ModuleMetaClass(type):
         to the created module as it is.
 
         """
-        newnamespace = collections.OrderedDict()
+        newnamespace = OrderedDict()
         for member in cls.members:
             newnamespace[member] = deepcopy(getattr(cls, member))
 
@@ -2616,5 +2621,10 @@ class Module(Modtype, metaclass=ModuleMetaClass):
 
     """
 
-    def __init__(self, *args, process=False):
-        super().__init__(self.__class__.NAME, args, process=process)
+    def __init__(self, *args, **kwargs):
+        if "process" in kwargs:
+            process = kwargs["process"]
+        else:
+            process = False
+        super(Module, self).__init__(self.__class__.NAME, args,
+                                     process=process)

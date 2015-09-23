@@ -64,7 +64,7 @@ class BddFsm(PointerWrapper):
         :param boolean freeit: whether or not free the pointer
 
         """
-        super().__init__(ptr, freeit=freeit)
+        super(BddFsm, self).__init__(ptr, freeit=freeit)
         self._reachable = None
 
     @property
@@ -498,7 +498,7 @@ class BddTrans(PointerWrapper):
         :param freeit: whether or not freeing the pointer
 
         """
-        super().__init__(ptr, freeit)
+        super(BddTrans, self).__init__(ptr, freeit)
         self._enc = enc
         self._manager = manager
 

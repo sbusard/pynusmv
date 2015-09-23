@@ -74,7 +74,7 @@ class _One_State_Shell(cmd.Cmd):
         bound -- the maximum number of states that can be displayed;
         prompt -- the prompt of the shell.
         """
-        super().__init__()
+        super(_One_State_Shell, self).__init__()
         self.prompt = prompt
         self.fsm = fsm
         self.original = bdd
@@ -311,7 +311,7 @@ class _Next_State_Shell(_One_State_Shell):
         self.state = state
         self.chosenInputs = None
         bdd = fsm.post(state)
-        super().__init__(fsm, bdd, bound, prompt)
+        super(_Next_State_Shell, self).__init__(fsm, bdd, bound, prompt)
         
         
     def _show_last(self):

@@ -12,7 +12,7 @@ class LazyCTLK_explain_shell(cmd.Cmd):
     """
     
     def __init__(self, fsm, tlace):
-        super().__init__()
+        super(LazyCTLK_explain_shell, self).__init__()
         self.prompt = ">> "
         self.tlace = tlace
         self.stack = LockStack()

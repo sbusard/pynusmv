@@ -64,7 +64,7 @@ class BDD(PointerWrapper):
         :param freeit: whether the pointer must be freed with the BDD, or not.
 
         """
-        super().__init__(ptr, freeit)
+        super(BDD, self).__init__(ptr, freeit)
         self._manager = dd_manager
 
     def _free(self):
@@ -435,7 +435,7 @@ class BDDList(PointerWrapper):
     # and returned.
 
     def __init__(self, ptr, ddmanager=None, freeit=True):
-        super().__init__(ptr, freeit)
+        super(BDDList, self).__init__(ptr, freeit)
         self._manager = ddmanager
 
     def _free(self):
@@ -559,7 +559,7 @@ class State(BDD):
     """
 
     def __init__(self, ptr, fsm, freeit=True):
-        super().__init__(ptr, fsm.bddEnc.DDmanager, freeit)
+        super(State, self).__init__(ptr, fsm.bddEnc.DDmanager, freeit)
         self._fsm = fsm
 
     def get_str_values(self, layers=None):
@@ -639,7 +639,7 @@ class Inputs(BDD):
     """
 
     def __init__(self, ptr, fsm, freeit=True):
-        super().__init__(ptr, fsm.bddEnc.DDmanager, freeit)
+        super(Inputs, self).__init__(ptr, fsm.bddEnc.DDmanager, freeit)
         self._fsm = fsm
 
     def get_str_values(self, layers=None):
@@ -720,7 +720,7 @@ class StateInputs(BDD):
     """
 
     def __init__(self, ptr, fsm, freeit=True):
-        super().__init__(ptr, fsm.bddEnc.DDmanager, freeit)
+        super(StateInputs, self).__init__(ptr, fsm.bddEnc.DDmanager, freeit)
         self._fsm = fsm
 
     def get_str_values(self):
@@ -793,7 +793,7 @@ class Cube(BDD):
                                            other._ptr),
                         self._manager, freeit=True)
         else:
-            return super().diff(other)
+            return super(Cube, self).diff(other)
 
     def intersection(self, other):
         """
@@ -815,7 +815,7 @@ class Cube(BDD):
                                                    self._ptr, other._ptr),
                         self._manager, freeit=True)
         else:
-            return super().intersection(other)
+            return super(Cube, self).intersection(other)
 
     def union(self, other):
         """
@@ -838,7 +838,7 @@ class Cube(BDD):
                         self._manager,
                         freeit=True)
         else:
-            return super().union(other)
+            return super(Cube, self).union(other)
 
     def __sub__(self, other):
         return self.diff(other)

@@ -80,7 +80,7 @@ class TemporalBranch(Tlacebranch):
                 indicating the start of the loop; input being an input between
                 path[-1] and state.
         """
-        super().__init__(formula)
+        super(TemporalBranch, self).__init__(formula)
         self._path = path
         self._loop = loop
         
@@ -108,7 +108,7 @@ class EpistemicBranch(Tlacebranch):
                 where ag_i is the name of the agents
                 for which s_i-1 is equivalent to s_i, for all i : 0 < i <= n.
         """
-        super().__init__(formula)
+        super(EpistemicBranch, self).__init__(formula)
         self._path = path
         
     @property

@@ -181,7 +181,7 @@ class Spec(PointerWrapper):
         :param boolean freeit: whether or not the pointer has to be freed
 
         """
-        super().__init__(ptr, freeit=freeit)
+        super(Spec, self).__init__(ptr, freeit=freeit)
 
     @property
     def type(self):

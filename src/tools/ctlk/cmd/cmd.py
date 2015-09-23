@@ -32,7 +32,7 @@ class CTLK_shell(cmd.Cmd):
     """
 
     def __init__(self):
-        super().__init__()
+        super(CTLK_shell, self).__init__()
         self.prompt = "> "
         self.argparsers = {}
         self.fsm = None

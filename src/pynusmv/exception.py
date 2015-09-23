@@ -203,7 +203,7 @@ class NuSMVParsingError(PyNuSMVError):
         :param errors: a tuple of errors
         :type errors: tuple(:class:`Error`)
         """
-        super().__init__(self)
+        super(NuSMVParsingError, self).__init__(self)
         self._errors = errors
 
     @staticmethod

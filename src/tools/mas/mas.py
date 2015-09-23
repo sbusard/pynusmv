@@ -28,7 +28,7 @@ class MAS(BddFsm):
         epistemic -- a dictionary of epistemic relations (agent->EPISTEMIC)
         freeit -- whether or not free the pointer
         """
-        super().__init__(ptr, freeit=freeit)
+        super(MAS, self).__init__(ptr, freeit=freeit)
         self._epistemic = epistemic and epistemic or {}
         self._epistemic_trans = {}
         self._agents_observed_variables = observed
@@ -166,7 +166,7 @@ class MAS(BddFsm):
         
         states = states & subsystem
         
-        return super().post(states, inputs)
+        return super(MAS, self).post(states, inputs)
         
         
     def pre_strat(self, states, agents, strat=None):

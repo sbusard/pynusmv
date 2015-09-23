@@ -86,7 +86,7 @@ class Node(PointerWrapper):
         right_ptr = right._ptr if right is not None else right
 
         ptr = nsnode.find_node(type_, left_ptr, right_ptr)
-        super().__init__(ptr, freeit=False)
+        super(Node, self).__init__(ptr, freeit=False)
         self.type = type_
         self._car = left
         self._cdr = right
@@ -274,7 +274,7 @@ class Boolean(Type):
     """The boolean type."""
 
     def __init__(self):
-        super().__init__(None, None, type_=BOOLEAN)
+        super(Boolean, self).__init__(None, None, type_=BOOLEAN)
 
 
 class UnsignedWord(Type):
@@ -282,7 +282,7 @@ class UnsignedWord(Type):
     """An unsigned word type."""
 
     def __init__(self, length):
-        super().__init__(length, None, type_=UNSIGNED_WORD)
+        super(UnsignedWord, self).__init__(length, None, type_=UNSIGNED_WORD)
 
     @property
     def length(self):
@@ -294,7 +294,7 @@ class Word(UnsignedWord):
     """An unsigned word type."""
 
     def __init__(self, length):
-        super().__init__(length)
+        super(Word, self).__init__(length)
 
 
 class SignedWord(Type):
@@ -302,7 +302,7 @@ class SignedWord(Type):
     """A signed word type."""
 
     def __init__(self, length):
-        super().__init__(length, None, type_=SIGNED_WORD)
+        super(SignedWord, self).__init__(length, None, type_=SIGNED_WORD)
 
     @property
     def length(self):
@@ -329,7 +329,7 @@ class Range(Type):
         """
         start = self._handle_next_expression(start)
         stop = self._handle_next_expression(stop)
-        super().__init__(start, stop, type_=TWODOTS)
+        super(Range, self).__init__(start, stop, type_=TWODOTS)
 
     @property
     def start(self):
@@ -360,7 +360,7 @@ class ArrayType(Type):
                      There is no check made by this constructor to verify
                      that `start` and `stop` belong to this sub-language.
         """
-        super().__init__(Range(start, stop), elementtype)
+        super(ArrayType, self).__init__(Range(start, stop), elementtype)
 
     @property
     def start(self):
@@ -548,7 +548,7 @@ class Expression(Node):
         """
         left = self._handle_next_expression(left)
         right = self._handle_next_expression(right)
-        super().__init__(left, right, type_)
+        super(Expression, self).__init__(left, right, type_)
 
     def __hash__(self):
         return id(self._ptr)
@@ -851,7 +851,7 @@ class Failure(Leaf):
                                 nsnode.string2node
                                 (nsutils.find_string(message)),
                                 nsnode.int2node(kind))
-        super().__init__(left, nsnode.int2node(0), type_=FAILURE)
+        super(Failure, self).__init__(left, nsnode.int2node(0), type_=FAILURE)
 
     @property
     def message(self):
@@ -867,7 +867,7 @@ class Falseexp(Leaf):
     """The FALSE expression."""
 
     def __init__(self):
-        super().__init__(None, None, type_=FALSEEXP)
+        super(Falseexp, self).__init__(None, None, type_=FALSEEXP)
 
 
 class Trueexp(Leaf):
@@ -875,7 +875,7 @@ class Trueexp(Leaf):
     """The TRUE expression."""
 
     def __init__(self):
-        super().__init__(None, None, type_=TRUEEXP)
+        super(Trueexp, self).__init__(None, None, type_=TRUEEXP)
 
 
 class Self(Leaf):
@@ -883,7 +883,7 @@ class Self(Leaf):
     """The `self` expression."""
 
     def __init__(self):
-        super().__init__(None, None, type_=SELF)
+        super(Self, self).__init__(None, None, type_=SELF)
 
 
 class Atom(Leaf):
@@ -1069,7 +1069,7 @@ class Case(Expression):
                                    nsnode.find_node(COLON, condition._ptr,
                                                     expression._ptr),
                                    res)
-        super().__init__(res.car, res.cdr, type_=CASE)
+        super(Case, self).__init__(res.car, res.cdr, type_=CASE)
         self._values = OrderedDict(reversed(values))
 
     @property
@@ -1108,7 +1108,8 @@ class Ifthenelse(Expression):
         condition = self._handle_next_expression(condition)
         true = self._handle_next_expression(true)
         false = self._handle_next_expression(false)
-        super().__init__(Colon(condition, true), false, type_=IFTHENELSE)
+        super(Ifthenelse, self).__init__(Colon(condition, true), false,
+                                         type_=IFTHENELSE)
 
     @property
     def condition(self):
@@ -1158,7 +1159,7 @@ class Not(Expression):
         :param expression: the child of the NOT expression
         :type expression: :class:`Node` or :class:`str` or :class:`int`
         """
-        super().__init__(expression, None, type_=NOT)
+        super(Not, self).__init__(expression, None, type_=NOT)
 
     @property
     def expression(self):
@@ -1238,7 +1239,7 @@ class Uminus(Expression):
         :param expression: the child of the expression
         :type expression: :class:`Node` or :class:`str` or :class:`int`
         """
-        super().__init__(expression, None, type_=UMINUS)
+        super(Uminus, self).__init__(expression, None, type_=UMINUS)
 
     @property
     def expression(self):
@@ -1256,7 +1257,7 @@ class Next(Expression):
         :param expression: the child of the NEXT expression
         :type expression: :class:`Node` or :class:`str` or :class:`int`
         """
-        super().__init__(expression, None, type_=NEXT)
+        super(Next, self).__init__(expression, None, type_=NEXT)
 
     @property
     def expression(self):
@@ -1301,7 +1302,8 @@ class BitSelection(Expression):
         word = self._handle_next_expression(word)
         start = self._handle_next_expression(start)
         stop = self._handle_next_expression(stop)
-        super().__init__(word, Colon(start, stop), type_=BIT_SELECTION)
+        super(BitSelection, self).__init__(word, Colon(start, stop),
+                                           type_=BIT_SELECTION)
 
     @property
     def word(self):
@@ -1331,7 +1333,7 @@ class CastBool(Expression):
         :param expression: the expression to cast
         :type expression: :class:`Node` or :class:`str` or :class:`int`
         """
-        super().__init__(expression, None, type_=CAST_BOOL)
+        super(CastBool, self).__init__(expression, None, type_=CAST_BOOL)
 
     @property
     def expression(self):
@@ -1349,7 +1351,7 @@ class CastWord1(Expression):
         :param expression: the expression to cast
         :type expression: :class:`Node` or :class:`str` or :class:`int`
         """
-        super().__init__(expression, None, type_=CAST_WORD1)
+        super(CastWord1, self).__init__(expression, None, type_=CAST_WORD1)
 
     @property
     def expression(self):
@@ -1367,7 +1369,7 @@ class CastSigned(Expression):
         :param expression: the expression to cast
         :type expression: :class:`Node` or :class:`str` or :class:`int`
         """
-        super().__init__(expression, None, type_=CAST_SIGNED)
+        super(CastSigned, self).__init__(expression, None, type_=CAST_SIGNED)
 
     @property
     def expression(self):
@@ -1385,7 +1387,7 @@ class CastUnsigned(Expression):
         :param expression: the expression to cast
         :type expression: :class:`Node` or :class:`str` or :class:`int`
         """
-        super().__init__(expression, None, type_=CAST_UNSIGNED)
+        super(CastUnsigned).__init__(expression, None, type_=CAST_UNSIGNED)
 
     @property
     def expression(self):
@@ -1415,8 +1417,9 @@ class Wawrite(Expression):
         :param third: the third element of the WAWRITE node
         :type third: :class:`Node` or :class:`str`
         """
-        super().__init__(first, Expression(second, third, type_=WAWRITE),
-                         type_=WAWRITE)
+        super(Wawrite, self).__init__(first,
+                                      Expression(second, third, type_=WAWRITE),
+                                      type_=WAWRITE)
 
 
 class Uwconst(Expression):
@@ -1442,7 +1445,7 @@ class Wsizeof(Expression):
         :param expression: the expression
         :type expression: :class:`Node` or :class:`str`
         """
-        super().__init__(expression, None, type_=WSIZEOF)
+        super(Wsizeof, self).__init__(expression, None, type_=WSIZEOF)
 
     @property
     def expression(self):
@@ -1460,7 +1463,7 @@ class CastToint(Expression):
         :param expression: the expression to cast
         :type expression: :class:`Node` or :class:`str` or :class:`int`
         """
-        super().__init__(expression, None, type_=CAST_TOINT)
+        super(CastToint, self).__init__(expression, None, type_=CAST_TOINT)
 
     @property
     def expression(self):
@@ -1794,7 +1797,7 @@ class Declaration(Atom):
                     ''.join(random.choice(string.ascii_lowercase)
                             for _ in range(6)))
             self._anonymous = True
-        super().__init__(name)
+        super(Declaration, self).__init__(name)
 
     @property
     def name(self):
@@ -1816,7 +1819,7 @@ class DVar(Declaration):
     """A declared VAR."""
 
     def __init__(self, type_, name=None):
-        super().__init__(type_, "VAR", name=name)
+        super(DVar, self).__init__(type_, "VAR", name=name)
 
 
 class DIVar(Declaration):
@@ -1824,7 +1827,7 @@ class DIVar(Declaration):
     """A declared IVAR."""
 
     def __init__(self, type_, name=None):
-        super().__init__(type_, "IVAR", name=name)
+        super(DIVar, self).__init__(type_, "IVAR", name=name)
 
 
 class DFVar(Declaration):
@@ -1832,7 +1835,7 @@ class DFVar(Declaration):
     """A declared FROZENVAR."""
 
     def __init__(self, type_, name=None):
-        super().__init__(type_, "FROZENVAR", name=name)
+        super(DFVar, self).__init__(type_, "FROZENVAR", name=name)
 
 
 class DDef(Declaration):
@@ -1840,7 +1843,7 @@ class DDef(Declaration):
     """A declared DEFINE."""
 
     def __init__(self, type_, name=None):
-        super().__init__(type_, "DEFINE", name=name)
+        super(DDef, self).__init__(type_, "DEFINE", name=name)
 
 
 type_to_class = {
@@ -2169,7 +2172,7 @@ class FlatHierarchy(PointerWrapper):
         :param boolean freeit: whether or not free the pointer
 
         """
-        super().__init__(ptr, freeit=freeit)
+        super(FlatHierarchy, self).__init__(ptr, freeit=freeit)
 
     @property
     def symbTable(self):
