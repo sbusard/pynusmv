@@ -192,7 +192,8 @@ def nk(fsm, agent, phi):
     # Return the set of states that have a successor in agent's knowledge
     # that satisfies phi and is reachable
     # nK<'a'> 'p' = fsm.equivalent_states(phi, agent)
-    return fsm.equivalent_states(phi & fsm.reachable_states, frozenset({agent}))
+    return fsm.equivalent_states(phi & fsm.reachable_states,
+                                 frozenset({agent})) & fsm.reachable_states
     
 
 def ne(fsm, group, phi):
@@ -220,7 +221,8 @@ def nd(fsm, group, phi):
     group -- a non-empty list of (str) names of agents of fsm
     phi -- a BDD representing the set of states of fsm satisfying phi
     """
-    return fsm.equivalent_states(phi & fsm.reachable_states, frozenset(group))
+    return (fsm.equivalent_states(phi & fsm.reachable_states, frozenset(group))
+            & fsm.reachable_states)
     
     
 def nc(fsm, group, phi):

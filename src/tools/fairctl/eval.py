@@ -5,6 +5,13 @@ from pynusmv.utils import fixpoint
 
 from pynusmv.nusmv.fsm.bdd import bdd as nsBddFsm
 
+def check(fsm, spec, context=None):
+    """
+    Return whether spec in context is satisfied by fsm.
+    """
+    violating = fsm.init & ~eval_ctl(fsm, spec, context=context)
+    return violating.is_false()
+
 def eval_ctl(fsm, spec, context = None):
     """
     Evaluate spec in fsm.

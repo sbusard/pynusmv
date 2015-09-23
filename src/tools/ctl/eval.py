@@ -4,6 +4,14 @@ from pynusmv.mc import eval_ctl_spec
 
 from pynusmv.nusmv.fsm.bdd import bdd as nsBddFsm
 
+def check(fsm, spec, context=None):
+    """
+    Return whether spec in context is satisfied by fsm.
+    """
+    violating = (fsm.init & ~eval_ctl(fsm, spec, context=context) &
+                 fsm.state_constraints)
+    return violating.is_false()
+
 def eval_ctl(fsm, spec, context=None):
     """
     Evaluate spec in fsm.
@@ -95,7 +103,8 @@ def eval_ctl(fsm, spec, context=None):
 
 def ex(fsm, phi):
     phi = phi & fsm.reachable_states
-    return fsm.pre(phi) & fsm.reachable_states
+    result = fsm.pre(phi)
+    return result & fsm.reachable_states
 
 def eg(fsm, phi):
     res = BDD.true(fsm.bddEnc.DDmanager)

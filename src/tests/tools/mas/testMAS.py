@@ -423,21 +423,25 @@ class TestMAS(unittest.TestCase):
         pas = eval_simple_expression(fsm, "player.action = swap")
         daqa = eval_simple_expression(fsm, "dealer.action = dealQA")
         
-        self.assertEqual(fsm.post(s0 & fsm.reachable_states),
+        self.assertEqual(fsm.post(s0 & fsm.reachable_states) &
+                         fsm.bddEnc.statesMask,
                          s1 & fsm.reachable_states & fsm.bddEnc.statesMask)
-        self.assertEqual(fsm.post(s0 & fsm.reachable_states, inputs=daqa),
+        self.assertEqual(fsm.post(s0 & fsm.reachable_states, inputs=daqa) &
+                         fsm.bddEnc.statesMask,
                          s1 & pq & da & fsm.reachable_states &
                          fsm.bddEnc.statesMask)
         self.assertEqual(fsm.post(s0 & fsm.reachable_states,
-                                  subsystem=s0 & daqa),
+                                  subsystem=s0 & daqa) & fsm.bddEnc.statesMask,
                          s1 & pq & da & fsm.reachable_states &
                          fsm.bddEnc.statesMask)
         self.assertEqual(fsm.post(fsm.reachable_states,
-                                  subsystem=(s0 & daqa) | (s1 & pak)),
+                                  subsystem=(s0 & daqa) | (s1 & pak)) &
+                         fsm.bddEnc.statesMask,
                          ((s1 & pq & da) | (s2)) & fsm.reachable_states &
                          fsm.bddEnc.statesMask)
         self.assertEqual(fsm.post(s1 & fsm.reachable_states,
-                        subsystem=(s1 & pa & dq & pak) | (s1 & pk & da & pas)),
+                        subsystem=(s1 & pa & dq & pak) | (s1 & pk & da & pas))
+                         & fsm.bddEnc.statesMask,
                          ((s2 & pa & dq) | (s2 & da & pq)) &
                          fsm.reachable_states &
                          fsm.bddEnc.statesMask)

@@ -195,19 +195,17 @@ class BddFsm(PointerWrapper):
         :rtype: :class:`BDD <pynusmv.dd.BDD>`
 
         """
-        states = states & self.bddEnc.statesMask
+        states = states
         if inputs is None:
-            return (BDD(bddFsm.BddFsm_get_backward_image(
-                        self._ptr,states._ptr),
-                        self.bddEnc.DDmanager,
-                        freeit=True)
-                    & self.bddEnc.statesMask)
+            return BDD(bddFsm.BddFsm_get_backward_image(
+                       self._ptr,states._ptr),
+                       self.bddEnc.DDmanager,
+                       freeit=True)
         else:
-            inputs = inputs & self.bddEnc.statesInputsMask
-            return (BDD(bddFsm.BddFsm_get_constrained_backward_image
-                        (self._ptr, states._ptr, inputs._ptr),
-                        self.bddEnc.DDmanager, freeit=True)
-                    & self.bddEnc.statesMask)
+            inputs = inputs
+            return BDD(bddFsm.BddFsm_get_constrained_backward_image
+                       (self._ptr, states._ptr, inputs._ptr),
+                       self.bddEnc.DDmanager, freeit=True)
 
     def weak_pre(self, states):
         """
@@ -220,12 +218,9 @@ class BddFsm(PointerWrapper):
         :rtype: :class:`BDD <pynusmv.dd.BDD>`
 
         """
-        # FIXME Seems to cause troubles
-        #states = states & self.bddEnc.statesMask
-        return (BDD(bddFsm.BddFsm_get_weak_backward_image(self._ptr,
-                                                          states._ptr),
-                    self.bddEnc.DDmanager, freeit=True)
-                & self.bddEnc.statesInputsMask)
+        return BDD(bddFsm.BddFsm_get_weak_backward_image(self._ptr,
+                                                         states._ptr),
+                   self.bddEnc.DDmanager, freeit=True)
 
     def post(self, states, inputs=None):
         """
@@ -240,18 +235,16 @@ class BddFsm(PointerWrapper):
         :rtype: :class:`BDD <pynusmv.dd.BDD>`
 
         """
-        states = states & self.bddEnc.statesMask
+        states = states
         if inputs is None:
-            return (BDD(bddFsm.BddFsm_get_forward_image(self._ptr,
-                                                        states._ptr),
-                        self.bddEnc.DDmanager, freeit=True)
-                    & self.bddEnc.statesMask)
+            return BDD(bddFsm.BddFsm_get_forward_image(self._ptr,
+                                                       states._ptr),
+                       self.bddEnc.DDmanager, freeit=True)
         else:
-            inputs = inputs & self.bddEnc.inputsMask
-            return (BDD(bddFsm.BddFsm_get_constrained_forward_image
-                        (self._ptr, states._ptr, inputs._ptr),
-                        self.bddEnc.DDmanager, freeit=True)
-                    & self.bddEnc.statesMask)
+            inputs = inputs
+            return BDD(bddFsm.BddFsm_get_constrained_forward_image
+                       (self._ptr, states._ptr, inputs._ptr),
+                       self.bddEnc.DDmanager, freeit=True)
 
     def pick_one_state(self, bdd):
         """
@@ -265,6 +258,9 @@ class BddFsm(PointerWrapper):
         """
         # Abstract inputs
         bdd = bdd.forsome(self.bddEnc.inputsCube)
+        
+        # Apply states mask
+        bdd = bdd & self.bddEnc.statesMask
 
         # The BDD contains no states
         if bdd.is_false():
@@ -287,6 +283,9 @@ class BddFsm(PointerWrapper):
         """
         # Abstract inputs
         bdd = bdd.forsome(self.bddEnc.inputsCube)
+        
+        # Apply states mask
+        bdd = bdd & self.bddEnc.statesMask
 
         # The BDD contains no states
         if bdd.is_false():
@@ -309,6 +308,9 @@ class BddFsm(PointerWrapper):
         """
         # Abstract inputs
         bdd = bdd.forsome(self.bddEnc.statesCube)
+        
+        # Apply inputs mask
+        bdd = bdd & self.bddEnc.inputsMask
 
         # The BDD contains no states
         if bdd.is_false():
@@ -330,6 +332,9 @@ class BddFsm(PointerWrapper):
         """
         # Abstract inputs
         bdd = bdd.forsome(self.bddEnc.statesCube)
+        
+        # Apply inputs mask
+        bdd = bdd & self.bddEnc.inputsMask
 
         # The BDD contains no states
         if bdd.is_false():
@@ -349,6 +354,7 @@ class BddFsm(PointerWrapper):
                 if `bdd` is false or an error occurs while picking one pair
 
         """
+        bdd = bdd & self.bddEnc.statesInputsMask
         # The BDD contains no pairs
         if bdd.is_false():
             raise NuSMVBddPickingError("Cannot pick state/inputs"
@@ -369,6 +375,7 @@ class BddFsm(PointerWrapper):
                 if `bdd` is false or an error occurs while picking one pair
 
         """
+        bdd = bdd & self.bddEnc.statesInputsMask
         # The BDD contains no pairs
         if bdd.is_false():
             raise NuSMVBddPickingError("Cannot pick state/inputs"
@@ -502,10 +509,8 @@ class BddFsm(PointerWrapper):
         # FIXME Still get segmentation faults. Need investigation.
         # tests/pynusmv/testFsm.py seems to raise segmentation faults
 
-        # TODO check non-empty
-
         # Apply mask
-        bdd = bdd & self.bddEnc.inputsMask & self.bddEnc.statesMask
+        bdd = bdd & self.bddEnc.statesInputsMask
 
         if bdd.is_false():
             return frozenset()
