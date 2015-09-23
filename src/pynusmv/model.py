@@ -6,2053 +6,23 @@ set of AST elements of the language.
 
 """
 
-__all__ = [
-    "Identifier",
-    "Self",
-    "Context",
-    "Array",
-    "Boolean",
-    "Word",
-    "Range",
-    "Conversion",
-    "WordFunction",
-    "Count",
-    "Next",
-    "Init",
-    "Case",
-    "Subscript",
-    "BitSelection",
-    "Set",
-    "Not",
-    "Concat",
-    "Minus",
-    "Mult",
-    "Div",
-    "Mod",
-    "Add",
-    "Sub",
-    "ShiftL",
-    "ShiftR",
-    "Union",
-    "In",
-    "Eq",
-    "Neq",
-    "Lt",
-    "Gt",
-    "Le",
-    "Ge",
-    "And",
-    "Or",
-    "Xor",
-    "Xnor",
-    "Ite",
-    "Iff",
-    "Implies",
-    "TBoolean",
-    "TWord",
-    "TEnum",
-    "TRange",
-    "TArray",
-    "TModule",
-    "Variables",
-    "InputVariables",
-    "FrozenVariables",
-    "Defines",
-    "Assigns",
-    "Constants",
-    "Trans",
-    "SInit",
-    "Invar",
-    "Fairness",
-    "Justice",
-    "Compassion",
-    "Var",
-    "IVar",
-    "FVar",
-    "Def",
-    "Module"]
+__all__ = ["Module"]
 
 import sys
+import re
 import collections
 from copy import deepcopy
 
-from .utils import update
+from .utils import update, PointerWrapper
 from .exception import NuSMVModuleError
+from .parser import parse_identifier, parse_next_expression
+from .node import (Modtype, Declaration, find_hierarchy, Boolean, Word,
+                   SignedWord, UnsignedWord, ArrayType, Scalar, Node, Range,
+                   Expression)
 
+from .nusmv.node import node as nsnode
+from .nusmv.utils import utils as nsutils
 
-class Element(object):
-
-    """A parsed element."""
-    source = None
-    """
-    The string the element comes from, if any (that is, if it comes from a
-    parser).
-
-    """
-
-# -----------------------------------------------------------------------------
-# ----- EXPRESSIONS
-# -----------------------------------------------------------------------------
-
-
-class Expression(Element):
-
-    """A generic expression."""
-
-    _precedence = 0
-
-    def __lt__(self, other):
-        return self.lt(other)
-
-    def lt(self, other):
-        from .parser import parseAllString, next_expression
-        if isinstance(other, str):
-            other = parseAllString(next_expression, other)
-        return Lt(self, other)
-
-    def __le__(self, other):
-        return self.le(other)
-
-    def le(self, other):
-        from .parser import parseAllString, next_expression
-        if isinstance(other, str):
-            other = parseAllString(next_expression, other)
-        return Le(self, other)
-
-    def __eq__(self, other):
-        return self.eq(other)
-
-    def eq(self, other):
-        from .parser import parseAllString, next_expression
-        if isinstance(other, str):
-            other = parseAllString(next_expression, other)
-        return Eq(self, other)
-
-    def __ne__(self, other):
-        return self.ne(other)
-
-    def ne(self, other):
-        from .parser import parseAllString, next_expression
-        if isinstance(other, str):
-            other = parseAllString(next_expression, other)
-        return Neq(self, other)
-
-    def __gt__(self, other):
-        return self.gt(other)
-
-    def gt(self, other):
-        from .parser import parseAllString, next_expression
-        if isinstance(other, str):
-            other = parseAllString(next_expression, other)
-        return Gt(self, other)
-
-    def __ge__(self, other):
-        return self.ge(other)
-
-    def ge(self, other):
-        from .parser import parseAllString, next_expression
-        if isinstance(other, str):
-            other = parseAllString(next_expression, other)
-        return Ge(self, other)
-
-    def __add__(self, other):
-        return self.add(other)
-
-    def add(self, other):
-        from .parser import parseAllString, next_expression
-        if isinstance(other, str):
-            other = parseAllString(next_expression, other)
-        return Add(self, other)
-
-    def __sub__(self, other):
-        return self.sub(other)
-
-    def sub(self, other):
-        from .parser import parseAllString, next_expression
-        if isinstance(other, str):
-            other = parseAllString(next_expression, other)
-        return Sub(self, other)
-
-    def __mul__(self, other):
-        return self.mul(other)
-
-    def mul(self, other):
-        from .parser import parseAllString, next_expression
-        if isinstance(other, str):
-            other = parseAllString(next_expression, other)
-        return Mult(self, other)
-
-    def __truediv__(self, other):
-        return self.div(other)
-
-    def div(self, other):
-        from .parser import parseAllString, next_expression
-        if isinstance(other, str):
-            other = parseAllString(next_expression, other)
-        return Div(self, other)
-
-    def __mod__(self, other):
-        return self.mod(other)
-
-    def mod(self, other):
-        from .parser import parseAllString, next_expression
-        if isinstance(other, str):
-            other = parseAllString(next_expression, other)
-        return Mod(self, other)
-
-    def __lshift__(self, other):
-        return self.lshift(other)
-
-    def lshift(self, other):
-        from .parser import parseAllString, next_expression
-        if isinstance(other, str):
-            other = parseAllString(next_expression, other)
-        return ShiftL(self, other)
-
-    def __rshift__(self, other):
-        return self.rshift(other)
-
-    def rshift(self, other):
-        from .parser import parseAllString, next_expression
-        if isinstance(other, str):
-            other = parseAllString(next_expression, other)
-        return ShiftR(self, other)
-
-    def __and__(self, other):
-        return self.and_(other)
-
-    def and_(self, other):
-        from .parser import parseAllString, next_expression
-        if isinstance(other, str):
-            other = parseAllString(next_expression, other)
-        return And(self, other)
-
-    def __xor__(self, other):
-        return self.xor(other)
-
-    def xor(self, other):
-        from .parser import parseAllString, next_expression
-        if isinstance(other, str):
-            other = parseAllString(next_expression, other)
-        return Xor(self, other)
-
-    def xnor(self, other):
-        from .parser import parseAllString, next_expression
-        if isinstance(other, str):
-            other = parseAllString(next_expression, other)
-        return Xnor(self, other)
-
-    def __or__(self, other):
-        return self.or_(other)
-
-    def or_(self, other):
-        from .parser import parseAllString, next_expression
-        if isinstance(other, str):
-            other = parseAllString(next_expression, other)
-        return Or(self, other)
-
-    def __neg__(self):
-        return self.neg()
-
-    def neg(self):
-        return self.minus()
-
-    def minus(self):
-        return Minus(self)
-
-    def __invert__(self):
-        return self.invert()
-
-    def invert(self):
-        return self.not_()
-
-    def not_(self):
-        return Not(self)
-
-    def __getitem__(self, key):
-        from .parser import parseAllString, next_expression
-        if isinstance(key, slice):
-            start, stop = slice.start, slice.stop
-            if isinstance(start, str):
-                start = parseAllString(next_expression, start)
-            if isinstance(stop, str):
-                stop = parseAllString(next_expression, stop)
-            return BitSelection(self, start, stop)
-        elif isinstance(key, str):
-            key = parseAllString(next_expression, key)
-            return Subscript(self, key)
-        else:
-            return Subscript(self, key)
-
-    def word1(self):
-        return Conversion("word1", self)
-
-    def bool(self):
-        return Conversion("bool", self)
-
-    def toint(self):
-        return Conversion("toint", self)
-
-    def signed(self):
-        return Conversion("signed", self)
-
-    def unsigned(self):
-        return Conversion("unsigned", self)
-
-    def next(self):
-        return Next(self)
-
-    def init(self):
-        return Init(self)
-
-    def concat(self, other):
-        from .parser import parseAllString, next_expression
-        if isinstance(other, str):
-            other = parseAllString(next_expression, other)
-        return Concat(self, other)
-
-    def union(self, other):
-        from .parser import parseAllString, next_expression
-        if isinstance(other, str):
-            other = parseAllString(next_expression, other)
-        return Union(self, other)
-
-    def in_(self, other):
-        from .parser import parseAllString, next_expression
-        if isinstance(other, str):
-            other = parseAllString(next_expression, other)
-        return In(self, other)
-
-    def ite(self, true_expr, false_expr):
-        from .parser import parseAllString, next_expression
-        if isinstance(true_expr, str):
-            true_expr = parseAllString(next_expression, true_expr)
-        if isinstance(false_expr, str):
-            false_expr = parseAllString(next_expression, false_expr)
-        return Ite(self, true_expr, false_expr)
-
-    def iff(self, other):
-        from .parser import parseAllString, next_expression
-        if isinstance(other, str):
-            other = parseAllString(next_expression, other)
-        return Iff(self, other)
-
-    def implies(self, other):
-        from .parser import parseAllString, next_expression
-        if isinstance(other, str):
-            other = parseAllString(next_expression, other)
-        return Implies(self, other)
-
-    def __deepcopy__(self, memo):
-        raise NotImplementedError("Should be implemented by subclasses.")
-
-
-class Identifier(Expression):
-
-    """An identifier."""
-
-    def __init__(self, name):
-        self.name = name
-
-    def __str__(self):
-        if self.source:
-            return self.source
-        return str(self.name)
-
-    def _equals(self, other):
-        """Return whether `self` is equals to `other`."""
-        if isinstance(self, type(other)):
-            return self.name == other.name
-        else:
-            return False
-
-    def __hash__(self):
-        return 17 + 23 * hash("Identifier") + 23 ** 2 * hash(self.name)
-
-    def __getattr__(self, name):
-        return Context(self, Identifier(name))
-
-    def __deepcopy__(self, memo):
-        return Identifier(self.name)
-
-
-class Self(Identifier):
-
-    """The `self` identifier."""
-
-    def __init__(self):
-        super().__init__("self")
-
-
-class ComplexIdentifier(Expression):
-
-    """A complex identifier."""
-
-
-class Context(ComplexIdentifier):
-
-    """Access to a part of a module instance."""
-
-    def __init__(self, instance, element):
-        self.instance = instance
-        self.element = element
-
-    def __str__(self):
-        if self.source:
-            return self.source
-        else:
-            return str(self.instance) + "." + str(self.element)
-
-    def _equals(self, other):
-        """Return whether `self` is equals to `other`."""
-        if isinstance(self, type(other)):
-            return (self.instance._equals(other.instance) and
-                    self.element._equals(other.element))
-        else:
-            return False
-
-    def __hash__(self):
-        return (17 + 23 * hash("Context") + 23 ** 2 * hash(self.instance) +
-                23 ** 3 * hash(self.element))
-
-    def __deepcopy__(self, memo):
-        return Context(deepcopy(self.instance, memo),
-                       deepcopy(self.element, memo))
-
-
-class Array(ComplexIdentifier):
-
-    """Access to an index of an array."""
-
-    def __init__(self, array, index):
-        self.array = array
-        self.index = index
-
-    def __str__(self):
-        if self.source:
-            return self.source
-        else:
-            return str(self.array) + "[" + str(self.index) + "]"
-
-    def _equals(self, other):
-        """Return whether `self` is equals to `other`."""
-        if isinstance(self, type(other)):
-            return (self.array._equals(other.array) and
-                    self.index._equals(other.index))
-        else:
-            return False
-
-    def __hash__(self):
-        return (17 + 23 * hash("Array") + 23 ** 2 * hash(self.array) +
-                23 ** 3 * hash(self.index))
-
-    def __deepcopy__(self, memo):
-        return Array(deepcopy(self.array, memo),
-                     deepcopy(self.index, memo))
-
-
-class Constant(Expression):
-
-    """A generic constant."""
-
-
-class Boolean(Constant):
-
-    """A boolean constant."""
-
-    def __init__(self, value):
-        self.value = value
-
-    def __str__(self):
-        if self.source:
-            return self.source
-        return str(self.value)
-
-    def _equals(self, other):
-        """Return whether `self` is equals to `other`."""
-        if isinstance(self, type(other)):
-            return self.value == other.value
-        else:
-            return False
-
-    def __hash__(self):
-        return 17 + 23 * hash("Boolean") + 23 ** 2 * hash(self.value)
-
-    def __deepcopy__(self, memo):
-        return Boolean(deepcopy(self.value, memo))
-
-
-class Word(Constant):
-
-    """A word constant."""
-
-    def __init__(self, value):
-        self.value = value
-
-    def __str__(self):
-        if self.source:
-            return self.source
-        return str(self.value)
-
-    def _equals(self, other):
-        """Return whether `self` is equals to `other`."""
-        if isinstance(self, type(other)):
-            return self.value == other.value
-        else:
-            return False
-
-    def __hash__(self):
-        return 17 + 23 * hash("Word") + 23 ** 2 * hash(self.value)
-
-    def __deepcopy__(self, memo):
-        return Word(deepcopy(self.value, memo))
-
-
-class Range(Constant):
-
-    """A range of integers."""
-
-    def __init__(self, start, stop):
-        self.start = start
-        self.stop = stop
-
-    def __str__(self):
-        if self.source:
-            return self.source
-        return str(self.start) + ".." + str(self.stop)
-
-    def _equals(self, other):
-        """Return whether `self` is equals to `other`."""
-        if isinstance(self, type(other)):
-            return self.start == other.start and self.stop == other.stop
-        else:
-            return False
-
-    def __hash__(self):
-        return (17 + 23 * hash("Range")
-                + 23 ** 2 * hash(self.start) + 23 ** 3 * hash(self.stop))
-
-    def __deepcopy__(self, memo):
-        return Range(deepcopy(self.start, memo),
-                     deepcopy(self.stop, memo))
-
-
-class Function(Expression):
-
-    """A generic function."""
-
-
-class Conversion(Function):
-
-    """Converting an expression into a specific type."""
-
-    def __init__(self, target_type, value):
-        self.target_type = target_type
-        self.value = value
-
-    def __str__(self):
-        if self.source:
-            return self.source
-        return str(self.target_type) + "(" + str(self.value) + ")"
-
-    def _equals(self, other):
-        """Return whether `self` is equals to `other`."""
-        if isinstance(self, type(other)):
-            return (self.target_type == other.target_type and
-                    self.value._equals(other.value))
-        else:
-            return False
-
-    def __hash__(self):
-        return (17 + 23 * hash("Conversion")
-                + 23 ** 2 * hash(self.target_type)
-                + 23 ** 3 * hash(self.value))
-
-    def __deepcopy__(self, memo):
-        return Conversion(deepcopy(self.target_type, memo),
-                          deepcopy(self.value, memo))
-
-
-class WordFunction(Function):
-
-    """A function applied on a word."""
-
-    def __init__(self, function, value, size):
-        self.function = function
-        self.value = value
-        self.size = size
-
-    def __str__(self):
-        if self.source:
-            return self.source
-        return (str(self.function) + "(" + str(self.value)
-                + ", " + str(self.size) + ")")
-
-    def _equals(self, other):
-        """Return whether `self` is equals to `other`."""
-        if isinstance(self, type(other)):
-            return (self.function == other.function and
-                    self.value._equals(other.value) and
-                    self.size._equals(other.size))
-        else:
-            return False
-
-    def __hash__(self):
-        return (17 + 23 * hash("WordFunction")
-                + 23 ** 2 * hash(self.function)
-                + 23 ** 3 * hash(self.value)
-                + 23 ** 4 * hash(self.size))
-
-    def __deepcopy__(self, memo):
-        return WordFunction(deepcopy(self.function, memo),
-                            deepcopy(self.value, memo),
-                            deepcopy(self.size, memo))
-
-
-class Count(Function):
-
-    """A counting function."""
-
-    def __init__(self, values):
-        self.values = values
-
-    def __str__(self):
-        if self.source:
-            return self.source
-        return ("count((" +
-                "), (".join(str(value) for value in self.values) +
-                "))")
-
-    def _equals(self, other):
-        """Return whether `self` is equals to `other`."""
-        if isinstance(self, type(other)):
-            if len(self.values) != len(other.values):
-                return False
-            for sval, oval in zip(self.values, other.values):
-                if not sval._equals(oval):
-                    return False
-            return True
-        else:
-            return False
-
-    def __hash__(self):
-        return 17 + 23 * hash("Count") + 23 ** 2 * hash(self.values)
-
-    def __deepcopy__(self, memo):
-        return Count(deepcopy(self.values, memo))
-
-
-class Next(Expression):
-
-    """A next expression."""
-
-    def __init__(self, value):
-        self.value = value
-
-    def __str__(self):
-        if self.source:
-            return self.source
-        return "next(" + str(self.value) + ")"
-
-    def _equals(self, other):
-        """Return whether `self` is equals to `other`."""
-        if isinstance(self, type(other)):
-            return self.value._equals(other.value)
-        else:
-            return False
-
-    def __hash__(self):
-        return 17 + 23 * hash("Next") + 23 ** 2 * hash(self.value)
-
-    def __deepcopy__(self, memo):
-        return Next(deepcopy(self.value, memo))
-
-
-class Init(Expression):
-
-    """An init expression."""
-
-    def __init__(self, value):
-        self.value = value
-
-    def __str__(self):
-        if self.source:
-            return self.source
-        return "init(" + str(self.value) + ")"
-
-    def _equals(self, other):
-        """Return whether `self` is equals to `other`."""
-        if isinstance(self, type(other)):
-            return self.value._equals(other.value)
-        else:
-            return False
-
-    def __hash__(self):
-        return 17 + 23 * hash("Init") + 23 ** 2 * hash(self.value)
-
-    def __deepcopy__(self, memo):
-        return Init(deepcopy(self.value, memo))
-
-
-class Case(Expression):
-
-    """A case expression."""
-
-    def __init__(self, values):
-        self.values = values
-
-    def __str__(self):
-        if self.source:
-            return self.source
-        return ("case\n" + "\n".join(str(cond) + ": " + str(body) + ";"
-                                     for cond, body in self.values.items())
-                + "\nesac")
-
-    def _equals(self, other):
-        """Return whether `self` is equals to `other`."""
-        if isinstance(self, type(other)):
-            return self.values == other.values
-        else:
-            return False
-
-    def __hash__(self):
-        return 17 + 23 * hash("Case") + 23 ** 2 * hash(self.values)
-
-    def __deepcopy__(self, memo):
-        return Case(deepcopy(self.values, memo))
-
-
-class Subscript(Expression):
-
-    """Array subscript."""
-
-    def __init__(self, array, index):
-        self.array = array
-        self.index = index
-
-    def __str__(self):
-        if self.source:
-            return self.source
-        return str(self.array) + "[" + str(self.index) + "]"
-
-    def _equals(self, other):
-        """Return whether `self` is equals to `other`."""
-        if isinstance(self, type(other)):
-            return (self.array._equals(other.array) and
-                    self.index._equals(other.index))
-        else:
-            return False
-
-    def __hash__(self):
-        return (17 + 23 * hash("Subscript") +
-                23 ** 2 * hash(self.array) +
-                23 ** 3 * hash(self.index))
-
-    def __deepcopy__(self, memo):
-        return Subscript(deepcopy(self.array, memo),
-                         deepcopy(self.index, memo))
-
-
-class BitSelection(Expression):
-
-    """Word bit selection."""
-
-    def __init__(self, word, start, stop):
-        self.word = word
-        self.start = start
-        self.stop = stop
-
-    def __str__(self):
-        if self.source:
-            return self.source
-        return (str(self.word) +
-                "[" + str(self.start) + ":" + str(self.stop) + "]")
-
-    def _equals(self, other):
-        """Return whether `self` is equals to `other`."""
-        if isinstance(self, type(other)):
-            return (self.word._equals(other.word) and
-                    self.start._equals(other.start) and
-                    self.stop._equals(other.stop))
-        else:
-            return False
-
-    def __hash__(self):
-        return (17 + 23 * hash("BitSelection")
-                + 23 ** 2 * hash(self.word)
-                + 23 ** 3 * hash(self.start)
-                + 23 ** 4 * hash(self.stop))
-
-    def __deepcopy__(self, memo):
-        return BitSelection(deepcopy(self.word, memo),
-                            deepcopy(self.start, memo),
-                            deepcopy(self.stop, memo))
-
-
-class Set(Expression):
-
-    """A set."""
-
-    def __init__(self, elements):
-        self.elements = elements
-
-    def __str__(self):
-        if self.source:
-            return self.source
-        return "{" + ", ".join(str(element) for element in self.elements) + "}"
-
-    def _equals(self, other):
-        """Return whether `self` is equals to `other`."""
-        if isinstance(self, type(other)):
-            return frozenset(self.elements) == frozenset(other.elements)
-        else:
-            return False
-
-    def __hash__(self):
-        return 17 + 23 * hash("Set") + 23 ** 2 * hash(frozenset(self.elements))
-
-    def __deepcopy__(self, memo):
-        return Set(deepcopy(self.elements, memo))
-
-
-class Operator(Expression):
-
-    """An operator."""
-
-    def _enclose(self, expression):
-        """
-        Return the string representation of expression,
-        enclosed in parentheses if needed.
-        """
-        if (isinstance(expression, Operator)
-                and expression._precedence > self._precedence):
-            return "(" + str(expression) + ")"
-        return str(expression)
-
-
-class Not(Operator):
-
-    """A negated (`-`) expression."""
-
-    _precedence = 1
-
-    def __init__(self, value):
-        self.value = value
-
-    def __str__(self):
-        if self.source:
-            return self.source
-        return "! " + self._enclose(self.value)
-
-    def _equals(self, other):
-        """Return whether `self` is equals to `other`."""
-        if isinstance(self, type(other)):
-            return self.value._equals(other.value)
-        else:
-            return False
-
-    def __hash__(self):
-        return 17 + 23 * hash("Not") + 23 ** 2 * hash(self.value)
-
-    def __deepcopy__(self, memo):
-        return Not(deepcopy(self.value, memo))
-
-
-class Concat(Operator):
-
-    """A concatenation (`::`) of expressions."""
-
-    _precedence = 2
-
-    def __init__(self, left, right):
-        self.left = left
-        self.right = right
-
-    def __str__(self):
-        if self.source:
-            return self.source
-        return self._enclose(self.left) + "::" + self._enclose(self.right)
-
-    def _equals(self, other):
-        """Return whether `self` is equals to `other`."""
-        if isinstance(self, type(other)):
-            return (self.left._equals(other.left) and
-                    self.right._equals(other.right))
-        else:
-            return False
-
-    def __hash__(self):
-        return (17 + 23 * hash("Concat") + 23 ** 2 * hash(self.left)
-                + 23 ** 3 * hash(self.right))
-
-    def __deepcopy__(self, memo):
-        return Concat(deepcopy(self.left, memo),
-                      deepcopy(self.right, memo))
-
-
-class Minus(Operator):
-
-    """Minus (`-`) expression."""
-
-    _precedence = 3
-
-    def __init__(self, value):
-        self.value = value
-
-    def __str__(self):
-        if self.source:
-            return self.source
-        return "- " + self._enclose(self.value)
-
-    def _equals(self, other):
-        """Return whether `self` is equals to `other`."""
-        if isinstance(self, type(other)):
-            return self.value._equals(other.value)
-        else:
-            return False
-
-    def __hash__(self):
-        return 17 + 23 * hash("Minus") + 23 ** 2 * hash(self.value)
-
-    def __deepcopy__(self, memo):
-        return Minus(deepcopy(self.value, memo))
-
-
-class Mult(Operator):
-
-    """A multiplication (`*`) of expressions."""
-
-    _precedence = 4
-
-    def __init__(self, left, right):
-        self.left = left
-        self.right = right
-
-    def __str__(self):
-        if self.source:
-            return self.source
-        return self._enclose(self.left) + " * " + self._enclose(self.right)
-
-    def _equals(self, other):
-        """Return whether `self` is equals to `other`."""
-        if isinstance(self, type(other)):
-            return ((self.left._equals(other.left) and
-                     self.right._equals(other.right)) or
-                    (self.left._equals(other.right) and
-                     self.right._equals(other.left)))
-        else:
-            return False
-
-    def __hash__(self):
-        return (17 + 23 * hash("Mult") + 23 ** 2 * hash(self.left)
-                + 23 ** 2 * hash(self.right))
-
-    def __deepcopy__(self, memo):
-        return Mult(deepcopy(self.left, memo),
-                    deepcopy(self.right, memo))
-
-
-class Div(Operator):
-
-    """A division (`/`) of expressions."""
-
-    _precedence = 4
-
-    def __init__(self, left, right):
-        self.left = left
-        self.right = right
-
-    def __str__(self):
-        if self.source:
-            return self.source
-        return self._enclose(self.left) + " / " + self._enclose(self.right)
-
-    def _equals(self, other):
-        """Return whether `self` is equals to `other`."""
-        if isinstance(self, type(other)):
-            return (self.left._equals(other.left) and
-                    self.right._equals(other.right))
-        else:
-            return False
-
-    def __hash__(self):
-        return (17 + 23 * hash("Div") + 23 ** 2 * hash(self.left)
-                + 23 ** 3 * hash(self.right))
-
-    def __deepcopy__(self, memo):
-        return Div(deepcopy(self.left, memo),
-                   deepcopy(self.right, memo))
-
-
-class Mod(Operator):
-
-    """A modulo (`%`) of expressions."""
-
-    _precedence = 4
-
-    def __init__(self, left, right):
-        self.left = left
-        self.right = right
-
-    def __str__(self):
-        if self.source:
-            return self.source
-        return self._enclose(self.left) + " mod " + self._enclose(self.right)
-
-    def _equals(self, other):
-        """Return whether `self` is equals to `other`."""
-        if isinstance(self, type(other)):
-            return (self.left._equals(other.left) and
-                    self.right._equals(other.right))
-        else:
-            return False
-
-    def __hash__(self):
-        return (17 + 23 * hash("Mod") + 23 ** 2 * hash(self.left)
-                + 23 ** 3 * hash(self.right))
-
-    def __deepcopy__(self, memo):
-        return Mod(deepcopy(self.left, memo),
-                   deepcopy(self.right, memo))
-
-
-class Add(Operator):
-
-    """An addition (`+`) of expressions."""
-
-    _precedence = 5
-
-    def __init__(self, left, right):
-        self.left = left
-        self.right = right
-
-    def __str__(self):
-        if self.source:
-            return self.source
-        return self._enclose(self.left) + " + " + self._enclose(self.right)
-
-    def _equals(self, other):
-        """Return whether `self` is equals to `other`."""
-        if isinstance(self, type(other)):
-            return ((self.left._equals(other.left) and
-                     self.right._equals(other.right)) or
-                    (self.left._equals(other.right) and
-                     self.right._equals(other.left)))
-        else:
-            return False
-
-    def __hash__(self):
-        return (17 + 23 * hash("Add") + 23 ** 2 * hash(self.left)
-                + 23 ** 2 * hash(self.right))
-
-    def __deepcopy__(self, memo):
-        return Add(deepcopy(self.left, memo),
-                   deepcopy(self.right, memo))
-
-
-class Sub(Operator):
-
-    """A subtraction (`-`) of expressions."""
-
-    _precedence = 5
-
-    def __init__(self, left, right):
-        self.left = left
-        self.right = right
-
-    def __str__(self):
-        if self.source:
-            return self.source
-        return self._enclose(self.left) + " - " + self._enclose(self.right)
-
-    def _equals(self, other):
-        """Return whether `self` is equals to `other`."""
-        if isinstance(self, type(other)):
-            return (self.left._equals(other.left) and
-                    self.right._equals(other.right))
-        else:
-            return False
-
-    def __hash__(self):
-        return (17 + 23 * hash("Sub") + 23 ** 2 * hash(self.left)
-                + 23 ** 3 * hash(self.right))
-
-    def __deepcopy__(self, memo):
-        return Sub(deepcopy(self.left, memo),
-                   deepcopy(self.right, memo))
-
-
-class ShiftL(Operator):
-
-    """A left shift (`<<`) of expressions."""
-
-    _precedence = 6
-
-    def __init__(self, left, right):
-        self.left = left
-        self.right = right
-
-    def __str__(self):
-        if self.source:
-            return self.source
-        return self._enclose(self.left) + " << " + self._enclose(self.right)
-
-    def _equals(self, other):
-        """Return whether `self` is equals to `other`."""
-        if isinstance(self, type(other)):
-            return (self.left._equals(other.left) and
-                    self.right._equals(other.right))
-        else:
-            return False
-
-    def __hash__(self):
-        return (17 + 23 * hash("ShiftL") + 23 ** 2 * hash(self.left)
-                + 23 ** 3 * hash(self.right))
-
-    def __deepcopy__(self, memo):
-        return ShiftL(deepcopy(self.left, memo),
-                      deepcopy(self.right, memo))
-
-
-class ShiftR(Operator):
-
-    """A right shift (`>>`) of expressions."""
-
-    _precedence = 6
-
-    def __init__(self, left, right):
-        self.left = left
-        self.right = right
-
-    def __str__(self):
-        if self.source:
-            return self.source
-        return self._enclose(self.left) + " >> " + self._enclose(self.right)
-
-    def _equals(self, other):
-        """Return whether `self` is equals to `other`."""
-        if isinstance(self, type(other)):
-            return (self.left._equals(other.left) and
-                    self.right._equals(other.right))
-        else:
-            return False
-
-    def __hash__(self):
-        return (17 + 23 * hash("ShiftR") + 23 ** 2 * hash(self.left)
-                + 23 ** 3 * hash(self.right))
-
-    def __deepcopy__(self, memo):
-        return ShiftR(deepcopy(self.left, memo),
-                      deepcopy(self.right, memo))
-
-
-class Union(Operator):
-
-    """A union (`union`) of expressions."""
-
-    _precedence = 7
-
-    def __init__(self, left, right):
-        self.left = left
-        self.right = right
-
-    def __str__(self):
-        if self.source:
-            return self.source
-        return self._enclose(self.left) + " union " + self._enclose(self.right)
-
-    def _equals(self, other):
-        """Return whether `self` is equals to `other`."""
-        if isinstance(self, type(other)):
-            return ((self.left._equals(other.left) and
-                     self.right._equals(other.right)) or
-                    (self.left._equals(other.right) and
-                     self.right._equals(other.left)))
-        else:
-            return False
-
-    def __hash__(self):
-        return (17 + 23 * hash("Union") + 23 ** 2 * hash(self.left)
-                + 23 ** 2 * hash(self.right))
-
-    def __deepcopy__(self, memo):
-        return Union(deepcopy(self.left, memo),
-                     deepcopy(self.right, memo))
-
-
-class In(Operator):
-
-    """The `in` expression."""
-
-    _precedence = 8
-
-    def __init__(self, left, right):
-        self.left = left
-        self.right = right
-
-    def __str__(self):
-        if self.source:
-            return self.source
-        return self._enclose(self.left) + " in " + self._enclose(self.right)
-
-    def _equals(self, other):
-        """Return whether `self` is equals to `other`."""
-        if isinstance(self, type(other)):
-            return (self.left._equals(other.left) and
-                    self.right._equals(other.right))
-        else:
-            return False
-
-    def __hash__(self):
-        return (17 + 23 * hash("In") + 23 ** 2 * hash(self.left)
-                + 23 ** 3 * hash(self.right))
-
-    def __deepcopy__(self, memo):
-        return In(deepcopy(self.left, memo),
-                  deepcopy(self.right, memo))
-
-
-class Eq(Operator):
-
-    """The `=` expression."""
-
-    _precedence = 9
-
-    def __init__(self, left, right):
-        self.left = left
-        self.right = right
-
-    def __str__(self):
-        if self.source:
-            return self.source
-        return self._enclose(self.left) + " = " + self._enclose(self.right)
-
-    def _equals(self, other):
-        """Return whether `self` is equals to `other`."""
-        if isinstance(self, type(other)):
-            return ((self.left._equals(other.left) and
-                     self.right._equals(other.right)) or
-                    (self.left._equals(other.right) and
-                     self.right._equals(other.left)))
-        else:
-            return False
-
-    def __hash__(self):
-        return (17 + 23 * hash("Eq") + 23 ** 2 * hash(self.left)
-                + 23 ** 2 * hash(self.right))
-
-    def __bool__(self):
-        if (isinstance(self.left, Expression) and
-                isinstance(self.right, Expression)):
-            return self.left._equals(self.right)
-        else:
-            return self.left == self.right
-
-    def __deepcopy__(self, memo):
-        return Eq(deepcopy(self.left, memo),
-                  deepcopy(self.right, memo))
-
-
-class Neq(Operator):
-
-    """The `!=` expression."""
-
-    _precedence = 9
-
-    def __init__(self, left, right):
-        self.left = left
-        self.right = right
-
-    def __str__(self):
-        if self.source:
-            return self.source
-        return self._enclose(self.left) + " != " + self._enclose(self.right)
-
-    def _equals(self, other):
-        """Return whether `self` is equals to `other`."""
-        if isinstance(self, type(other)):
-            return ((not self.left._equals(other.left) or
-                     not self.right._equals(other.right)) and
-                    (not self.left._equals(other.right) or
-                     not self.right._equals(other.left)))
-        else:
-            return False
-
-    def __hash__(self):
-        return (17 + 23 * hash("Add") + 23 ** 2 * hash(self.left)
-                + 23 ** 2 * hash(self.right))
-
-    def __bool__(self):
-        if (isinstance(self.left, Expression) and
-                isinstance(self.right, Expression)):
-            return not self.left._equals(self.right)
-        else:
-            return self.left != self.right
-
-    def __deepcopy__(self, memo):
-        return Neq(deepcopy(self.left, memo),
-                   deepcopy(self.right, memo))
-
-
-class Lt(Operator):
-
-    """The `<` expression."""
-
-    _precedence = 9
-
-    def __init__(self, left, right):
-        self.left = left
-        self.right = right
-
-    def __str__(self):
-        if self.source:
-            return self.source
-        return self._enclose(self.left) + " < " + self._enclose(self.right)
-
-    def _equals(self, other):
-        """Return whether `self` is equals to `other`."""
-        if isinstance(self, type(other)):
-            return (self.left._equals(other.left) and
-                    self.right._equals(other.right))
-        else:
-            return False
-
-    def __hash__(self):
-        return (17 + 23 * hash("Lt") + 23 ** 2 * hash(self.left)
-                + 23 ** 3 * hash(self.right))
-
-    def __deepcopy__(self, memo):
-        return Lt(deepcopy(self.left, memo),
-                  deepcopy(self.right, memo))
-
-
-class Gt(Operator):
-
-    """The `>` expression."""
-
-    _precedence = 9
-
-    def __init__(self, left, right):
-        self.left = left
-        self.right = right
-
-    def __str__(self):
-        if self.source:
-            return self.source
-        return self._enclose(self.left) + " > " + self._enclose(self.right)
-
-    def _equals(self, other):
-        """Return whether `self` is equals to `other`."""
-        if isinstance(self, type(other)):
-            return (self.left._equals(other.left) and
-                    self.right._equals(other.right))
-        else:
-            return False
-
-    def __hash__(self):
-        return (17 + 23 * hash("Gt") + 23 ** 2 * hash(self.left)
-                + 23 ** 3 * hash(self.right))
-
-    def __deepcopy__(self, memo):
-        return Gt(deepcopy(self.left, memo),
-                  deepcopy(self.right, memo))
-
-
-class Le(Operator):
-
-    """The `<=` expression."""
-
-    _precedence = 9
-
-    def __init__(self, left, right):
-        self.left = left
-        self.right = right
-
-    def __str__(self):
-        if self.source:
-            return self.source
-        return self._enclose(self.left) + " <= " + self._enclose(self.right)
-
-    def _equals(self, other):
-        """Return whether `self` is equals to `other`."""
-        if isinstance(self, type(other)):
-            return (self.left._equals(other.left) and
-                    self.right._equals(other.right))
-        else:
-            return False
-
-    def __hash__(self):
-        return (17 + 23 * hash("Le") + 23 ** 2 * hash(self.left)
-                + 23 ** 3 * hash(self.right))
-
-    def __deepcopy__(self, memo):
-        return Le(deepcopy(self.left, memo),
-                  deepcopy(self.right, memo))
-
-
-class Ge(Operator):
-
-    """The `>=` expression."""
-
-    _precedence = 9
-
-    def __init__(self, left, right):
-        self.left = left
-        self.right = right
-
-    def __str__(self):
-        if self.source:
-            return self.source
-        return self._enclose(self.left) + " >= " + self._enclose(self.right)
-
-    def _equals(self, other):
-        """Return whether `self` is equals to `other`."""
-        if isinstance(self, type(other)):
-            return (self.left._equals(other.left) and
-                    self.right._equals(other.right))
-        else:
-            return False
-
-    def __hash__(self):
-        return (17 + 23 * hash("Ge") + 23 ** 2 * hash(self.left)
-                + 23 ** 3 * hash(self.right))
-
-    def __deepcopy__(self, memo):
-        return Ge(deepcopy(self.left, memo),
-                  deepcopy(self.right, memo))
-
-
-class And(Operator):
-
-    """The `&` expression."""
-
-    _precedence = 10
-
-    def __init__(self, left, right):
-        self.left = left
-        self.right = right
-
-    def __str__(self):
-        if self.source:
-            return self.source
-        return self._enclose(self.left) + " & " + self._enclose(self.right)
-
-    def _equals(self, other):
-        """Return whether `self` is equals to `other`."""
-        if isinstance(self, type(other)):
-            return ((self.left._equals(other.left) and
-                     self.right._equals(other.right)) or
-                    (self.left._equals(other.right) and
-                     self.right._equals(other.left)))
-        else:
-            return False
-
-    def __hash__(self):
-        return (17 + 23 * hash("And") + 23 ** 2 * hash(self.left)
-                + 23 ** 2 * hash(self.right))
-
-    def __deepcopy__(self, memo):
-        return And(deepcopy(self.left, memo),
-                   deepcopy(self.right, memo))
-
-
-class Or(Operator):
-
-    """The `|` expression."""
-
-    _precedence = 11
-
-    def __init__(self, left, right):
-        self.left = left
-        self.right = right
-
-    def __str__(self):
-        if self.source:
-            return self.source
-        return self._enclose(self.left) + " | " + self._enclose(self.right)
-
-    def _equals(self, other):
-        """Return whether `self` is equals to `other`."""
-        if isinstance(self, type(other)):
-            return ((self.left._equals(other.left) and
-                     self.right._equals(other.right)) or
-                    (self.left._equals(other.right) and
-                     self.right._equals(other.left)))
-        else:
-            return False
-
-    def __hash__(self):
-        return (17 + 23 * hash("Or") + 23 ** 2 * hash(self.left)
-                + 23 ** 2 * hash(self.right))
-
-    def __deepcopy__(self, memo):
-        return Or(deepcopy(self.left, memo),
-                  deepcopy(self.right, memo))
-
-
-class Xor(Operator):
-
-    """The `xor` expression."""
-
-    _precedence = 11
-
-    def __init__(self, left, right):
-        self.left = left
-        self.right = right
-
-    def __str__(self):
-        if self.source:
-            return self.source
-        return self._enclose(self.left) + " xor " + self._enclose(self.right)
-
-    def _equals(self, other):
-        """Return whether `self` is equals to `other`."""
-        if isinstance(self, type(other)):
-            return ((self.left._equals(other.left) and
-                     self.right._equals(other.right)) or
-                    (self.left._equals(other.right) and
-                     self.right._equals(other.left)))
-        else:
-            return False
-
-    def __hash__(self):
-        return (17 + 23 * hash("Xor") + 23 ** 2 * hash(self.left)
-                + 23 ** 2 * hash(self.right))
-
-    def __deepcopy__(self, memo):
-        return Xor(deepcopy(self.left, memo),
-                   deepcopy(self.right, memo))
-
-
-class Xnor(Operator):
-
-    """The `xnor` expression."""
-
-    _precedence = 11
-
-    def __init__(self, left, right):
-        self.left = left
-        self.right = right
-
-    def __str__(self):
-        if self.source:
-            return self.source
-        return self._enclose(self.left) + " xnor " + self._enclose(self.right)
-
-    def _equals(self, other):
-        """Return whether `self` is equals to `other`."""
-        if isinstance(self, type(other)):
-            return ((self.left._equals(other.left) and
-                     self.right._equals(other.right)) or
-                    (self.left._equals(other.right) and
-                     self.right._equals(other.left)))
-        else:
-            return False
-
-    def __hash__(self):
-        return (17 + 23 * hash("Xnor") + 23 ** 2 * hash(self.left)
-                + 23 ** 2 * hash(self.right))
-
-    def __deepcopy__(self, memo):
-        return Xnor(deepcopy(self.left, memo),
-                    deepcopy(self.right, memo))
-
-
-class Ite(Operator):
-
-    """The `? :` expression."""
-
-    _precedence = 12
-
-    def __init__(self, condition, left, right):
-        self.condition = condition
-        self.left = left
-        self.right = right
-
-    def __str__(self):
-        if self.source:
-            return self.source
-        return (self._enclose(self.condition) + " ? "
-                + self._enclose(self.left) + " : "
-                + self._enclose(self.right))
-
-    def _equals(self, other):
-        """Return whether `self` is equals to `other`."""
-        if isinstance(self, type(other)):
-            return (self.condition._equals(other.condition) and
-                    self.left._equals(other.left) and
-                    self.right._equals(other.right))
-        else:
-            return False
-
-    def __hash__(self):
-        return (17 + 23 * hash("Ite") + 23 ** 2 * hash(self.condition)
-                + 23 ** 3 * hash(self.left) + 23 ** 4 * hash(self.right))
-
-    def __deepcopy__(self, memo):
-        return Ite(deepcopy(self.condition, memo),
-                   deepcopy(self.left, memo),
-                   deepcopy(self.right, memo))
-
-
-class Iff(Operator):
-
-    """The `<->` expression."""
-
-    _precedence = 13
-
-    def __init__(self, left, right):
-        self.left = left
-        self.right = right
-
-    def __str__(self):
-        if self.source:
-            return self.source
-        return self._enclose(self.left) + " <-> " + self._enclose(self.right)
-
-    def _equals(self, other):
-        """Return whether `self` is equals to `other`."""
-        if isinstance(self, type(other)):
-            return ((self.left._equals(other.left) and
-                     self.right._equals(other.right)) or
-                    (self.left._equals(other.right) and
-                     self.right._equals(other.left)))
-        else:
-            return False
-
-    def __hash__(self):
-        return (17 + 23 * hash("Iff") + 23 ** 2 * hash(self.left)
-                + 23 ** 2 * hash(self.right))
-
-    def __deepcopy__(self, memo):
-        return Iff(deepcopy(self.left, memo),
-                   deepcopy(self.right, memo))
-
-
-class Implies(Operator):
-
-    """The `->` expression."""
-
-    _precedence = 14
-
-    def __init__(self, left, right):
-        self.left = left
-        self.right = right
-
-    def __str__(self):
-        if self.source:
-            return self.source
-        return self._enclose(self.left) + " -> " + self._enclose(self.right)
-
-    def _equals(self, other):
-        """Return whether `self` is equals to `other`."""
-        if isinstance(self, type(other)):
-            return (self.left._equals(other.left) and
-                    self.right._equals(other.right))
-        else:
-            return False
-
-    def __hash__(self):
-        return (17 + 23 * hash("Implies") + 23 ** 2 * hash(self.left)
-                + 23 ** 3 * hash(self.right))
-
-    def __deepcopy__(self, memo):
-        return Implies(deepcopy(self.left, memo),
-                       deepcopy(self.right, memo))
-
-
-# -----------------------------------------------------------------------------
-# ----- TYPES
-# -----------------------------------------------------------------------------
-
-class Type(Element):
-
-    """A generic type specifier."""
-
-    def __deepcopy__(self, memo):
-        raise NotImplementedError("Should be implemented by subclasses.")
-
-
-class SimpleType(Type):
-
-    """A simple type: boolean, word, enum, range, array."""
-
-
-class TBoolean(SimpleType):
-
-    """A boolean type."""
-
-    def __str__(self):
-        if self.source:
-            return self.source
-        return "boolean"
-
-    def __deepcopy__(self, memo):
-        return TBoolean()
-
-
-class TWord(SimpleType):
-
-    """A word type."""
-
-    def __init__(self, size, sign=None):
-        self.size = size
-        self.sign = sign
-
-    def __str__(self):
-        if self.source:
-            return self.source
-        return ((self.sign + " " if self.sign else "") + "word"
-                + "[" + str(self.size) + "]")
-
-    def __deepcopy__(self, memo):
-        return TWord(deepcopy(self.size, memo),
-                     deepcopy(self.sign, memo))
-
-
-class TEnum(SimpleType):
-
-    """An enumeration type."""
-
-    def __init__(self, values):
-        self.values = values
-
-    def __str__(self):
-        if self.source:
-            return self.source
-        return "{" + ", ".join(str(value) for value in self.values) + "}"
-
-    def __deepcopy__(self, memo):
-        return TEnum(deepcopy(self.values, memo))
-
-
-class TRange(SimpleType):
-
-    """A range type."""
-
-    def __init__(self, start, stop):
-        self.start = start
-        self.stop = stop
-
-    def __str__(self):
-        if self.source:
-            return self.source
-        return str(self.start) + ".." + str(self.stop)
-
-    def __deepcopy__(self, memo):
-        return TRange(deepcopy(self.start, memo),
-                      deepcopy(self.stop, memo))
-
-
-class TArray(SimpleType):
-
-    """An array type."""
-
-    def __init__(self, start, stop, elementtype):
-        self.start = start
-        self.stop = stop
-        self.elementtype = elementtype
-
-    def __str__(self):
-        if self.source:
-            return self.source
-        return ("array " + str(self.start) + ".." + str(self.stop)
-                + " of " + str(self.elementtype))
-
-    def __deepcopy__(self, memo):
-        return TArray(deepcopy(self.start, memo),
-                      deepcopy(self.stop, memo),
-                      deepcopy(self.elementtype, memo))
-
-
-class TModule(Type):
-
-    """A module instantiation."""
-
-    def __init__(self, modulename, args, process=False):
-        self.process = process
-        self.modulename = modulename
-        self.args = args
-
-    def __str__(self):
-        if self.source:
-            return self.source
-        return (("process " if self.process else "") + str(self.modulename)
-                + "(" + ", ".join(str(arg) for arg in self.args) + ")")
-
-    def __deepcopy__(self, memo):
-        return TModule(deepcopy(self.modulename, memo),
-                       deepcopy(self.args, memo),
-                       process=deepcopy(self.process, memo))
-
-
-# -----------------------------------------------------------------------------
-# ----- SECTIONS
-# -----------------------------------------------------------------------------
-
-class Section(Element):
-
-    """A section of a module."""
-
-    def __init__(self, name, body):
-        self.name = name
-        self.body = body
-
-    def __str__(self):
-        if self.source:
-            return self.source
-        return self.name + "\n" + str(self.body)
-
-
-class MappingSection(Section):
-
-    """Section based on a mapping of identifier and others."""
-
-    def __init__(self, name, mapping, separator=": ", indentation=" " * 4):
-        """
-        :param name: the name of the section.
-        :param mapping: the mapping of identifiers to their corresponding
-                        expression.
-        :param separator: the separator of identifiers and expressions
-                          for printing the section.
-        :param indentation: the indentation for the printed expressions.
-        """
-        super().__init__(name, mapping)
-        self.separator = separator
-        self.indentation = indentation
-
-    def update_body(self, new_values):
-        """
-        Update the body of this section with `new_values`.
-
-        :param new_values: the new values with which to update the current
-                           body.
-
-        """
-        self.body.update(new_values)
-
-    def __str__(self):
-        if self.source:
-            return self.source
-        return (self.name + "\n" +
-                "\n".join(self.indentation + str(identifier)
-                          + self.separator + str(expr) + ";"
-                          for identifier, expr in self.body.items()))
-
-
-class Variables(MappingSection):
-
-    """Declaring variables."""
-
-    def __init__(self, variables):
-        super().__init__("VAR", variables)
-
-
-class InputVariables(MappingSection):
-
-    """Declaring input variables."""
-
-    def __init__(self, ivariables):
-        super().__init__("IVAR", ivariables)
-
-
-class FrozenVariables(MappingSection):
-
-    """Declaring frozen variables."""
-
-    def __init__(self, fvariables):
-        super().__init__("FROZENVAR", fvariables)
-
-
-class Defines(MappingSection):
-
-    """Declaring defines."""
-
-    def __init__(self, defines):
-        super().__init__("DEFINE", defines, separator=" := ")
-
-
-class Assigns(MappingSection):
-
-    """Declaring assigns."""
-
-    def __init__(self, assigns):
-        super().__init__("ASSIGN", assigns, separator=" := ")
-
-
-class ListingSection(Section):
-
-    """A section made of a list of elements."""
-
-    def __init__(self, name, listing, separator="\n", indentation=" " * 4):
-        """
-        :param name: the name of the section.
-        :param listing: a list of expressions.
-        :param separator: the separator of expressions for printing the
-                          section.
-        :param indentation: the indentation for the printed expressions.
-        """
-        super().__init__(name, listing)
-        self.separator = separator
-        self.indentation = indentation
-
-    def update_body(self, otherbody):
-        """
-        Update the body of this section with `new_values`.
-
-        :param new_values: the new values with which to update the current
-                           body.
-        """
-        self.body += otherbody
-
-    def __str__(self):
-        if self.source:
-            return self.source
-        return (self.name + "\n" +
-                self.separator.join(self.indentation + str(element)
-                                    for element in self.body))
-
-
-class Constants(ListingSection):
-
-    """Declaring constants."""
-
-    def __init__(self, constants):
-        super().__init__("CONSTANTS", constants, separator=", ")
-
-
-class Trans(ListingSection):
-
-    """A TRANS section."""
-
-    def __init__(self, body):
-        super().__init__("TRANS", body, separator="\nTRANS\n")
-
-
-class SInit(ListingSection):
-
-    """An INIT section."""
-
-    def __init__(self, body):
-        super().__init__("INIT", body, separator="\nINIT\n")
-
-
-class Invar(ListingSection):
-
-    """An INVAR section."""
-
-    def __init__(self, body):
-        super().__init__("INVAR", body, separator="\nINVAR\n")
-
-
-class Fairness(ListingSection):
-
-    """A FAIRNESS section."""
-
-    def __init__(self, body):
-        super().__init__("FAIRNESS", body, separator="\nFAIRNESS\n")
-
-
-class Justice(ListingSection):
-
-    """A Justice section."""
-
-    def __init__(self, body):
-        super().__init__("JUSTICE", body, separator="\nJUSTICE\n")
-
-
-class Compassion(ListingSection):
-
-    """A COMPASSION section."""
-
-    def __init__(self, body):
-        super().__init__("COMPASSION", body, separator="\nCOMPASSION\n")
-
-
-# -----------------------------------------------------------------------------
-# ----- DECLARATIONS
-# -----------------------------------------------------------------------------
-
-class Declaration(Identifier):
-
-    """
-    A Declaration behaves like an identifier, except that it knows which type
-    it belongs to. Furthermore, it does not know its name for sure, and
-    cannot be printed without giving it a name.
-
-    """
-
-    def __init__(self, type_, section, name=None):
-        self._name = name
-        self.type = type_
-        self.section = section
-
-    @property
-    def name(self):
-        """The name of the declared identifier."""
-        if not self._name:
-            raise AttributeError("Unknown declaration name.")
-        return self._name
-
-    @name.setter
-    def name(self, name):
-        """Update the name of the declared identifier."""
-        self._name = name
-
-    def _equals(self, other):
-        if isinstance(other, Identifier):
-            return self.name == other.name
-        else:
-            return False
-
-
-class Var(Declaration):
-
-    """A declared VAR."""
-
-    def __init__(self, type_, name=None):
-        super().__init__(type_, "VAR", name=name)
-
-    def __deepcopy__(self, memo):
-        return Var(deepcopy(self.type, memo), name=deepcopy(self.name, memo))
-
-
-class IVar(Declaration):
-
-    """A declared IVAR."""
-
-    def __init__(self, type_, name=None):
-        super().__init__(type_, "IVAR", name=name)
-
-    def __deepcopy__(self, memo):
-        return IVar(deepcopy(self.type, memo), name=deepcopy(self.name, memo))
-
-
-class FVar(Declaration):
-
-    """A declared FROZENVAR."""
-
-    def __init__(self, type_, name=None):
-        super().__init__(type_, "FROZENVAR", name=name)
-
-    def __deepcopy__(self, memo):
-        return FVar(deepcopy(self.type, memo), name=deepcopy(self.name, memo))
-
-
-class Def(Declaration):
-
-    """A declared DEFINE."""
-
-    def __init__(self, type_, name=None):
-        super().__init__(type_, "DEFINE", name=name)
-
-    def __deepcopy__(self, memo):
-        return Def(deepcopy(self.type, memo), name=deepcopy(self.name, memo))
-
-
-# -----------------------------------------------------------------------------
-# ----- MODULES
-# -----------------------------------------------------------------------------
 
 class ModuleMetaClass(type):
 
@@ -2118,11 +88,11 @@ class ModuleMetaClass(type):
             # Update declarations of namespace
             elif isinstance(namespace[member], Declaration):
                 decl = namespace[member]
-                if not decl._name:
+                if decl._anonymous:
                     decl.name = member
                 if decl.section not in newnamespace:
                     newnamespace[decl.section] = collections.OrderedDict()
-                newnamespace[decl.section][decl] = decl.type
+                newnamespace[decl.section][decl] = decl.declared_type
                 # Keep declarations in module
                 newnamespace[member] = namespace[member]
             # Keep intact the other members
@@ -2167,11 +137,12 @@ class ModuleMetaClass(type):
 
         """
 
-        from .parser import (parseAllString, identifier)
         newargs = []
         for arg in args:
             if type(arg) is str:
-                arg = parseAllString(identifier, arg)
+                parsed = parse_identifier(arg)
+                arg = Node.from_ptr(find_hierarchy(parsed))
+                nsnode.free_node(parsed)
             newargs.append(arg)
         return newargs
 
@@ -2220,18 +191,223 @@ class ModuleMetaClass(type):
           if it is a string, or kept as it is otherwise.
 
         """
+        
+        def parse_and_populate_next_expression(expression):
+            """
+            Parse the given expression and return a Node representing it.
+            
+            :param expression: the expression
+            :type expression: :class:`str`
+            """
+            parsed = parse_next_expression(expression)
+            res = Node.from_ptr(find_hierarchy(parsed))
+            nsnode.free_node(parsed)
+            return res
+        
+        def parse_and_populate_identifier(identifier):
+            """
+            Parse the given identifier and return a Node representing it.
+            
+            :param identifier: the identifier
+            :type identifier: :class:`str`
+            """
+            parsed = parse_identifier(identifier)
+            res = Node.from_ptr(find_hierarchy(parsed))
+            nsnode.free_node(parsed)
+            return res
+        
+        def parentheses_split(text, separator=","):
+            """
+            Return the elements of `text` separated by `separator`, ignoring
+            everything in parentheses, curly braces and square brackets.
 
-        from .parser import (parseAllString,
-                             _var_section_body, identifier, type_identifier,
-                             _ivar_section_body, _simple_type_specifier,
-                             _frozenvar_section_body, _define_section_body,
-                             _assign_constraint_body, _assign_identifier,
-                             simple_expression, _constants_section_body,
-                             _trans_constraint_body, _init_constraint_body,
-                             _invar_constraint_body, _fairness_constraint_body,
-                             _justice_constraint_body,
-                             _compassion_constraint_body)
-
+            :param text: the text to split
+            :type text: :class:`str`
+            :param separator: the separator to split with
+            :type separator: :class:`str`
+            """
+            def content_to_braces(matchobj, content):
+                content.append(matchobj.group(0))
+                return "{{{}}}".format(len(content)-1)
+            replaced = []
+            repl = re.sub(r"(\([^)]*\))|(\[[^]]*\])|(\{[^}]*\})",
+                          lambda m: content_to_braces(m, replaced),
+                          text)
+            res = []
+            for element in repl.split(separator):
+                res.append(element.strip().format(*replaced))
+            return res
+        
+        def parse_constants_body(body):
+            """
+            Parse the given body as a CONSTANTS section body.
+            
+            :param body: the body (ending with `;`), assumed to be correctly
+                         formatted
+            :type body: :class:`str`
+            """
+            constants = []
+            body = body.strip()[:-1]
+            for constant in parentheses_split(body):
+                constants.append(parse_and_populate_identifier(constant))
+            return constants
+        
+        def parse_assign_identifier(identifier):
+            """
+            Parse the given identifier as an ASSIGN identifier.
+            
+            :param identifier: the identifier, assumed to be correctly
+                               formatted
+            :type body: :class:`str`
+            """
+            from .node import Node, Next, Smallinit
+            
+            identifier = identifier.strip()
+            if identifier.startswith("next"):
+                identifier = identifier[5:]
+                return Next(parse_and_populate_identifier(identifier))
+            elif identifier.startswith("init"):
+                identifier = identifier[5:]
+                return Smallinit(parse_and_populate_identifier(identifier))
+            else:
+                return parse_and_populate_identifier(identifier)
+        
+        def parse_compassion(body):
+            """
+            Parse the given body as a COMPASSION section body.
+            
+            :param body: the body (possibly ending with `;`), assumed to be
+                         correctly formatted (two comma-separated expressions)
+            :type body: :class:`str`
+            """
+            from .node import Cons
+            
+            if body.endwith(";"):
+                body = body[:-1]
+            first, second = parentheses_split(body)
+            return Cons(parse_and_populate_next_expression(first),
+                        parse_and_populate_next_expression(second))
+        
+        def parse_and_populate_type_specifier(specifier):
+            """
+            Parse the given type specifier.
+            
+            :param specifier: the specifier
+            :type specifier: :class:`str`
+            """
+            specifier = specifier.strip()
+            
+            # boolean
+            if specifier.startswith("boolean"):
+                return Boolean()
+            
+            # scalar
+            elif specifier.startswith("{"):
+                specifier = specifier[1:-1]
+                return Scalar(tuple(parse_and_populate_identifier(value)
+                                    for value in parentheses_split(specifier)))
+            
+            # word
+            elif specifier.startswith("word"):
+                return Word(parse_and_populate_next_expression(specifier[5:]))
+            
+            # signed word
+            elif re.match(r"^signed\sword(.*)", specifier):
+                match = re.match(r"^signed\sword(.*)", specifier)
+                return SignedWord(parse_and_populate_next_expression
+                                  (match.group(1)))
+            
+            # unsigned word
+            elif re.match(r"^unsigned\sword(.*)", specifier):
+                match = re.match(r"^unsigned\sword(.*)", specifier)
+                return UnsignedWord(parse_and_populate_next_expression
+                                    (match.group(1)))
+            
+            # array
+            elif specifier.startswith("array"):
+                specifier = specifier[5:]
+                of_pos = specifier.specifier.find(" of ")
+                range_str = specifier[:of_pos]
+                array_range = parse_type_specifier(range_str)
+                rest = specifier[of_pos + 4:]
+                return Array(array_range,
+                             parse_and_populate_type_specifier(rest))
+            
+            # range and modtype
+            else:
+                # range
+                range_split = parentheses_split(specifier, separator="..")
+                if len(range_split) == 2:
+                    start, stop = range_split
+                    return Range(parse_and_populate_next_expression(start),
+                                 parse_and_populate_next_expression(stop))
+                
+                # modtype
+                else:
+                    name = specifier[:specifier.find("(")]
+                    rest = specifier[specifier.find("(") + 1:-1]
+                    args = []
+                    if len(rest) > 0:
+                        for value in parentheses_split(rest):
+                            args.append(parse_and_populate_next_expression
+                                        (value))
+                    return Modtype(parse_and_populate_identifier(name),
+                                   tuple(args))
+        
+        def parse_and_populate_declaration_body(body):
+            """
+            Parse the given body of a declaration section.
+            
+            :param body: the body to parse
+            :type body: :class:`str`
+            """
+            body = body.strip()
+            # last of body should be ;
+            body = body[:-1]
+            declarations = collections.OrderedDict()
+            for declaration in parentheses_split(body, ";"):
+                splitted = parentheses_split(declaration, ":")
+                identifier = parse_and_populate_identifier(splitted[0])
+                type_ = parse_and_populate_type_specifier(splitted[1])
+                declarations[identifier] = type_
+            return declarations
+        
+        def parse_define_body(body):
+            """
+            Parse the given body of a DEFINE section.
+            
+            :param body: the body to parse
+            :type body: :class:`str`
+            """
+            body = body.strip()
+            # last of body should be ;
+            body = body[:-1]
+            defines = collections.OrderedDict()
+            for define in parentheses_split(body, ";"):
+                splitted = parentheses_split(define, ":=")
+                identifier = parse_and_populate_identifier(splitted[0])
+                expr = parse_and_populate_next_expression(splitted[1])
+                defines[identifier] = expr
+            return defines
+        
+        def parse_assign_body(body):
+            """
+            Parse the given body of an ASSIGN section.
+            
+            :param body: the body to parse
+            :type body: :class:`str`
+            """
+            body = body.strip()
+            # last of body should be ;
+            body = body[:-1]
+            assigns = collections.OrderedDict()
+            for assign in parentheses_split(body, ";"):
+                splitted = parentheses_split(assign, ":=")
+                identifier = parse_assign_identifier(splitted[0])
+                expr = parse_and_populate_next_expression(splitted[1])
+                assigns[identifier] = expr
+            return assigns
+        
         # The list of module sections that are considered
         # each key is the section name
         # each value is a tuple giving:
@@ -2241,33 +417,33 @@ class ModuleMetaClass(type):
         #   section)
         _sections_parsers = {
             "VAR": ("mapping",
-                    _var_section_body,
-                    identifier,
-                    type_identifier),
+                    parse_and_populate_declaration_body,
+                    parse_and_populate_identifier,
+                    parse_and_populate_type_specifier),
             "IVAR": ("mapping",
-                     _ivar_section_body,
-                     identifier,
-                     _simple_type_specifier),
+                     parse_and_populate_declaration_body,
+                     parse_and_populate_identifier,
+                     parse_and_populate_type_specifier),
             "FROZENVAR": ("mapping",
-                          _frozenvar_section_body,
-                          identifier,
-                          _simple_type_specifier),
+                          parse_and_populate_declaration_body,
+                          parse_and_populate_identifier,
+                          parse_and_populate_type_specifier),
             "DEFINE": ("mapping",
-                       _define_section_body,
-                       identifier,
-                       _simple_type_specifier),
+                       parse_define_body,
+                       parse_and_populate_identifier,
+                       parse_and_populate_next_expression),
             "ASSIGN": ("mapping",
-                       _assign_constraint_body,
-                       _assign_identifier,
-                       simple_expression),
+                       parse_assign_body,
+                       parse_assign_identifier,
+                       parse_and_populate_next_expression),
             "CONSTANTS": ("enumeration",
-                          _constants_section_body),
-            "TRANS": ("bodies", _trans_constraint_body),
-            "INIT": ("bodies", _init_constraint_body),
-            "INVAR": ("bodies", _invar_constraint_body),
-            "FAIRNESS": ("bodies", _fairness_constraint_body),
-            "JUSTICE": ("bodies", _justice_constraint_body),
-            "COMPASSION": ("bodies", _compassion_constraint_body)}
+                          parse_constants_body),
+            "TRANS": ("bodies", parse_and_populate_next_expression),
+            "INIT": ("bodies", parse_and_populate_next_expression),
+            "INVAR": ("bodies", parse_and_populate_next_expression),
+            "FAIRNESS": ("bodies", parse_and_populate_next_expression),
+            "JUSTICE": ("bodies", parse_and_populate_next_expression),
+            "COMPASSION": ("bodies", parse_compassion)}
 
         if section not in mcs._sections:
             raise NuSMVModuleError("Unknown section: {}.".format(section))
@@ -2279,9 +455,9 @@ class ModuleMetaClass(type):
                 res = collections.OrderedDict()
                 for key, value in body.items():
                     if isinstance(key, str):
-                        key = parseAllString(key_parser, key)
+                        key = key_parser(key)
                     if isinstance(value, str):
-                        value = parseAllString(value_parser, value)
+                        value = value_parser(value)
                     res[key] = value
 
                 return res
@@ -2293,16 +469,16 @@ class ModuleMetaClass(type):
                 res = collections.OrderedDict()
                 for line in body:
                     if isinstance(line, str):
-                        line = parseAllString(section_parser, line)
+                        line = section_parser(line)
                         update(res, line)
 
                     else:
                         # line is an enumeration
                         key, value = line[0:2]
                         if isinstance(key, str):
-                            key = parseAllString(key_parser, key)
+                            key = key_parser(key)
                         if isinstance(value, str):
-                            value = parseAllString(value_parser, value)
+                            value = value_parser(value)
                         res[key] = value
 
                 return res
@@ -2322,7 +498,7 @@ class ModuleMetaClass(type):
             exprs = []
             for expr in body:
                 if isinstance(expr, str):
-                    expr = parseAllString(parser, expr)
+                    expr = parser(expr)
 
                 update(exprs, [expr])
 
@@ -2428,25 +604,25 @@ class ModuleMetaClass(type):
                                                    cls.__dict__[section],
                                                    indentation))
         return "\n".join(representation)
-
+    
     def copy(cls):
         """
         Return a deep copy of this module.
-
+        
         Only the members of this module present in `cls.members` are copied.
         If these members accept to be `deepcopy`ed, this method is used to
         copy the member, otherwise the member is not copied and is passed
         to the created module as it is.
-
+        
         """
         newnamespace = collections.OrderedDict()
         for member in cls.members:
             newnamespace[member] = deepcopy(getattr(cls, member))
-
+        
         return ModuleMetaClass(cls.NAME, cls.__bases__, newnamespace)
 
 
-class Module(TModule, metaclass=ModuleMetaClass):
+class Module(Modtype, metaclass=ModuleMetaClass):
 
     """
     A generic module.
@@ -2535,5 +711,5 @@ class Module(TModule, metaclass=ModuleMetaClass):
 
     """
 
-    def __init__(self, *args, process=False):
-        super().__init__(self.__class__.NAME, args, process=process)
+    def __init__(self, *args):
+        super().__init__(self.__class__.NAME, args)

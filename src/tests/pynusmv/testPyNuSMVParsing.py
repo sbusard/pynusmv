@@ -132,8 +132,6 @@ class TestPyNuSMVParsing(unittest.TestCase):
         origp = parse_next_expression(orig)
         
         transp = parse_next_expression(trans)
-        # transp is CONTEXT(None, transp body). We want only the body
-        transp = cdr(transp)
         contextp = parse_identifier(context)
         # contextp is ATOM. We want DOT(None, ATOM)
         contextp = nsnode.find_node(nsparser.DOT, None, contextp)
