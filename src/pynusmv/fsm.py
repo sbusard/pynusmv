@@ -110,7 +110,7 @@ class BddFsm(PointerWrapper):
         # Set the new trans
         self._ptr.trans = new_trans_ptr
         # Free old trans
-        #nsbddtrans.BddTrans_free(old_trans_ptr)
+        nsbddtrans.BddTrans_free(old_trans_ptr)
 
     @property
     def state_constraints(self):
@@ -566,8 +566,8 @@ class BddTrans(PointerWrapper):
     # ===== Static methods ====================================================
     # =========================================================================
 
-    @staticmethod
-    def from_trans(symb_table, trans, context=None):
+    @classmethod
+    def from_trans(cls, symb_table, trans, context=None):
         """
         Return a new BddTrans from the given trans.
 
@@ -614,8 +614,8 @@ class BddTrans(PointerWrapper):
 
         return BddTrans(newtransptr, enc, ddmanager, freeit=True)
 
-    @staticmethod
-    def from_string(symb_table, strtrans, strcontext=None):
+    @classmethod
+    def from_string(cls, symb_table, strtrans, strcontext=None):
         """
         Return a new BddTrans from the given strtrans, in given strcontex.
 
@@ -646,7 +646,7 @@ class BddTrans(PointerWrapper):
             raise NuSMVTypeCheckingError("The given TRANS is wrongly typed.")
 
         # Call from_trans method
-        return BddTrans.from_trans(symb_table, trans)
+        return cls.from_trans(symb_table, trans)
 
 
 class BddEnc(PointerWrapper):
@@ -937,8 +937,8 @@ class SymbTable(PointerWrapper):
         
         rs = nssymb_table.SymbTable_resolve_symbol(self._ptr, var._ptr,
                                                    None)
-        var = node.Node.from_ptr(nssymb_table.
-                                 ResolveSymbol_get_resolved_name(rs))
+        var = node.Node.from_ptr(node.find_hierarchy(nssymb_table.
+                                 ResolveSymbol_get_resolved_name(rs)))
         if not self.can_declare_var(layer, var):
             raise NuSMVSymbTableError("Variable" + str(var) + "cannot be "
                                       "declared in " + layer + ".")
