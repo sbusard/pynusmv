@@ -174,16 +174,18 @@ class TestEval(unittest.TestCase):
         self.assertEqual(len(specs), 1)
         spec = specs[0]
         ex = evalCTLK(fsm, spec)
-        self.assertEqual(ex, c1p & ~c2p & ~c3p)
+        self.assertEqual(ex, c1p & ~c2p & ~c3p & fsm.bddEnc.statesMask)
         
         specs = parseCTLK("EX 'countsay = odd'")
         self.assertEqual(len(specs), 1)
         spec = specs[0]
         ex = evalCTLK(fsm, spec)
             
-        self.assertTrue(odd <= ex)
-        self.assertTrue((unk & c1p & ~c2p & ~c3p) <= ex)
-        self.assertTrue((unk & c1p & c2p & c3p) <= ex)
+        self.assertTrue(odd & fsm.bddEnc.statesMask <= ex)
+        self.assertTrue((unk & c1p & ~c2p & ~c3p) & fsm.bddEnc.statesMask
+                        <= ex)
+        self.assertTrue((unk & c1p & c2p & c3p) & fsm.bddEnc.statesMask
+                        <= ex)
         
         
     def test_simple_ex(self):

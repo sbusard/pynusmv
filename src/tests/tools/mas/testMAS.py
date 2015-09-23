@@ -52,7 +52,7 @@ class TestMAS(unittest.TestCase):
         even = eval_simple_expression(fsm, "countsay = even")
         true = eval_simple_expression(fsm, "TRUE")
         
-        self.assertTrue(odd <= fsm.pre(odd))
+        self.assertTrue(odd & fsm.bddEnc.statesMask <= fsm.pre(odd))
         self.assertTrue(fsm.init <= unknown)
         self.assertTrue(fsm.pre(unknown).is_false())
         
