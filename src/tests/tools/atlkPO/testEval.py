@@ -405,4 +405,5 @@ class TestEval(unittest.TestCase):
         
     def test_reach_cardgame(self):
         fsm = self.cardgame()
-        self.assertEqual(fsm.reachable_states, reach(fsm, fsm.init))
+        self.assertEqual(fsm.reachable_states & fsm.bddEnc.statesMask,
+                         reach(fsm, fsm.init))

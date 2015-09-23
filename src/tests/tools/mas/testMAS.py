@@ -76,7 +76,7 @@ class TestMAS(unittest.TestCase):
         self.assertEqual(fsm.pre(lf), lf.iff(g))
         
         
-    def test_post(self):
+    def test_count(self):
         fsm = self.model()
         
         c1p = eval_simple_expression(fsm, "c1.payer")
@@ -424,18 +424,23 @@ class TestMAS(unittest.TestCase):
         daqa = eval_simple_expression(fsm, "dealer.action = dealQA")
         
         self.assertEqual(fsm.post(s0 & fsm.reachable_states),
-                         s1 & fsm.reachable_states)
+                         s1 & fsm.reachable_states & fsm.bddEnc.statesMask)
         self.assertEqual(fsm.post(s0 & fsm.reachable_states, inputs=daqa),
-                         s1 & pq & da & fsm.reachable_states)
+                         s1 & pq & da & fsm.reachable_states &
+                         fsm.bddEnc.statesMask)
         self.assertEqual(fsm.post(s0 & fsm.reachable_states,
                                   subsystem=s0 & daqa),
-                         s1 & pq & da & fsm.reachable_states)
+                         s1 & pq & da & fsm.reachable_states &
+                         fsm.bddEnc.statesMask)
         self.assertEqual(fsm.post(fsm.reachable_states,
                                   subsystem=(s0 & daqa) | (s1 & pak)),
-                         ((s1 & pq & da) | (s2)) & fsm.reachable_states)
+                         ((s1 & pq & da) | (s2)) & fsm.reachable_states &
+                         fsm.bddEnc.statesMask)
         self.assertEqual(fsm.post(s1 & fsm.reachable_states,
                         subsystem=(s1 & pa & dq & pak) | (s1 & pk & da & pas)),
-                         ((s2 & pa & dq) | (s2 & da & pq)) & fsm.reachable_states)
+                         ((s2 & pa & dq) | (s2 & da & pq)) &
+                         fsm.reachable_states &
+                         fsm.bddEnc.statesMask)
     
     def test_cardgame_with_agents(self):
         glob.load_from_file("tests/tools/mas/cardgame.smv")
