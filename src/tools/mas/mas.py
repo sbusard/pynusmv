@@ -262,3 +262,28 @@ class MAS(BddFsm):
                 &
                 self.bddEnc.statesInputsMask
                )
+
+
+class Agent(object):
+    """
+    An agent has a name, a set of observable variables and a set of actions.
+    Observable variables must be NuSMV variables (no define, frozen variable
+    or input variable).
+    Actions must be NuSMV input variables.
+    """
+    def __init__(self, name, observables, actions):
+        self.name = name
+        self.observables = observables
+        self.actions = actions
+
+class Group(Agent):
+    """
+    A group is an agent representing a group of agents.
+    """
+    def __init__(self, name, *agents):
+        self.name = name
+        self.agents = agents
+        self.observables = set(observable for agent in agents
+                                          for observable in agent.observables)
+        self.actions = set(action for agent in agents
+                                  for action in agent.actions)
