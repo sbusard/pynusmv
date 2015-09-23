@@ -206,7 +206,8 @@ class BddFsm(PointerWrapper):
         :rtype: :class:`BDD <pynusmv.dd.BDD>`
 
         """
-        states = states & self.bddEnc.statesMask
+        # FIXME Seems to cause troubles
+        #states = states & self.bddEnc.statesMask
         return (BDD(bddFsm.BddFsm_get_weak_backward_image(self._ptr,
                                                           states._ptr),
                     self.bddEnc.DDmanager, freeit=True)
