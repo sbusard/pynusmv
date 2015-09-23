@@ -236,18 +236,7 @@ def encode_variables(layers={"model"}):
         raise NuSMVModelAlreadyEncodedError(
             "The variables are already encoded.")
 
-    # Encode variables
-    nsenc.Enc_init_bool_encoding()
-    bool_enc = nsenc.Enc_get_bool_encoding()
-    base_enc = nsboolenc.boolenc2baseenc(bool_enc)
-    for layer in layers:
-        nsbaseenc.BaseEnc_commit_layer(base_enc, layer)
-
-    nsenc.Enc_init_bdd_encoding()
-    bdd_enc = nsenc.Enc_get_bdd_encoding()
-    base_enc = nsbddenc.bddenc2baseenc(bdd_enc)
-    for layer in layers:
-        nsbaseenc.BaseEnc_commit_layer(base_enc, layer)
+    encode_variables_for_layers(layers, init=True)
 
     # Update cmps
     nscompile.cmp_struct_set_encode_variables(nscompile.cvar.cmps)
@@ -255,6 +244,35 @@ def encode_variables(layers={"model"}):
     # Get global encoding
     global __bdd_encoding
     __bdd_encoding = BddEnc(nsenc.Enc_get_bdd_encoding())
+
+
+def encode_variables_for_layers(layers={"model"}, init=False):
+    """
+    Encode the BDD variables of the given layers and store them in global data
+    structures.
+    
+    :param :class:`set` layers: the set of layers variables to encode
+    :param bool init: whether or not initialize the global encodings
+    
+    .. warning: Global encodings should be initialized only once, otherwise,
+                NuSMV quits unexpectingly. Note that :func:`encode_variables`
+                initializes them, and should be called before any call to
+                this function.
+
+    """
+    if init:
+        nsenc.Enc_init_bool_encoding()
+    bool_enc = nsenc.Enc_get_bool_encoding()
+    base_enc = nsboolenc.boolenc2baseenc(bool_enc)
+    for layer in layers:
+        nsbaseenc.BaseEnc_commit_layer(base_enc, layer)
+
+    if init:
+        nsenc.Enc_init_bdd_encoding()
+    bdd_enc = nsenc.Enc_get_bdd_encoding()
+    base_enc = nsbddenc.bddenc2baseenc(bdd_enc)
+    for layer in layers:
+        nsbaseenc.BaseEnc_commit_layer(base_enc, layer)
 
 
 def bdd_encoding():
