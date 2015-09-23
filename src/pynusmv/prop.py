@@ -5,8 +5,8 @@ properties and specifications of models.
 """
 
 
-__all__ = ['propTypes', 'Prop', 'PropDb','Spec', 'true', 'false', 'nott',
-           'andd', 'orr', 'imply', 'iff', 'ex', 'eg', 'ef', 'eu', 'ew',
+__all__ = ['propTypes', 'Prop', 'PropDb','Spec', 'true', 'false', 'not_',
+           'and_', 'or_', 'imply', 'iff', 'ex', 'eg', 'ef', 'eu', 'ew',
            'ax', 'ag', 'af', 'au', 'aw', 'atom']
 
 
@@ -282,7 +282,7 @@ def false():
     return Spec(nsnode.find_node(nsparser.FALSEEXP, None, None))
     
     
-def nott(spec):
+def not_(spec):
     """Return a new specification corresponding to `NOT spec`.
     
     :rtype: :class:`Spec`
@@ -293,7 +293,7 @@ def nott(spec):
     return Spec(nsnode.find_node(nsparser.NOT, spec._ptr, None))
     
 
-def andd(left, right):
+def and_(left, right):
     """
     Return a new specification corresponding to `left AND right`.
     
@@ -305,7 +305,7 @@ def andd(left, right):
     return Spec(nsnode.find_node(nsparser.AND, left._ptr, right._ptr))
     
 
-def orr(left, right):
+def or_(left, right):
     """
     Return a new specification corresponding to `left OR right`.
     

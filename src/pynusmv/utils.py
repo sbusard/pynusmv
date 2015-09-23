@@ -5,7 +5,7 @@ used by PyNuSMV internals.
 """
 
 
-__all__ = ['PointerWrapper', 'fixpoint']
+__all__ = ['PointerWrapper', 'fixpoint', 'update']
 
 
 from pynusmv.init import _register_wrapper

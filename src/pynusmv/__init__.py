@@ -15,18 +15,18 @@ PyNuSMV is composed of several modules, each one proposing some functionalities:
   from an SMV source file.
 * :mod:`model <pynusmv.model>` provides functionalities to define NuSMV models
   in Python.
-* :mod:`dd <pynusmv.dd>` provides BDD-related structures like generic BDD, lists 
-  of BDDs and BDD-represented states and input values.
-* :mod:`exception <pynusmv.exception>` groups all the PyNuSMV-related 
-  exceptions.
 * :mod:`fsm <pynusmv.fsm>` contains all the FSM-related structures like 
   BDD-represented FSM, BDD-represented transition relation, BDD encoding and 
   symbols table.
 * :mod:`prop <pynusmv.prop>` defines structures related to propositions of a 
   model; this includes simple CTL specifications.
+* :mod:`dd <pynusmv.dd>` provides BDD-related structures like generic BDD, lists 
+  of BDDs and BDD-represented states and input values.
 * :mod:`parser <pynusmv.parser>` gives access to NuSMV parser to parse simple 
   expressions of the SMV language.
 * :mod:`mc <pynusmv.mc>` contains model checking features.
+* :mod:`exception <pynusmv.exception>` groups all the PyNuSMV-related 
+  exceptions.
 * :mod:`utils <pynusmv.utils>` contains some side functionalities.
 
 .. WARNING:: Before using any PyNuSMV functionality, make sure to call 

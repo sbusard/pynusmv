@@ -5,7 +5,7 @@ from pynusmv.nusmv.cmd import cmd as nscmd
 
 from pynusmv.init import init_nusmv, deinit_nusmv
 from pynusmv import glob
-from pynusmv.exception import (NuSMVNoReadFileError,
+from pynusmv.exception import (NuSMVNoReadModelError,
                                NuSMVCannotFlattenError,
                                NuSMVModelAlreadyFlattenedError,
                                NuSMVNeedFlatModelError,
@@ -32,7 +32,7 @@ class Testglob(unittest.TestCase):
         
     
     def test_no_flattening_hierarchy(self):
-        with self.assertRaises(NuSMVNoReadFileError):
+        with self.assertRaises(NuSMVNoReadModelError):
             glob.flatten_hierarchy()
             
             
@@ -133,7 +133,7 @@ class Testglob(unittest.TestCase):
         
     
     def test_no_compute_model(self):
-        with self.assertRaises(NuSMVNoReadFileError):
+        with self.assertRaises(NuSMVNoReadModelError):
             glob.compute_model()
             
             

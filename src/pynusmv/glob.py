@@ -10,10 +10,9 @@ and the propositions database.
 
 """
 
-__all__ = ['load_from_file', 'load_from_string',
-           'flatten_hierarchy', 'symb_table',
-           'encode_variables', 'bdd_encoding', 'build_flat_model',
-           'build_model', 'prop_database', 'compute_model']
+__all__ = ['load', 'symb_table', 'bdd_encoding', 'prop_database',
+           'flatten_hierarchy', 'encode_variables', 'build_flat_model',
+           'build_model', 'compute_model']
 
 import tempfile
 import os
@@ -36,10 +35,10 @@ from .nusmv.trace import trace as nstrace
 from .nusmv.trace.exec import exec as nstraceexec
 
 from .fsm import BddEnc, SymbTable
-from .parser import Error, NuSMVParsingError
+from .parser import _Error, NuSMVParsingError
 from .prop import PropDb
 from .exception import (NuSMVLexerError,
-                        NuSMVNoReadFileError,
+                        NuSMVNoReadModelError,
                         NuSMVModelAlreadyReadError,
                         NuSMVCannotFlattenError,
                         NuSMVModelAlreadyFlattenedError,
@@ -78,7 +77,7 @@ def load(model):
     Load the given model. This model can be of several forms:
     
     * a file path; in this case, the model is loaded from the file;
-    * a string; in this case, `model` is the body of the model;
+    * NuSMV modelling code; in this case, `model` is the code for the model;
     * a list of modules (list of :class:`Module <pynusmv.model.Module>`
       subclasses); in this case, the model is represented by the set of 
       modules.
@@ -161,7 +160,7 @@ def load_from_file(filepath):
         while errors is not None:
             error = nsnode.car(errors)
             err = nsparser.Parser_get_syntax_error(error)
-            errlist.append(Error(*err[1:]))
+            errlist.append(_Error(*err[1:]))
             errors = nsnode.cdr(errors)
         raise NuSMVParsingError(tuple(errlist))
         
@@ -173,8 +172,8 @@ def flatten_hierarchy():
     """
     Flatten the read model and store it in global data structures.
     
-    :raise: a :exc:`NuSMVNoReadFileError
-            <pynusmv.exception.NuSMVNoReadFileError>` if no model is read yet
+    :raise: a :exc:`NuSMVNoReadModelError
+            <pynusmv.exception.NuSMVNoReadModelError>` if no model is read yet
     :raise: a :exc:`NuSMVCannotFlattenError 
             <pynusmv.exception.NuSMVCannotFlattenError>` if an error occurred
             during flattening
@@ -190,7 +189,7 @@ def flatten_hierarchy():
     
     # Check cmps
     if not nscompile.cmp_struct_get_read_model(nscompile.cvar.cmps):
-        raise NuSMVNoReadFileError("Cannot flatten; no read file.")
+        raise NuSMVNoReadModelError("Cannot flatten; no read model.")
         
     if nscompile.cmp_struct_get_flatten_hrc(nscompile.cvar.cmps):
         raise NuSMVModelAlreadyFlattenedError(
@@ -401,7 +400,7 @@ def compute_model():
     
     """
     if not nscompile.cmp_struct_get_read_model(nscompile.cvar.cmps):
-        raise NuSMVNoReadFileError("No read file.")
+        raise NuSMVNoReadModelError("No read model.")
     
     # Check cmps and perform what is needed
     if not nscompile.cmp_struct_get_flatten_hrc(nscompile.cvar.cmps):

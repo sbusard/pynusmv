@@ -5,16 +5,16 @@ represented and stored by NuSMV:
 * :class:`BddFsm` represents the model encoded into BDDs. This gives access
   to elements of the FSM like BDD encoding, initial states, reachable states,
   transition relation, pre and post operations, etc.
+* :class:`BddTrans` represents a transition relation encoded with BDDs. It
+  provides access to pre and post operations.
 * :class:`BddEnc` represents the BDD encoding, with some functionalities like
   getting the state mask or the input variables mask.
 * :class:`SymbTable` represents the symbols table of the model.
-* :class:`BddTrans` represents a transition relation encoded with BDDs. It
-  provides access to pre and post operations.
 
 """
 
 
-__all__ = ['BddFsm', 'BddEnc', 'SymbTable', 'BddTrans']
+__all__ = ['BddFsm', 'BddTrans', 'BddEnc', 'SymbTable']
 
 import tempfile
 
@@ -489,8 +489,180 @@ class BddFsm(PointerWrapper):
         
         """
         return from_string("\n".join(str(module) for module in modules))
+
+
+class BddTrans(PointerWrapper):
+    """
+    Python class for transition relation encoded with BDDs.
+    
+    A BddTrans represents a transition relation and provides pre and post
+    operations on BDDs, possibly restricted to given actions.
+    
+    """
+    
+    def __init__(self, ptr, enc = None, manager = None, freeit = True):
+        """
+        Create a new BddTrans.
+        
+        :param ptr: a NuSMV pointer to a BddTrans
+        :param enc: the BDD encoding of the transition relation
+        :type enc: :class:`BddEnc`
+        :param manager: the DD manager of the BDDs used to encode the relation
+        :type manager: :class:`DDManager <pynusmv.dd.DDManager>`
+        :param freeit: whether or not freeing the pointer
+        
+        """
+        super().__init__(ptr, freeit)
+        self._enc = enc
+        self._manager = manager
+    
+    
+    def _free(self):
+        if self._freeit and self._ptr is not None:
+            # Free it because such a BddTrans is not owned by anyone
+            nsbddtrans.BddTrans_free(self._ptr)
+            self._freeit = False
+    
+    
+    @property
+    def monolithic(self):
+        """
+        This transition relation represented as a monolithic BDD.
+        
+        :rtype: :class:`BDD <pynusmv.dd.BDD>`
+        
+        """
+        ptr = nsbddtrans.BddTrans_get_monolithic_bdd(self._ptr) 
+        return BDD(ptr, self._manager, freeit = True)
         
         
+    def pre(self, states, inputs=None):
+        """
+        Compute the pre-image of `states`, through `inputs` if not `None`.
+        
+        :param states: the concerned states
+        :type states: :class:`BDD <pynusmv.dd.BDD>`
+        :param inputs: possible inputs
+        :type inputs: :class:`BDD <pynusmv.dd.BDD>`
+        :rtype: :class:`BDD <pynusmv.dd.BDD>`
+        
+        """
+        nexts = BDD(
+            bddEnc.BddEnc_state_var_to_next_state_var(self._enc._ptr,
+                                                            states._ptr),
+            states._manager, freeit = True)
+            
+        if inputs is not None:
+            nexts = nexts & inputs
+        img = nsbddtrans.BddTrans_get_backward_image_state(
+                                                          self._ptr, nexts._ptr)
+        return BDD(img, self._manager, freeit = True)
+        
+    
+    def post(self, states, inputs=None):
+        """
+        Compute the post-image of `states`, through `inputs` if not `None`.
+        
+        :param states: the concerned states
+        :type states: :class:`BDD <pynusmv.dd.BDD>`
+        :param inputs: possible inputs
+        :type inputs: :class:`BDD <pynusmv.dd.BDD>`
+        :rtype: :class:`BDD <pynusmv.dd.BDD>`
+        
+        """
+        if inputs is not None:
+            states = states & inputs
+        img = nsbddtrans.BddTrans_get_forward_image_state(
+                                                         self._ptr, states._ptr)
+        img = bddEnc.BddEnc_next_state_var_to_state_var(self._enc._ptr, img)
+        return BDD(img, self._manager, freeit = True)
+    
+    
+    # ==========================================================================
+    # ===== Static methods =====================================================
+    # ==========================================================================      
+    
+    
+    @staticmethod
+    def from_trans(symb_table, trans, context=None):
+        """
+        Return a new BddTrans from the given trans.
+        
+        :param symb_table: the symbols table used to flatten the trans
+        :type symb_table: :class:`SymbTable`
+        :param trans: the parsed string of the trans, not flattened
+        :param context: an additional parsed context, in which trans will be
+                        flattened, if not None
+        :rtype: :class:`BddTrans`
+        :raise: a :exc:`NuSMVFlatteningError 
+                <pynusmv.exception.NuSMVFlatteningError>`
+                if `trans` cannot be flattened under `context`
+        
+        """
+        
+        flattrans, err = nscompile.FlattenSexp(symb_table._ptr, trans,
+                                                  context)
+        if err:
+            raise NuSMVFlatteningError("Cannot flatten TRANS")
+        
+        
+        # Build the BDD trans
+        fsmbuilder = nscompile.Compile_get_global_fsm_builder()
+        from .glob import bdd_encoding
+        enc = bdd_encoding()
+        ddmanager = enc.DDmanager
+        
+        clusters = nsfsm.FsmBuilder_clusterize_expr(fsmbuilder, enc._ptr,
+                                                    flattrans)
+        cluster_options = nsbddtrans.ClusterOptions_create(
+                            nsopt.OptsHandler_get_instance())
+        
+        newtransptr = nsbddtrans.BddTrans_create(
+                            ddmanager._ptr,
+                            clusters,
+                            bddEnc.BddEnc_get_state_vars_cube(enc._ptr),
+                            bddEnc.BddEnc_get_input_vars_cube(enc._ptr),
+                            bddEnc.BddEnc_get_next_state_vars_cube(enc._ptr),
+                            nsopt.get_partition_method(
+                                            nsopt.OptsHandler_get_instance()),
+                            cluster_options)
+                            
+        return BddTrans(newtransptr, enc, ddmanager, freeit = True)
+        
+    
+    @staticmethod
+    def from_string(symb_table, strtrans, strcontext=None):
+        """
+        Return a new BddTrans from the given strtrans, in given strcontex.
+        
+        :param symb_table: the symbols table used to flatten the trans
+        :type symb_table: :class:`SymbTable`
+        :param strtrans: the string representing the trans
+        :type strtrans: str
+        :param strcontext: an additional string representing a context,
+                           in which trans will be flattened, if not None
+        :rtype: :class:`BddTrans`
+        :raise: a :exc:`NuSMVTypeCheckingError 
+                <pynusmv.exception.NuSMVTypeCheckingError>`
+                if `strtrans` is wrongly typed under `context`
+        
+        """
+        type_checker = nssymbtable.SymbTable_get_type_checker(symb_table._ptr)
+        
+        if strcontext is not None:
+            strtrans = "(" + strtrans + ")" + " IN " + strcontext
+        
+        # Parse the string
+        trans = parse_next_expression(strtrans)
+        
+        # Type check
+        expr_type = nstype_checking.TypeChecker_get_expression_type(
+                                                   type_checker, trans, None)
+        if not nssymbtable.SymbType_is_boolean(expr_type):
+            raise NuSMVTypeCheckingError("The given TRANS is wrongly typed.")
+            
+        # Call from_trans method
+        return BddTrans.from_trans(symb_table, trans)
 
 
 class BddEnc(PointerWrapper):
@@ -663,177 +835,3 @@ class SymbTable(PointerWrapper):
     """
     # Symbols tables are never freed. NuSMV takes care of it.
     pass
-    
-    
-class BddTrans(PointerWrapper):
-    """
-    Python class for transition relation encoded with BDDs.
-    
-    A BddTrans represents a transition relation and provides pre and post
-    operations on BDDs, possibly restricted to given actions.
-    
-    """
-    
-    def __init__(self, ptr, enc = None, manager = None, freeit = True):
-        """
-        Create a new BddTrans.
-        
-        :param ptr: a NuSMV pointer to a BddTrans
-        :param enc: the BDD encoding of the transition relation
-        :type enc: :class:`BddEnc`
-        :param manager: the DD manager of the BDDs used to encode the relation
-        :type manager: :class:`DDManager <pynusmv.dd.DDManager>`
-        :param freeit: whether or not freeing the pointer
-        
-        """
-        super().__init__(ptr, freeit)
-        self._enc = enc
-        self._manager = manager
-    
-    
-    def _free(self):
-        if self._freeit and self._ptr is not None:
-            # Free it because such a BddTrans is not owned by anyone
-            nsbddtrans.BddTrans_free(self._ptr)
-            self._freeit = False
-    
-    
-    @property
-    def monolithic(self):
-        """
-        This transition relation represented as a monolithic BDD.
-        
-        :rtype: :class:`BDD <pynusmv.dd.BDD>`
-        
-        """
-        ptr = nsbddtrans.BddTrans_get_monolithic_bdd(self._ptr) 
-        return BDD(ptr, self._manager, freeit = True)
-        
-        
-    def pre(self, states, inputs=None):
-        """
-        Compute the pre-image of `states`, through `inputs` if not `None`.
-        
-        :param states: the concerned states
-        :type states: :class:`BDD <pynusmv.dd.BDD>`
-        :param inputs: possible inputs
-        :type inputs: :class:`BDD <pynusmv.dd.BDD>`
-        :rtype: :class:`BDD <pynusmv.dd.BDD>`
-        
-        """
-        nexts = BDD(
-            bddEnc.BddEnc_state_var_to_next_state_var(self._enc._ptr,
-                                                            states._ptr),
-            states._manager, freeit = True)
-            
-        if inputs is not None:
-            nexts = nexts & inputs
-        img = nsbddtrans.BddTrans_get_backward_image_state(
-                                                          self._ptr, nexts._ptr)
-        return BDD(img, self._manager, freeit = True)
-        
-    
-    def post(self, states, inputs=None):
-        """
-        Compute the post-image of `states`, through `inputs` if not `None`.
-        
-        :param states: the concerned states
-        :type states: :class:`BDD <pynusmv.dd.BDD>`
-        :param inputs: possible inputs
-        :type inputs: :class:`BDD <pynusmv.dd.BDD>`
-        :rtype: :class:`BDD <pynusmv.dd.BDD>`
-        
-        """
-        if inputs is not None:
-            states = states & inputs
-        img = nsbddtrans.BddTrans_get_forward_image_state(
-                                                         self._ptr, states._ptr)
-        img = bddEnc.BddEnc_next_state_var_to_state_var(self._enc._ptr, img)
-        return BDD(img, self._manager, freeit = True)
-    
-    
-    # ==========================================================================
-    # ===== Static methods =====================================================
-    # ==========================================================================      
-    
-    
-    @staticmethod
-    def from_trans(symb_table, trans, context=None):
-        """
-        Return a new BddTrans from the given trans.
-        
-        :param symb_table: the symbols table used to flatten the trans
-        :type symb_table: :class:`SymbTable`
-        :param trans: the parsed string of the trans, not flattened
-        :param context: an additional parsed context, in which trans will be
-                        flattened, if not None
-        :rtype: :class:`BddTrans`
-        :raise: a :exc:`NuSMVFlatteningError 
-                <pynusmv.exception.NuSMVFlatteningError>`
-                if `trans` cannot be flattened under `context`
-        
-        """
-        
-        flattrans, err = nscompile.FlattenSexp(symb_table._ptr, trans,
-                                                  context)
-        if err:
-            raise NuSMVFlatteningError("Cannot flatten TRANS")
-        
-        
-        # Build the BDD trans
-        fsmbuilder = nscompile.Compile_get_global_fsm_builder()
-        from .glob import bdd_encoding
-        enc = bdd_encoding()
-        ddmanager = enc.DDmanager
-        
-        clusters = nsfsm.FsmBuilder_clusterize_expr(fsmbuilder, enc._ptr,
-                                                    flattrans)
-        cluster_options = nsbddtrans.ClusterOptions_create(
-                            nsopt.OptsHandler_get_instance())
-        
-        newtransptr = nsbddtrans.BddTrans_create(
-                            ddmanager._ptr,
-                            clusters,
-                            bddEnc.BddEnc_get_state_vars_cube(enc._ptr),
-                            bddEnc.BddEnc_get_input_vars_cube(enc._ptr),
-                            bddEnc.BddEnc_get_next_state_vars_cube(enc._ptr),
-                            nsopt.get_partition_method(
-                                            nsopt.OptsHandler_get_instance()),
-                            cluster_options)
-                            
-        return BddTrans(newtransptr, enc, ddmanager, freeit = True)
-        
-    
-    @staticmethod    
-    def from_string(symb_table, strtrans, strcontext=None):
-        """
-        Return a new BddTrans from the given strtrans, in given strcontex.
-        
-        :param symb_table: the symbols table used to flatten the trans
-        :type symb_table: :class:`SymbTable`
-        :param strtrans: the string representing the trans
-        :type strtrans: str
-        :param strcontext: an additional string representing a context,
-                           in which trans will be flattened, if not None
-        :rtype: :class:`BddTrans`
-        :raise: a :exc:`NuSMVTypeCheckingError 
-                <pynusmv.exception.NuSMVTypeCheckingError>`
-                if `strtrans` is wrongly typed under `context`
-        
-        """
-        type_checker = nssymbtable.SymbTable_get_type_checker(symb_table._ptr)
-        
-        if strcontext is not None:
-            strtrans = "(" + strtrans + ")" + " IN " + strcontext
-        
-        # Parse the string
-        trans = parse_next_expression(strtrans)
-        
-        # Type check
-        expr_type = nstype_checking.TypeChecker_get_expression_type(
-                                                   type_checker, trans, None)
-        if not nssymbtable.SymbType_is_boolean(expr_type):
-            raise NuSMVTypeCheckingError("The given TRANS is wrongly typed.")
-            
-        # Call from_trans method
-        return BddTrans.from_trans(symb_table, trans)

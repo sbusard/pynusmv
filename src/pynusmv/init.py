@@ -70,7 +70,7 @@ def deinit_nusmv(ddinfo=False):
         except PyNuSMVError:
             pass
     
-    glob._reset_globals()    
+    glob._reset_globals()
     
     global __collector
     if __collector is None:

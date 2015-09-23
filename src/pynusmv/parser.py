@@ -1,23 +1,41 @@
 """
 The :mod:`pynusmv.parser` module provides functions to parse strings
-and return corresponding ASTs.
+and return corresponding ASTs. This module includes three types of
+functionalities:
+
+* :func:`parse_simple_expression`, :func:`parse_next_expression` and
+  :func:`parse_identifier` are direct access to NuSMV parser, returning wrappers
+  to NuSMV internal data structures representing the language AST.
+* :data:`identifier`, :data:`simple_expression`, :data:`constant`, 
+  :data:`next_expression`, :data:`type_identifier`, :data:`var_section`, 
+  :data:`ivar_section`, :data:`frozenvar_section`, :data:`define_section`, 
+  :data:`constants_section`, :data:`assign_constraint`, :data:`init_constraint`, 
+  :data:`trans_constraint`, :data:`invar_constraint`,
+  :data:`fairness_constraint`, 
+  :data:`justice_constraint`, :data:`compassion_constraint`, :data:`module` and 
+  :data:`model` are pyparsing parsers parsing the corresponding elements
+  of a NuSMV model (see NuSMV documentation for more information on these 
+  elements of the language).
+* :func:`parseAllString` is a helper function to directly return ASTs for
+  strings parsed with pyparsing parsers.
 
 """
 
 
 __all__ = ['parse_simple_expression', 'parse_next_expression',
            'parse_identifier',
-           "identifier", "simple_expression", "constant", "next_expression",
-           "type_identifier",
-           "var_section", "ivar_section", "frozenvar_section", "define_section",
-           "constants_section",
-           "assign_constraint", "trans_constraint", "init_constraint",
-           "invar_constraint", "fairness_constraint",
-           "module", "model",
-           "parseAllString"]
+           'identifier', 'simple_expression', 'constant', 'next_expression',
+           'type_identifier',
+           'var_section', 'ivar_section', 'frozenvar_section', 'define_section',
+           'constants_section',
+           'assign_constraint', 'init_constraint', 'trans_constraint',
+           'invar_constraint', 'fairness_constraint', 'justice_constraint',
+           'compassion_constraint',
+           'module', 'model',
+           'parseAllString']
 
 
-from .exception import NuSMVParsingError, Error
+from .exception import NuSMVParsingError, _Error
 
 from .utils import update
 from .model import *
@@ -56,7 +74,7 @@ def parse_simple_expression(expression):
         while errors is not None:
             error = nsnode.car(errors)
             err = nsparser.Parser_get_syntax_error(error)
-            errlist.append(Error(*err[1:]))
+            errlist.append(_Error(*err[1:]))
             errors = nsnode.cdr(errors)
         raise NuSMVParsingError(tuple(errlist))
     else:
@@ -83,7 +101,7 @@ def parse_next_expression(expression):
         while errors is not None:
             error = nsnode.car(errors)
             err = nsparser.Parser_get_syntax_error(error)
-            errlist.append(Error(*err[1:]))
+            errlist.append(_Error(*err[1:]))
             errors = nsnode.cdr(errors)
         raise NuSMVParsingError(tuple(errlist))
     else:
@@ -110,7 +128,7 @@ def parse_identifier(expression):
         while errors is not None:
             error = nsnode.car(errors)
             err = nsparser.Parser_get_syntax_error(error)
-            errlist.append(Error(*err[1:]))
+            errlist.append(_Error(*err[1:]))
             errors = nsnode.cdr(errors)
         raise NuSMVParsingError(tuple(errlist))
     else:
@@ -121,7 +139,8 @@ def parse_identifier(expression):
 def _reduce_list_to_expr(l):
     """
     Reduces l to its token representation.
-    l a list of tokens separated by operators, with at least one token.
+    
+    :param l: a list of tokens separated by operators, with at least one token.
     """
     
     _otc = {"*": Mult, "/": Div, "mod": Mod, "+": Add, "-": Sub,
@@ -461,6 +480,16 @@ module = ( Suppress("MODULE") + identifier + Optional(_module_args)
          )
 
 def _create_module(string, location, tokens):
+    """
+    Create a module based on the given list of tokens.
+    
+    :param string: the string from which the module has been parsed
+    :param location: the index of `string` at which the parsed module starts
+    :param tokens: the list of sections representing the parsed module
+    
+    :rtype: :class:`pynusmv.model.ModuleMetaClass`
+    
+    """
     
     from .model import ModuleMetaClass, Module as ModuleClass
     
@@ -485,9 +514,13 @@ model.ignore(comment)
 
 def parseAllString(parser, string):
     """
-    Parse the complete given string with parser and set source of the result
-    to string. parser is assumed to return a one-element list when parsing
-    the string.
+    Parse `string` completely with `parser` and set source of the result
+    to `string`. `parser` is assumed to return a one-element list when parsing
+    `string`.
+    
+    :param parser: a pyparsing parser
+    :param string: the string to parse
+    :type string: :class:`str`
     """
     res = parser.parseString(string, parseAll=True)
     if hasattr(res[0], "source"):

@@ -1,7 +1,8 @@
 """
 The :mod:`pynusmv.model` module provides a way to define NuSMV modules in
 Python: the :class:`Module` class represents a generic NuSMV module, and must be
-subclassed to define specific NuSMV modules.
+subclassed to define specific NuSMV modules. This module also defines the set
+of AST elements of the language.
 
 """
 
@@ -27,14 +28,20 @@ from .utils import update
 class Element(object):
     """A parsed element."""
     source = None
+    """
+    The string the element comes from, if any (that is, if it comes from a
+    parser).
+    
+    """
 
 # ------------------------------------------------------------------------------
 # ----- EXPRESSIONS
 # ------------------------------------------------------------------------------
 
 class Expression(Element):
-    """An expression"""
-    precedence = 0
+    """A generic expression."""
+    
+    _precedence = 0
     
     def __lt__(self, other):
         from .parser import parseAllString, next_expression
@@ -180,7 +187,7 @@ class Identifier(Expression):
     def __hash__(self):
         return 17 + 23 * hash("Identifier") + 23**2 * hash(self.name)
     
-    def equals(self, other):
+    def _equals(self, other):
         if type(self) is type(other):
             return self.name == other.name
         else:
@@ -200,7 +207,7 @@ class ComplexIdentifier(Expression):
             return self.source
         return "".join(str(element) for element in self.body)
     
-    def equals(self, other):
+    def _equals(self, other):
         if type(self) is type(other):
             return self.body == other.body
         else:
@@ -223,7 +230,7 @@ class Boolean(Constant):
             return self.source
         return str(self.value)
     
-    def equals(self, other):
+    def _equals(self, other):
         if type(self) is type(other):
             return self.value == other.value
         else:
@@ -243,7 +250,7 @@ class Word(Constant):
             return self.source
         return str(self.value)
     
-    def equals(self, other):
+    def _equals(self, other):
         if type(self) is type(other):
             return self.value == other.value
         else:
@@ -264,7 +271,7 @@ class Range(Constant):
             return self.source
         return str(self.start) + ".." + str(self.stop)
     
-    def equals(self, other):
+    def _equals(self, other):
         if type(self) is type(other):
             return self.start == other.start and self.stop == other.stop
         else:
@@ -289,10 +296,10 @@ class Conversion(Function):
             return self.source
         return str(self.target_type) + "(" + str(self.value) + ")"
     
-    def equals(self, other):
+    def _equals(self, other):
         if type(self) is type(other):
             return (self.target_type == other.target_type and
-                    self.value.equals(other.value))
+                    self.value._equals(other.value))
         else:
             return False
     
@@ -315,11 +322,11 @@ class WordFunction(Function):
         return ( str(self.function) + "(" + str(self.value)
                + ", " + str(self.size) +")" )
     
-    def equals(self, other):
+    def _equals(self, other):
         if type(self) is type(other):
             return ( self.function == other.function and
-                     self.value.equals(other.value) and
-                     self.size.equals(other.size) )
+                     self.value._equals(other.value) and
+                     self.size._equals(other.size) )
         else:
             return False
     
@@ -340,12 +347,12 @@ class Count(Function):
             return self.source
         return "count(" + str(self.value) + ")"
     
-    def equals(self, other):
+    def _equals(self, other):
         if type(self) is type(other):
             if len(self.value) != len(other.value):
                 return False
             for sval, oval in zip(self.value, other.value):
-                if not sval.equals(oval):
+                if not sval._equals(oval):
                     return False
             return True
         else:
@@ -365,9 +372,9 @@ class Next(Expression):
             return self.source
         return "next(" + str(self.value) + ")"
     
-    def equals(self, other):
+    def _equals(self, other):
         if type(self) is type(other):
-            return self.value.equals(other.value)
+            return self.value._equals(other.value)
         else:
             return False
     
@@ -385,9 +392,9 @@ class Init(Expression):
             return self.source
         return "init(" + str(self.value) + ")"
     
-    def equals(self, other):
+    def _equals(self, other):
         if type(self) is type(other):
-            return self.value.equals(other.value)
+            return self.value._equals(other.value)
         else:
             return False
     
@@ -407,7 +414,7 @@ class Case(Expression):
                                     for cond, body in self.values.items())
                         + " esac")
     
-    def equals(self, other):
+    def _equals(self, other):
         if type(self) is type(other):
             return self.values == other.values
         else:
@@ -427,9 +434,9 @@ class Subscript(Expression):
             return self.source
         return "[" + str(self.index) + "]"
     
-    def equals(self, other):
+    def _equals(self, other):
         if type(self) is type(other):
-            return self.index.equals(other.index)
+            return self.index._equals(other.index)
         else:
             return False
     
@@ -448,10 +455,10 @@ class BitSelection(Expression):
             return self.source
         return "[" + str(self.start) + ":" + str(self.stop) + "]"
     
-    def equals(self, other):
+    def _equals(self, other):
         if type(self) is type(other):
-            return (self.start.equals(other.start) and
-                    self.stop.equals(other.stop))
+            return (self.start._equals(other.start) and
+                    self.stop._equals(other.stop))
         else:
             return False
     
@@ -472,9 +479,9 @@ class ArrayAccess(Expression):
         return str(self.array) + "".join(str(access)
                                          for access in self.accesses)
     
-    def equals(self, other):
+    def _equals(self, other):
         if type(self) is type(other):
-            return (self.array.equals(other.array) and
+            return (self.array._equals(other.array) and
                     self.accesses == other.accesses)
         else:
             return False
@@ -494,7 +501,7 @@ class Set(Expression):
             return self.source
         return "{" + ", ".join(str(element) for element in self.elements) + "}"
     
-    def equals(self, other):
+    def _equals(self, other):
         if type(self) is type(other):
             return frozenset(self.elements) == frozenset(other.elements)
         else:
@@ -512,14 +519,14 @@ class Operator(Expression):
         enclosed in parentheses if needed.
         """
         if (isinstance(expression, Operator)
-            and expression.precedence > self.precedence):
+            and expression._precedence > self._precedence):
                 return "(" + str(expression) + ")"
         return str(expression)
 
 class Not(Operator):
-    """A negated expression."""
+    """A negated (`-`) expression."""
     
-    precedence = 1
+    _precedence = 1
     
     def __init__(self, value):
         self.value = value
@@ -529,9 +536,9 @@ class Not(Operator):
             self.source
         return "! " + self._enclose(self.value)
     
-    def equals(self, other):
+    def _equals(self, other):
         if type(self) is type(other):
-            return self.value.equals(other.value)
+            return self.value._equals(other.value)
         else:
             return False
     
@@ -539,9 +546,9 @@ class Not(Operator):
         return 17 + 23 * hash("Not") + 23**2 * hash(self.value)
 
 class Concat(Operator):
-    """A concatenation of expressions."""
+    """A concatenation (`::`) of expressions."""
     
-    precedence = 2
+    _precedence = 2
     
     def __init__(self, left, right):
         self.left = left
@@ -552,10 +559,10 @@ class Concat(Operator):
             return self.source
         return self._enclose(self.left) + "::" + self._enclose(self.right)
     
-    def equals(self, other):
+    def _equals(self, other):
         if type(self) is type(other):
-            return (self.left.equals(other.left) and
-                    self.right.equals(other.right))
+            return (self.left._equals(other.left) and
+                    self.right._equals(other.right))
         else:
             return False
     
@@ -564,9 +571,9 @@ class Concat(Operator):
                 + 23**3 * hash(self.right))
 
 class Minus(Operator):
-    """Minus expression."""
+    """Minus (`-`) expression."""
     
-    precedence = 3
+    _precedence = 3
     
     def __init__(self, value):
         self.value = value
@@ -576,9 +583,9 @@ class Minus(Operator):
             return self.source
         return "- " + self._enclose(self.value)
     
-    def equals(self, other):
+    def _equals(self, other):
         if type(self) is type(other):
-            return self.value.equals(other.value)
+            return self.value._equals(other.value)
         else:
             return False
     
@@ -586,9 +593,9 @@ class Minus(Operator):
         return 17 + 23 * hash("Minus") + 23**2 * hash(self.value)
 
 class Mult(Operator):
-    """A multiplication of expressions."""
+    """A multiplication (`*`) of expressions."""
     
-    precedence = 4
+    _precedence = 4
     
     def __init__(self, left, right):
         self.left = left
@@ -599,12 +606,12 @@ class Mult(Operator):
             return self.source
         return self._enclose(self.left) + " * " + self._enclose(self.right)
     
-    def equals(self, other):
+    def _equals(self, other):
         if type(self) is type(other):
-            return ((self.left.equals(other.left) and
-                     self.right.equals(other.right)) or
-                    (self.left.equals(other.right) and
-                     self.right.equals(other.left)))
+            return ((self.left._equals(other.left) and
+                     self.right._equals(other.right)) or
+                    (self.left._equals(other.right) and
+                     self.right._equals(other.left)))
         else:
             return False
     
@@ -613,9 +620,9 @@ class Mult(Operator):
                 + 23**2 * hash(self.right))
 
 class Div(Operator):
-    """A division of expressions."""
+    """A division (`/`) of expressions."""
     
-    precedence = 4
+    _precedence = 4
     
     def __init__(self, left, right):
         self.left = left
@@ -626,10 +633,10 @@ class Div(Operator):
             return self.source
         return self._enclose(self.left) + " / " + self._enclose(self.right)
     
-    def equals(self, other):
+    def _equals(self, other):
         if type(self) is type(other):
-            return (self.left.equals(other.left) and
-                    self.right.equals(other.right))
+            return (self.left._equals(other.left) and
+                    self.right._equals(other.right))
         else:
             return False
     
@@ -638,9 +645,9 @@ class Div(Operator):
                 + 23**3 * hash(self.right))
 
 class Mod(Operator):
-    """A modulo of expressions."""
+    """A modulo (`%`) of expressions."""
     
-    precedence = 4
+    _precedence = 4
     
     def __init__(self, left, right):
         self.left = left
@@ -651,10 +658,10 @@ class Mod(Operator):
             return self.source
         return self._enclose(self.left) + " mod " + self._enclose(self.right)
     
-    def equals(self, other):
+    def _equals(self, other):
         if type(self) is type(other):
-            return (self.left.equals(other.left) and
-                    self.right.equals(other.right))
+            return (self.left._equals(other.left) and
+                    self.right._equals(other.right))
         else:
             return False
     
@@ -663,9 +670,9 @@ class Mod(Operator):
                 + 23**3 * hash(self.right))
 
 class Add(Operator):
-    """An addition of expressions."""
+    """An addition (`+`) of expressions."""
     
-    precedence = 5
+    _precedence = 5
     
     def __init__(self, left, right):
         self.left = left
@@ -676,12 +683,12 @@ class Add(Operator):
             return self.source
         return self._enclose(self.left) + " + " + self._enclose(self.right)
     
-    def equals(self, other):
+    def _equals(self, other):
         if type(self) is type(other):
-            return ((self.left.equals(other.left) and
-                     self.right.equals(other.right)) or
-                    (self.left.equals(other.right) and
-                     self.right.equals(other.left)))
+            return ((self.left._equals(other.left) and
+                     self.right._equals(other.right)) or
+                    (self.left._equals(other.right) and
+                     self.right._equals(other.left)))
         else:
             return False
     
@@ -690,9 +697,9 @@ class Add(Operator):
                 + 23**2 * hash(self.right))
 
 class Sub(Operator):
-    """A subtraction of expressions."""
+    """A subtraction (`-`) of expressions."""
     
-    precedence = 5
+    _precedence = 5
     
     def __init__(self, left, right):
         self.left = left
@@ -703,10 +710,10 @@ class Sub(Operator):
             return self.source
         return self._enclose(self.left) + " - " + self._enclose(self.right)
     
-    def equals(self, other):
+    def _equals(self, other):
         if type(self) is type(other):
-            return (self.left.equals(other.left) and
-                    self.right.equals(other.right))
+            return (self.left._equals(other.left) and
+                    self.right._equals(other.right))
         else:
             return False
     
@@ -715,9 +722,9 @@ class Sub(Operator):
                 + 23**3 * hash(self.right))
 
 class ShiftL(Operator):
-    """A left shift of expressions."""
+    """A left shift (`<<`) of expressions."""
     
-    precedence = 6
+    _precedence = 6
     
     def __init__(self, left, right):
         self.left = left
@@ -728,10 +735,10 @@ class ShiftL(Operator):
             return self.source
         return self._enclose(self.left) + " << " + self._enclose(self.right)
     
-    def equals(self, other):
+    def _equals(self, other):
         if type(self) is type(other):
-            return (self.left.equals(other.left) and
-                    self.right.equals(other.right))
+            return (self.left._equals(other.left) and
+                    self.right._equals(other.right))
         else:
             return False
     
@@ -740,9 +747,9 @@ class ShiftL(Operator):
                 + 23**3 * hash(self.right))
 
 class ShiftR(Operator):
-    """A right shift of expressions."""
+    """A right shift (`>>`) of expressions."""
     
-    precedence = 6
+    _precedence = 6
     
     def __init__(self, left, right):
         self.left = left
@@ -753,10 +760,10 @@ class ShiftR(Operator):
             return self.source
         return self._enclose(self.left) + " >> " + self._enclose(self.right)
     
-    def equals(self, other):
+    def _equals(self, other):
         if type(self) is type(other):
-            return (self.left.equals(other.left) and
-                    self.right.equals(other.right))
+            return (self.left._equals(other.left) and
+                    self.right._equals(other.right))
         else:
             return False
     
@@ -765,9 +772,9 @@ class ShiftR(Operator):
                 + 23**3 * hash(self.right))
 
 class Union(Operator):
-    """A union of expressions."""
+    """A union (`union`) of expressions."""
     
-    precedence = 7
+    _precedence = 7
     
     def __init__(self, left, right):
         self.left = left
@@ -778,12 +785,12 @@ class Union(Operator):
             return self.source
         return self._enclose(self.left) + " union " + self._enclose(self.right)
     
-    def equals(self, other):
+    def _equals(self, other):
         if type(self) is type(other):
-            return ((self.left.equals(other.left) and
-                     self.right.equals(other.right)) or
-                    (self.left.equals(other.right) and
-                     self.right.equals(other.left)))
+            return ((self.left._equals(other.left) and
+                     self.right._equals(other.right)) or
+                    (self.left._equals(other.right) and
+                     self.right._equals(other.left)))
         else:
             return False
     
@@ -792,9 +799,9 @@ class Union(Operator):
                 + 23**2 * hash(self.right))
 
 class In(Operator):
-    """The "in" expression."""
+    """The `in` expression."""
     
-    precedence = 8
+    _precedence = 8
     
     def __init__(self, left, right):
         self.left = left
@@ -805,10 +812,10 @@ class In(Operator):
             return self.source
         return self._enclose(self.left) + " in " + self._enclose(self.right)
     
-    def equals(self, other):
+    def _equals(self, other):
         if type(self) is type(other):
-            return (self.left.equals(other.left) and
-                    self.right.equals(other.right))
+            return (self.left._equals(other.left) and
+                    self.right._equals(other.right))
         else:
             return False
     
@@ -817,9 +824,9 @@ class In(Operator):
                 + 23**3 * hash(self.right))
 
 class Eq(Operator):
-    """The "=" expression."""
+    """The `=` expression."""
     
-    precedence = 9
+    _precedence = 9
     
     def __init__(self, left, right):
         self.left = left
@@ -830,12 +837,12 @@ class Eq(Operator):
             return self.source
         return self._enclose(self.left) + " = " + self._enclose(self.right)
     
-    def equals(self, other):
+    def _equals(self, other):
         if type(self) is type(other):
-            return ((self.left.equals(other.left) and
-                     self.right.equals(other.right)) or
-                    (self.left.equals(other.right) and
-                     self.right.equals(other.left)))
+            return ((self.left._equals(other.left) and
+                     self.right._equals(other.right)) or
+                    (self.left._equals(other.right) and
+                     self.right._equals(other.left)))
         else:
             return False
     
@@ -846,14 +853,14 @@ class Eq(Operator):
     def __bool__(self):
         if ( isinstance(self.left, Expression) and
              isinstance(self.right, Expression)):
-            return self.left.equals(self.right)
+            return self.left._equals(self.right)
         else:
             return self.left == self.right
 
 class Neq(Operator):
-    """The "!=" expression."""
+    """The `!=` expression."""
     
-    precedence = 9
+    _precedence = 9
     
     def __init__(self, left, right):
         self.left = left
@@ -864,12 +871,12 @@ class Neq(Operator):
             return self.source
         return self._enclose(self.left) + " != " + self._enclose(self.right)
     
-    def equals(self, other):
+    def _equals(self, other):
         if type(self) is type(other):
-            return ((not self.left.equals(other.left) or
-                     not self.right.equals(other.right)) and
-                    (not self.left.equals(other.right) or
-                     not self.right.equals(other.left)))
+            return ((not self.left._equals(other.left) or
+                     not self.right._equals(other.right)) and
+                    (not self.left._equals(other.right) or
+                     not self.right._equals(other.left)))
         else:
             return False
     
@@ -880,14 +887,14 @@ class Neq(Operator):
     def __bool__(self):
         if ( isinstance(self.left, Expression) and
              isinstance(self.right, Expression)):
-            return not self.left.equals(self.right)
+            return not self.left._equals(self.right)
         else:
             return self.left != self.right
 
 class Lt(Operator):
-    """The "<" expression."""
+    """The `<` expression."""
     
-    precedence = 9
+    _precedence = 9
     
     def __init__(self, left, right):
         self.left = left
@@ -898,10 +905,10 @@ class Lt(Operator):
             return self.source
         return self._enclose(self.left) + " < " + self._enclose(self.right)
     
-    def equals(self, other):
+    def _equals(self, other):
         if type(self) is type(other):
-            return (self.left.equals(other.left) and
-                    self.right.equals(other.right))
+            return (self.left._equals(other.left) and
+                    self.right._equals(other.right))
         else:
             return False
     
@@ -910,9 +917,9 @@ class Lt(Operator):
                 + 23**3 * hash(self.right))
 
 class Gt(Operator):
-    """The ">" expression."""
+    """The `>` expression."""
     
-    precedence = 9
+    _precedence = 9
     
     def __init__(self, left, right):
         self.left = left
@@ -923,10 +930,10 @@ class Gt(Operator):
             return self.source
         return self._enclose(self.left) + " > " + self._enclose(self.right)
     
-    def equals(self, other):
+    def _equals(self, other):
         if type(self) is type(other):
-            return (self.left.equals(other.left) and
-                    self.right.equals(other.right))
+            return (self.left._equals(other.left) and
+                    self.right._equals(other.right))
         else:
             return False
     
@@ -935,9 +942,9 @@ class Gt(Operator):
                 + 23**3 * hash(self.right))
 
 class Le(Operator):
-    """The "<=" expression."""
+    """The `<=` expression."""
     
-    precedence = 9
+    _precedence = 9
     
     def __init__(self, left, right):
         self.left = left
@@ -948,10 +955,10 @@ class Le(Operator):
             return self.source
         return self._enclose(self.left) + " <= " + self._enclose(self.right)
     
-    def equals(self, other):
+    def _equals(self, other):
         if type(self) is type(other):
-            return (self.left.equals(other.left) and
-                    self.right.equals(other.right))
+            return (self.left._equals(other.left) and
+                    self.right._equals(other.right))
         else:
             return False
     
@@ -960,9 +967,9 @@ class Le(Operator):
                 + 23**3 * hash(self.right))
 
 class Ge(Operator):
-    """The ">=" expression."""
+    """The `>=` expression."""
     
-    precedence = 9
+    _precedence = 9
     
     def __init__(self, left, right):
         self.left = left
@@ -973,10 +980,10 @@ class Ge(Operator):
             return self.source
         return self._enclose(self.left) + " >= " + self._enclose(self.right)
     
-    def equals(self, other):
+    def _equals(self, other):
         if type(self) is type(other):
-            return (self.left.equals(other.left) and
-                    self.right.equals(other.right))
+            return (self.left._equals(other.left) and
+                    self.right._equals(other.right))
         else:
             return False
     
@@ -985,9 +992,9 @@ class Ge(Operator):
                 + 23**3 * hash(self.right))
 
 class And(Operator):
-    """The & expression."""
+    """The `&` expression."""
     
-    precedence = 10
+    _precedence = 10
     
     def __init__(self, left, right):
         self.left = left
@@ -998,12 +1005,12 @@ class And(Operator):
             return self.source
         return self._enclose(self.left) + " & " + self._enclose(self.right)
     
-    def equals(self, other):
+    def _equals(self, other):
         if type(self) is type(other):
-            return ((self.left.equals(other.left) and
-                     self.right.equals(other.right)) or
-                    (self.left.equals(other.right) and
-                     self.right.equals(other.left)))
+            return ((self.left._equals(other.left) and
+                     self.right._equals(other.right)) or
+                    (self.left._equals(other.right) and
+                     self.right._equals(other.left)))
         else:
             return False
     
@@ -1012,9 +1019,9 @@ class And(Operator):
                 + 23**2 * hash(self.right))
 
 class Or(Operator):
-    """The | expression."""
+    """The `|` expression."""
     
-    precedence = 11
+    _precedence = 11
     
     def __init__(self, left, right):
         self.left = left
@@ -1025,12 +1032,12 @@ class Or(Operator):
             return self.source
         return self._enclose(self.left) + " | " + self._enclose(self.right)
     
-    def equals(self, other):
+    def _equals(self, other):
         if type(self) is type(other):
-            return ((self.left.equals(other.left) and
-                     self.right.equals(other.right)) or
-                    (self.left.equals(other.right) and
-                     self.right.equals(other.left)))
+            return ((self.left._equals(other.left) and
+                     self.right._equals(other.right)) or
+                    (self.left._equals(other.right) and
+                     self.right._equals(other.left)))
         else:
             return False
     
@@ -1039,9 +1046,9 @@ class Or(Operator):
                 + 23**2 * hash(self.right))
 
 class Xor(Operator):
-    """The xor expression."""
+    """The `xor` expression."""
     
-    precedence = 11
+    _precedence = 11
     
     def __init__(self, left, right):
         self.left = left
@@ -1052,12 +1059,12 @@ class Xor(Operator):
             return self.source
         return self._enclose(self.left) + " xor " + self._enclose(self.right)
     
-    def equals(self, other):
+    def _equals(self, other):
         if type(self) is type(other):
-            return ((self.left.equals(other.left) and
-                     self.right.equals(other.right)) or
-                    (self.left.equals(other.right) and
-                     self.right.equals(other.left)))
+            return ((self.left._equals(other.left) and
+                     self.right._equals(other.right)) or
+                    (self.left._equals(other.right) and
+                     self.right._equals(other.left)))
         else:
             return False
     
@@ -1066,9 +1073,9 @@ class Xor(Operator):
                 + 23**2 * hash(self.right))
 
 class Xnor(Operator):
-    """The xnor expression."""
+    """The `xnor` expression."""
     
-    precedence = 11
+    _precedence = 11
     
     def __init__(self, left, right):
         self.left = left
@@ -1079,12 +1086,12 @@ class Xnor(Operator):
             return self.source
         return self._enclose(self.left) + " xnor " + self._enclose(self.right)
     
-    def equals(self, other):
+    def _equals(self, other):
         if type(self) is type(other):
-            return ((self.left.equals(other.left) and
-                     self.right.equals(other.right)) or
-                    (self.left.equals(other.right) and
-                     self.right.equals(other.left)))
+            return ((self.left._equals(other.left) and
+                     self.right._equals(other.right)) or
+                    (self.left._equals(other.right) and
+                     self.right._equals(other.left)))
         else:
             return False
     
@@ -1093,9 +1100,9 @@ class Xnor(Operator):
                 + 23**2 * hash(self.right))
 
 class Ite(Operator):
-    """The ? : expression."""
+    """The `? :` expression."""
     
-    precedence = 12
+    _precedence = 12
     
     def __init__(self, condition, left, right):
         self.condition = condition
@@ -1109,11 +1116,11 @@ class Ite(Operator):
                + self._enclose(self.left) + " : "
                + self._enclose(self.right))
     
-    def equals(self, other):
+    def _equals(self, other):
         if type(self) is type(other):
-            return (self.condition.equals(other.condition) and
-                    self.left.equals(other.left) and
-                    self.right.equals(other.right))
+            return (self.condition._equals(other.condition) and
+                    self.left._equals(other.left) and
+                    self.right._equals(other.right))
         else:
             return False
     
@@ -1122,9 +1129,9 @@ class Ite(Operator):
                 + 23**3 * hash(self.left) + 23**4 * hash(self.right))
 
 class Iff(Operator):
-    """The <-> expression."""
+    """The `<->` expression."""
     
-    precedence = 13
+    _precedence = 13
     
     def __init__(self, left, right):
         self.left = left
@@ -1135,12 +1142,12 @@ class Iff(Operator):
             return self.source
         return self._enclose(self.left) + " <-> " + self._enclose(self.right)
     
-    def equals(self, other):
+    def _equals(self, other):
         if type(self) is type(other):
-            return ((self.left.equals(other.left) and
-                     self.right.equals(other.right)) or
-                    (self.left.equals(other.right) and
-                     self.right.equals(other.left)))
+            return ((self.left._equals(other.left) and
+                     self.right._equals(other.right)) or
+                    (self.left._equals(other.right) and
+                     self.right._equals(other.left)))
         else:
             return False
     
@@ -1149,9 +1156,9 @@ class Iff(Operator):
                 + 23**2 * hash(self.right))
 
 class Implies(Operator):
-    """The -> expression."""
+    """The `->` expression."""
     
-    precedence = 14
+    _precedence = 14
     
     def __init__(self, left, right):
         self.left = left
@@ -1162,10 +1169,10 @@ class Implies(Operator):
             return self.source
         return self._enclose(self.left) + " -> " + self._enclose(self.right)
     
-    def equals(self, other):
+    def _equals(self, other):
         if type(self) is type(other):
-            return (self.left.equals(other.left) and
-                    self.right.equals(other.right))
+            return (self.left._equals(other.left) and
+                    self.right._equals(other.right))
         else:
             return False
     
@@ -1794,28 +1801,36 @@ class Module(object, metaclass=ModuleMetaClass):
     of the corresponding attribute.
     
     CONSTANTS section
-        If the value of the section is a string (:class:`str`), it is used as
+        If the value of the section is a string (:class:`str`), it is parsed as
         the body of the constants declaration. Otherwise, the value must be a
-        sequence and it is used as the defined constants.
+        sequence and it is parsed as the defined constants.
     
     VAR, IVAR, FROZENVAR, DEFINE, ASSIGN sections
-        If the value of the section is a string (:class:`str`), it is used as
+        If the value of the section is a string (:class:`str`), it is parsed as
         the body of the declaration. If it is a dictionary (:class:`dict`), keys
-        are used as names of variables (or input variables, define, etc.) and
-        values as bodies of the declaration. Otherwise, the value must be a
-        sequence, and each element is treated  separately, and joined with line
-        returns to build the body of the section:
+        are parsed as names of variables (or input variables, define, etc.) 
+        if they are strings, or used as they are otherwise, and values are
+        parsed as bodies of the declaration (if strings, kept as they are
+        otherwise). Otherwise, the value must be a sequence, and each element is
+        treated separately:
         
-        * if the element is a string (:class:`str`), it is kept as it is;
+        * if the element is a string (:class:`str`), it is parsed as a 
+          declaration;
         * otherwise, the element must be a sequence, and the first element is
-          used as the name of the variable (or input variable, define, etc.) and
-          the second one as the body of the declaration.
+          used as the name of the variable (or input variable, define, etc.)
+          and parsed if necessary, and the second one as the body of the
+          declaration.
 
     TRANS, INIT, INVAR, FAIRNESS, JUSTICE, COMPASSION sections
-        If the value of the section is a string (:class:`str`), it is used as
+        If the value of the section is a string (:class:`str`), it is parsed as
         the body of the section. Otherwise, it must be a sequence and the
-        string representation of the elements of the sequence are declared
-        as different sections.
+        representation (parsed if necessary)  of the elements of the sequence
+        are declared as different sections.
+    
+    In addition to these sections, the class body can contain instances of 
+    :class:`pynsumv.model.Declaration`. These ones take the name of the
+    corresponding variable, and are added to the corresponding section (`VAR`,
+    `IVAR`, `FROZENVAR` or `DEFINE`) when creating the class.
     
     
     For example, the class ::
@@ -1823,14 +1838,11 @@ class Module(object, metaclass=ModuleMetaClass):
         class TwoCounter(Module):
             NAME = "twoCounter"
             ARGS = ["run"]
-            VAR = {"c1": "0..2",
-                   "c2": "0..2"}
-            INIT = ["c1 = 0",
-                    "c2 = 0"]
-            TRANS = \"\"\"
-                    next(c1) = run ? c1+1 mod 2 : c1 &
-                    next(c2) = run ? c2+1 mod 2 : c2
-                    \"\"\"
+            c1 = Range(0, 2)
+            VAR = {"c2": "0..2"}
+            INIT = [c1 == 0 & "c2 = 0"]
+            TRANS = [Next(c1) == Ite("run", (c1 + 1) % 2, c1),
+                     "next(c2) = run ? c2+1 mod 2 : c2"]
     
     defines the module ::
     
@@ -1839,20 +1851,20 @@ class Module(object, metaclass=ModuleMetaClass):
                 c1 : 0..2;
                 c2 : 0..2;
             INIT
-                c1 = 0
-            INIT
-                c2 = 0
+                c1 = 0 & c2 = 0
             TRANS
-                next(c1) = run ? c1+1 mod 2 : c1 &
+                next(c1) = run ? c1+1 mod 2 : c1
+            TRANS
                 next(c2) = run ? c2+1 mod 2 : c2
     
     
     After creation, module sections satisfy the following patterns:
+    
     * pair-based sections such as VAR, IVAR, FROZENVAR, DEFINE and ASSIGN
       are mapping objects (dictionaries) where keys are identifiers and values
       are types (for VAR, IVAR and FROZENVAR) or expressions (for DEFINE and
       ASSIGN).
-    * list-based sections such as CONSTANTS are enumerations  composed of
+    * list-based sections such as CONSTANTS are enumerations composed of
       elements of the section.
     * expression-based sections such as TRANS, INIT, INVAR, FAIRNESS, JUSTICE
       and COMPASSION are enumerations composed of expressions.
