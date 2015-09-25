@@ -132,7 +132,7 @@ def dumpDot(fsm):
                              else {None})
                    if s2 <= fsm.post(s1, inputs=i)}
     
-    print("digraph {")
+    dot = ["digraph {"]
     
     # Add states
     # Generate ids
@@ -144,15 +144,16 @@ def dumpDot(fsm):
     
     # Print states
     for state in states:
-        print(node(fsm, state, ids))
+        dot.append(node(fsm, state, ids))
       
         
     # Add transitions
     for s1, i, s2 in transitions:
-        print(edge(fsm, s1, i, s2, ids))
+        dot.append(edge(fsm, s1, i, s2, ids))
     
-    print("}")
+    dot.append("}")
     
+    return "\n".join(dot)
     
     
 def process(allargs):
@@ -176,7 +177,7 @@ def process(allargs):
     fsm = glob.prop_database().master.bddFsm
     
     try:
-        dumpDot(fsm)
+        print(dumpDot(fsm))
     except PyNuSMVError as e:
         print("[ERROR]", str(e), file=sys.stderr)
 
