@@ -162,9 +162,13 @@ def load_from_file(filepath):
     nscompile.cmp_struct_set_read_model(nscompile.cvar.cmps)
 
 
-def flatten_hierarchy():
+def flatten_hierarchy(keep_single_enum=False):
     """
     Flatten the read model and store it in global data structures.
+
+    :param keep_single_enum: whether or not enumerations with single values
+                             should be converted into defines
+    :type keep_single_enum: bool
 
     :raise: a :exc:`NuSMVNoReadModelError
             <pynusmv.exception.NuSMVNoReadModelError>` if no model is read yet
@@ -188,6 +192,12 @@ def flatten_hierarchy():
     if nscompile.cmp_struct_get_flatten_hrc(nscompile.cvar.cmps):
         raise NuSMVModelAlreadyFlattenedError(
             "Model already flattened.")
+
+    # Update options to reflect keep_single_enum
+    if keep_single_enum:
+        nsopt.set_keep_single_value_vars(nsopt.OptsHandler_get_instance())
+    else:
+        nsopt.unset_keep_single_value_vars(nsopt.OptsHandler_get_instance())
 
     # Flatten hierarchy
     ret = nscompile.flatten_hierarchy()
@@ -432,7 +442,7 @@ def prop_database():
     return __prop_database
 
 
-def compute_model(variables_ordering=None):
+def compute_model(variables_ordering=None, keep_single_enum=False):
     """
     Compute the read model and store its parts in global data structures.
     This function is a shortcut for calling all the steps of the model building
@@ -443,6 +453,9 @@ def compute_model(variables_ordering=None):
     
     :param variables_ordering: the file containing a custom ordering
     :type variables_ordering: path to file
+    :param keep_single_enum: whether or not enumerations with single values
+                             should be converted into defines
+    :type keep_single_enum: bool
 
     """
     if not nscompile.cmp_struct_get_read_model(nscompile.cvar.cmps):
@@ -450,7 +463,7 @@ def compute_model(variables_ordering=None):
 
     # Check cmps and perform what is needed
     if not nscompile.cmp_struct_get_flatten_hrc(nscompile.cvar.cmps):
-        flatten_hierarchy()
+        flatten_hierarchy(keep_single_enum=keep_single_enum)
     if not nscompile.cmp_struct_get_encode_variables(nscompile.cvar.cmps):
         encode_variables(variables_ordering=variables_ordering)
     if not nscompile.cmp_struct_get_build_flat_model(nscompile.cvar.cmps):
