@@ -39,7 +39,7 @@ def enable_dynamic_reordering(DDmanager=None, method="sift"):
     Enable dynamic reordering of BDD variables under control of `DDmanager`
     with the given `method`.
 
-    :param DDmanager: the conserned DD manager; if None, the global DD manager
+    :param DDmanager: the concerned DD manager; if None, the global DD manager
                       is used instead.
     :type DDmanager: :class:`DDManager`
     :param method: the method to use for reordering:
@@ -84,7 +84,7 @@ def disable_dynamic_reordering(DDmanager=None):
     """
     Disable dynamic reordering of BDD variables under control of `DDmanager`.
 
-    :param DDmanager: the conserned DD manager; if None, the global DD manager
+    :param DDmanager: the concerned DD manager; if None, the global DD manager
                       is used instead.
     :type DDmanager: :class:`DDManager`
 
@@ -106,7 +106,7 @@ def dynamic_reordering_enabled(DDmanager=None):
     Return the dynamic reordering method used if reordering is enabled for BDD
     under control of `DDmanager`, None otherwise.
 
-    :param DDmanager: the conserned DD manager; if None, the global DD manager
+    :param DDmanager: the concerned DD manager; if None, the global DD manager
                       is used instead.
     :type DDmanager: :class:`DDManager`
     :rtype: None, or a the name of the method used
@@ -128,7 +128,7 @@ def reorder(DDmanager=None, method="sift"):
     """
     Force a reordering of BDD variables under control of `DDmanager`.
 
-    :param DDmanager: the conserned DD manager; if None, the global DD manager
+    :param DDmanager: the concerned DD manager; if None, the global DD manager
                       is used instead.
     :type DDmanager: :class:`DDManager`
     :param method: the method to use for reordering:
