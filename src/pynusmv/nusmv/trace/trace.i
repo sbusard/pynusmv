@@ -13,7 +13,7 @@
 #include "../../../nusmv/src/trace/TraceXml.h" 
 %}
 
-# Ignoring unimplemented functions
+// Ignoring unimplemented functions
 %ignore TraceManager_create_evaluator;
 %ignore TraceOpt_eval_defines;
 %ignore TraceOpt_set_eval_defines;

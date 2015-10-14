@@ -10,7 +10,7 @@
 #include "../../../../nusmv/src/parser/idlist/ParserIdList.h" 
 %}
 
-# Removing duplicate macros definition (token macros).
+// Removing duplicate macros definition (token macros).
 #pragma SWIG nowarn=302
 
 %feature("autodoc", 1);

@@ -14,7 +14,7 @@
 #include "../../../../nusmv/src/node/printers/PrinterWffCore.h" 
 %}
 
-# Ignoring unimplemented functions
+// Ignoring unimplemented functions
 %ignore MasterPrinter_reset_string_stream;
 
 %feature("autodoc", 1);

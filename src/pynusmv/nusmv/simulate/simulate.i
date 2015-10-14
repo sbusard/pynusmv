@@ -9,7 +9,7 @@
 #include "../../../nusmv/src/simulate/simulateTransSet.h" 
 %}
 
-# Ignoring unimplemented functions
+// Ignoring unimplemented functions
 %ignore store_and_print_trace;
 
 %feature("autodoc", 1);

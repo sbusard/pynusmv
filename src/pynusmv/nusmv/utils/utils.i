@@ -33,7 +33,7 @@
 /*#include "../../../nusmv/src/utils/lsort.h"*/
 %}
 
-# Ignoring unimplemented functions
+// Ignoring unimplemented functions
 %ignore Siter_set_element;
 %ignore Utils_get_temp_filename;
 %ignore Utils_strtoint;
@@ -70,7 +70,7 @@
 %include ../../../nusmv/src/utils/utils_io.h
 %include ../../../nusmv/src/utils/WordNumber.h
 
-#sbusard 11/06/12 - Ignoring lsort.h due to errors in file parsing.
+// sbusard 11/06/12 - Ignoring lsort.h due to errors in file parsing.
 #%include ../../../nusmv/src/utils/lsort.h
 
 %inline %{

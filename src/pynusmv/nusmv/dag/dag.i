@@ -8,12 +8,12 @@
 #include "../../../nusmv/src/dag/dag.h" 
 %}
 
-# Setting cpperraswarn to avoid problems with dag.h:91 (#error directive)
+// Setting cpperraswarn to avoid problems with dag.h:91 (#error directive)
 #pragma SWIG cpperraswarn=1
-# And ignoring CPP #error warning
+// And ignoring CPP #error warning
 #pragma SWIG nowarn=205
 
-# Ignoring unimplemented functions
+// Ignoring unimplemented functions
 %ignore Dag_ManagerAllocWithParams;
 
 %feature("autodoc", 1);

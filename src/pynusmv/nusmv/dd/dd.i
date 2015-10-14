@@ -10,7 +10,7 @@
 #include "../../../cudd-2.4.1.1/include/cudd.h"
 %}
 
-# Ignoring unimplemented functions
+// Ignoring unimplemented functions
 %ignore VarsHandler_promote_group;
 
 %feature("autodoc", 1);
@@ -43,7 +43,7 @@ typedef enum {
     CUDD_REORDER_EXACT
 } Cudd_ReorderingType;
 
-# Typemap to be sure that even if the node_ptr is Nil, it is returned as None
+// Typemap to be sure that even if the node_ptr is Nil, it is returned as None
 %typemap(in, numinputs=0) dd_reorderingtype * method (dd_reorderingtype temp) {
     $1 = &temp;
 }

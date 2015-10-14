@@ -10,7 +10,7 @@
 #include "../../../../nusmv/src/parser/ord/ParserOrd.h" 
 %}
 
-# Removing duplicate macros definition (TOK_X macros).
+// Removing duplicate macros definition (TOK_X macros).
 #pragma SWIG nowarn=302
 
 %feature("autodoc", 1);

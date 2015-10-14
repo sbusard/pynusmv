@@ -20,7 +20,7 @@
 #include "../../../../nusmv/src/bmc/sbmc/sbmcUtils.h" 
 %}
 
-# Ignoring unimplemented function
+// Ignoring unimplemented function
 %ignore sbmc_unroll_invariant_propositional;
 
 %feature("autodoc", 1);

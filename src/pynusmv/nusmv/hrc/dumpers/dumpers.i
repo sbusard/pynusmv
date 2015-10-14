@@ -12,8 +12,8 @@
 #include "../../../../nusmv/src/hrc/dumpers/HrcDumperXml.h" 
 %}
 
-# Removing possible memory leak warning.
-# Global variables have to be cautiously used.
+// Removing possible memory leak warning.
+// Global variables have to be cautiously used.
 #pragma SWIG nowarn=451
 
 %feature("autodoc", 1);

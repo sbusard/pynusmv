@@ -9,7 +9,7 @@
 #include "../../../nusmv/src/mc/mcInt.h"
 %}
 
-# Ignoring unimplemented functions
+// Ignoring unimplemented functions
 %ignore check_invariant_forward;
 
 %feature("autodoc", 1);

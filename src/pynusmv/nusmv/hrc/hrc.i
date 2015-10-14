@@ -13,11 +13,11 @@
 #include "../../../nusmv/src/hrc/HrcVarDependencies.h" 
 %}
 
-# Removing possible memory leak warning.
-# Global variables must be cautiously used.
+// Removing possible memory leak warning.
+// Global variables must be cautiously used.
 #pragma SWIG nowarn=454
 
-# Ignoring unimplemented functions
+// Ignoring unimplemented functions
 %ignore HrcPopulateSymbTable;
 
 %feature("autodoc", 1);

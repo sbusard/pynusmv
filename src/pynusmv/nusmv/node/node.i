@@ -14,10 +14,10 @@
 #include "../../../nusmv/src/utils/WordNumber.h"
 %}
 
-# Renaming new_node to create_node to avoid clash with default construtor
+// Renaming new_node to create_node to avoid clash with default construtor
 %rename (create_node) new_node;
 
-# Ignoring unimplemented functions
+// Ignoring unimplemented functions
 %ignore normalize_nonboolean_case;
 
 %feature("autodoc", 1);

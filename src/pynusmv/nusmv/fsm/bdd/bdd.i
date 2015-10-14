@@ -13,7 +13,7 @@
 #include "../../../../nusmv/src/fsm/bdd/bddInt.h"
 %}
 
-# Ignoring unimplemented functions
+// Ignoring unimplemented functions
 %ignore BddFsm_get_fair_states_subset;
 
 %feature("autodoc", 1);
@@ -21,7 +21,7 @@
 %include ../../typedefs.tpl
 
 
-# Needed to be able to modify a BddFsm, like changing its transition
+// Needed to be able to modify a BddFsm, like changing its transition
 %inline %{
 
 typedef struct BddFsm_TAG

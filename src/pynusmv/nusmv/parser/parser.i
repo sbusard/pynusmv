@@ -14,7 +14,7 @@
 EXTERN int yylineno;
 %}
 
-# Removing duplicate macros definition (TOK_X macros).
+// Removing duplicate macros definition (TOK_X macros).
 #pragma SWIG nowarn=302
 
 %feature("autodoc", 1);
@@ -24,7 +24,7 @@ EXTERN int yylineno;
 %include ../typedefs.tpl
 
 
-# Typemap to be sure that even the node_ptr is Nil, it is returned as None
+// Typemap to be sure that even the node_ptr is Nil, it is returned as None
 %typemap(in, numinputs=0) int* error (int temp) {
     $1 = &temp;
 }
@@ -49,7 +49,7 @@ EXTERN int yylineno;
     }
 }
 
-# These helpers reverse the returned int and argument node pointer
+// These helpers reverse the returned int and argument node pointer
 %inline %{
 // error is set to 0 if everything is fine
 //                 1 if a syntax error occured
@@ -167,8 +167,8 @@ EXTERN node_ptr parsed_tree;
 %include ../../../nusmv/src/parser/grammar.h
 
 
-# Apply typemaps to get as output all pointer arguments of
-# Parser_get_syntax_error
+// Apply typemaps to get as output all pointer arguments of
+// Parser_get_syntax_error
 
 %apply int *OUTPUT {int* out_lineno};
 

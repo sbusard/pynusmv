@@ -10,7 +10,7 @@
 #include "../../../../../../nusmv/src/addons_core/compass/parser/ap/ParserAp.h" 
 %}
 
-# Removing warnings for redefined macros (TOK_X defined twice in ap_grammar)
+// Removing warnings for redefined macros (TOK_X defined twice in ap_grammar)
 #pragma SWIG nowarn=302
 
 %feature("autodoc", 1);

@@ -19,7 +19,7 @@
 #include "../../../nusmv/src/bmc/bmcUtils.h" 
 %}
 
-# Ignoring unimplemented functions
+// Ignoring unimplemented functions
 %ignore Bmc_GenSolveLtlInc;
 %ignore Bmc_GenSolveInvarZigzag;
 %ignore Bmc_GenSolveInvarDual;

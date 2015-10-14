@@ -13,11 +13,11 @@
 #include "../../../nusmv/src/utils/error.h"
 %}
 
-# Removing possible memory leak warning.
-# Pointer to global flat hierarchy has to be cautiously used.
+// Removing possible memory leak warning.
+// Pointer to global flat hierarchy has to be cautiously used.
 #pragma SWIG nowarn=454
 
-# Ignoring unimplemented functions
+// Ignoring unimplemented functions
 %ignore Compile_BuildVarsBdd;
 %ignore build_proc_selector;
 %ignore Compile_CompileInit;
@@ -108,7 +108,7 @@ void cmp_struct_reset(cmp_struct_ptr cmp) {
 %}
 
 
-# Typemap to be sure that even the node_ptr is Nil, it is returned as None
+// Typemap to be sure that even the node_ptr is Nil, it is returned as None
 %typemap(in, numinputs=0) int* error (int temp) {
     $1 = &temp;
 }

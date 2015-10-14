@@ -12,7 +12,7 @@
 #include "../../../../nusmv/src/node/normalizers/NormalizerPsl.h" 
 %}
 
-# Ignoring unimplemented functions
+// Ignoring unimplemented functions
 %ignore MasterNormalizer_destroy;
 
 %feature("autodoc", 1);
