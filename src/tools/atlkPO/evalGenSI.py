@@ -692,7 +692,8 @@ def eval_strat(fsm, spec, semantics="group"):
                   .format(nbstrats, "ies" if nbstrats > 1 else "y"))
     
     # DEBUG Print number of strategies
-    print("Eval_strat: {} strategies".format(nbstrats))
+    if config.debug:
+        print("Eval_strat: {} strategies".format(nbstrats))
     
     return sat
     

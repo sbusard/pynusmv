@@ -731,9 +731,9 @@ def split(fsm, strats, gamma, pustrat=None, semantics="group"):
         if len(gamma) <= 0:
             yield strats
         else:
-            agent = next(iter(gamma))
-            gamma = gamma - {agent}
-            for strat in split(fsm, strats, {agent}, pustrat=pustrat,
+            agent = gamma[0]
+            gamma = gamma[1:]
+            for strat in split(fsm, strats, [agent], pustrat=pustrat,
                                semantics="group"):
                 for sstrat in split(fsm, strat, gamma, pustrat=pustrat,
                                     semantics="individual"):
@@ -812,11 +812,15 @@ def filter_strat(fsm, spec, states, strat=None, variant="SF",
                  
     If variant is not in {"SF", "FS", "FSF"}, the standard "SF" way is used.
     """
-    if strat is None:
-        strat = BDD.true(fsm.bddEnc.DDmanager)
     
     sat = BDD.false(fsm.bddEnc.DDmanager)
     agents = {atom.value for atom in spec.group}
+    
+    if strat is None:
+        strat = BDD.true(fsm.bddEnc.DDmanager)
+        # We can be more restrictive here: strat = fsm.protocol(agents)
+        # But it is not a problem since the strat is restricted later to
+        # protocol
     
     # Filtering
     if type(spec) is CEX:
@@ -855,8 +859,8 @@ def filter_strat(fsm, spec, states, strat=None, variant="SF",
 
 def agents_in_group(fsm, group):
     """
-    Return the set of agents in the given group in fsm. If group is not a group
-    of fsm, group is returned alone.
+    Return the list of agents in the given group in fsm. If group is not a
+    group of fsm, group is returned alone.
     
     This procedure recursively searches for all basic agents in the groups
     possibly composing group.
@@ -866,15 +870,30 @@ def agents_in_group(fsm, group):
     """
     
     if group in fsm.groups:
-        agents = set()
+        agents = []
         for agent in fsm.groups[group]:
             if agent in fsm.groups:
-                agents |= agents_in_group(fsm, agent)
+                agents += [a for a in agents_in_group(fsm, agent)
+                           if a not in agents]
             else:
-                agents.add(agent)
+                agents.append(agent)
     else:
-        agents = {group}
+        agents = [group]
     return agents
+
+
+def agents_in_list(fsm, agents):
+    """
+    Return the list of agents in the given list of groups and agents.
+    
+    fsm -- the model;
+    agents -- an iterable of groups and agents.
+    """
+    result = []
+    for agent in agents:
+        result += [a for a in agents_in_group(fsm, agent)
+                   if a not in result]
+    return result
 
 
 def eval_strat(fsm, spec, states, semantics="group"):
@@ -896,11 +915,10 @@ def eval_strat(fsm, spec, states, semantics="group"):
     
     """
     
-    agents = {atom.value for atom in spec.group}
+    agents = [atom.value for atom in spec.group]
     
     if semantics == "individual":
-        agents = reduce(lambda a, b: a | b,
-                        (agents_in_group(fsm, group) for group in agents))
+        agents = agents_in_list(fsm, agents)
     
     if config.debug:
         print("Evaluating partial strategies for ", spec)
@@ -1164,15 +1182,17 @@ def eval_strat_improved(fsm, spec, states, semantics="group"):
     
     assert(len(config.partial.alternate.type & {"univ", "strat"}) > 0)
     
+    if config.debug:
+        print("Evaluating partial strategies for ", spec, "(early)")
+    
     __strategies[spec] = 0
     __filterings[spec] = 0
     __ignorings[spec] = 0
     
-    gamma = {atom.value for atom in spec.group}
+    gamma = [atom.value for atom in spec.group]
     
     if semantics == "individual":
-        gamma = reduce(lambda a, b: a | b,
-                       (agents_in_group(fsm, group) for group in gamma))
+        gamma = agents_in_list(fsm, gamma)
     
     sat = BDD.false(fsm.bddEnc.DDmanager)
     
@@ -1181,11 +1201,36 @@ def eval_strat_improved(fsm, spec, states, semantics="group"):
             states = states | get_equiv_class(fsm, {agent}, states)
     else:
         states = get_equiv_class(fsm, gamma, states)
+    
+    # Pre-filtering out losing states and actions
+    if config.partial.filtering:
+        # FIXME This triggers full partial strategies exploration when
+        # a sub-formula is a strategic one. Should perform only full obs
+        # approximation for strategic sub-formulas as well.
+        # Can be done with semantics="full obs"
+        subsystem = filter_strat(fsm, spec, states, variant="FS",
+                                 semantics=semantics)
+    else:
+        subsystem = fsm.protocol(gamma)
+    # if filtering is enabled, subsystem is the part of the system in which
+    # states can win
+    
+    # if filtering is enabled, we can remove, from states, the set of states
+    # for which not all equivalent states are in subsystem. Indeed, if a state
+    # is not in subsystem, there is not strategy in this state to win,
+    # thus no uniform strategy to win, thus its entire equivalence class
+    # cannot win
+    states = (states & all_equiv_sat(fsm,
+                                     subsystem.forsome(fsm.bddEnc.inputsCube), 
+                                     gamma, semantics=semantics))
+    
     remaining = states
     
     for pstrat in split(fsm, states & fsm.protocol(gamma), gamma,
+                        pustrat=subsystem,
                         semantics=semantics):
-        newsat = eval_strat_alternate(fsm, spec, remaining, pstrat,
+        newsat = eval_strat_alternate(fsm, spec, gamma, remaining, pstrat,
+                                      subsystem=subsystem,
                                       semantics=semantics)
         sat = sat | newsat
         remaining = remaining - sat
@@ -1203,7 +1248,8 @@ def eval_strat_improved(fsm, spec, states, semantics="group"):
     
     return sat
 
-def eval_strat_alternate(fsm, spec, states, pstrat, semantics="group"):
+def eval_strat_alternate(fsm, spec, gamma, states, pstrat, subsystem,
+                         semantics="group"):
     """
     Return the BDD representing the subset of states s' such that there exists
     a uniform maximal partial strategy extending pstrat that is winning for
@@ -1212,8 +1258,11 @@ def eval_strat_alternate(fsm, spec, states, pstrat, semantics="group"):
     fsm -- a MAS representing the system;
     spec -- an AST-based ATLK specification with a top strategic (<g>)
             operator;
+    gamma -- the list of agents of spec (expanded to single agents in the case
+             of individual semantics); must correspond to the agents of spec;
     states -- a BDD representing a set of states of fsm;
     pstrat -- a uniform partial strategy reachable from states.
+    subsystem -- the subsystem to search for strategies in.
     semantics -- the semantics to use for starting point and strategy point
                  equivalence; must be
                  * "group" for the original ATLK_irF semantics considering
@@ -1222,11 +1271,6 @@ def eval_strat_alternate(fsm, spec, states, pstrat, semantics="group"):
                    the group as individual agents (individual knowledge is
                    used)
     """
-    
-    gamma = {atom.value for atom in spec.group}
-    if semantics == "individual":
-        gamma = reduce(lambda a, b: a | b,
-                       (agents_in_group(fsm, group) for group in gamma))
     
     fullpstrat = (pstrat |
                   (fsm.protocol(gamma) -
@@ -1308,10 +1352,12 @@ def eval_strat_alternate(fsm, spec, states, pstrat, semantics="group"):
         remaining = states
         
         # Split the new moves
-        for npstrat in split(fsm, new & fsm.protocol(gamma), gamma, pstrat,
+        for npstrat in split(fsm, new & fsm.protocol(gamma), gamma,
+                             pustrat=pstrat & subsystem,
                              semantics=semantics):
-            newwin = eval_strat_alternate(fsm, spec, remaining,
+            newwin = eval_strat_alternate(fsm, spec, gamma, remaining,
                                           pstrat | npstrat,
+                                          subsystem=subsystem,
                                           semantics=semantics)
             win = win | newwin
             remaining = remaining - win

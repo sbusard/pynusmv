@@ -18,7 +18,8 @@ from ..atlkFO.ast import (TrueExp, FalseExp, Init, Reachable,
                           AF, AG, AX, AU, AW, EF, EG, EX, EU, EW,
                           nK, nE, nD, nC, K, E, D, C,
                           CEF, CEG, CEX, CEU, CEW, CAF, CAG, CAX, CAU, CAW)
-                          
+
+from . import config
 
 from ..atlkFO.eval import (fair_states, ex, eg, eu, nk, ne, nd, nc)
 
@@ -568,6 +569,6 @@ def eval_strat(fsm, spec):
         
         nbstrats += 1
     
-    
-    print("[DEBUG] Eval strat Mem: {} strats checked".format(nbstrats))
+    if config.debug:
+        print("[DEBUG] Eval strat Mem: {} strats checked".format(nbstrats))
     return sat

@@ -7,8 +7,9 @@ Meyden.
 
 import gc
 from functools import reduce
+from collections import OrderedDict
 
-from pynusmv.dd import BDD
+from pynusmv.dd import BDD, dynamic_reordering_enabled, reorder
 from pynusmv.fsm import BddTrans
 from pynusmv.mc import eval_simple_expression
 from pynusmv.utils import fixpoint as fp
@@ -427,7 +428,32 @@ def _ifair(fsm, name):
             res = res & follow.pre(fp(lambda Y: (Z & f) | follow.pre(Y),
                                       BDD.false(fsm.bddEnc.DDmanager)))
         return res
-    return fp(inner, BDD.true(fsm.bddEnc.DDmanager))
+    res = fp(inner, BDD.true(fsm.bddEnc.DDmanager))
+    
+    return res
+
+
+def _nfair(fsm, name):
+    """
+    Return a mu-calculus translation of non-fair states of fsm under uniform
+    strategy played by name.
+    """
+    
+    jump = fsm.transitions[name + "_jump"]
+    equiv = fsm.transitions[name + "_equiv"]
+    follow = fsm.transitions[name + "_follow"]
+    
+    # nfair =
+    # mu Z. \/_fc []_group_follow(nu Y. (Z \/ ~fc) /\ []_group_follow(Y))
+    def inner(Z):
+        # \/_fc []_group_follow(nu Y. (Z \/ ~fc) /\ []_group_follow(Y))
+        res = BDD.false(fsm.bddEnc.DDmanager)
+        for f in fsm.fairness_constraints:
+            res = res | ~follow.pre(~fp(lambda Y: (Z | ~f) & ~follow.pre(~Y),
+                                       BDD.true(fsm.bddEnc.DDmanager)))
+        return res
+    res = fp(inner, BDD.false(fsm.bddEnc.DDmanager))
+    return res
 
 
 def cex_symbolic(fsm, name, child):
@@ -445,7 +471,7 @@ def cex_symbolic(fsm, name, child):
         # <>_group_jump []_group_equiv
         # (reachable => []_group_follow (p \/ ~ifair))
         return jump.pre(~equiv.pre(~(reachable.imply(
-                        ~follow.pre(~(child | ~_ifair(fsm, name)))))))
+                        ~follow.pre(~(child | _nfair(fsm, name)))))))
 
 
 def ceu_symbolic(fsm, name, left, right):
@@ -462,7 +488,7 @@ def ceu_symbolic(fsm, name, left, right):
                         fp(lambda Z: right | (left & ~follow.pre(~Z)),
                            BDD.false(fsm.bddEnc.DDmanager))))))
     else:
-        ifair = _ifair(fsm, name)
+        nfair = _nfair(fsm, name)
         # <group>i fair [p U q] =
         # <>_group_jump []_group_equiv
         # reachable =>
@@ -483,10 +509,10 @@ def ceu_symbolic(fsm, name, left, right):
                 #                        (p \/ q \/ ~ifair) /\
                 #                        (q \/ []_group_follow(Y)))
                 res = res | ~follow.pre(
-                      ~(fp(lambda Y: ((Z | ~f) & (left | right | ~ifair) &
+                      ~(fp(lambda Y: ((Z | ~f) & (left | right | nfair) &
                                      (right | ~follow.pre(~Y))),
                            BDD.true(fsm.bddEnc.DDmanager))))
-            return ((left | right | ~ifair) & (right | res))
+            return ((left | right | nfair) & (right | res))
         return jump.pre(~equiv.pre(~(reachable.imply(
                         fp(inner, BDD.false(fsm.bddEnc.DDmanager))))))
 
@@ -505,14 +531,16 @@ def cew_symbolic(fsm, name, left, right):
                         fp(lambda Z: right | (left & ~follow.pre(~Z)),
                            BDD.true(fsm.bddEnc.DDmanager))))))
     else:
+        nfair = _nfair(fsm, name)
         # <group>i fair [p W q] =
         # <>_group_jump []_group_equiv
         # reachable =>
         # nu Z. (p \/ q \/ ~ifair) /\ (q \/ []_group_follow(Z))
-        return jump.pre(~equiv.pre(~(reachable.imply(
-                        fp(lambda Z: ((left | right | ~_ifair(fsm, name)) &
+        res = jump.pre(~equiv.pre(~(reachable.imply(
+                        fp(lambda Z: ((left | right | nfair) &
                                       (right | ~follow.pre(~Z))),
                            BDD.true(fsm.bddEnc.DDmanager))))))
+        return res
 
 
 def get_equiv_class(fsm, gamma, state, semantics="group"):
@@ -766,6 +794,10 @@ def filter_strat(fsm, spec, strat=None, variant="SF", semantics="group"):
     sat = BDD.false(fsm.bddEnc.DDmanager)
     agents = {atom.value for atom in spec.group}
     
+    if strat is None:
+        strat = BDD.true(fsm.bddEnc.DDmanager)
+        # We can be more restrictive here: strat = fsm.protocol(agents)
+    
     # Filtering
     if type(spec) is CEX:
         winning = cex_si(fsm, agents,
@@ -863,7 +895,7 @@ def vars_trans_from_protocol(fsm, original_variables, original_trans,
                          for var, val in sorted(((str(var), str(val))
                                                  for var, val in assigment)))
     
-    variables = {}
+    variables = OrderedDict()
     act_cube = fsm.bddEnc.cube_for_inputs_vars(actions)
     obs_cube = fsm.bddEnc.cube_for_state_vars(observables)
     state_cube = fsm.bddEnc.statesCube
@@ -887,8 +919,10 @@ def vars_trans_from_protocol(fsm, original_variables, original_trans,
                                  in state.get_str_values().items()
                                  if var in observables]))
         
-        variables[obs_vars] = set()
-        inputs = ((protocol & state).forsome(fsm.bddEnc.statesCube)
+        variables[obs_vars] = list()
+        inputs = ((protocol &
+                   state.forsome(other_vars_cube)).forsome(
+                   fsm.bddEnc.statesCube)
                   & fsm.bddEnc.statesInputsMask
                   & fsm.bddEnc.statesMask
                   & fsm.bddEnc.inputsMask
@@ -903,7 +937,7 @@ def vars_trans_from_protocol(fsm, original_variables, original_trans,
                             node.Expression.from_string(val))
                            for var, val in i.get_str_values().items()
                            if var in actions]))
-            variables[obs_vars].add(inputs_vars)
+            variables[obs_vars].append(inputs_vars)
             
             inputs = inputs - i.forsome(other_acts_cube)
         
@@ -916,11 +950,11 @@ def vars_trans_from_protocol(fsm, original_variables, original_trans,
     
     
     new_variables = []
-    strategies = set()  # strategies is a set of tuples
-                        #   (obs assigment,
-                        #    corresponding strategy var,
-                        #    corresponding strategy var value,
-                        #    actions assigment)
+    strategies = list()  # strategies is a list of tuples
+                         #   (obs assigment,
+                         #    corresponding strategy var,
+                         #    corresponding strategy var value,
+                         #    actions assigment)
     
     for obs_values in variables:
         var_name = (name + "_" + _assign_to_name(obs_values))
@@ -930,7 +964,10 @@ def vars_trans_from_protocol(fsm, original_variables, original_trans,
             type_value = _assign_to_name(action_values)
             type_values.append(type_value)
             
-            strategies.add((obs_values, var_name, type_value, action_values))
+            strategies.append((obs_values,
+                               var_name,
+                               type_value,
+                               action_values))
             
         var_type = fsm.bddEnc.symbTable._get_type_from_node(
                    node.Scalar(type_values))
@@ -942,6 +979,9 @@ def vars_trans_from_protocol(fsm, original_variables, original_trans,
                               var_type,
                               nssymb_table.SYMBOL_STATE_VAR))
     
+    new_variables = sorted(new_variables, key=lambda e: str(e[0]))
+    
+    strategies = sorted(strategies, key=lambda e: str(e[1]))
     
     # Relations:
     #   (1) one to follow the strategy (name_follow)
@@ -954,7 +994,7 @@ def vars_trans_from_protocol(fsm, original_variables, original_trans,
     #   (3) one to jump from a strategy to another (name_jump)
     #       => all state variables stay the same
     
-    new_trans = {}
+    new_trans = OrderedDict()
     
     # name_follow = original_trans & strategy stays the same
     #               & the actions are followed
@@ -1098,7 +1138,10 @@ def encode_strat(fsm, agents, name, strat=None, semantics="group"):
         new_variables = []
         new_trans = {}
         for agent in agents:
-            agent_strat = fsm.protocol({agent}) & strat
+            agent_strat = (fsm.protocol({agent}) &
+                           strat.forsome(fsm.bddEnc.inputsCube -
+                                         fsm.bddEnc.cube_for_inputs_vars(
+                                         fsm.agents_inputvars[agent])))
             nvars, ntrans = vars_trans_from_protocol(fsm,
                                        original_variables, original_trans,
                                        agent_strat,
@@ -1114,13 +1157,18 @@ def encode_strat(fsm, agents, name, strat=None, semantics="group"):
 
         encode_vars_trans(fsm, name, new_variables, new_trans)
         
+        # Force reordering if enabled
+        if dynamic_reordering_enabled():
+            reorder(method="same")
+        
     else:
+        # Warning: no determinism of variable order
         agents_actions = set()
         for agent in agents:
-            agents_actions |= fsm.agents_inputvars[agent]
+            agents_actions |= set(fsm.agents_inputvars[agent])
         agents_obs = set()
         for agent in agents:
-            agents_obs |= fsm.agents_observed_variables[agent]
+            agents_obs |= set(fsm.agents_observed_variables[agent])
         
         agents_strat = fsm.protocol(agents) & strat
         
@@ -1152,8 +1200,8 @@ def encode_strat(fsm, agents, name, strat=None, semantics="group"):
 
 def agents_in_group(fsm, group):
     """
-    Return the set of agents in the given group in fsm. If group is not a group
-    of fsm, group is returned alone.
+    Return the list of agents in the given group in fsm. If group is not a
+    group of fsm, group is returned alone.
     
     This procedure recursively searches for all basic agents in the groups
     possibly composing group.
@@ -1163,15 +1211,30 @@ def agents_in_group(fsm, group):
     """
     
     if group in fsm.groups:
-        agents = set()
+        agents = []
         for agent in fsm.groups[group]:
             if agent in fsm.groups:
-                agents |= agents_in_group(fsm, agent)
+                agents += [a for a in agents_in_group(fsm, agent)
+                           if a not in agents]
             else:
-                agents.add(agent)
+                agents.append(agent)
     else:
-        agents = {group}
+        agents = [group]
     return agents
+
+
+def agents_in_list(fsm, agents):
+    """
+    Return the list of agents in the given list of groups and agents.
+    
+    fsm -- the model;
+    agents -- an iterable of groups and agents.
+    """
+    result = []
+    for agent in agents:
+        result += [a for a in agents_in_group(fsm, agent)
+                   if a not in result]
+    return result
 
 
 def eval_strat(fsm, spec, semantics="group"):
@@ -1190,11 +1253,10 @@ def eval_strat(fsm, spec, semantics="group"):
                    used)
     """
     
-    agents = {atom.value for atom in spec.group}
+    agents = [atom.value for atom in spec.group]
     
     if semantics == "individual":
-        agents = reduce(lambda a, b: a | b,
-                        (agents_in_group(fsm, group) for group in agents))
+        agents = agents_in_list(fsm, agents)
     
     group_name = semantics + "_" + "_".join(sorted(agents))
     
@@ -1298,11 +1360,10 @@ def eval_strat_FSF(fsm, spec, semantics="group"):
     
     # Create the transition relations for agents if needed
     if not hasattr(fsm, "transitions") or group_name not in fsm.transitions:
-        agents = {atom.value for atom in spec.group}
-        
+        agents = [atom.value for atom in spec.group]
+
         if semantics == "individual":
-            agents = reduce(lambda a, b: a | b,
-                            (agents_in_group(fsm, group) for group in agents))
+            agents = agents_in_list(fsm, agents)
 
         strat = filter_strat(fsm, spec, strat=fsm.protocol(agents),
                              variant="FSF")

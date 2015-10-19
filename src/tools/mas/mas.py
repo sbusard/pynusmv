@@ -74,10 +74,10 @@ class MAS(BddFsm):
             trans = nsnode.find_node(nsparser.AND,
                                      self._epistemic[agent],
                                      trans)
-        self._epistemic_trans[agents] = BddTrans.from_trans(symb_table(),
+        self._epistemic_trans[frozenset(agents)] = BddTrans.from_trans(
+                                                            symb_table(),
                                                             trans)
-                                              
-                                              
+    
     def equivalent_states(self, states, agents):
         """
         Return the BDD representing the set of states epistemically equivalent
@@ -93,13 +93,12 @@ class MAS(BddFsm):
         states = states & self.state_constraints
         
         # Compute the post-image
-        agents = frozenset(agents)
-        if agents not in self._epistemic_trans:
+        if frozenset(agents) not in self._epistemic_trans:
             # Compute the BddTrans
             self._compute_epistemic_trans(agents)
         # pre_ or post_ operations can be used since the epistemic relations
         # are equivalence relations and thus are symetric
-        result = self._epistemic_trans[agents].pre(states)
+        result = self._epistemic_trans[frozenset(agents)].pre(states)
         
         # Apply constraints on result
         return result & self.state_constraints

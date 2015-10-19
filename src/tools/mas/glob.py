@@ -165,7 +165,7 @@ def _get_epistemic_trans(variable):
     return parse_next_expression(transexpr)
     
 
-def mas(agents=None):
+def mas(agents=None, initial_ordering=None):
     """
     Return (and compute if needed) the multi-agent system represented by
     the currently read SMV model.
@@ -181,7 +181,12 @@ def mas(agents=None):
             * the state variables provided as an argument to the module
               instantiation.
     
-    Note: if the MAS is already computed, agents argument has no effect.
+    If initial_ordering is not None, it must be the path to a variables
+    ordering file. It is used as the initial ordering for variables of the
+    model.
+    
+    Note: if the MAS is already computed, agents and initial_ordering arguments
+    have no effect.
     
     agents -- a set of agents.
     """    
@@ -209,7 +214,7 @@ def mas(agents=None):
             agents = arguments.keys()
             
             # Compute the model
-            _compute_model()
+            _compute_model(variables_ordering=initial_ordering)
             
             st = symb_table()
             
@@ -247,19 +252,19 @@ def mas(agents=None):
             groups = None
         
         else:
-            _compute_model()
+            _compute_model(variables_ordering=initial_ordering)
             # observedvars: a dictionary of agent name -> set of observed vars
-            observedvars = {str(agent.name): {str(var)
-                                              for var in agent.observables}
+            observedvars = {str(agent.name): [str(var)
+                                              for var in agent.observables]
                             for agent in agents}
             # inputsvars: a dictionary of agent name -> set of inputs vars
-            inputvars = {str(agent.name): {str(ivar)
-                                           for ivar in agent.actions}
+            inputvars = {str(agent.name): [str(ivar)
+                                           for ivar in agent.actions]
                          for agent in agents}
             # groups:
             # a dictionary of group name -> names of agents of the group
-            groups = {str(group.name): {str(agent.name)
-                                        for agent in group.agents}
+            groups = {str(group.name): [str(agent.name)
+                                        for agent in group.agents]
                       for group in agents if isinstance(group, Group)}
             # singletrans: a dictionary of agent name -> epistemic transition
             singletrans = {}
