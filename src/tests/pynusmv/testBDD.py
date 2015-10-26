@@ -297,3 +297,21 @@ class TestBDD(unittest.TestCase):
         
         self.assertIsNotNone(processing.minimize(noadmin))
         self.assertTrue(processing.minimize(noadmin).isnot_false())
+    
+    
+    def test_size(self):
+        (fsm, enc, manager) = self.init_model()
+        true = BDD.true(manager)
+        false = BDD.false(manager)
+        init = fsm.init
+        noadmin = eval_simple_expression(fsm, "admin = none")
+        alice = eval_simple_expression(fsm, "admin = alice")
+        processing = eval_simple_expression(fsm, "state = processing")
+        
+        self.assertEqual(BDD.true().size, 1)
+        self.assertEqual(BDD.false().size, 1)
+        self.assertEqual(fsm.pick_one_state(BDD.true()).size,
+                         len(fsm.bddEnc.get_variables_ordering("bits")) + 1)
+        self.assertEqual(init.size, 5)
+        self.assertEqual(processing.size, 3)
+        

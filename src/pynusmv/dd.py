@@ -216,6 +216,16 @@ class BDD(PointerWrapper):
     
     def __deepcopy__(self, memo):
         return self.dup()
+    
+    @property
+    def size(self):
+        """
+        The number of BDD nodes of this BDD.
+        """
+        if self._manager is None:
+            raise MissingManagerError()
+
+        return nsdd.bdd_size(self._manager._ptr, self._ptr)
 
     def equal(self, other):
         """
