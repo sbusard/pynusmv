@@ -269,6 +269,19 @@ bdd_ptr pick_one_state_input_rand(const BddEnc_ptr self, bdd_ptr si)
     return result;
 }
 
+
+int BddEnc_force_order_from_filename(const BddEnc_ptr self,
+                                     const char * filename) {
+    FILE* orderfile;
+    orderfile = fopen(filename, "r");
+    if (orderfile == (FILE*) NULL) { 
+      return 1;
+    }
+    BddEnc_force_order_from_file(self, orderfile);
+    fclose(orderfile);
+    return 0;
+}
+
 %}
 
 

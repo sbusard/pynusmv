@@ -994,6 +994,26 @@ class BddEnc(PointerWrapper):
         nsutils.NodeList_destroy(var_list)
         return tuple(variables)
 
+    def force_variables_ordering(self, order):
+        """
+        Reorder variables based on the given order.
+
+        :param order: a list of variables names (scalar and/or bits) of the
+                      system; variables that are not part of the system are
+                      ignored (a warning is printed), variables of the system
+                      that are not in order are put at the end of the new
+                      order.
+
+        ..note:: For more information on variables orders, see NuSMV
+                 documentation.
+        """
+        # Create temp file
+        with tempfile.NamedTemporaryFile(suffix=".ord") as tmp:
+            tmp.write("\n".join(str(var) for var in order).encode("UTF-8"))
+            tmp.flush()
+            bddEnc.BddEnc_force_order_from_filename(self._ptr, tmp.name)
+        
+
 class SymbTable(PointerWrapper):
 
     """

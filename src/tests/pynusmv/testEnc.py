@@ -104,3 +104,17 @@ class TestEnc(unittest.TestCase):
         self.assertSetEqual(variables, set(enc.get_variables_ordering()))
         self.assertSetEqual(bits,
                             set(enc.get_variables_ordering(var_type="bits")))
+    
+    def test_force_var_ordering(self):
+        fsm = self.model()
+        
+        new_order = ("a", "q", "p")
+        fsm.bddEnc.force_variables_ordering(new_order)
+        self.assertTupleEqual(new_order, fsm.bddEnc.get_variables_ordering())
+        
+        new_order = ("p", "a")
+        fsm.bddEnc.force_variables_ordering(new_order)
+        self.assertTupleEqual(new_order,
+                              fsm.bddEnc.get_variables_ordering()
+                              [:len(new_order)])
+        
