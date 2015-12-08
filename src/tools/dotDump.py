@@ -125,7 +125,9 @@ def dumpDot(fsm):
     fair_attr = fairness_attr(fsm)
     states = fsm.pick_all_states(fsm.reachable_states)
     transitions = {(s1,i,s2)
-                   for s1 in states for s2 in states
+                   for s1 in states
+                   for s2 in 
+                   fsm.pick_all_states(fsm.post(s1) & fsm.reachable_states)
                    for i in (fsm.pick_all_inputs(
                                          fsm.get_inputs_between_states(s1,s2))
                              if len(fsm.bddEnc.inputsVars) > 0
