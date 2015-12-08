@@ -196,6 +196,12 @@ class Expression(Element):
 
     def __sub__(self, other):
         return self.sub(other)
+    
+    def __rsub__(self, other):
+        from .parser import parseAllString, next_expression
+        if isinstance(other, str):
+            other = parseAllString(next_expression, other)
+        return Sub(other, self)
 
     def sub(self, other):
         from .parser import parseAllString, next_expression
