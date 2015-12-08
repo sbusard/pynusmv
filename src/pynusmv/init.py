@@ -44,7 +44,8 @@ class _PyNuSMVContext(object):
         return None
 
     def __exit__(self, exc_type, exc_value, traceback):
-        if exc_type is None:
+        # FIXME Why should we avoid shut NuSMV down if an exception occurs?
+        #if exc_type is None:
             deinit_nusmv()
 
 
