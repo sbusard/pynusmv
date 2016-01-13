@@ -25,6 +25,11 @@ class TestFsm(unittest.TestCase):
         self.assertIsNotNone(fsm)
         return fsm
         
+    def deadlock_model(self):
+        fsm = BddFsm.from_filename("tests/pynusmv/models/deadlock.smv")
+        self.assertIsNotNone(fsm)
+        return fsm
+        
         
     def test_init(self):
         fsm = self.model()
@@ -44,6 +49,18 @@ class TestFsm(unittest.TestCase):
         
         fsm.reachable_states = p & q
         self.assertEqual(p & q, fsm.reachable_states)
+    
+    
+    def test_deadlock_states_without_deadlock(self):
+        fsm = self.model()
+        self.assertEqual(fsm.deadlock_states, BDD.false(fsm))
+    
+    
+    def test_deadlock_states_with_deadlock(self):
+        fsm = self.deadlock_model()
+        p = evalSexp(fsm, "p")
+        q = evalSexp(fsm, "q")
+        self.assertEqual(fsm.deadlock_states, ~p & ~q)
         
         
     def test_state_constraints(self):

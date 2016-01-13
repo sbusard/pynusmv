@@ -66,6 +66,7 @@ class BddFsm(PointerWrapper):
         """
         super(BddFsm, self).__init__(ptr, freeit=freeit)
         self._reachable = None
+        self._deadlock = None
         self._fair = None
     
     def __deepcopy__(self, memo):
@@ -170,6 +171,18 @@ class BddFsm(PointerWrapper):
     def reachable_states(self, reachable_states):
         self._reachable = reachable_states
         bddFsm.BddFsm_set_reachable_states(self._ptr, reachable_states._ptr)
+
+    @property
+    def deadlock_states(self):
+        """
+        The set of states of the system with no successor.
+
+        """
+        if self._deadlock is None:
+            self._deadlock = BDD(bddFsm.
+                                 BddFsm_get_not_successor_states(self._ptr),
+                                 self.bddEnc.DDmanager)
+        return self._deadlock
     
     @property
     def fair_states(self):
