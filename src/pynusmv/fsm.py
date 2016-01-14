@@ -175,12 +175,12 @@ class BddFsm(PointerWrapper):
     @property
     def deadlock_states(self):
         """
-        The set of states of the system with no successor.
+        The set of reachable states of the system with no successor.
 
         """
         if self._deadlock is None:
             self._deadlock = BDD(bddFsm.
-                                 BddFsm_get_not_successor_states(self._ptr),
+                                 BddFsm_get_deadlock_states(self._ptr),
                                  self.bddEnc.DDmanager)
         return self._deadlock
     
