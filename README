@@ -26,6 +26,9 @@ pyparsing version 1.5.6 or higher -- http://pyparsing.wikispaces.com/
 SWIG and pyparsing are provided in this package in the dep/ directory.
 
 
+Warning: PyNuSMV does NOT work with Python 2.
+
+
 
 Build
 -----
@@ -127,8 +130,13 @@ Finally, you can also update the pynusmv.sh script in the PyNuSMV package to add
 DOCUMENTATION
 -------------
 
-The full API of (the upper interface of) PyNuSMV is provided
-in the doc/html/index.html page. Other userful information like a presentation 
+The full API of (the upper interface of) PyNuSMV can be generated thanks
+to Sphinx (http://www.sphinx-doc.org/) by running
+
+    make html
+
+in the doc/ directory. The documentation is then available in the
+doc/html/index.html page. Other userful information like a presentation
 of the tool and a short tutorial are also given.
 
 
