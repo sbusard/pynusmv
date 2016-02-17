@@ -1,8 +1,9 @@
-PyNuSMV is a Python binding for NuSMV. It is intended to provide a Python 
+PyNuSMV is a Python binding for NuSMV. It is intended to provide a Python
 interface to NuSMV, allowing to use NuSMV as a library.
 
-More details about PyNuSMV are provided in the documentation located in 
-doc/html/index.html file.
+More details about this tool are provided in the PyNuSMV documentation
+(see the DOCUMENTATION section below).
+
 
 -----
 BUILD
@@ -11,17 +12,25 @@ BUILD
 Dependencies
 ------------
 
-In addition to tools needed by NuSMV to compile and run, PyNuSMV needs the 
+NuSMV is needed to compile and use PyNuSMV. To compile NuSMV, you need
+
+* An ANSI C compiler (gcc will do, as will several versions of cc)
+* GNU Flex version 2.5 or greater
+* GNU Bison version 1.22 or greater
+* GNU make utility version 3.74 or greater
+* GNU tar and gzip utilities
+* Approximately 91 MB of free disk space for building the system
+* Approximately 49 MB of free disk space for the installation.
+
+More information about NuSMV compilation can be found in src/nusmv/README.
+
+
+In addition to tools needed by NuSMV to compile and run, PyNuSMV needs the
 following tools:
 
-Python version 3.2 or higher -- http://python.org/
-SWIG version 2.0.6 or higher -- http://www.swig.org/
-
-Some tools provided with PyNuSMV in the tools/ directory also need the following 
-libraries:
-
-pyparsing version 2.0.2 or higher -- http://pyparsing.wikispaces.com/
-
+* Python version 3.2 or higher -- http://python.org/
+* SWIG version 2.0.6 or higher -- http://www.swig.org/
+* pyparsing version 2.0.2 or higher -- http://pyparsing.wikispaces.com/
 
 SWIG and pyparsing are provided in this package in the dep/ directory.
 
@@ -29,11 +38,10 @@ SWIG and pyparsing are provided in this package in the dep/ directory.
 Warning: PyNuSMV does NOT work with Python 2.
 
 
-
 Build
 -----
 
-With the pre-compiled version of PyNuSMV, PyNuSMV is already built and is 
+With the pre-compiled version of PyNuSMV, PyNuSMV is already built and is
 located in src/pynumsv. Otherwise, read the following instructions.
 
 
@@ -41,19 +49,19 @@ To build PyNuSMV, you can just use the provided Makefiles:
 
 make
 
-
 These Makefiles accept arguments:
     - PYTHON defines the Python command. By default, `python3` is used.
     - SWIG defines the SWIG command. By default, if `swig` exists, it is used,
-      otherwise, SWIG is compiled with the given sources; if this argument is 
-      not empty, it is used as the `swig` command.
-    - PYPARSING defines the PyParsing file. By default, PyParsing is searched, 
-      if found it is used, otherwise it is extracted from the given sources; if 
-      PYPARSING is set to something different from 0, the file is taken from the 
-      given sources even if PyParsing is already installed.
-      
+      otherwise, SWIG is compiled with the sources given in the dep/ directory;
+      if this argument is not empty, it is used as the `swig` command.
+    - PYPARSING defines the pyparsing file. By default, pyparsing is searched,
+      if found it is used, otherwise it is extracted from the sources given in
+      the dep/ directory; if PYPARSING is set to something different from 0,
+      the file is taken from the sources even if pyparsing is already
+      installed.
+
 For example, if you want to use `python3.2` instead of `python3` and to compile
-SWIG from sources even if you have SWIG, you can use:
+SWIG from sources even if it is already installed, you can use:
 
 make PYTHON=python3.2 SWIG=
 
@@ -61,7 +69,7 @@ make PYTHON=python3.2 SWIG=
 PyNuSMV is then located into src/pynusmv directory.
 
 
-If you want more control on the different steps of the building, you can follow 
+If you want more control on the different steps of the building, you can follow
 these instructions:
 
 First compile NuSMV:
@@ -84,21 +92,21 @@ python setup.py build_ext --inplace
 Problems
 --------
 
-On Mac OS X, an error can occur when compiling NuSMV sources when embedding no 
+On Mac OS X, an error can occur when compiling NuSMV sources when embedding no
 SAT solver:
 
 /bin/sh ../../../libtool --tag=CC   --mode=link gcc -std=gnu99  -fno-strict-aliasing -g -O2   -o libsatsolvers.la -lm 
 libtool: link: ar cru .libs/libsatsolvers.a 
 ar: no archive members specified
 usage:  ar -d [-TLsv] archive file ...
-	ar -m [-TLsv] archive file ...
-	ar -m [-abiTLsv] position archive file ...
-	ar -p [-TLsv] archive [file ...]
-	ar -q [-cTLsv] archive file ...
-	ar -r [-cuTLsv] archive file ...
-	ar -r [-abciuTLsv] position archive file ...
-	ar -t [-TLsv] archive [file ...]
-	ar -x [-ouTLsv] archive [file ...]
+    ar -m [-TLsv] archive file ...
+    ar -m [-abiTLsv] position archive file ...
+    ar -p [-TLsv] archive [file ...]
+    ar -q [-cTLsv] archive file ...
+    ar -r [-cuTLsv] archive file ...
+    ar -r [-abciuTLsv] position archive file ...
+    ar -t [-TLsv] archive [file ...]
+    ar -x [-ouTLsv] archive [file ...]
 
 
 To avoid this error, modify
@@ -112,18 +120,27 @@ To avoid this error, modify
 Using PyNuSMV
 -------------
 
-When PyNuSMV is built (with a pre-compiled version, or by following the instructions above), you can use it by going into the src/ directory, running a Python session and importing the pynusmv module.
+When PyNuSMV is built (with a pre-compiled version, or by following the
+instructions above), you can use it by going into the src/ directory, running a
+Python session and importing the pynusmv module.
 
-If you to be able to access to PyNuSMV from anywhere, you have to set two different environment variables:
+If you to be able to access to PyNuSMV from anywhere, you have to set two
+different environment variables:
 
-    - LD_LIBRARY_PATH (or DYLD_LIBRARY_PATH under Mac OS) must contain the path to the src/lib/ directory of PyNuSMV package.
-    - PYTHON_PATH must contain the path to the src/ directory of PyNuSMV package.
-    
-With this two environment variables set (and exported), you can import the pynusmv module, from any Python program or session, from anywhere on your computer (instead of just from the src/ directory).
+    - LD_LIBRARY_PATH (or DYLD_LIBRARY_PATH under Mac OS) must contain the path
+      to the src/lib/ directory of PyNuSMV package.
+    - PYTHON_PATH must contain the path to the src/ directory of PyNuSMV
+      package.
 
-Finally, you can also update the pynusmv.sh script in the PyNuSMV package to add the path to PyNuSMV package and then you can start a Python session with pynusmv already loaded with
+With these two environment variables set (and exported), you can import the
+pynusmv module, from any Python program or session, from anywhere on your
+computer (instead of just from the src/ directory).
 
-    ./pynusmv.sh
+Finally, you can also update the pynusmv.sh script in the PyNuSMV package to
+add the path to PyNuSMV package and then you can start a Python session with
+pynusmv already loaded with:
+
+./pynusmv.sh
 
 
 -------------
@@ -131,9 +148,9 @@ DOCUMENTATION
 -------------
 
 The full API of (the upper interface of) PyNuSMV can be generated thanks
-to Sphinx (http://www.sphinx-doc.org/) by running
+to Sphinx (http://www.sphinx-doc.org/) by running:
 
-    make html
+make html
 
 in the doc/ directory. The documentation is then available in the
 doc/html/index.html page. Other userful information like a presentation
@@ -166,24 +183,26 @@ This package contains
     - tools/ : PyNuSMV-based tools;
     - tests/ : PyNuSMV and PyNuSMV-based tools unit tests.
     
-Note that pre-compiled versions have less content because only the minimal required files (i.e. PyNuSMV files and nusmv shared library) are included.
-	
-	
+Note that pre-compiled versions have less content because only the minimal
+required files (i.e. PyNuSMV files and nusmv shared library) are included.
+
+
 ---------
 COPYRIGHT
 ---------
 
-PyNuSMV is licensed under the GNU Lesser General Public License (LGPL in short). File LGPL-2.1 contains a copy of the License.
+PyNuSMV is licensed under the GNU Lesser General Public License (LGPL in
+short). File LGPL-2.1 contains a copy of the License.
 
 
 -------
 CREDITS
 -------
 
-PyNuSMV is maintained and distributed by the LVL Group at Université catholique 
-de Louvain.  Please contact <lvl at listes dot uclouvain dot be> for any 
+PyNuSMV is maintained and distributed by the LVL Group at Université catholique
+de Louvain. Please contact <lvl at listes dot uclouvain dot be> for any
 question regarding this software distribution.
 
-NuSMV is a symbolic model checker developed as a joint project between several 
-partners and distributed under the GNU LGPL license. Please contact <nusmv at 
+NuSMV is a symbolic model checker developed as a joint project between several
+partners and distributed under the GNU LGPL license. Please contact <nusmv at
 fbk dot eu> for getting in touch with the NuSMV development staff.
