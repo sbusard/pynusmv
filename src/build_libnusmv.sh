@@ -1,26 +1,55 @@
-#! /usr/bin/env sh
+#! /usr/bin/env bash
 set -e
 
-if [ -z "$(ld -lexpat 2>&1 | grep "library not found for")" ]
+
+# Check the existence of libexpat, libreadline and libncurses
+MACHINE=`gcc -dumpmachine`;
+
+if [[ $MACHINE == *"darwin"* ]] # Mac OS
 then
-    libexpat="-lexpat"
-else
-    libexpat=""
+    if [ -z "$(ld -lexpat 2>&1 | grep "library not found for")" ]
+    then
+        libexpat="-lexpat"
+    else
+        libexpat=""
+    fi;
+
+    if [ -z "$(ld -lreadline 2>&1 | grep "library not found for")" ]
+    then
+        libreadline="-lreadline"
+    else
+        libreadline=""
+    fi;
+
+    if [ -z "$(ld -lncurses 2>&1 | grep "library not found for")" ]
+    then
+        libncurses="-lncurses"
+    else
+        libncurses=""
+    fi;
+else # Linux
+    if [ -n "$(ldconfig -p | grep "libexpat")" ]
+    then
+        libexpat="-lexpat"
+    else
+        libexpat=""
+    fi;
+
+    if [ -n "$(ldconfig -p | grep "libreadline")" ]
+    then
+        libreadline="-lreadline"
+    else
+        libreadline=""
+    fi;
+
+    if [ -n "$(ldconfig -p | grep "libncurses")" ]
+    then
+        libncurses="-lncurses"
+    else
+        libncurses=""
+    fi;
 fi
 
-if [ -z "$(ld -lreadline 2>&1 | grep "library not found for")" ]
-then
-    libreadline="-lreadline"
-else
-    libreadline=""
-fi
-
-if [ -z "$(ld -lncurses 2>&1 | grep "library not found for")" ]
-then
-    libncurses="-lncurses"
-else
-    libncurses=""
-fi
 
 here=`pwd`
 
