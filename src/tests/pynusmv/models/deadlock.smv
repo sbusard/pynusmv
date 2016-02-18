@@ -1,0 +1,25 @@
+--  
+--
+-- by Simon Busard <simon.busard@uclouvain.be>, 18/02/2016
+
+MODULE main
+
+    VAR
+        p: boolean;
+        q : boolean;
+        
+    INIT p & q
+    
+    TRANS
+        !q -> !next(p)
+    
+    TRANS
+        !p -> !next(q)
+    
+    TRANS
+        p -> next(!p | !q)
+    
+    TRANS
+        !p -> !next(p)
+    
+    INVAR p | q

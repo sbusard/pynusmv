@@ -60,7 +60,7 @@ class TestFsm(unittest.TestCase):
         fsm = self.deadlock_model()
         p = evalSexp(fsm, "p")
         q = evalSexp(fsm, "q")
-        self.assertEqual(fsm.deadlock_states, ~p & ~q)
+        self.assertEqual(fsm.deadlock_states, ~p & q)
         
         
     def test_state_constraints(self):
