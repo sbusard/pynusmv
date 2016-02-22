@@ -18,9 +18,7 @@ NuSMV is needed to compile and use PyNuSMV. To compile NuSMV, you need
 * GNU Flex version 2.5 or greater
 * GNU Bison version 1.22 or greater
 * GNU make utility version 3.74 or greater
-* GNU tar and gzip utilities
-* Approximately 91 MB of free disk space for building the system
-* Approximately 49 MB of free disk space for the installation.
+* GNU tar and gzip utilities.
 
 More information about NuSMV compilation can be found in src/nusmv/README.
 
