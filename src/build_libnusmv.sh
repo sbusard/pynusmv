@@ -28,21 +28,21 @@ then
         libncurses=""
     fi;
 else # Linux
-    if [ -n "$(ldconfig -p | grep "libexpat")" ]
+    if [ -n "$(find /usr/include/ -iname *expat*)" ]
     then
         libexpat="-lexpat"
     else
         libexpat=""
     fi;
 
-    if [ -n "$(ldconfig -p | grep "libreadline")" ]
+    if [ -n "$(find /usr/include/ -iname *readline*)" ]
     then
         libreadline="-lreadline"
     else
         libreadline=""
     fi;
 
-    if [ -n "$(ldconfig -p | grep "libncurses")" ]
+    if [ -n "$(find /usr/include/ -iname *ncurses*)" ]
     then
         libncurses="-lncurses"
     else
