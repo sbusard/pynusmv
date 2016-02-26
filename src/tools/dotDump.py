@@ -89,22 +89,22 @@ def edge(fsm, source, inputs, target, ids):
     """
     attr = set()
     
-    # Label
     if inputs is not None:
+        # Label
         attr.add("label=\"" + "\\n".join(var+"="+val for var, val
                                         in sorted(inputs.
                                                   get_str_values().items()))
                             + "\"")
-    
-    # Fairness
-    fair_styles = set()
-    fair_attr = fairness_attr(fsm)
-    for f in fsm.fairness_constraints:
-        if inputs <= f:
-            fair_styles.add(fair_attr[f])
-    if len(fair_styles):
-        attr.add("penwidth=2")
-        attr.add("color=\"" + ":".join(fair_styles) + "\"")
+        
+        # Fairness
+        fair_styles = set()
+        fair_attr = fairness_attr(fsm)
+        for f in fsm.fairness_constraints:
+            if inputs <= f:
+                fair_styles.add(fair_attr[f])
+        if len(fair_styles):
+            attr.add("penwidth=2")
+            attr.add("color=\"" + ":".join(fair_styles) + "\"")
     
     if len(attr):
         attrstr = "[" + ','.join(attr) + "]"
