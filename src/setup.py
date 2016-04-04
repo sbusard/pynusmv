@@ -1,6 +1,7 @@
-from distutils.core import setup
-from distutils.extension import Extension
+from setuptools import setup, find_packages
+from setuptools.extension import Extension
 import sys
+import os
 
 include_dirs = ['nusmv', 'nusmv/src', 'cudd-2.4.1.1/include']
 if sys.version_info[0] >= 3:
@@ -1118,10 +1119,36 @@ extensions.append(
     )
 
 
+def get_packages(packages):
+    """
+    Return all the packages and (recursively) sub-packages of packages.
+    
+    packages -- a list of package names.
+    """
+    top_packages = packages
+    packages = list(top_packages)
+    for package in top_packages:
+        packages += [package + "." + sub for sub in find_packages(package)]
+    return packages
+
+# Get all packages (recursively)
+packages = get_packages(["pynusmv", "tools"])
+if os.path.isfile('pyparsing.py'):
+    packages.append(".")
+
+
 setup(  name = "PyNuSMV",
         version = "0.11",
         author = "Simon Busard",
         author_email = "simon.busard@uclouvain.be",
         url = "http://lvl.info.ucl.ac.be/Tools/PyNuSMV",
         description = "Python interface for NuSMV.",
+        packages=packages,
+        # Add files in runtime_library_dirs (to include libnusmv library)
+        data_files=[(rld,
+                     [os.path.join(rld, f)
+                      for f in os.listdir(rld)
+                      if os.path.isfile(os.path.join(rld, f))]
+                     )
+                    for rld in runtime_library_dirs],
         ext_modules = extensions)
