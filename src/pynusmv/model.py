@@ -956,7 +956,7 @@ class Concat(Operator):
     def __str__(self):
         if self.source:
             return self.source
-        return self._enclose(self.left) + "::" + self._enclose(self.right)
+        return self._enclose(self.left) + " :: " + self._enclose(self.right)
 
     def _equals(self, other):
         """Return whether `self` is equals to `other`."""
@@ -1866,7 +1866,7 @@ class Array(SimpleType):
     def __str__(self):
         if self.source:
             return self.source
-        return ("array " + str(self.start) + ".." + str(self.stop)
+        return ("array " + str(self.start) + " .. " + str(self.stop)
                 + " of " + str(self.elementtype))
 
     def __deepcopy__(self, memo):
