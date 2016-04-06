@@ -788,9 +788,10 @@ class Case(Expression):
     def __str__(self):
         if self.source:
             return self.source
-        return ("case\n" + "\n".join(str(cond) + ": " + str(body) + ";"
-                                     for cond, body in
-                                     OrderedDict(self.values).items())
+        return ("\ncase\n" +
+                _indent("\n".join(str(cond) + ": " + str(body) + ";"
+                                  for cond, body in
+                                  OrderedDict(self.values).items()))
                 + "\nesac")
 
     def _equals(self, other):
@@ -1944,10 +1945,17 @@ class MappingSection(Section):
     def __str__(self):
         if self.source:
             return self.source
-        return (self.name + "\n" +
-                "\n".join(self.indentation + str(identifier)
-                          + self.separator + str(expr) + ";"
-                          for identifier, expr in self.body.items()))
+        else:
+            rep = [self.name]
+            for identifier, expr in self.body.items():
+                header = self.indentation + str(identifier) + self.separator
+                body = str(expr).split("\n")
+                if len(body) > 1:
+                    rep.append(header + "\n" + _indent("\n".join(body),
+                                                       self.indentation * 2))
+                else:
+                    rep.append(header + str(expr))
+            return "\n".join(rep)
 
 
 class Variables(MappingSection):
@@ -2018,9 +2026,17 @@ class ListingSection(Section):
     def __str__(self):
         if self.source:
             return self.source
-        return (self.name + "\n" +
-                self.separator.join(self.indentation + str(element)
-                                    for element in self.body))
+        else:
+            rep = [self.name]
+            for element in self.body:
+                body = str(element).split("\n")
+                if len(body) > 1:
+                    rep.append(self.indentation + "\n" +
+                               _indent("\n".join(body),
+                                       self.indentation * 2))
+                else:
+                    rep.append(self.indentation + str(element))
+            return "\n".join(rep)
 
 
 class Constants(ListingSection):
@@ -2028,7 +2044,10 @@ class Constants(ListingSection):
     """Declaring constants."""
 
     def __init__(self, constants):
-        super(Constants, self).__init__("CONSTANTS", constants, separator=", ")
+        super(Constants, self).__init__("CONSTANTS",
+                                        constants,
+                                        separator=", ",
+                                        indentation="")
 
 
 class Trans(ListingSection):
@@ -2499,18 +2518,33 @@ class ModuleMetaClass(type):
             # body is a mapping
             # use format given in _sections
             strformat = cls._sections[section][1]
-            value = (indentation + section + "\n"
-                     + "\n".join(((indentation * 2) + strformat)
-                                 .format(key=str(name), value=str(expr))
-                                 for name, expr in body.items()))
-            return value
+            rep = [indentation + section]
+            for name, expr in body.items():
+                body = str(expr).split("\n")
+                if len(body) > 1:
+                    rep.append(indentation * 2 +
+                               strformat.format(key=str(name),
+                                                value=_indent(str(expr),
+                                                              indentation *
+                                                              3)))
+                else:
+                    rep.append(indentation * 2 +
+                               strformat.format(key=str(name),
+                                                value=str(expr)))
+            return "\n".join(rep)
 
         elif cls._sections[section][0] == "enumeration":
             # body is an enumeration
             # use separator given in _sections
             separator = cls._sections[section][1]
-            return (indentation + section + "\n"
-                    + separator.join(str(value) for value in body))
+            rep = [indentation + section]
+            for value in body:
+                if len(str(value).split("\n")) > 1:
+                    rep.append(_indent(str(value),
+                                       indentation * 2))
+                else:
+                    rep.append(str(value))
+            return indentation + section + "\n" + separator.join(rep)
 
         elif cls._sections[section][0] == "bodies":
             # body is an enumeration of bodies
@@ -2670,3 +2704,21 @@ class Module(_with_metaclass(ModuleMetaClass, Modtype)):
             process = False
         super(Module, self).__init__(self.__class__.NAME, args,
                                      process=process)
+
+
+def _indent(text, indentation=" " * 4):
+    """
+    Indent each (stripped non-empty) line of the given text with the given
+    indentation. That is, for each line, if it contains non-white characters,
+    the line is indented. Otherwise it is kept as it is.
+
+    :param string text: the text to indent.
+    :param string indentation: the indentation to use.
+    """
+    rep = []
+    for line in text.split("\n"):
+        if line.strip():
+            rep.append(indentation + line)
+        else:
+            rep.append(line)
+    return "\n".join(rep)

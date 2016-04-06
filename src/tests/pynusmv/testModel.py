@@ -352,3 +352,37 @@ MODULE main
         copy.VAR[model.Identifier("c3")] = model.Range(0, 2)
         self.assertEqual(str(main), expected.strip())
         self.assertNotEqual(str(copy), expected.strip())
+
+
+    def test_assign(self):
+        class main(model.Module):
+
+            J = model.Var(model.Boolean(), "J")
+            K = model.Var(model.Boolean(), "K")
+            Q = model.Var(model.Boolean(), "Q")
+
+            INIT = [(Q == model.Falseexp())]
+
+            ASSIGN = {model.Next(Q): model.Case(((J & K, ~Q),
+                                                 (J, model.Trueexp()),
+                                                 (K, model.Falseexp()),
+                                                 (model.Trueexp(), Q)))}
+
+        expected = """
+MODULE main
+    VAR
+        J: boolean;
+        K: boolean;
+        Q: boolean;
+    INIT
+        Q = FALSE
+    ASSIGN
+        next(Q) := 
+            case
+                J & K: ! Q;
+                J: TRUE;
+                K: FALSE;
+                TRUE: Q;
+            esac;
+                   """
+        self.assertEqual(str(main), expected.strip())
