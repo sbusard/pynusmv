@@ -956,6 +956,13 @@ def vars_trans_from_protocol(fsm, original_variables, original_trans,
                          #    corresponding strategy var value,
                          #    actions assigment)
     
+    # Compute the number of encoded strategies:
+    # the number of encoded strategies is the product of the number of all
+    # values of each variable encoding the strategy
+    # Prod_{obs} |values(obs)|
+    
+    nb_encoded_strategies = 1
+    
     for obs_values in variables:
         var_name = (name + "_" + _assign_to_name(obs_values))
         var_name = node.Identifier.from_string(var_name)
@@ -968,7 +975,9 @@ def vars_trans_from_protocol(fsm, original_variables, original_trans,
                                var_name,
                                type_value,
                                action_values))
-            
+        
+        nb_encoded_strategies *= len(type_values)
+        
         var_type = fsm.bddEnc.symbTable._get_type_from_node(
                    node.Scalar(type_values))
         
@@ -978,6 +987,10 @@ def vars_trans_from_protocol(fsm, original_variables, original_trans,
         new_variables.append((var_name,
                               var_type,
                               nssymb_table.SYMBOL_STATE_VAR))
+    
+    if config.debug:
+        print("Symbolic: {} strategies encoded for {}.".format(
+              nb_encoded_strategies, name))
     
     new_variables = sorted(new_variables, key=lambda e: str(e[0]))
     

@@ -1241,7 +1241,7 @@ def eval_strat_improved(fsm, spec, states, semantics="group"):
         nbs = __strategies[spec]
         nbf = __filterings[spec]
         nbi = __ignorings[spec]
-        print("{} strateg{}, {} filtering{}, {} ignoring{} computed."
+        print("Early: {} strateg{}, {} filtering{}, {} ignoring{} computed."
               .format(nbs, "y" if nbs <= 1 else "ies",
                       nbf, "" if nbf <= 1 else "s",
                       nbi, "" if nbi <= 1 else "s"))
