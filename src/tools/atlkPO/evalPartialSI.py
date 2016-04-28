@@ -1238,8 +1238,13 @@ def eval_strat_improved(fsm, spec, states, semantics="group"):
             break # Early termination
     
     if config.debug:
+        # The number of maximal partial strategies computed
         nbs = __strategies[spec]
+        # The number of strategic and universal evaluations of
+        # (not necessarily maximal) partial strategies computed
         nbf = __filterings[spec]
+        # The number of non-maximal partial strategies ignored
+        # because a decision could be made before reaching a maximal strategy
         nbi = __ignorings[spec]
         print("Early: {} strateg{}, {} filtering{}, {} ignoring{} computed."
               .format(nbs, "y" if nbs <= 1 else "ies",
