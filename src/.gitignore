@@ -12,6 +12,8 @@ lib/
 
 *_wrap.c
 
+pyparsing.py
+
 MiniSat/minisat-2.2.0.tar.gz
 MiniSat/minisat/
 MiniSat/minisat2-070721.zip
@@ -156,7 +158,7 @@ pynusmv/nusmv/set/set.py
 pynusmv/nusmv/sexp/sexp.py
 pynusmv/nusmv/simulate/simulate.py
 pynusmv/nusmv/trace/eval/eval.py
-pynusmv/nusmv/trace/exec/exec.py
+pynusmv/nusmv/trace/exec_/exec_.py
 pynusmv/nusmv/trace/loaders/loaders.py
 pynusmv/nusmv/trace/plugins/plugins.py
 pynusmv/nusmv/trace/trace.py

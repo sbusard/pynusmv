@@ -1,1 +1,4 @@
 __pycache__
+
+dep/pyparsing-2.0.2/
+dep/swig-2.0.6/
