@@ -982,6 +982,35 @@ class BddEnc(PointerWrapper):
 
         return frozenset(varnames)
 
+    @property
+    def definedVars(self):
+        """
+        Return the set of defined variables names.
+
+        :rtype: frozenset(str)
+
+        """
+
+        from . import glob
+
+        master = glob.prop_database().master
+        sexp_fsm = nsprop.Prop_get_scalar_sexp_fsm(master._ptr)
+        st = glob.symb_table()
+
+        variables = nssexp.SexpFsm_get_symbols_list(sexp_fsm)
+
+        varnames = set()
+        ite = nsutils.NodeList_get_first_iter(variables)
+        while not nsutils.ListIter_is_end(ite):
+            var_node = nsutils.NodeList_get_elem_at(variables, ite)
+            varname = nsnode.sprint_node(var_node)
+            isVar = nssymb_table.SymbTable_is_symbol_define(st._ptr, var_node)
+            if isVar:
+                varnames.add(varname)
+            ite = nsutils.ListIter_get_next(ite)
+
+        return frozenset(varnames)
+
     def get_variables_ordering(self, var_type="scalar"):
         """
         Return the order of variables.

@@ -25,7 +25,31 @@ class TestEnc(unittest.TestCase):
                                    "cardgame-post-fair.smv")
         self.assertIsNotNone(fsm)
         return fsm
-        
+    
+    
+    def counters_model(self):
+        fsm = BddFsm.from_filename("tests/pynusmv/models/counters.smv")
+        self.assertIsNotNone(fsm)
+        return fsm
+    
+    
+    def test_stateVars(self):
+        fsm = self.counters_model()
+        enc = fsm.bddEnc
+        self.assertEqual(enc.stateVars, {"c1.c", "c2.c"})
+    
+    
+    def test_inputsVars(self):
+        fsm = self.counters_model()
+        enc = fsm.bddEnc
+        self.assertEqual(enc.inputsVars, {"run"})
+    
+    
+    def test_definedVars(self):
+        fsm = self.counters_model()
+        enc = fsm.bddEnc
+        self.assertEqual(enc.definedVars, {"start", "stop"})
+    
         
     def test_statesMask(self):
         fsm = self.model()
