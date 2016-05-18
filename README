@@ -27,6 +27,7 @@ In addition to tools needed by NuSMV to compile and run, PyNuSMV needs the
 following tools:
 
 * Python version 3.2 or higher -- http://python.org/
+* Setuptools 2.1 or higher -- https://pypi.python.org/pypi/setuptools
 * SWIG version 2.0.6 or higher -- http://www.swig.org/
 * pyparsing version 2.0.2 or higher -- http://pyparsing.wikispaces.com/
 
