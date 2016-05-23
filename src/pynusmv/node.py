@@ -743,7 +743,7 @@ class Expression(Node):
         return Ge(self, other)
 
     def __getattr__(self, name):
-        if name not in {"car", "cdr", "_ptr", "name", "this"}:
+        if name not in {"car", "cdr", "_ptr", "name", "this", "_car", "_cdr"}:
             return Dot(self, name)
         else:
             raise AttributeError("Missing {} attribute.".format(name))

@@ -4,7 +4,7 @@ from pynusmv.init import init_nusmv, deinit_nusmv
 from pynusmv import glob
 from pynusmv.model import *
 from pynusmv import node
-from pynusmv.parser import parse_simple_expression
+from pynusmv.parser import parse_simple_expression, parse_ctl_spec
 
 from pynusmv.nusmv.compile.symb_table import symb_table as nssymb_table
 
@@ -68,3 +68,17 @@ class TestNode(unittest.TestCase):
         fsm = glob.prop_database().master.bddFsm
         
         self.assertEqual(fsm.count_states(fsm.reachable_states), 3)
+    
+    def test_car(self):
+        glob.load(*self.counters())
+        glob.compute_model()
+        spec = node.Node.from_ptr(parse_ctl_spec("A [x U y]"))
+        self.assertEqual(type(spec.car), node.Atom)
+        self.assertEqual(str(spec.car), "x")
+    
+    def test_cdr(self):
+        glob.load(*self.counters())
+        glob.compute_model()
+        spec = node.Node.from_ptr(parse_ctl_spec("A [x U y]"))
+        self.assertEqual(type(spec.cdr), node.Atom)
+        self.assertEqual(str(spec.cdr), "y")
