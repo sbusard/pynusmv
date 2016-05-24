@@ -868,7 +868,8 @@ class Case(Expression):
             string.append(_indent(
                           _add_comments_to_string(current, comments).strip()))
             
-            body.comments = comments
+            if hasattr(body, "comments"):
+                body.comments = comments
         string.append("esac")
         string = "\n".join(string)
         return super(Case, self).__str__(string=string)
@@ -2067,7 +2068,8 @@ class MappingSection(Section):
             else:
                 rep.append(header + strexpr)
             
-            expr.comments = comments
+            if hasattr(expr, "comments"):
+                expr.comments = comments
         string = "\n".join(rep)
         return super(MappingSection, self).__str__(string=string)
 
@@ -2702,7 +2704,8 @@ class ModuleMetaClass(type):
                 else:
                     rep.append(header + strexpr)
 
-                expr.comments = comments
+                if hasattr(expr, "comments"):
+                    expr.comments = comments
             return _indent("\n".join(rep), indentation)
 
         elif cls._sections[section][0] == "enumeration":
