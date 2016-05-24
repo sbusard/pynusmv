@@ -386,3 +386,166 @@ MODULE main
             esac;
                    """
         self.assertEqual(str(main), expected.strip())
+
+
+    def test_module_comment(self):
+        class main(model.Module):
+            COMMENT = "This is the main module"
+            v = model.Var(model.Boolean())
+        expected = """
+-- This is the main module
+MODULE main
+    VAR
+        v: boolean;
+"""
+        self.assertEqual(str(main), expected.strip())
+
+
+    def test_expression_comment(self):
+        class main(model.Module):
+            v = model.Var(model.Boolean())
+            INIT = [model.Comment(~v, "Initially FALSE")]
+        expected = """
+MODULE main
+    VAR
+        v: boolean;
+    INIT
+        ! v -- Initially FALSE
+
+"""
+        self.assertEqual(str(main), expected.strip())
+
+
+    def test_expression_inline_comment(self):
+        class main(model.Module):
+            v = model.Var(model.Boolean())
+            INIT = [model.Comment(~v, "Initially FALSE") | v]
+        expected = """
+MODULE main
+    VAR
+        v: boolean;
+    INIT
+        ! v -- Initially FALSE
+        | v
+
+"""
+        self.assertEqual(str(main), expected.strip())
+
+
+    def test_case_comment(self):
+        class main(model.Module):
+            v = model.Var(model.Boolean())
+            i = model.IVar(model.Boolean())
+            INIT = [model.Case(((model.Trueexp(),
+                                 model.Comment(~v, "Initially FALSE")),))]
+            TRANS = [model.Case(((v,
+                                  model.Comment(
+                                  model.Comment(v.next(), "Stay true"),
+                                  "when v is already true")),
+                                 (~i, model.Comment(v.next() == v,
+                                                    "Stay the same")),
+                                 (~v & i, v.next()),
+                                 (v & i, model.Comment(~v.next(),
+                                                       "Change to false"))))]
+        expected = """
+MODULE main
+    VAR
+        v: boolean;
+    IVAR
+        i: boolean;
+    INIT
+        case
+            TRUE: ! v; -- Initially FALSE
+        esac
+    TRANS
+        case
+            v: next(v); -- Stay true
+            -- when v is already true
+            ! i: next(v) = v; -- Stay the same
+            ! v & i: next(v);
+            v & i: ! next(v); -- Change to false
+        esac
+"""
+        self.assertEqual(str(main), expected.strip())
+
+
+    def test_variables_comment(self):
+        variables = model.Variables(collections.OrderedDict(
+                                    ((model.Identifier("v"),
+                                      model.Comment(model.Boolean(),
+                                                    "The variable")),
+                                     (model.Identifier("w"),
+                                      model.Comment(
+                                      model.Comment(model.Boolean(),
+                                                    "Another variable"),
+                                      "and a new name!")))))
+        expected = """
+VAR
+    v: boolean; -- The variable
+    w: 
+        boolean; -- Another variable
+        -- and a new name!
+"""
+        self.assertEqual(str(variables), expected.strip())
+
+
+    def test_var_comment(self):
+        class main(model.Module):
+            v = model.Var(model.Comment(model.Boolean(), "The variable"))
+            w = model.Var(model.Comment(model.Comment(model.Boolean(),
+                                        "Another variable"),
+                          "and a new name!"))
+        expected = """
+MODULE main
+    VAR
+        v: boolean; -- The variable
+        w: 
+            boolean; -- Another variable
+            -- and a new name!
+
+"""
+        self.assertEqual(str(main), expected.strip())
+
+
+    def test_comments(self):
+        class main(model.Module):
+            COMMENT = "This is the main module"
+
+            myvar = model.Var(model.Comment(model.Boolean(), "My variable"))
+
+            var2 = model.Identifier("var2")
+            VAR = {var2: model.Comment(model.Range(0, 3), "The counter")}
+
+            INIT = [model.Comment(~myvar, "myvar is false") &
+                    model.Comment(var2 == 0, "we start at 0")]
+
+            TRANS = [
+                     model.Case(((myvar,
+                                  model.Comment(
+                                  model.Comment(var2.next() ==
+                                                ((var2 + 1) % 4),
+                                          "Increase var2"),
+                                  "Only when myvar is true"
+                                  )
+                                 ),
+                                 (model.Trueexp(),
+                                  model.Comment(var2.next() == var2,
+                                          "otherwise do nothing"))))
+                    ]
+        expected = """
+-- This is the main module
+MODULE main
+    VAR
+        myvar: boolean; -- My variable
+        var2: 0 .. 3; -- The counter
+    INIT
+        ! myvar -- myvar is false
+        & var2 = 0 -- we start at 0
+    TRANS
+        case
+            myvar: next(var2) = (var2 + 1) mod 4; -- Increase var2
+            -- Only when myvar is true
+            TRUE: next(var2) = var2; -- otherwise do nothing
+        esac
+"""
+        self.assertEqual(str(main), expected.strip())

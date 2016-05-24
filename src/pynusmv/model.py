@@ -20,6 +20,7 @@ Python. The module is composed of several classes that fall in five sections:
 """
 
 __all__ = [
+    "Comment",
     "Identifier",
     "Self",
     "Dot",
@@ -111,11 +112,76 @@ class Element(object):
 
     """
 
+    def __init__(self, comments=None):
+        """
+        Create a new element.
+
+        :param comments: If not None, a list of comments (`str`) attached to
+                         the element.
+        """
+        self.comments = comments if comments is not None else []
+
+    def __str__(self, string=""):
+        """
+        Return the string representation of this element, augmented with
+        comments and the given string.
+
+        :param str string: additional string.
+
+        .. note::
+
+            This function is intended to be used by subclasses; they give their
+            own string representation through the `string` parameter and this
+            function adds the comments.
+        """
+        if self.source:
+            string = self.source
+        if self.comments:
+            return _add_comments_to_string(string, self.comments)
+        else:
+            return string
+
     def to_node(self):
         """
         Translate the element into a Node instance.
         """
         raise NotImplementedError("Should be implemented by subclasses.")
+
+
+def Comment(element, string):
+    """
+    Attach the given comment to the given element.
+
+    :param Element element: the element to attach the comment to.
+    :param str string: the comment to attach.
+    :return: the element itself.
+    """
+    element.comments.append(string)
+    return element
+
+
+def _add_comments_to_string(string, comments):
+    """
+    Return `string` augmented with the given comments.
+
+    :param str string: the string to augment.
+    :param list(str) comments: the comments.
+
+    .. note::
+
+        If comments is empty, string is returned unchanged, otherwise, the
+        returned value is string followed by a space, followed by comments
+        preceded by `-- ` and separated by new lines. The last character of
+        the returned value is, in the latter case, a new line.
+    """
+    if comments:
+        return (string +
+                " " +
+                "\n".join("-- " + comment for comment in comments) +
+                "\n")
+    else:
+        return string
+
 
 # -----------------------------------------------------------------------------
 # ----- EXPRESSIONS
@@ -127,6 +193,9 @@ class Expression(Element):
     """A generic expression."""
 
     _precedence = 0
+
+    def __init__(self, *args, **kwargs):
+        super(Expression, self).__init__(*args, **kwargs)
 
     def __repr__(self):
         return str(self)
@@ -406,13 +475,13 @@ class Identifier(Expression):
 
     """An identifier."""
 
-    def __init__(self, name):
+    def __init__(self, name, *args, **kwargs):
+        super(Identifier, self).__init__(*args, **kwargs)
         self.name = name
 
     def __str__(self):
-        if self.source:
-            return self.source
-        return str(self.name)
+        string = str(self.name)
+        return super(Identifier, self).__str__(string=string)
 
     def _equals(self, other):
         """Return whether `self` is equals to `other`."""
@@ -442,8 +511,8 @@ class Self(Identifier):
 
     """The `self` identifier."""
 
-    def __init__(self):
-        super(Self, self).__init__("self")
+    def __init__(self, *args, **kwargs):
+        super(Self, self).__init__("self", *args, **kwargs)
 
 
 class ComplexIdentifier(Expression):
@@ -455,15 +524,14 @@ class Dot(ComplexIdentifier):
 
     """Access to a part of a module instance."""
 
-    def __init__(self, instance, element):
+    def __init__(self, instance, element, *args, **kwargs):
+        super(Dot, self).__init__(*args, **kwargs)
         self.instance = instance
         self.element = element
 
     def __str__(self):
-        if self.source:
-            return self.source
-        else:
-            return str(self.instance) + "." + str(self.element)
+        string = str(self.instance) + "." + str(self.element)
+        return super(Dot, self).__str__(string=string)
 
     def _equals(self, other):
         """Return whether `self` is equals to `other`."""
@@ -486,15 +554,14 @@ class ArrayAccess(ComplexIdentifier):
 
     """Access to an index of an array."""
 
-    def __init__(self, array, index):
+    def __init__(self, array, index, *args, **kwargs):
+        super(ArrayAccess, self).__init__(*args, **kwargs)
         self.array = array
         self.index = index
 
     def __str__(self):
-        if self.source:
-            return self.source
-        else:
-            return str(self.array) + "[" + str(self.index) + "]"
+        string = str(self.array) + "[" + str(self.index) + "]"
+        return super(ArrayAccess, self).__str__(string=string)
 
     def _equals(self, other):
         """Return whether `self` is equals to `other`."""
@@ -522,13 +589,13 @@ class BooleanConst(Constant):
 
     """A boolean constant."""
 
-    def __init__(self, value):
+    def __init__(self, value, *args, **kwargs):
+        super(BooleanConst, self).__init__(*args, **kwargs)
         self.value = value
 
     def __str__(self):
-        if self.source:
-            return self.source
-        return str(self.value)
+        string = self.value
+        return super(BooleanConst, self).__str__(string=string)
 
     def _equals(self, other):
         """Return whether `self` is equals to `other`."""
@@ -548,8 +615,8 @@ class Trueexp(BooleanConst):
 
     """The TRUE constant."""
 
-    def __init__(self):
-        super(Trueexp, self).__init__("TRUE")
+    def __init__(self, *args, **kwargs):
+        super(Trueexp, self).__init__("TRUE", *args, **kwargs)
 
     def __deepcopy__(self, memo):
         return Trueexp()
@@ -559,8 +626,8 @@ class Falseexp(BooleanConst):
 
     """The FALSE constant."""
 
-    def __init__(self):
-        super(Falseexp, self).__init__("FALSE")
+    def __init__(self, *args, **kwargs):
+        super(Falseexp, self).__init__("FALSE", *args, **kwargs)
 
     def __deepcopy__(self, memo):
         return Falseexp()
@@ -570,13 +637,13 @@ class NumberWord(Constant):
 
     """A word constant."""
 
-    def __init__(self, value):
+    def __init__(self, value, *args, **kwargs):
+        super(NumberWord, self).__init__(*args, **kwargs)
         self.value = value
 
     def __str__(self):
-        if self.source:
-            return self.source
-        return str(self.value)
+        string = str(self.value)
+        return super(NumberWord, self).__str__(string=string)
 
     def _equals(self, other):
         """Return whether `self` is equals to `other`."""
@@ -596,14 +663,14 @@ class RangeConst(Constant):
 
     """A range of integers."""
 
-    def __init__(self, start, stop):
+    def __init__(self, start, stop, *args, **kwargs):
+        super(RangeConst, self).__init__(*args, **kwargs)
         self.start = start
         self.stop = stop
 
     def __str__(self):
-        if self.source:
-            return self.source
-        return str(self.start) + " .. " + str(self.stop)
+        string = str(self.start) + " .. " + str(self.stop)
+        return super(RangeConst, self).__str__(string=string)
 
     def _equals(self, other):
         """Return whether `self` is equals to `other`."""
@@ -630,14 +697,14 @@ class Conversion(Function):
 
     """Converting an expression into a specific type."""
 
-    def __init__(self, target_type, value):
+    def __init__(self, target_type, value, *args, **kwargs):
+        super(Conversion, self).__init__(*args, **kwargs)
         self.target_type = target_type
         self.value = value
 
     def __str__(self):
-        if self.source:
-            return self.source
-        return str(self.target_type) + "(" + str(self.value) + ")"
+        string = str(self.target_type) + "(" + str(self.value) + ")"
+        return super(Conversion, self).__str__(string=string)
 
     def _equals(self, other):
         """Return whether `self` is equals to `other`."""
@@ -661,16 +728,19 @@ class WordFunction(Function):
 
     """A function applied on a word."""
 
-    def __init__(self, function, value, size):
+    def __init__(self, function, value, size, *args, **kwargs):
+        super(WordFunction, self).__init__(*args, **kwargs)
         self.function = function
         self.value = value
         self.size = size
 
     def __str__(self):
-        if self.source:
-            return self.source
-        return (str(self.function) + "(" + str(self.value)
-                + ", " + str(self.size) + ")")
+        string = (str(self.function) +
+                  "(" + str(self.value) +
+                  ", " +
+                  str(self.size) +
+                  ")")
+        return super(WordFunction, self).__str__(string=string)
 
     def _equals(self, other):
         """Return whether `self` is equals to `other`."""
@@ -697,15 +767,15 @@ class Count(Function):
 
     """A counting function."""
 
-    def __init__(self, values):
+    def __init__(self, values, *args, **kwargs):
+        super(Count, self).__init__(*args, **kwargs)
         self.values = values
 
     def __str__(self):
-        if self.source:
-            return self.source
-        return ("count((" +
-                "), (".join(str(value) for value in self.values) +
-                "))")
+        string = ("count((" +
+                  "), (".join(str(value) for value in self.values) +
+                  "))")
+        return super(Count, self).__str__(string=string)
 
     def _equals(self, other):
         """Return whether `self` is equals to `other`."""
@@ -730,13 +800,13 @@ class Next(Expression):
 
     """A next expression."""
 
-    def __init__(self, value):
+    def __init__(self, value, *args, **kwargs):
+        super(Next, self).__init__(*args, **kwargs)
         self.value = value
 
     def __str__(self):
-        if self.source:
-            return self.source
-        return "next(" + str(self.value) + ")"
+        string = "next(" + str(self.value) + ")"
+        return super(Next, self).__str__(string=string)
 
     def _equals(self, other):
         """Return whether `self` is equals to `other`."""
@@ -756,13 +826,13 @@ class Smallinit(Expression):
 
     """An init() expression."""
 
-    def __init__(self, value):
+    def __init__(self, value, *args, **kwargs):
+        super(Smallinit, self).__init__(*args, **kwargs)
         self.value = value
 
     def __str__(self):
-        if self.source:
-            return self.source
-        return "init(" + str(self.value) + ")"
+        string = "init(" + str(self.value) + ")"
+        return super(Smallinit, self).__str__(string=string)
 
     def _equals(self, other):
         """Return whether `self` is equals to `other`."""
@@ -782,17 +852,26 @@ class Case(Expression):
 
     """A case expression."""
 
-    def __init__(self, values):
+    def __init__(self, values, *args, **kwargs):
+        super(Case, self).__init__(*args, **kwargs)
         self.values = values
 
     def __str__(self):
-        if self.source:
-            return self.source
-        return ("\ncase\n" +
-                _indent("\n".join(str(cond) + ": " + str(body) + ";"
-                                  for cond, body in
-                                  OrderedDict(self.values).items()))
-                + "\nesac")
+        string = ["\ncase"]
+        for cond, body in OrderedDict(self.values).items():
+            comments = []
+            if hasattr(body, "comments") and body.comments:
+                comments = body.comments
+                body.comments = []
+            
+            current = str(cond) + ": " + str(body) + ";"
+            string.append(_indent(
+                          _add_comments_to_string(current, comments).strip()))
+            
+            body.comments = comments
+        string.append("esac")
+        string = "\n".join(string)
+        return super(Case, self).__str__(string=string)
 
     def _equals(self, other):
         """Return whether `self` is equals to `other`."""
@@ -812,14 +891,14 @@ class Subscript(Expression):
 
     """Array subscript."""
 
-    def __init__(self, array, index):
+    def __init__(self, array, index, *args, **kwargs):
+        super(Subscript, self).__init__(*args, **kwargs)
         self.array = array
         self.index = index
 
     def __str__(self):
-        if self.source:
-            return self.source
-        return str(self.array) + "[" + str(self.index) + "]"
+        string = str(self.array) + "[" + str(self.index) + "]"
+        return super(Subscript, self).__str__(string=string)
 
     def _equals(self, other):
         """Return whether `self` is equals to `other`."""
@@ -843,16 +922,20 @@ class BitSelection(Expression):
 
     """Word bit selection."""
 
-    def __init__(self, word, start, stop):
+    def __init__(self, word, start, stop, *args, **kwargs):
+        super(BitSelection, self).__init__(*args, **kwargs)
         self.word = word
         self.start = start
         self.stop = stop
 
     def __str__(self):
-        if self.source:
-            return self.source
-        return (str(self.word) +
-                "[" + str(self.start) + ":" + str(self.stop) + "]")
+        string = (str(self.word) +
+                 "[" +
+                 str(self.start) +
+                 ":" +
+                 str(self.stop) +
+                 "]")
+        return super(BitSelection, self).__str__(string=string)
 
     def _equals(self, other):
         """Return whether `self` is equals to `other`."""
@@ -879,13 +962,15 @@ class Set(Expression):
 
     """A set."""
 
-    def __init__(self, elements):
+    def __init__(self, elements, *args, **kwargs):
+        super(Set, self).__init__(*args, **kwargs)
         self.elements = elements
 
     def __str__(self):
-        if self.source:
-            return self.source
-        return "{" + ", ".join(str(element) for element in self.elements) + "}"
+        string = ("{" +
+                  ", ".join(str(element) for element in self.elements) +
+                  "}")
+        return super(Set, self).__str__(string=string)
 
     def _equals(self, other):
         """Return whether `self` is equals to `other`."""
@@ -922,13 +1007,13 @@ class Not(Operator):
 
     _precedence = 1
 
-    def __init__(self, value):
+    def __init__(self, value, *args, **kwargs):
+        super(Not, self).__init__(*args, **kwargs)
         self.value = value
 
     def __str__(self):
-        if self.source:
-            return self.source
-        return "! " + self._enclose(self.value)
+        string = "! " + self._enclose(self.value)
+        return super(Not, self).__str__(string=string)
 
     def _equals(self, other):
         """Return whether `self` is equals to `other`."""
@@ -950,14 +1035,14 @@ class Concat(Operator):
 
     _precedence = 2
 
-    def __init__(self, left, right):
+    def __init__(self, left, right, *args, **kwargs):
+        super(Concat, self).__init__(*args, **kwargs)
         self.left = left
         self.right = right
 
     def __str__(self):
-        if self.source:
-            return self.source
-        return self._enclose(self.left) + " :: " + self._enclose(self.right)
+        string = self._enclose(self.left) + " :: " + self._enclose(self.right)
+        return super(Concat, self).__str__(string=string)
 
     def _equals(self, other):
         """Return whether `self` is equals to `other`."""
@@ -982,13 +1067,13 @@ class Minus(Operator):
 
     _precedence = 3
 
-    def __init__(self, value):
+    def __init__(self, value, *args, **kwargs):
+        super(Minus, self).__init__(*args, **kwargs)
         self.value = value
 
     def __str__(self):
-        if self.source:
-            return self.source
-        return "- " + self._enclose(self.value)
+        string = "- " + self._enclose(self.value)
+        return super(Minus, self).__str__(string=string)
 
     def _equals(self, other):
         """Return whether `self` is equals to `other`."""
@@ -1010,14 +1095,14 @@ class Mult(Operator):
 
     _precedence = 4
 
-    def __init__(self, left, right):
+    def __init__(self, left, right, *args, **kwargs):
+        super(Mult, self).__init__(*args, **kwargs)
         self.left = left
         self.right = right
 
     def __str__(self):
-        if self.source:
-            return self.source
-        return self._enclose(self.left) + " * " + self._enclose(self.right)
+        string = self._enclose(self.left) + " * " + self._enclose(self.right)
+        return super(Mult, self).__str__(string=string)
 
     def _equals(self, other):
         """Return whether `self` is equals to `other`."""
@@ -1044,14 +1129,14 @@ class Div(Operator):
 
     _precedence = 4
 
-    def __init__(self, left, right):
+    def __init__(self, left, right, *args, **kwargs):
+        super(Div, self).__init__(*args, **kwargs)
         self.left = left
         self.right = right
 
     def __str__(self):
-        if self.source:
-            return self.source
-        return self._enclose(self.left) + " / " + self._enclose(self.right)
+        string = self._enclose(self.left) + " / " + self._enclose(self.right)
+        return super(Div, self).__str__(string=string)
 
     def _equals(self, other):
         """Return whether `self` is equals to `other`."""
@@ -1076,14 +1161,14 @@ class Mod(Operator):
 
     _precedence = 4
 
-    def __init__(self, left, right):
+    def __init__(self, left, right, *args, **kwargs):
+        super(Mod, self).__init__(*args, **kwargs)
         self.left = left
         self.right = right
 
     def __str__(self):
-        if self.source:
-            return self.source
-        return self._enclose(self.left) + " mod " + self._enclose(self.right)
+        string = self._enclose(self.left) + " mod " + self._enclose(self.right)
+        return super(Mod, self).__str__(string=string)
 
     def _equals(self, other):
         """Return whether `self` is equals to `other`."""
@@ -1108,14 +1193,14 @@ class Add(Operator):
 
     _precedence = 5
 
-    def __init__(self, left, right):
+    def __init__(self, left, right, *args, **kwargs):
+        super(Add, self).__init__(*args, **kwargs)
         self.left = left
         self.right = right
 
     def __str__(self):
-        if self.source:
-            return self.source
-        return self._enclose(self.left) + " + " + self._enclose(self.right)
+        string = self._enclose(self.left) + " + " + self._enclose(self.right)
+        return super(Add, self).__str__(string=string)
 
     def _equals(self, other):
         """Return whether `self` is equals to `other`."""
@@ -1142,14 +1227,14 @@ class Sub(Operator):
 
     _precedence = 5
 
-    def __init__(self, left, right):
+    def __init__(self, left, right, *args, **kwargs):
+        super(Sub, self).__init__(*args, **kwargs)
         self.left = left
         self.right = right
 
     def __str__(self):
-        if self.source:
-            return self.source
-        return self._enclose(self.left) + " - " + self._enclose(self.right)
+        string = self._enclose(self.left) + " - " + self._enclose(self.right)
+        return super(Sub, self).__str__(string=string)
 
     def _equals(self, other):
         """Return whether `self` is equals to `other`."""
@@ -1174,14 +1259,14 @@ class LShift(Operator):
 
     _precedence = 6
 
-    def __init__(self, left, right):
+    def __init__(self, left, right, *args, **kwargs):
+        super(LShift, self).__init__(*args, **kwargs)
         self.left = left
         self.right = right
 
     def __str__(self):
-        if self.source:
-            return self.source
-        return self._enclose(self.left) + " << " + self._enclose(self.right)
+        string = self._enclose(self.left) + " << " + self._enclose(self.right)
+        return super(LShift, self).__str__(string=string)
 
     def _equals(self, other):
         """Return whether `self` is equals to `other`."""
@@ -1206,14 +1291,14 @@ class RShift(Operator):
 
     _precedence = 6
 
-    def __init__(self, left, right):
+    def __init__(self, left, right, *args, **kwargs):
+        super(RShift, self).__init__(*args, **kwargs)
         self.left = left
         self.right = right
 
     def __str__(self):
-        if self.source:
-            return self.source
-        return self._enclose(self.left) + " >> " + self._enclose(self.right)
+        string = self._enclose(self.left) + " >> " + self._enclose(self.right)
+        return super(RShift, self).__str__(string=string)
 
     def _equals(self, other):
         """Return whether `self` is equals to `other`."""
@@ -1238,14 +1323,16 @@ class Union(Operator):
 
     _precedence = 7
 
-    def __init__(self, left, right):
+    def __init__(self, left, right, *args, **kwargs):
+        super(Union, self).__init__(*args, **kwargs)
         self.left = left
         self.right = right
 
     def __str__(self):
-        if self.source:
-            return self.source
-        return self._enclose(self.left) + " union " + self._enclose(self.right)
+        string = (self._enclose(self.left) +
+                  " union " +
+                  self._enclose(self.right))
+        return super(Union, self).__str__(string=string)
 
     def _equals(self, other):
         """Return whether `self` is equals to `other`."""
@@ -1272,14 +1359,14 @@ class In(Operator):
 
     _precedence = 8
 
-    def __init__(self, left, right):
+    def __init__(self, left, right, *args, **kwargs):
+        super(In, self).__init__(*args, **kwargs)
         self.left = left
         self.right = right
 
     def __str__(self):
-        if self.source:
-            return self.source
-        return self._enclose(self.left) + " in " + self._enclose(self.right)
+        string = self._enclose(self.left) + " in " + self._enclose(self.right)
+        return super(In, self).__str__(string=string)
 
     def _equals(self, other):
         """Return whether `self` is equals to `other`."""
@@ -1304,14 +1391,14 @@ class Equal(Operator):
 
     _precedence = 9
 
-    def __init__(self, left, right):
+    def __init__(self, left, right, *args, **kwargs):
+        super(Equal, self).__init__(*args, **kwargs)
         self.left = left
         self.right = right
 
     def __str__(self):
-        if self.source:
-            return self.source
-        return self._enclose(self.left) + " = " + self._enclose(self.right)
+        string = self._enclose(self.left) + " = " + self._enclose(self.right)
+        return super(Equal, self).__str__(string=string)
 
     def _equals(self, other):
         """Return whether `self` is equals to `other`."""
@@ -1348,14 +1435,14 @@ class NotEqual(Operator):
 
     _precedence = 9
 
-    def __init__(self, left, right):
+    def __init__(self, left, right, *args, **kwargs):
+        super(NotEqual, self).__init__(*args, **kwargs)
         self.left = left
         self.right = right
 
     def __str__(self):
-        if self.source:
-            return self.source
-        return self._enclose(self.left) + " != " + self._enclose(self.right)
+        string = self._enclose(self.left) + " != " + self._enclose(self.right)
+        return super(NotEqual, self).__str__(string=string)
 
     def _equals(self, other):
         """Return whether `self` is equals to `other`."""
@@ -1392,14 +1479,14 @@ class Lt(Operator):
 
     _precedence = 9
 
-    def __init__(self, left, right):
+    def __init__(self, left, right, *args, **kwargs):
+        super(Lt, self).__init__(*args, **kwargs)
         self.left = left
         self.right = right
 
     def __str__(self):
-        if self.source:
-            return self.source
-        return self._enclose(self.left) + " < " + self._enclose(self.right)
+        string = self._enclose(self.left) + " < " + self._enclose(self.right)
+        return super(Lt, self).__str__(string=string)
 
     def _equals(self, other):
         """Return whether `self` is equals to `other`."""
@@ -1424,14 +1511,14 @@ class Gt(Operator):
 
     _precedence = 9
 
-    def __init__(self, left, right):
+    def __init__(self, left, right, *args, **kwargs):
+        super(Gt, self).__init__(*args, **kwargs)
         self.left = left
         self.right = right
 
     def __str__(self):
-        if self.source:
-            return self.source
-        return self._enclose(self.left) + " > " + self._enclose(self.right)
+        string = self._enclose(self.left) + " > " + self._enclose(self.right)
+        return super(Gt, self).__str__(string=string)
 
     def _equals(self, other):
         """Return whether `self` is equals to `other`."""
@@ -1456,14 +1543,14 @@ class Le(Operator):
 
     _precedence = 9
 
-    def __init__(self, left, right):
+    def __init__(self, left, right, *args, **kwargs):
+        super(Le, self).__init__(*args, **kwargs)
         self.left = left
         self.right = right
 
     def __str__(self):
-        if self.source:
-            return self.source
-        return self._enclose(self.left) + " <= " + self._enclose(self.right)
+        string = self._enclose(self.left) + " <= " + self._enclose(self.right)
+        return super(Le, self).__str__(string=string)
 
     def _equals(self, other):
         """Return whether `self` is equals to `other`."""
@@ -1488,14 +1575,14 @@ class Ge(Operator):
 
     _precedence = 9
 
-    def __init__(self, left, right):
+    def __init__(self, left, right, *args, **kwargs):
+        super(Ge, self).__init__(*args, **kwargs)
         self.left = left
         self.right = right
 
     def __str__(self):
-        if self.source:
-            return self.source
-        return self._enclose(self.left) + " >= " + self._enclose(self.right)
+        string = self._enclose(self.left) + " >= " + self._enclose(self.right)
+        return super(Ge, self).__str__(string=string)
 
     def _equals(self, other):
         """Return whether `self` is equals to `other`."""
@@ -1520,14 +1607,14 @@ class And(Operator):
 
     _precedence = 10
 
-    def __init__(self, left, right):
+    def __init__(self, left, right, *args, **kwargs):
+        super(And, self).__init__(*args, **kwargs)
         self.left = left
         self.right = right
 
     def __str__(self):
-        if self.source:
-            return self.source
-        return self._enclose(self.left) + " & " + self._enclose(self.right)
+        string = self._enclose(self.left) + " & " + self._enclose(self.right)
+        return super(And, self).__str__(string=string)
 
     def _equals(self, other):
         """Return whether `self` is equals to `other`."""
@@ -1554,14 +1641,14 @@ class Or(Operator):
 
     _precedence = 11
 
-    def __init__(self, left, right):
+    def __init__(self, left, right, *args, **kwargs):
+        super(Or, self).__init__(*args, **kwargs)
         self.left = left
         self.right = right
 
     def __str__(self):
-        if self.source:
-            return self.source
-        return self._enclose(self.left) + " | " + self._enclose(self.right)
+        string = self._enclose(self.left) + " | " + self._enclose(self.right)
+        return super(Or, self).__str__(string=string)
 
     def _equals(self, other):
         """Return whether `self` is equals to `other`."""
@@ -1588,14 +1675,14 @@ class Xor(Operator):
 
     _precedence = 11
 
-    def __init__(self, left, right):
+    def __init__(self, left, right, *args, **kwargs):
+        super(Xor, self).__init__(*args, **kwargs)
         self.left = left
         self.right = right
 
     def __str__(self):
-        if self.source:
-            return self.source
-        return self._enclose(self.left) + " xor " + self._enclose(self.right)
+        string = self._enclose(self.left) + " xor " + self._enclose(self.right)
+        return super(Xor, self).__str__(string=string)
 
     def _equals(self, other):
         """Return whether `self` is equals to `other`."""
@@ -1622,14 +1709,16 @@ class Xnor(Operator):
 
     _precedence = 11
 
-    def __init__(self, left, right):
+    def __init__(self, left, right, *args, **kwargs):
+        super(Xnor, self).__init__(*args, **kwargs)
         self.left = left
         self.right = right
 
     def __str__(self):
-        if self.source:
-            return self.source
-        return self._enclose(self.left) + " xnor " + self._enclose(self.right)
+        string = (self._enclose(self.left) +
+                  " xnor " +
+                  self._enclose(self.right))
+        return super(Xnor, self).__str__(string=string)
 
     def _equals(self, other):
         """Return whether `self` is equals to `other`."""
@@ -1656,17 +1745,19 @@ class Ite(Operator):
 
     _precedence = 12
 
-    def __init__(self, condition, left, right):
+    def __init__(self, condition, left, right, *args, **kwargs):
+        super(Ite, self).__init__(*args, **kwargs)
         self.condition = condition
         self.left = left
         self.right = right
 
     def __str__(self):
-        if self.source:
-            return self.source
-        return (self._enclose(self.condition) + " ? "
-                + self._enclose(self.left) + " : "
-                + self._enclose(self.right))
+        string = (self._enclose(self.condition) +
+                  " ? " +
+                  self._enclose(self.left) +
+                  " : " +
+                  self._enclose(self.right))
+        return super(Ite, self).__str__(string=string)
 
     def _equals(self, other):
         """Return whether `self` is equals to `other`."""
@@ -1693,14 +1784,14 @@ class Iff(Operator):
 
     _precedence = 13
 
-    def __init__(self, left, right):
+    def __init__(self, left, right, *args, **kwargs):
+        super(Iff, self).__init__(*args, **kwargs)
         self.left = left
         self.right = right
 
     def __str__(self):
-        if self.source:
-            return self.source
-        return self._enclose(self.left) + " <-> " + self._enclose(self.right)
+        string = self._enclose(self.left) + " <-> " + self._enclose(self.right)
+        return super(Iff, self).__str__(string=string)
 
     def _equals(self, other):
         """Return whether `self` is equals to `other`."""
@@ -1727,14 +1818,14 @@ class Implies(Operator):
 
     _precedence = 14
 
-    def __init__(self, left, right):
+    def __init__(self, left, right, *args, **kwargs):
+        super(Implies, self).__init__(*args, **kwargs)
         self.left = left
         self.right = right
 
     def __str__(self):
-        if self.source:
-            return self.source
-        return self._enclose(self.left) + " -> " + self._enclose(self.right)
+        string = self._enclose(self.left) + " -> " + self._enclose(self.right)
+        return super(Implies, self).__str__(string=string)
 
     def _equals(self, other):
         """Return whether `self` is equals to `other`."""
@@ -1757,13 +1848,13 @@ class ArrayExpr(Element):
 
     """An array define expression."""
 
-    def __init__(self, array):
+    def __init__(self, array, *args, **kwargs):
+        super(ArrayExpr, self).__init__(*args, **kwargs)
         self.array = array
 
     def __str__(self):
-        if self.source:
-            return self.source
-        return str(self.array)
+        string = str(self.array)
+        return super(ArrayExpr, self).__str__(string=string)
     
     def __hash__(self):
         return 17 + 23 * hash("ArrayExpr") + 23 ** 2 * hash(self.array)
@@ -1794,9 +1885,8 @@ class Boolean(SimpleType):
     """A boolean type."""
 
     def __str__(self):
-        if self.source:
-            return self.source
-        return "boolean"
+        string = "boolean"
+        return super(Boolean, self).__str__(string=string)
 
     def __deepcopy__(self, memo):
         return Boolean()
@@ -1806,15 +1896,15 @@ class Word(SimpleType):
 
     """A word type."""
 
-    def __init__(self, size, sign=None):
+    def __init__(self, size, sign=None, *args, **kwargs):
+        super(Word, self).__init__(*args, **kwargs)
         self.size = size
         self.sign = sign
 
     def __str__(self):
-        if self.source:
-            return self.source
-        return ((self.sign + " " if self.sign else "") + "word"
-                + "[" + str(self.size) + "]")
+        string = ((self.sign + " " if self.sign else "") +
+                  "word" +"[" + str(self.size) + "]")
+        return super(Word, self).__str__(string=string)
 
     def __deepcopy__(self, memo):
         return Word(deepcopy(self.size, memo),
@@ -1825,13 +1915,13 @@ class Scalar(SimpleType):
 
     """An enumeration type."""
 
-    def __init__(self, values):
+    def __init__(self, values, *args, **kwargs):
+        super(Scalar, self).__init__(*args, **kwargs)
         self.values = values
 
     def __str__(self):
-        if self.source:
-            return self.source
-        return "{" + ", ".join(str(value) for value in self.values) + "}"
+        string = "{" + ", ".join(str(value) for value in self.values) + "}"
+        return super(Scalar, self).__str__(string=string)
 
     def __deepcopy__(self, memo):
         return Scalar(deepcopy(self.values, memo))
@@ -1841,14 +1931,14 @@ class Range(SimpleType):
 
     """A range type."""
 
-    def __init__(self, start, stop):
+    def __init__(self, start, stop, *args, **kwargs):
+        super(Range, self).__init__(*args, **kwargs)
         self.start = start
         self.stop = stop
 
     def __str__(self):
-        if self.source:
-            return self.source
-        return str(self.start) + " .. " + str(self.stop)
+        string = str(self.start) + " .. " + str(self.stop)
+        return super(Range, self).__str__(string=string)
 
     def __deepcopy__(self, memo):
         return Range(deepcopy(self.start, memo),
@@ -1859,16 +1949,20 @@ class Array(SimpleType):
 
     """An array type."""
 
-    def __init__(self, start, stop, elementtype):
+    def __init__(self, start, stop, elementtype, *args, **kwargs):
+        super(Array, self).__init__(*args, **kwargs)
         self.start = start
         self.stop = stop
         self.elementtype = elementtype
 
     def __str__(self):
-        if self.source:
-            return self.source
-        return ("array " + str(self.start) + " .. " + str(self.stop)
-                + " of " + str(self.elementtype))
+        string = ("array " +
+                  str(self.start) +
+                  " .. " +
+                  str(self.stop) +
+                  " of " +
+                  str(self.elementtype))
+        return super(Array, self).__str__(string=string)
 
     def __deepcopy__(self, memo):
         return Array(deepcopy(self.start, memo),
@@ -1880,16 +1974,19 @@ class Modtype(Type):
 
     """A module instantiation."""
 
-    def __init__(self, modulename, args, process=False):
+    def __init__(self, modulename, arguments, process=False, *args, **kwargs):
+        super(Modtype, self).__init__(*args, **kwargs)
         self.process = process
         self.modulename = modulename
-        self.args = args
+        self.args = arguments
 
     def __str__(self):
-        if self.source:
-            return self.source
-        return (("process " if self.process else "") + str(self.modulename)
-                + "(" + ", ".join(str(arg) for arg in self.args) + ")")
+        string = (("process " if self.process else "") +
+                  str(self.modulename) +
+                  "(" +
+                  ", ".join(str(arg) for arg in self.args) +
+                  ")")
+        return super(Modtype, self).__str__(string=string)
 
     def __deepcopy__(self, memo):
         return Modtype(deepcopy(self.modulename, memo),
@@ -1905,31 +2002,36 @@ class Section(Element):
 
     """A section of a module."""
 
-    def __init__(self, name, body):
+    def __init__(self, name, body, *args, **kwargs):
+        super(Section, self).__init__(*args, **kwargs)
         self.name = name
         self.body = body
-
-    def __str__(self):
-        if self.source:
-            return self.source
-        return self.name + "\n" + str(self.body)
 
 
 class MappingSection(Section):
 
     """Section based on a mapping of identifier and others."""
 
-    def __init__(self, name, mapping, separator=": ", indentation=" " * 4):
+    def __init__(self,
+                 name,
+                 mapping,
+                 internal_separator=": ",
+                 external_separator=";",
+                 indentation=" " * 4,
+                 *args,
+                 **kwargs):
         """
         :param name: the name of the section.
         :param mapping: the mapping of identifiers to their corresponding
                         expression.
-        :param separator: the separator of identifiers and expressions
-                          for printing the section.
+        :param internal_separator: the separator of identifiers and expressions
+                                   for printing the section.
+        :param external_separator: the separator between pairs of the section.
         :param indentation: the indentation for the printed expressions.
         """
-        super(MappingSection, self).__init__(name, mapping)
-        self.separator = separator
+        super(MappingSection, self).__init__(name, mapping, *args, **kwargs)
+        self.internal_separator = internal_separator
+        self.external_separator = external_separator
         self.indentation = indentation
 
     def update_body(self, new_values):
@@ -1943,66 +2045,98 @@ class MappingSection(Section):
         self.body.update(new_values)
 
     def __str__(self):
-        if self.source:
-            return self.source
-        else:
-            rep = [self.name]
-            for identifier, expr in self.body.items():
-                header = self.indentation + str(identifier) + self.separator
-                body = str(expr).split("\n")
-                if len(body) > 1:
-                    rep.append(header + "\n" + _indent("\n".join(body),
-                                                       self.indentation * 2))
-                else:
-                    rep.append(header + str(expr))
-            return "\n".join(rep)
+        rep = [self.name]
+        for identifier, expr in self.body.items():
+            header = (self.indentation +
+                      str(identifier) +
+                      self.internal_separator)
+            
+            comments = []
+            if hasattr(expr, "comments") and expr.comments:
+                comments = expr.comments
+                expr.comments = []
+            
+            strexpr = _add_comments_to_string(str(expr) +
+                                              self.external_separator,
+                                              comments).strip()
+            body = strexpr.split("\n")
+            if len(body) > 1:
+                rep.append(header +
+                           "\n" +
+                           _indent("\n".join(body), self.indentation * 2))
+            else:
+                rep.append(header + strexpr)
+            
+            expr.comments = comments
+        string = "\n".join(rep)
+        return super(MappingSection, self).__str__(string=string)
 
 
 class Variables(MappingSection):
 
     """Declaring variables."""
 
-    def __init__(self, variables):
-        super(Variables, self).__init__("VAR", variables)
+    def __init__(self, variables, *args, **kwargs):
+        super(Variables, self).__init__("VAR", variables, *args, **kwargs)
 
 
 class InputVariables(MappingSection):
 
     """Declaring input variables."""
 
-    def __init__(self, ivariables):
-        super(InputVariables, self).__init__("IVAR", ivariables)
+    def __init__(self, ivariables, *args, **kwargs):
+        super(InputVariables, self).__init__("IVAR",
+                                             ivariables,
+                                             *args,
+                                             **kwargs)
 
 
 class FrozenVariables(MappingSection):
 
     """Declaring frozen variables."""
 
-    def __init__(self, fvariables):
-        super(FrozenVariables, self).__init__("FROZENVAR", fvariables)
+    def __init__(self, fvariables, *args, **kwargs):
+        super(FrozenVariables, self).__init__("FROZENVAR",
+                                              fvariables,
+                                              *args,
+                                              **kwargs)
 
 
 class Defines(MappingSection):
 
     """Declaring defines."""
 
-    def __init__(self, defines):
-        super(Defines, self).__init__("DEFINE", defines, separator=" := ")
+    def __init__(self, defines, *args, **kwargs):
+        super(Defines, self).__init__("DEFINE",
+                                      defines,
+                                      internal_separator=" := ",
+                                      *args,
+                                      **kwargs)
 
 
 class Assigns(MappingSection):
 
     """Declaring assigns."""
 
-    def __init__(self, assigns):
-        super(Assigns, self).__init__("ASSIGN", assigns, separator=" := ")
+    def __init__(self, assigns, *args, **kwargs):
+        super(Assigns, self).__init__("ASSIGN",
+                                      assigns,
+                                      internal_separator=" := ",
+                                      *args,
+                                      **kwargs)
 
 
 class ListingSection(Section):
 
     """A section made of a list of elements."""
 
-    def __init__(self, name, listing, separator="\n", indentation=" " * 4):
+    def __init__(self,
+                 name,
+                 listing,
+                 separator="\n",
+                 indentation=" " * 4,
+                 *args,
+                 **kwargs):
         """
         :param name: the name of the section.
         :param listing: a list of expressions.
@@ -2010,7 +2144,7 @@ class ListingSection(Section):
                           section.
         :param indentation: the indentation for the printed expressions.
         """
-        super(ListingSection, self).__init__(name, listing)
+        super(ListingSection, self).__init__(name, listing, *args, **kwargs)
         self.separator = separator
         self.indentation = indentation
 
@@ -2024,80 +2158,102 @@ class ListingSection(Section):
         self.body += otherbody
 
     def __str__(self):
-        if self.source:
-            return self.source
-        else:
-            rep = [self.name]
-            for element in self.body:
-                body = str(element).split("\n")
-                if len(body) > 1:
-                    rep.append(self.indentation + "\n" +
-                               _indent("\n".join(body),
-                                       self.indentation * 2))
-                else:
-                    rep.append(self.indentation + str(element))
-            return "\n".join(rep)
+        rep = [self.name]
+        for element in self.body:
+            body = str(element).split("\n")
+            if len(body) > 1:
+                rep.append(self.indentation + "\n" +
+                           _indent("\n".join(body),
+                                   self.indentation * 2))
+            else:
+                rep.append(self.indentation + str(element))
+        string = "\n".join(rep)
+        return super(ListingSection, self).__str__(string=string)
 
 
 class Constants(ListingSection):
 
     """Declaring constants."""
 
-    def __init__(self, constants):
+    def __init__(self, constants, *args, **kwargs):
         super(Constants, self).__init__("CONSTANTS",
                                         constants,
                                         separator=", ",
-                                        indentation="")
+                                        indentation="",
+                                        *args,
+                                        **kwargs)
 
 
 class Trans(ListingSection):
 
     """A TRANS section."""
 
-    def __init__(self, body):
-        super(Trans, self).__init__("TRANS", body, separator="\nTRANS\n")
+    def __init__(self, body, *args, **kwargs):
+        super(Trans, self).__init__("TRANS",
+                                    body,
+                                    separator="\nTRANS\n",
+                                    *args,
+                                    **kwargs)
 
 
 class Init(ListingSection):
 
     """An INIT section."""
 
-    def __init__(self, body):
-        super(Init, self).__init__("INIT", body, separator="\nINIT\n")
+    def __init__(self, body, *args, **kwargs):
+        super(Init, self).__init__("INIT",
+                                   body,
+                                   separator="\nINIT\n",
+                                   *args,
+                                   **kwargs)
 
 
 class Invar(ListingSection):
 
     """An INVAR section."""
 
-    def __init__(self, body):
-        super(Invar, self).__init__("INVAR", body, separator="\nINVAR\n")
+    def __init__(self, body, *args, **kwargs):
+        super(Invar, self).__init__("INVAR",
+                                    body,
+                                    separator="\nINVAR\n",
+                                    *args,
+                                    **kwargs)
 
 
 class Fairness(ListingSection):
 
     """A FAIRNESS section."""
 
-    def __init__(self, body):
-        super(Fairness, self).__init__("FAIRNESS", body,
-                                       separator="\nFAIRNESS\n")
+    def __init__(self, body, *args, **kwargs):
+        super(Fairness, self).__init__("FAIRNESS",
+                                       body,
+                                       separator="\nFAIRNESS\n",
+                                       *args,
+                                       **kwargs)
 
 
 class Justice(ListingSection):
 
     """A Justice section."""
 
-    def __init__(self, body):
-        super(Justice, self).__init__("JUSTICE", body, separator="\nJUSTICE\n")
+    def __init__(self, body, *args, **kwargs):
+        super(Justice, self).__init__("JUSTICE",
+                                      body,
+                                      separator="\nJUSTICE\n",
+                                      *args,
+                                      **kwargs)
 
 
 class Compassion(ListingSection):
 
     """A COMPASSION section."""
 
-    def __init__(self, body):
-        super(Compassion, self).__init__("COMPASSION", body,
-                                         separator="\nCOMPASSION\n")
+    def __init__(self, body, *args, **kwargs):
+        super(Compassion, self).__init__("COMPASSION",
+                                         body,
+                                         separator="\nCOMPASSION\n",
+                                         *args,
+                                         **kwargs)
 
 
 # -----------------------------------------------------------------------------
@@ -2113,7 +2269,8 @@ class Declaration(Identifier):
 
     """
 
-    def __init__(self, type_, section, name=None):
+    def __init__(self, type_, section, name=None, *args, **kwargs):
+        super(Declaration, self).__init__(name, *args, **kwargs)
         self._name = name
         self.type = type_
         self.section = section
@@ -2141,8 +2298,8 @@ class Var(Declaration):
 
     """A declared VAR."""
 
-    def __init__(self, type_, name=None):
-        super(Var, self).__init__(type_, "VAR", name=name)
+    def __init__(self, type_, name=None, *args, **kwargs):
+        super(Var, self).__init__(type_, "VAR", name=name, *args, **kwargs)
 
     def __deepcopy__(self, memo):
         return Var(deepcopy(self.type, memo), name=deepcopy(self.name, memo))
@@ -2152,8 +2309,8 @@ class IVar(Declaration):
 
     """A declared IVAR."""
 
-    def __init__(self, type_, name=None):
-        super(IVar, self).__init__(type_, "IVAR", name=name)
+    def __init__(self, type_, name=None, *args, **kwargs):
+        super(IVar, self).__init__(type_, "IVAR", name=name, *args, **kwargs)
 
     def __deepcopy__(self, memo):
         return IVar(deepcopy(self.type, memo), name=deepcopy(self.name, memo))
@@ -2163,8 +2320,12 @@ class FVar(Declaration):
 
     """A declared FROZENVAR."""
 
-    def __init__(self, type_, name=None):
-        super(FVar, self).__init__(type_, "FROZENVAR", name=name)
+    def __init__(self, type_, name=None, *args, **kwargs):
+        super(FVar, self).__init__(type_,
+                                   "FROZENVAR",
+                                   name=name,
+                                   *args,
+                                   **kwargs)
 
     def __deepcopy__(self, memo):
         return FVar(deepcopy(self.type, memo), name=deepcopy(self.name, memo))
@@ -2174,8 +2335,8 @@ class Def(Declaration):
 
     """A declared DEFINE."""
 
-    def __init__(self, type_, name=None):
-        super(Def, self).__init__(type_, "DEFINE", name=name)
+    def __init__(self, type_, name=None, *args, **kwargs):
+        super(Def, self).__init__(type_, "DEFINE", name=name, *args, **kwargs)
 
     def __deepcopy__(self, memo):
         return Def(deepcopy(self.type, memo), name=deepcopy(self.name, memo))
@@ -2215,15 +2376,15 @@ class ModuleMetaClass(type):
     # each key is the section name
     # each value is a tuple giving:
     # * the type of expected value (mapping, enumeration, bodies)
-    # * a format string for mappings, based on key and value,
+    # * the internal and external separators for mappings,
     #   or the separator for enumerations,
     #   or nothing for bodies,
     #   used for printing the section body
-    _sections = {"VAR": ("mapping", "{key}: {value};"),
-                 "IVAR": ("mapping", "{key}: {value};"),
-                 "FROZENVAR": ("mapping", "{key}: {value};"),
-                 "DEFINE": ("mapping", "{key} := {value};"),
-                 "ASSIGN": ("mapping", "{key} := {value};"),
+    _sections = {"VAR": ("mapping", (": ", ";")),
+                 "IVAR": ("mapping", (": ", ";")),
+                 "FROZENVAR": ("mapping", (": ", ";")),
+                 "DEFINE": ("mapping", (" := ", ";")),
+                 "ASSIGN": ("mapping", (" := ", ";")),
                  "CONSTANTS": ("enumeration", ", "),
                  "TRANS": ("bodies",),
                  "INIT": ("bodies",),
@@ -2260,9 +2421,11 @@ class ModuleMetaClass(type):
             else:
                 newnamespace[member] = namespace[member]
 
-        # Add NAME and ARGS if missing
+        # Add NAME, COMMENT and ARGS if missing
         if "NAME" not in newnamespace:
             newnamespace["NAME"] = name
+        if "COMMENT" not in newnamespace:
+            newnamespace["COMMENT"] = ""
         if "ARGS" not in newnamespace:
             newnamespace["ARGS"] = []
 
@@ -2516,22 +2679,31 @@ class ModuleMetaClass(type):
 
         if cls._sections[section][0] == "mapping":
             # body is a mapping
-            # use format given in _sections
-            strformat = cls._sections[section][1]
-            rep = [indentation + section]
-            for name, expr in body.items():
-                body = str(expr).split("\n")
+            internal_separator, external_separator = cls._sections[section][1]
+            rep = [section]
+            for identifier, expr in body.items():
+                header = (indentation +
+                          str(identifier) +
+                          internal_separator)
+
+                comments = []
+                if hasattr(expr, "comments") and expr.comments:
+                    comments = expr.comments
+                    expr.comments = []
+
+                strexpr = _add_comments_to_string(str(expr) +
+                                                  external_separator,
+                                                  comments).strip()
+                body = strexpr.split("\n")
                 if len(body) > 1:
-                    rep.append(indentation * 2 +
-                               strformat.format(key=str(name),
-                                                value=_indent(str(expr),
-                                                              indentation *
-                                                              3)))
+                    rep.append(header +
+                               "\n" +
+                               _indent("\n".join(body), indentation * 2))
                 else:
-                    rep.append(indentation * 2 +
-                               strformat.format(key=str(name),
-                                                value=str(expr)))
-            return "\n".join(rep)
+                    rep.append(header + strexpr)
+
+                expr.comments = comments
+            return _indent("\n".join(rep), indentation)
 
         elif cls._sections[section][0] == "enumeration":
             # body is an enumeration
@@ -2567,13 +2739,20 @@ class ModuleMetaClass(type):
         args = ("(" + ", ".join(str(arg) for arg in cls.ARGS) + ")"
                 if len(cls.ARGS) > 0 else "")
 
-        representation = ["MODULE " + str(cls.NAME) + args]
+        representation = []
+
+        # Add comment if it exists
+        if cls.COMMENT:
+            representation.append("-- " + cls.COMMENT)
+
+        representation.append("MODULE " + str(cls.NAME) + args)
         for section in [member for member in cls.members
                         if member in cls._sections]:
             representation.append(cls._section_str(section,
                                                    cls.__dict__[section],
                                                    indentation))
-        return "\n".join(representation)
+        string = "\n".join(representation)
+        return string
 
     def copy(cls):
         """
@@ -2618,10 +2797,14 @@ class Module(_with_metaclass(ModuleMetaClass, Modtype)):
     module definitions: `VAR`, `IVAR`, `FROZENVAR`, `DEFINE`, `CONSTANTS`,
     `ASSIGN`, `TRANS`, `INIT`, `INVAR`, `FAIRNESS`, `JUSTICE`, `COMPASSION`.
 
-    In addition to these attributes, the `ARGS` and `NAME` attributes can be
-    defined. If `NAME` is defined, it overrides module name for the NuSMV
-    module name. If `ARGS` is defined, it must be a sequence object where each
-    element's string representation is an argument of the module.
+    In addition to these attributes, the `ARGS`, `NAME` and `COMMENT`
+    attributes can be defined:
+    
+    * If `NAME` is defined, it overrides module name for the NuSMV module name.
+    * If `ARGS` is defined, it must be a sequence object where each element's
+      string representation is an argument of the module.
+    * If `COMMENT` is defined, it will be used as the module's header, that is,
+      it will be added as a NuSMV comment just before the module declaration.
 
     Treatment of the section depends of the type of the section and the value
     of the corresponding attribute.
@@ -2662,6 +2845,7 @@ class Module(_with_metaclass(ModuleMetaClass, Modtype)):
     For example, the class ::
 
         class TwoCounter(Module):
+            COMMENT = "Two asynchronous counters"
             NAME = "twoCounter"
             ARGS = ["run"]
             c1 = Range(0, 2)
@@ -2672,6 +2856,7 @@ class Module(_with_metaclass(ModuleMetaClass, Modtype)):
 
     defines the module ::
 
+        -- Two asynchronous counters
         MODULE twoCounter(run)
             VAR
                 c1 : 0..2;
@@ -2702,8 +2887,11 @@ class Module(_with_metaclass(ModuleMetaClass, Modtype)):
             process = kwargs["process"]
         else:
             process = False
-        super(Module, self).__init__(self.__class__.NAME, args,
-                                     process=process)
+        Modtype.__init__(self,
+                         self.__class__.NAME,
+                         args,
+                         process=process,
+                         **kwargs)
 
 
 def _indent(text, indentation=" " * 4):
