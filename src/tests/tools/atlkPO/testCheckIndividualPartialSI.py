@@ -121,7 +121,7 @@ class TestCheck(unittest.TestCase):
         glob.load(main)
 
         # Get MAS
-        mas = glob.mas({a1, a2, g})
+        mas = glob.mas(agents={a1, a2, g})
         
         self.assertIsNotNone(mas)
         return mas
@@ -335,7 +335,8 @@ class TestCheck(unittest.TestCase):
         self.assertFalse(check(fsm, parseATLK("<'a1', 'a2'> F 'result = win'")[0], implem="partialSI", semantics="individual", variant="FS"))
         
         config.partial.filtering = True
-        self.assertFalse(check(fsm, parseATLK("<'a1', 'a2'> F 'result = win'")[0], implem="partialSI", semantics="individual", variant="SF"))
+        self.assertFalse(check(fsm, parseATLK("<'a1', 'a2'> F 'result = win'")[0], implem="partialSI", semantics="individual"))
+        self.assertFalse(check(fsm, parseATLK("<'a1', 'a2'> F 'result = win'")[0], implem="partialSI", semantics="individual", variant="FS"))
         config.partial.filtering = False
     
     def test_counters(self):

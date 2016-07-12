@@ -581,8 +581,11 @@ def split_reach(fsm, agents, pustrat, subsystem=None, semantics="group"):
         yield pustrat
     
     else:
-        for npustrat in split(fsm, new & fsm.protocol(agents), agents,
-                              pustrat, semantics=semantics):
+        for npustrat in split(fsm,
+                              new & fsm.protocol(agents),
+                              agents,
+                              pustrat & subsystem,
+                              semantics=semantics):
             for strat in split_reach(fsm, agents, pustrat | npustrat,
                                      subsystem, semantics=semantics):
                 yield strat
@@ -896,6 +899,31 @@ def agents_in_list(fsm, agents):
     return result
 
 
+def partial_strategies(fsm, states, agents, subsystem=None, semantics="group"):
+    """
+    Generate all partial strategies adequate for states in subsystem.
+    
+    fsm -- a MAS representing the system;
+    states -- a BDD representing a set of states of fsm;
+    agents -- a set of agents of fsm;
+    subsystem -- if not None, a set of moves of agents;
+    semantics -- the semantics to use for starting point and strategy point
+                 equivalence; must be
+                 * "group" for the original ATLK_irF semantics considering
+                   the group as a single agent (distributed knowledge is used)
+                 * "individual" for the original ATL_ir semantics considering
+                   the group as individual agents (individual knowledge is
+                   used)
+    """
+    for pustrat in split(fsm, states & subsystem, agents, semantics=semantics):
+        for strat in split_reach(fsm,
+                                 agents,
+                                 pustrat,
+                                 subsystem,
+                                 semantics=semantics):
+            yield strat
+
+
 def eval_strat(fsm, spec, states, semantics="group"):
     """
     Return the BDD representing the subset of states satisfying spec.
@@ -1005,12 +1033,11 @@ def eval_strat(fsm, spec, states, semantics="group"):
             remaining_size = fsm.count_states(remaining)
             
             # Go through all strategies
-            for strat in (strat
-                          for pustrat in split(fsm, states & subsystem, agents,
-                                               semantics=semantics)
-                          for strat
-                          in split_reach(fsm, agents, pustrat, subsystem,
-                                         semantics=semantics)):
+            for strat in partial_strategies(fsm,
+                                            states,
+                                            agents,
+                                            subsystem=subsystem,
+                                            semantics=semantics):
                 # Check the strategy
                 nbstrats += 1
                 winning = (filter_strat(fsm, spec, states, strat,
