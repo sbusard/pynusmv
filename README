@@ -137,7 +137,7 @@ different environment variables:
 
     - LD_LIBRARY_PATH (or DYLD_LIBRARY_PATH under Mac OS) must contain the path
       to the src/lib/ directory of PyNuSMV package.
-    - PYTHON_PATH must contain the path to the src/ directory of PyNuSMV
+    - PYTHONPATH must contain the path to the src/ directory of PyNuSMV
       package.
 
 With these two environment variables set (and exported), you can import the
