@@ -82,7 +82,7 @@ make # use platform-specific makefile if needed e.g. make -f Makefile_os_x_64bit
 
 # Compile NuSMV
 cd ../nusmv
-./configure
+./configure CFLAGS="-g -O2 -fPIC"
 make
 cd ..
 
